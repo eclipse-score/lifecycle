@@ -4244,7 +4244,7 @@
   {
     "name": "AliveMonitorImplConstructorTest__Constructor_WithValidParameters_InitializesSuccessfully",
     "file": "score/launch_manager/src/daemon/src/alive_monitor/details/daemon/AliveMonitorImpl_UT.cpp",
-    "line": "102",
+    "line": "147",
     "result": "passed",
     "repo_name": "local_repo",
     "hash": "",
@@ -4258,7 +4258,7 @@
   {
     "name": "AliveMonitorImplConstructorTest__Constructor_WithMinimalConfig_InitializesSuccessfully",
     "file": "score/launch_manager/src/daemon/src/alive_monitor/details/daemon/AliveMonitorImpl_UT.cpp",
-    "line": "114",
+    "line": "159",
     "result": "passed",
     "repo_name": "local_repo",
     "hash": "",
@@ -4272,7 +4272,7 @@
   {
     "name": "AliveMonitorImplConstructorTest__Constructor_WithLargeComponentCount_InitializesSuccessfully",
     "file": "score/launch_manager/src/daemon/src/alive_monitor/details/daemon/AliveMonitorImpl_UT.cpp",
-    "line": "126",
+    "line": "171",
     "result": "passed",
     "repo_name": "local_repo",
     "hash": "",
@@ -4286,7 +4286,7 @@
   {
     "name": "AliveMonitorImplInitTest__Init_WithValidConfig_ReturnsTrue",
     "file": "score/launch_manager/src/daemon/src/alive_monitor/details/daemon/AliveMonitorImpl_UT.cpp",
-    "line": "142",
+    "line": "187",
     "result": "passed",
     "repo_name": "local_repo",
     "hash": "",
@@ -4300,7 +4300,7 @@
   {
     "name": "AliveMonitorImplInitTest__Init_WithZeroCycleTime_ReturnsTrue",
     "file": "score/launch_manager/src/daemon/src/alive_monitor/details/daemon/AliveMonitorImpl_UT.cpp",
-    "line": "155",
+    "line": "200",
     "result": "passed",
     "repo_name": "local_repo",
     "hash": "",
@@ -4314,7 +4314,7 @@
   {
     "name": "AliveMonitorImplInitTest__Init_WithLargeCycleTime_ReturnsTrue",
     "file": "score/launch_manager/src/daemon/src/alive_monitor/details/daemon/AliveMonitorImpl_UT.cpp",
-    "line": "170",
+    "line": "215",
     "result": "passed",
     "repo_name": "local_repo",
     "hash": "",
@@ -4328,7 +4328,7 @@
   {
     "name": "AliveMonitorImplInitTest__Init_CanBeCalledMultipleTimes",
     "file": "score/launch_manager/src/daemon/src/alive_monitor/details/daemon/AliveMonitorImpl_UT.cpp",
-    "line": "183",
+    "line": "228",
     "result": "passed",
     "repo_name": "local_repo",
     "hash": "",
@@ -4342,7 +4342,7 @@
   {
     "name": "AliveMonitorImplGetSupervisionFactoryTest__GetSupervisionFactory_ReturnsValidReference",
     "file": "score/launch_manager/src/daemon/src/alive_monitor/details/daemon/AliveMonitorImpl_UT.cpp",
-    "line": "203",
+    "line": "248",
     "result": "passed",
     "repo_name": "local_repo",
     "hash": "",
@@ -4356,7 +4356,7 @@
   {
     "name": "AliveMonitorImplMonitoringTest__StartAndStopMonitoring_AfterInit_ReturnsWithoutDeadlock",
     "file": "score/launch_manager/src/daemon/src/alive_monitor/details/daemon/AliveMonitorImpl_UT.cpp",
-    "line": "221",
+    "line": "266",
     "result": "passed",
     "repo_name": "local_repo",
     "hash": "",
@@ -4370,7 +4370,7 @@
   {
     "name": "AliveMonitorImplMonitoringTest__StopMonitoring_WithoutStart_ReturnsWithoutDeadlock",
     "file": "score/launch_manager/src/daemon/src/alive_monitor/details/daemon/AliveMonitorImpl_UT.cpp",
-    "line": "237",
+    "line": "282",
     "result": "passed",
     "repo_name": "local_repo",
     "hash": "",
@@ -4384,7 +4384,7 @@
   {
     "name": "AliveMonitorImplMonitoringTest__StartAndStopMonitoring_CalledTwice_ReturnsWithoutDeadlock",
     "file": "score/launch_manager/src/daemon/src/alive_monitor/details/daemon/AliveMonitorImpl_UT.cpp",
-    "line": "252",
+    "line": "297",
     "result": "passed",
     "repo_name": "local_repo",
     "hash": "",
@@ -4398,7 +4398,7 @@
   {
     "name": "AliveMonitorImplInitErrorPathsTest__Init_ClockResolutionUnavailable_ReturnsFalse",
     "file": "score/launch_manager/src/daemon/src/alive_monitor/details/daemon/AliveMonitorImpl_UT.cpp",
-    "line": "274",
+    "line": "319",
     "result": "passed",
     "repo_name": "local_repo",
     "hash": "",
@@ -4412,7 +4412,7 @@
   {
     "name": "AliveMonitorImplInitErrorPathsTest__Init_StdExceptionDuringInit_ReturnsFalse",
     "file": "score/launch_manager/src/daemon/src/alive_monitor/details/daemon/AliveMonitorImpl_UT.cpp",
-    "line": "289",
+    "line": "334",
     "result": "passed",
     "repo_name": "local_repo",
     "hash": "",
@@ -4426,7 +4426,7 @@
   {
     "name": "AliveMonitorImplInitErrorPathsTest__Init_NonStdExceptionDuringInit_ReturnsFalse",
     "file": "score/launch_manager/src/daemon/src/alive_monitor/details/daemon/AliveMonitorImpl_UT.cpp",
-    "line": "304",
+    "line": "349",
     "result": "passed",
     "repo_name": "local_repo",
     "hash": "",
@@ -6050,7 +6050,7 @@
   {
     "name": "CompletionSlotTest__SynchronousCompleteThenWaitReturnsValue",
     "file": "score/launch_manager/src/daemon/src/process_group_manager/details/completion_slot_UT.cpp",
-    "line": "74",
+    "line": "119",
     "result": "passed",
     "repo_name": "local_repo",
     "hash": "",
@@ -6064,7 +6064,7 @@
   {
     "name": "CompletionSlotTest__SynchronousCompleteResultVoid",
     "file": "score/launch_manager/src/daemon/src/process_group_manager/details/completion_slot_UT.cpp",
-    "line": "85",
+    "line": "130",
     "result": "passed",
     "repo_name": "local_repo",
     "hash": "",
@@ -6078,7 +6078,7 @@
   {
     "name": "CompletionSlotTest__AsynchronousCompleteFromWorkerThread",
     "file": "score/launch_manager/src/daemon/src/process_group_manager/details/completion_slot_UT.cpp",
-    "line": "96",
+    "line": "141",
     "result": "passed",
     "repo_name": "local_repo",
     "hash": "",
@@ -6092,7 +6092,7 @@
   {
     "name": "CompletionSlotTest__ZeroAllocationInCompleteAndWait",
     "file": "score/launch_manager/src/daemon/src/process_group_manager/details/completion_slot_UT.cpp",
-    "line": "115",
+    "line": "160",
     "result": "passed",
     "repo_name": "local_repo",
     "hash": "",
@@ -6106,7 +6106,7 @@
   {
     "name": "CompletionSlotTest__ZeroAllocationInResultVoidCompleteAndWait",
     "file": "score/launch_manager/src/daemon/src/process_group_manager/details/completion_slot_UT.cpp",
-    "line": "137",
+    "line": "182",
     "result": "passed",
     "repo_name": "local_repo",
     "hash": "",
