@@ -45,7 +45,7 @@ kAborting --> kAborting : cancel or\nnew request
 kAborting --> kAborting : unexpected termination\n(no component RA executed)
 
 ' --- failures outside a transition -------------------------------------------
-kSuccess --> kUndefinedState : unexpected termination\n\nlate completion\n[last outstanding job, no component RA configured]
+kSuccess --> kUndefinedState : unexpected termination\n[no component RA configured]
 kUndefinedState --> kUndefinedState : unexpected termination (no component RA executed)
 
 ' --- Local Recovery Action
@@ -53,8 +53,8 @@ kSuccess --> kComponentRecovery : unexpected termination\n[component RA configur
 kComponentRecovery --> kComponentRecovery : RT transition request [requested RT already active]
 kComponentRecovery --> kSuccess: component RA succeeded\n[last job]
 kComponentRecovery --> kComponentRecovery : component RA succeeded\n[jobs still running]
-kComponentRecovery --> kComponentRecovery : unexpected termination [component RA configured]
-kComponentRecovery --> kAborting : RT transition request\n[jobs still running, requested RT not active]
+kComponentRecovery --> kComponentRecovery : unexpected termination\n[component RA configured]
+kComponentRecovery --> kAborting : RT transition request\n[requested RT not active]\n\nshutdown
 kComponentRecovery --> kAborting : unexpected termination\n[no component RA configured]
 kComponentRecovery --> kAborting : component RA failed [not the last job]
 kComponentRecovery --> kUndefinedState : component RA failed [last job]
@@ -80,6 +80,8 @@ legend bottom
 
   kComponentRecovery is entered when a component of the active Run Target terminates
   unexpectedly and has a component recovery action (RA) configured (e.g. restart).
+  Component RAs are only executed in kSuccess and kComponentRecovery. A failure during a
+  Run Target transition always aborts the transition, even if a component RA is configured.
   Only the failed component is recovered, its dependents keep running. The active
   Run Target is still reported as active while in this state, and a request for the
   active Run Target does not interrupt the recovery. Further failures with a component
@@ -87,6 +89,9 @@ legend bottom
   to kSuccess. If a component RA fails, or a component without a component RA fails,
   the remaining component RAs are stopped and the graph leaves via kAborting or
   kUndefinedState towards the pending Run Target, or the fallback Run Target otherwise.
+
+  If a component RA cannot be queued for execution (only during shutdown, when the worker
+  queue is stopped), the graph aborts as for a failed component RA.
 
   A supervision failure does not change the graph state. The process is killed (SIGKILL)
   and the resulting unexpected termination drives the reaction described above.
