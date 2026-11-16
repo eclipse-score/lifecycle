@@ -199,9 +199,10 @@ class Graph final
     /// @param reason The error code containing the reason for ignoring the request.
     void unblockComponentEvent(const ComponentEvent& event, const ExecErrc reason);
 
-    /// @brief Cancel the current transition because a new state has been requested.
-    /// Sets the graph state to kAborting.
-    /// If no jobs are in progress, transitions immediately to kUndefinedState.
+    /// @brief Cancel the ongoing transition or component recovery, because a new state has been requested or because
+    /// of a failure. Stops ongoing jobs and sets the graph state to kAborting.
+    /// If no jobs are in progress, transitions immediately to kUndefinedState; otherwise the last finishing job does
+    /// so in nodeExecuted().
     void cancel();
 
     /// @brief Begin transitioning this process group to the given state.
@@ -304,10 +305,6 @@ class Graph final
     /// kSuccess, posts kSetStateSuccess, and reports initial-state-transition success if this
     /// was the initial transition.
     void finalizeTransitionSuccess();
-
-    /// @brief Finalizes an aborted transition (error or cancellation) after the last in-flight job
-    /// completes. Moves the graph state to kUndefinedState and posts the appropriate event.
-    void handleNonTransitionExecution();
 
     /// @brief Number of jobs that have been queued but are not yet executed
     int32_t jobs_in_progress_{0};
