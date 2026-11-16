@@ -34,6 +34,12 @@ namespace score::mw::lifecycle::internal
 namespace
 {
 
+/// @brief States in which the graph has jobs that can be stopped through its stop source.
+bool isActiveState(const GraphState state)
+{
+    return state == GraphState::kInTransition || state == GraphState::kComponentRecovery;
+}
+
 /// @brief Creates a dependency graph from the configuration.
 /// @param config The configuration containing components and Run Targets.
 /// @param process_handling The interfaces used to start, stop and report on the OS processes.
@@ -146,26 +152,31 @@ bool Graph::setState(const GraphState new_state)
 
     state_ = target_state;
 
-    const bool become_transition = old_state != GraphState::kInTransition && target_state == GraphState::kInTransition;
-    const bool coming_from_transition =
-        target_state != GraphState::kInTransition && old_state == GraphState::kInTransition;
+    // kInTransition and kComponentRecovery are never entered directly from each other, so one stop source
+    // is enough for both.
+    const bool becomes_active = !isActiveState(old_state) && isActiveState(target_state);
+    const bool leaves_active = isActiveState(old_state) && target_state != old_state;
 
-    if (become_transition)
+    if (becomes_active)
     {
         stop_source_ = score::cpp::stop_source{};
     }
-    else if (coming_from_transition)
+    else if (leaves_active)
     {
         // we should stop any continuing jobs
         static_cast<void>(stop_source_.request_stop());
     }
 
-    if (new_state == GraphState::kSuccess)
+    if (target_state == GraphState::kSuccess && old_state == GraphState::kInTransition)
     {
         auto request_end_time = std::chrono::steady_clock::now();
         auto timeDiff = std::chrono::duration_cast<std::chrono::milliseconds>(request_end_time - getRequestStartTime());
         LM_LOG_INFO() << "Completed the request for Run Target" << getRequestedRunTarget() << "in" << timeDiff.count()
                       << "ms";
+    }
+    else if (target_state == GraphState::kSuccess && old_state == GraphState::kComponentRecovery)
+    {
+        LM_LOG_INFO() << "Component recovery complete, Run Target" << getRequestedRunTarget() << "is active";
     }
     return target_state == new_state;
 }
@@ -246,7 +257,7 @@ void Graph::finalizeTransitionSuccess()
 
 void Graph::tryQueueNode(ComponentTask task)
 {
-    while (GraphState::kInTransition == getState())
+    while (isActiveState(getState()))
     {
         auto push_res = job_queue_->push(task, kMaxQueueDelay);
         if (push_res)
@@ -265,12 +276,24 @@ void Graph::tryQueueNode(ComponentTask task)
             LM_LOG_ERROR() << "Failed to queue node for execution" << push_res.error();
 
             setState(GraphState::kAborting);
+            // Other jobs still in flight finish the abort through nodeExecuted().
             // Also, we need to be careful not to recurse or deadlock here. The below function does not lock any mutex
             // nor call this function
-            handleNonTransitionExecution();
+            if (jobs_in_progress_ == 0)
+            {
+                handleNonTransitionExecution();
+            }
             break;
         }
     }
+}
+
+void Graph::startComponentRecovery(IComponent& component)
+{
+    LM_LOG_WARN() << "Component" << component.getIdentifier()
+                  << "terminated unexpectedly, starting its recovery action";
+    setState(GraphState::kComponentRecovery);
+    tryQueueNode(ComponentTask{ComponentTaskType::kRecover, component, stop_source_.get_token()});
 }
 
 bool Graph::startTransition(IdentifierHash pg_state, RunTargetActivationSource source)
@@ -355,21 +378,39 @@ void Graph::handleComponentEvent(const ComponentEvent& event)
             {
                 nodeExecuted(data.node_identifier, data.reason);
             }
+            else if constexpr (std::is_same_v<T, ComponentRecoverySuccessful>)
+            {
+                LM_LOG_INFO() << "Component" << data.node_identifier << "recovered successfully";
+                nodeExecuted(data.node_identifier, IComponent::RequestResult::kSuccess);
+            }
+            else if constexpr (std::is_same_v<T, ComponentRecoveryFailed>)
+            {
+                LM_LOG_ERROR() << "Recovery of component" << data.node_identifier << "failed";
+                nodeExecuted(data.node_identifier, data.reason);
+            }
             else if constexpr (std::is_same_v<T, UnexpectedTermination>)
             {
                 SCORE_LANGUAGE_FUTURECPP_ASSERT_DBG_MESSAGE(
                     nodes_.find(data.node_identifier) != nodes_.end(),
                     "Invalid component identifier in UnexpectedTermination event");
 
-                setState(GraphState::kAborting);
-
                 // Need to clean up any leftover resources
                 IComponent& failingComponent = componentOf(nodes_[data.node_identifier]);
                 static_cast<void>(failingComponent.deactivate({}));
 
-                if (jobs_in_progress_ == 0)
+                const GraphState state = getState();
+                if ((state == GraphState::kSuccess || state == GraphState::kComponentRecovery) &&
+                    failingComponent.canRecover())
                 {
-                    handleNonTransitionExecution();
+                    startComponentRecovery(failingComponent);
+                }
+                else
+                {
+                    setState(GraphState::kAborting);
+                    if (jobs_in_progress_ == 0)
+                    {
+                        handleNonTransitionExecution();
+                    }
                 }
             }
             else if constexpr (std::is_same_v<T, JobSkipped>)
@@ -441,6 +482,14 @@ void Graph::nodeExecuted(IdentifierHash node, IComponent::RequestResult result)
         if (current_transition_->isFinished())
         {
             finalizeTransitionSuccess();
+        }
+    }
+    else if (current_state == GraphState::kComponentRecovery)
+    {
+        // The active Run Target did not change, so the activation callback is not called.
+        if (was_last_in_queue)
+        {
+            setState(GraphState::kSuccess);
         }
     }
     else if (was_last_in_queue)
@@ -533,6 +582,9 @@ std::string_view Graph::toString(GraphState state)
 
         case GraphState::kUndefinedState:
             return "kUndefinedState";
+
+        case GraphState::kComponentRecovery:
+            return "kComponentRecovery";
 
         default:
             return "Unknown Graph State";

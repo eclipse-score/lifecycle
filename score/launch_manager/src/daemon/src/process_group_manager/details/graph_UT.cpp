@@ -804,6 +804,250 @@ TEST_F(GraphHandleComponentEventTest, unexpectedTerminationDuringTransition)
     graph_->handleComponentEvent(ActivationSuccessful{second_job->value().component.get().getIdentifier()});
 }
 
+/// @brief Graph with two processes configured with a restart recovery action and one without.
+class GraphComponentRecoveryTest : public GraphTest
+{
+  protected:
+    void SetConfig() override
+    {
+        auto procs = generateProcessComponents(3);
+        procs[0].deployment_config.recovery_action = RestartAction{};
+        procs[1].deployment_config.recovery_action = RestartAction{};
+        auto rts = generateRunTargets(1);
+        rts[1].depends_on = {procs[0].name, procs[1].name, procs[2].name};
+        auto config = ConfigBuilder{}
+                          .setComponents(std::move(procs))
+                          .setRunTargets(std::move(rts))
+                          .setInitialRunTarget("Startup")
+                          .setFallbackRunTarget(std::move(fallback))
+                          .build();
+
+        graph_config_ = config.takeGraph();
+    }
+
+    /// @brief Simulates a crash of an active process as reported by the OS handler.
+    void crash(int process_index)
+    {
+        auto* const node = graph_->getProcessInfoNode(IdentifierHash{process_name(process_index)});
+        ASSERT_NE(node, nullptr);
+        ASSERT_EQ(node->tryHandleTermination(134), IComponent::TerminationResult::kFailure);
+        graph_->handleComponentEvent(UnexpectedTermination{node->getIdentifier()});
+    }
+
+    /// @brief Pops the next job and checks that it is a recovery of the given process.
+    ComponentTask popRecoveryJob(int process_index)
+    {
+        const auto job = job_queue_->pop(1ms);
+        EXPECT_TRUE(job.has_value());
+        EXPECT_EQ(job->value().type, ComponentTaskType::kRecover);
+        EXPECT_EQ(job->value().component.get().getIdentifier(), IdentifierHash{process_name(process_index)});
+        return job->value();
+    }
+
+    /// @brief Executes a recovery job whose restart reaches the ready condition.
+    void executeRecoveryJobSuccessfully(const ComponentTask& job)
+    {
+        EXPECT_CALL(process_interface_, startProcess)
+            .WillOnce(DoAll(SetArgReferee<0>(osal::ProcessID{101}), Return(osal::OsalReturnType::kSuccess)));
+        EXPECT_CALL(*mock_process_map, insertIfNotTerminated).WillOnce(Return(SafeProcessMapReturnType::kInserted));
+        ASSERT_EQ(job.component.get().recover(job.stop_token), IComponent::RequestResult::kSuccess);
+        graph_->handleComponentEvent(ComponentRecoverySuccessful{job.component.get().getIdentifier()});
+    }
+
+    void expectNoMoreJobs()
+    {
+        EXPECT_FALSE(job_queue_->pop(1ms).has_value());
+    }
+
+    const IdentifierHash active_run_target_{run_target_name(0)};
+};
+
+TEST_F(GraphComponentRecoveryTest, crashWithRestartActionRecoversToSuccess)
+{
+    RecordProperty(
+        "Description",
+        "Test that a crash of a component with a restart recovery action in kSuccess enters kComponentRecovery, "
+        "queues a recover job and returns to kSuccess without reporting a new active Run Target");
+
+    completeTransition(active_run_target_);
+    int callback_calls = 0;
+    graph_->registerActiveRunTargetCallback([&callback_calls](IdentifierHash, RunTargetActivationSource) {
+        callback_calls++;
+    });
+
+    crash(0);
+
+    EXPECT_EQ(graph_->getState(), GraphState::kComponentRecovery);
+    const auto job = popRecoveryJob(0);
+    EXPECT_FALSE(job.stop_token.stop_requested());
+    expectNoMoreJobs();
+
+    executeRecoveryJobSuccessfully(job);
+
+    EXPECT_EQ(graph_->getState(), GraphState::kSuccess);
+    EXPECT_EQ(graph_->getRequestedRunTarget(), active_run_target_);
+    EXPECT_EQ(callback_calls, 0);
+}
+
+TEST_F(GraphComponentRecoveryTest, parallelRecoveriesReturnToSuccessAfterLast)
+{
+    RecordProperty(
+        "Description",
+        "Test that two components are recovered in parallel and the graph returns to kSuccess only after the last "
+        "recovery succeeded");
+
+    completeTransition(active_run_target_);
+
+    crash(0);
+    crash(1);
+    const auto first_job = popRecoveryJob(0);
+    const auto second_job = popRecoveryJob(1);
+
+    graph_->handleComponentEvent(ComponentRecoverySuccessful{first_job.component.get().getIdentifier()});
+    EXPECT_EQ(graph_->getState(), GraphState::kComponentRecovery);
+    EXPECT_FALSE(second_job.stop_token.stop_requested());
+
+    graph_->handleComponentEvent(ComponentRecoverySuccessful{second_job.component.get().getIdentifier()});
+    EXPECT_EQ(graph_->getState(), GraphState::kSuccess);
+}
+
+TEST_F(GraphComponentRecoveryTest, recoveryFailedForLastJobGoesToUndefined)
+{
+    RecordProperty("Description", "Test that a failed recovery for the last job leads to kUndefinedState");
+
+    completeTransition(active_run_target_);
+
+    crash(0);
+    const auto job = popRecoveryJob(0);
+    graph_->handleComponentEvent(
+        ComponentRecoveryFailed{job.component.get().getIdentifier(), IComponent::RequestResult::kTimeout});
+
+    EXPECT_EQ(graph_->getState(), GraphState::kUndefinedState);
+}
+
+TEST_F(GraphComponentRecoveryTest, recoveryFailedStopsOtherRecoveries)
+{
+    RecordProperty(
+        "Description",
+        "Test that a failed recovery while another recovery is in flight moves the graph to kAborting, stops the "
+        "other recovery and reaches kUndefinedState once it reports back");
+
+    completeTransition(active_run_target_);
+
+    crash(0);
+    crash(1);
+    const auto first_job = popRecoveryJob(0);
+    const auto second_job = popRecoveryJob(1);
+
+    graph_->handleComponentEvent(
+        ComponentRecoveryFailed{first_job.component.get().getIdentifier(), IComponent::RequestResult::kFailure});
+
+    EXPECT_EQ(graph_->getState(), GraphState::kAborting);
+    EXPECT_TRUE(second_job.stop_token.stop_requested());
+
+    graph_->handleComponentEvent(JobSkipped{second_job.component.get().getIdentifier()});
+    EXPECT_EQ(graph_->getState(), GraphState::kUndefinedState);
+}
+
+TEST_F(GraphComponentRecoveryTest, crashWithoutRecoveryActionDuringRecoveryAborts)
+{
+    RecordProperty(
+        "Description",
+        "Test that a crash of a component without a recovery action during kComponentRecovery stops the ongoing "
+        "recovery and moves the graph to kAborting, then to kUndefinedState");
+
+    completeTransition(active_run_target_);
+
+    crash(0);
+    const auto job = popRecoveryJob(0);
+
+    crash(2);
+
+    EXPECT_EQ(graph_->getState(), GraphState::kAborting);
+    EXPECT_TRUE(job.stop_token.stop_requested());
+    expectNoMoreJobs();
+
+    graph_->handleComponentEvent(JobSkipped{job.component.get().getIdentifier()});
+    EXPECT_EQ(graph_->getState(), GraphState::kUndefinedState);
+}
+
+TEST_F(GraphComponentRecoveryTest, crashAgainAfterSuccessfulRecoveryRecoversAgain)
+{
+    RecordProperty(
+        "Description",
+        "Test that a component that crashes again after a successful recovery is recovered again, so there is no "
+        "limit across recoveries");
+
+    completeTransition(active_run_target_);
+
+    crash(0);
+    executeRecoveryJobSuccessfully(popRecoveryJob(0));
+    ASSERT_EQ(graph_->getState(), GraphState::kSuccess);
+
+    crash(0);
+
+    EXPECT_EQ(graph_->getState(), GraphState::kComponentRecovery);
+    const auto job = popRecoveryJob(0);
+    EXPECT_FALSE(job.stop_token.stop_requested());
+}
+
+TEST_F(GraphComponentRecoveryTest, cancelDuringRecovery)
+{
+    RecordProperty(
+        "Description",
+        "Test that cancel() during kComponentRecovery stops the recovery, moves the graph to kAborting and to "
+        "kUndefinedState once the recovery job reports back");
+
+    completeTransition(active_run_target_);
+
+    crash(0);
+    const auto job = popRecoveryJob(0);
+
+    graph_->cancel();
+
+    EXPECT_EQ(graph_->getState(), GraphState::kAborting);
+    EXPECT_TRUE(job.stop_token.stop_requested());
+
+    graph_->handleComponentEvent(JobSkipped{job.component.get().getIdentifier()});
+    EXPECT_EQ(graph_->getState(), GraphState::kUndefinedState);
+}
+
+TEST_F(GraphComponentRecoveryTest, crashWithRestartActionDuringTransitionAborts)
+{
+    RecordProperty(
+        "Description",
+        "Test that a crash of a component with a restart recovery action during a Run Target transition aborts the "
+        "transition instead of starting a recovery");
+
+    graph_->startTransition(active_run_target_);  // Three nodes queued
+    std::vector<ComponentTask> other_jobs{};
+    for (int i = 0; i < 3; i++)
+    {
+        const auto job = job_queue_->pop(1ms);
+        ASSERT_TRUE(job.has_value());
+        if (job->value().component.get().getIdentifier() == IdentifierHash{process_name(0)})
+        {
+            executeJobSuccessfully(job->value());
+            graph_->handleComponentEvent(ActivationSuccessful{job->value().component.get().getIdentifier()});
+        }
+        else
+        {
+            other_jobs.push_back(job->value());
+        }
+    }
+    ASSERT_EQ(other_jobs.size(), 2U);
+    ASSERT_EQ(graph_->getState(), GraphState::kInTransition);
+
+    crash(0);
+
+    EXPECT_EQ(graph_->getState(), GraphState::kAborting);
+    expectNoMoreJobs();
+    for (const auto& job : other_jobs)
+    {
+        EXPECT_TRUE(job.stop_token.stop_requested());
+    }
+}
+
 /// @brief Graph with a single supervised process
 class GraphSupervisionFailureTest : public GraphTest
 {
@@ -965,7 +1209,7 @@ TEST_F(GraphUtilitiesTest, toString)
 {
     RecordProperty("Description", "Test that toString() returns a reasonable value for all enum values");
 
-    for (auto i = 0; i < static_cast<uint_least8_t>(GraphState::kUndefinedState); i++)
+    for (auto i = 0; i <= static_cast<uint_least8_t>(GraphState::kComponentRecovery); i++)
     {
         const auto name = graph_->toString(static_cast<GraphState>(i));
         EXPECT_GT(name.length(), 2);
