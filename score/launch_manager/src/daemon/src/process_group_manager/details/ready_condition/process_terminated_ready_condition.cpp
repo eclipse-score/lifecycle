@@ -52,8 +52,9 @@ bool ProcessTerminatedReadyCondition::tryHandleTermination(const Handle& handle,
         std::holds_alternative<ProcessHandle>(handle),
         "ProcessTerminatedReadyCondition should only be called with a ProcessHandle");
 
-    // Only a successful termination satisfies the ready condition. Otherwise the
-    // component treats the termination as unexpected and interrupts the wait.
+    // Only a successful termination satisfies the ready condition. A rejected termination does not
+    // need to wake the waiter here: the caller treats it as unexpected and requests a stop on the
+    // token passed to wait(), which interrupts wait_with_timeout() (see IReadyCondition).
     if (status != 0)
     {
         return false;

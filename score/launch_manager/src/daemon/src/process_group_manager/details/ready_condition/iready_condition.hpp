@@ -42,6 +42,10 @@ class IReadyCondition
     virtual Result<void> wait(cpp::stop_token stop_token, const Handle& handle) const = 0;
 
     /// @brief Notify the ready condition that a POSIX process has terminated.
+    /// @details Only called while wait() may be running for the same activation. If the termination is
+    ///          accepted, the ready condition itself is responsible for waking wait(). If it is not
+    ///          accepted, the caller treats the termination as unexpected and requests a stop on the
+    ///          stop token passed to wait(), which interrupts the wait.
     /// @param handle The process that terminated.
     /// @param status Exit code of the process.
     /// @return Whether this ready condition accepts the event.
