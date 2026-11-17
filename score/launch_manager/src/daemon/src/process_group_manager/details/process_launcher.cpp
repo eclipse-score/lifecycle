@@ -161,24 +161,37 @@ void changeSecurityPolicy(const score::mw::lifecycle::internal::configuration::S
     }
 }
 
-/// @brief Clears select signal handlers and then unblocks them. This allows the child process to be terminated before
-/// execve() is reached.
+/// @brief Clears all signal handlers (where valid) and then unblocks them. This allows the child process to receive
+/// signals even before execve() is reached.
 void resetSignalHandlersAndUnblock()
 {
-    struct sigaction act{};
-    act.sa_flags = 0;
-    act.sa_handler = SIG_DFL;
-    int res = sigaction(SIGTERM, &act, NULL);
-    res += sigaction(SIGINT, &act, NULL);
-    SCORE_LANGUAGE_FUTURECPP_ASSERT_DBG_MESSAGE(res == 0, "Invalid argument(s) to sigaction");
+    // If this static assert fails, pthread_sigmask will fail with EINVAL. See `man sigprocmask`.
+    // This is more a porting guard than a real life scenario (libc / kernel mismatch)...
+    static_assert(
+        sizeof(sigset_t) >= (_NSIG / 8),
+        "sigset_t is too small to fulfill the kernel's rt_sigprocmask size requirement");
 
-    sigset_t sig;
-    static_cast<void>(sigemptyset(&sig));
-    static_cast<void>(sigaddset(&sig, SIGTERM));
-    static_cast<void>(sigaddset(&sig, SIGINT));
-    res = pthread_sigmask(SIG_UNBLOCK, &sig, NULL);
-    SCORE_LANGUAGE_FUTURECPP_ASSERT_DBG_MESSAGE(res == 0, "Invalid argument(s) to pthread_sigmask");
-    static_cast<void>(res);
+    // Reset all signal handlers to default except unblockable signals
+    struct sigaction act{};
+    act.sa_handler = SIG_DFL;
+
+    int err = 0;
+    for (int sig = 1; sig < _NSIG; ++sig)
+    {
+        if (sig == SIGKILL || sig == SIGSTOP)
+            continue;
+        err |= sigaction(sig, &act, NULL);
+    }
+    SCORE_LANGUAGE_FUTURECPP_ASSERT_DBG_MESSAGE(err == 0, "Failed to reset signal handlers");
+
+    // Unblock all signals by applying an empty mask
+    sigset_t mask;
+    err = sigemptyset(&mask);
+    SCORE_LANGUAGE_FUTURECPP_ASSERT_DBG_MESSAGE(err == 0, "Failed to build signal mask");
+
+    err = pthread_sigmask(SIG_SETMASK, &mask, NULL);
+    SCORE_LANGUAGE_FUTURECPP_ASSERT_DBG_MESSAGE(err == 0, "Invalid argument(s) to pthread_sigmask");
+    static_cast<void>(err);
 }
 
 }  // namespace

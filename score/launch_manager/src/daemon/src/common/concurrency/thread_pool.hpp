@@ -110,21 +110,33 @@ class ThreadPool final
         }
     }
 
-    /// @brief Blocks select signals on worker threads.
+    /// @brief Blocks all signals (except fault signals) on worker threads.
     /// @details Signals blocked on worker threads will be received by LM.
     void blockSignals()
     {
         // If this static assert fails, pthread_sigmask will fail with EINVAL. See `man sigprocmask`.
+        // This more a porting guard than a real life scenario (libc / kernel mismatch)...
         static_assert(
             sizeof(sigset_t) >= (_NSIG / 8),
             "sigset_t is too small to fulfill the kernel's rt_sigprocmask size requirement");
 
-        sigset_t sig;
-        static_cast<void>(sigemptyset(&sig));
-        static_cast<void>(sigaddset(&sig, SIGTERM));
-        static_cast<void>(sigaddset(&sig, SIGINT));
-        int res = pthread_sigmask(SIG_BLOCK, &sig, NULL);
+        sigset_t mask;
+        int res = 0;
+
+        // We should block all signals
+        res = sigfillset(&mask);
+
+        // But we shouldn't touch synchronous hardware fault signals
+        res += sigdelset(&mask, SIGSEGV);
+        res += sigdelset(&mask, SIGBUS);
+        res += sigdelset(&mask, SIGFPE);
+        res += sigdelset(&mask, SIGILL);
+        res += sigdelset(&mask, SIGTRAP);
+        SCORE_LANGUAGE_FUTURECPP_ASSERT_DBG_MESSAGE(res == 0, "Failed to build signal mask");
+
+        res = pthread_sigmask(SIG_SETMASK, &mask, NULL);
         SCORE_LANGUAGE_FUTURECPP_ASSERT_DBG_MESSAGE(res == 0, "Invalid argument(s) to pthread_sigmask");
+
         static_cast<void>(res);
     }
 
