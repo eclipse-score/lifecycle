@@ -60,13 +60,6 @@ class ThreadPool final
     ~ThreadPool()
     {
         stop();
-        for (auto& thread : worker_threads_)
-        {
-            if (thread.joinable())
-            {
-                thread.join();
-            }
-        }
     }
 
     // Rule of five
