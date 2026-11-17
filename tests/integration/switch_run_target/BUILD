@@ -69,7 +69,7 @@ cc_binary(
 
 integration_test(
     name = "switch_run_target",
-    srcs = ["switch_run_target.py"],
+    srcs = ["test.py"],
     binaries = [
         ":component_a",
         ":component_b",
@@ -78,5 +78,5 @@ integration_test(
         ":control_client_test_driver",
         "//score/launch_manager",
     ],
-    config = ":switch_run_target.json",
+    config = ":config.json",
 )

@@ -38,12 +38,12 @@ cc_binary(
 integration_test(
     name = "rt_running_when_process_exits",
     timeout = "short",
-    srcs = ["rt_running_when_process_exits.py"],
+    srcs = ["test.py"],
     binaries = [
         ":control_client_test_driver",
         ":filesystem_reader",
         "//score/launch_manager",
         "//tests/utils/testing_utils:touch_file.sh",
     ],
-    config = ":rt_running_when_process_exits.json",
+    config = ":config.json",
 )

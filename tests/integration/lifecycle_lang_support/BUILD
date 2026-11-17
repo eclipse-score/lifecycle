@@ -39,7 +39,7 @@ rust_binary(
 
 integration_test(
     name = "lifecycle_lang_support",
-    srcs = ["lifecycle_lang_support.py"],
+    srcs = ["test.py"],
     binaries = [
         ":c_reporting_process",
         ":cpp_reporting_process",
@@ -48,5 +48,5 @@ integration_test(
         "//tests/utils/test_helper:fail_test",
         "//tests/utils/test_helper:verification_process",
     ],
-    config = ":lifecycle_lang_support.json",
+    config = ":config.json",
 )
