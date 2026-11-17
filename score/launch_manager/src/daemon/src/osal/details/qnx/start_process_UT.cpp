@@ -445,6 +445,29 @@ TEST_F(QnxStartProcessTest, groupsAndLimitsAreAppliedBeforeContinue)
     EXPECT_EQ(captured_.stackmax, 65536U);
 }
 
+TEST_F(QnxStartProcessTest, unlimitedStackLimitIsOnlyAppliedWithPrlimit)
+{
+    RecordProperty(
+        "Description",
+        "Verify that a stack limit which cannot be set via the spawn attributes is still applied with prlimit and "
+        "the process is started");
+
+    config_.deployment_config.sandbox.rlimits = {{RLIMIT_STACK, {RLIM_INFINITY, RLIM_INFINITY}}};
+
+    EXPECT_CALL(os_.spawn, posix_spawnattr_setstackmax).Times(0);
+    ExpectSpawnSucceeds();
+    {
+        InSequence seq;
+        ExpectSchedulingSet();
+        EXPECT_CALL(os_.qnx_unistd, setgroupspid(0, IsNull(), kChildPid)).WillOnce(Return(OsSuccess()));
+        EXPECT_CALL(*g_process_control_mock, prlimit(kChildPid, RLIMIT_STACK, _, nullptr)).WillOnce(Return(0));
+        EXPECT_CALL(os_.signal, Kill(kChildPid, SIGCONT)).WillOnce(Return(OsSuccess()));
+    }
+
+    EXPECT_EQ(StartProcess(), OsalReturnType::kSuccess);
+    EXPECT_EQ(captured_.xflags & static_cast<std::uint32_t>(POSIX_SPAWN_SETSTACKMAX), 0U);
+}
+
 TEST_F(QnxStartProcessTest, prlimitFailureKillsHeldProcess)
 {
     RecordProperty(
@@ -732,6 +755,8 @@ class QnxSpawnStackLimitTest : public ::testing::Test
         RecordProperty("DerivationTechnique", "boundary-values");
     }
 
+    static constexpr std::string_view kExecutable = "/bin/TestProcess";
+
     configuration::Sandbox sandbox_{};
 };
 
@@ -741,7 +766,7 @@ TEST_F(QnxSpawnStackLimitTest, noStackLimitConfigured)
 
     sandbox_.rlimits = {{RLIMIT_NOFILE, {64U, 128U}}};
 
-    EXPECT_EQ(detail::spawnStackLimit(sandbox_), std::nullopt);
+    EXPECT_EQ(detail::spawnStackLimit(sandbox_, kExecutable), std::nullopt);
 }
 
 TEST_F(QnxSpawnStackLimitTest, unlimitedStackLimit)
@@ -750,7 +775,7 @@ TEST_F(QnxSpawnStackLimitTest, unlimitedStackLimit)
 
     sandbox_.rlimits = {{RLIMIT_STACK, {RLIM_INFINITY, RLIM_INFINITY}}};
 
-    EXPECT_EQ(detail::spawnStackLimit(sandbox_), std::nullopt);
+    EXPECT_EQ(detail::spawnStackLimit(sandbox_, kExecutable), std::nullopt);
 }
 
 TEST_F(QnxSpawnStackLimitTest, largestRepresentableStackLimit)
@@ -760,7 +785,7 @@ TEST_F(QnxSpawnStackLimitTest, largestRepresentableStackLimit)
     const rlim_t limit = std::numeric_limits<std::uint32_t>::max();
     sandbox_.rlimits = {{RLIMIT_STACK, {limit, RLIM_INFINITY}}};
 
-    EXPECT_EQ(detail::spawnStackLimit(sandbox_), std::numeric_limits<std::uint32_t>::max());
+    EXPECT_EQ(detail::spawnStackLimit(sandbox_, kExecutable), std::numeric_limits<std::uint32_t>::max());
 }
 
 TEST_F(QnxSpawnStackLimitTest, tooLargeStackLimit)
@@ -774,7 +799,7 @@ TEST_F(QnxSpawnStackLimitTest, tooLargeStackLimit)
     const rlim_t limit = static_cast<rlim_t>(std::numeric_limits<std::uint32_t>::max()) + 1U;
     sandbox_.rlimits = {{RLIMIT_STACK, {limit, RLIM_INFINITY}}};
 
-    EXPECT_EQ(detail::spawnStackLimit(sandbox_), std::nullopt);
+    EXPECT_EQ(detail::spawnStackLimit(sandbox_, kExecutable), std::nullopt);
 }
 
 TEST_F(QnxSpawnStackLimitTest, softStackLimitIsUsed)
@@ -783,5 +808,15 @@ TEST_F(QnxSpawnStackLimitTest, softStackLimitIsUsed)
 
     sandbox_.rlimits = {{RLIMIT_NOFILE, {64U, 128U}}, {RLIMIT_STACK, {65536U, 131072U}}};
 
-    EXPECT_EQ(detail::spawnStackLimit(sandbox_), 65536U);
+    EXPECT_EQ(detail::spawnStackLimit(sandbox_, kExecutable), 65536U);
+}
+
+TEST_F(QnxSpawnStackLimitTest, onlyFirstStackLimitIsConsidered)
+{
+    RecordProperty(
+        "Description", "Verify that only the first configured stack limit is considered, even if it is unlimited");
+
+    sandbox_.rlimits = {{RLIMIT_STACK, {RLIM_INFINITY, RLIM_INFINITY}}, {RLIMIT_STACK, {65536U, 131072U}}};
+
+    EXPECT_EQ(detail::spawnStackLimit(sandbox_, kExecutable), std::nullopt);
 }

@@ -157,16 +157,35 @@ class SpawnResources
 };
 
 /// @brief Returns the configured stack limit if it can be set as maximum stack size via the spawn attributes.
+/// @details A stack limit that is unlimited or too large is still applied with prlimit(), but the main thread gets
+/// the default stack size, so a warning is logged.
+/// @param sandbox Sandbox configuration of the process
+/// @param executable Path of the executable to start, for log messages
 /// @return The soft stack limit, or std::nullopt if none is configured or it is unlimited or too large
-inline std::optional<std::uint32_t> spawnStackLimit(const configuration::Sandbox& sandbox) noexcept
+inline std::optional<std::uint32_t> spawnStackLimit(const configuration::Sandbox& sandbox, std::string_view executable)
 {
     for (const auto& rlimit_config : sandbox.rlimits)
     {
-        if (rlimit_config.resource == RLIMIT_STACK && rlimit_config.limit.rlim_cur != RLIM_INFINITY &&
-            rlimit_config.limit.rlim_cur <= std::numeric_limits<std::uint32_t>::max())
+        if (rlimit_config.resource != RLIMIT_STACK)
         {
-            return static_cast<std::uint32_t>(rlimit_config.limit.rlim_cur);
+            continue;
         }
+
+        const rlim_t soft_limit = rlimit_config.limit.rlim_cur;
+        if (soft_limit == RLIM_INFINITY)
+        {
+            LM_LOG_WARN() << "Unlimited RLIMIT_STACK cannot be applied to the main thread of" << executable
+                          << ", it uses the default stack size";
+            return std::nullopt;
+        }
+        if (soft_limit > std::numeric_limits<std::uint32_t>::max())
+        {
+            LM_LOG_WARN() << "RLIMIT_STACK" << static_cast<std::uint64_t>(soft_limit)
+                          << "exceeds the maximum stack size of the main thread of" << executable
+                          << ", it uses the default stack size";
+            return std::nullopt;
+        }
+        return static_cast<std::uint32_t>(soft_limit);
     }
     return std::nullopt;
 }
@@ -273,7 +292,7 @@ bool setStackLimit(
     const configuration::ComponentConfig& config,
     std::uint32_t& flags)
 {
-    const auto stack_limit = spawnStackLimit(config.deployment_config.sandbox);
+    const auto stack_limit = spawnStackLimit(config.deployment_config.sandbox, executableOf(config));
     if (!stack_limit.has_value())
     {
         return true;
