@@ -61,6 +61,10 @@ jobs:
     permissions:
       contents: read
     steps:
+
+      - name: Cleanup Disk
+        uses: eclipse-score/more-disk-space@beee38c3b4426a7c43fdfeb2495d1af812179c3e #more-disk-space/v1.3.0
+
       - name: Checkout code
         uses: actions/checkout@v7
 
