@@ -77,8 +77,8 @@ struct IpcCommsSync final
     /// the process it is creating.
     static IpcCommsP getCommsObject(int fd = IpcCommsSync::sync_fd)
     {
-        IpcCommsSync* const block = map(fd);
-        return (nullptr != block) ? IpcCommsP(block, IpcCommsDeletor{}) : nullptr;
+        auto block = map<IpcCommsDeletor>(fd);
+        return (nullptr != block) ? IpcCommsP(std::move(block)) : nullptr;
     }
 
     /// @brief Creates the comms object for Launch Manager, which owns the semaphore.
@@ -89,7 +89,7 @@ struct IpcCommsSync final
     /// the process can no longer be inside a post on the semaphore.
     static IpcCommsP createCommsObject(int fd)
     {
-        IpcCommsSync* const block = map(fd);
+        auto block = map<IpcCommsOwnerDeletor>(fd);
         if (nullptr == block)
         {
             return nullptr;
@@ -98,20 +98,26 @@ struct IpcCommsSync final
         if (osal::OsalReturnType::kFail == block->send_sync_.init(0U, true))
         {
             LM_LOG_ERROR() << "Semaphore init failed: Unable to initialize send_sync semaphore.";
-            IpcCommsDeletor{}(block);
+            IpcCommsDeletor{}(block.release());
             return nullptr;
         }
 
-        return IpcCommsP(block, IpcCommsOwnerDeletor{});
+        return IpcCommsP(std::move(block));
     }
 
   private:
     /// @brief Maps the shared memory behind fd as an IpcCommsSync object.
-    /// @return Pointer to the mapped object, or nullptr if mapping failed.
-    static IpcCommsSync* map(int fd)
+    /// @tparam Deleter Deleter that releases the mapping when the returned pointer is destroyed.
+    /// @return Owning pointer to the mapped object, or nullptr if mapping failed.
+    template <typename Deleter>
+    static std::unique_ptr<IpcCommsSync, Deleter> map(int fd)
     {
         void* const buf = mmap(nullptr, sizeof(IpcCommsSync), PROT_READ | PROT_WRITE, MAP_SHARED, fd, 0);
-        return (MAP_FAILED != buf) ? static_cast<IpcCommsSync*>(buf) : nullptr;
+        if (MAP_FAILED == buf)
+        {
+            return nullptr;
+        }
+        return std::unique_ptr<IpcCommsSync, Deleter>(static_cast<IpcCommsSync*>(buf));
     }
 
     /// @brief Deleter to release IpcCommsSync object
