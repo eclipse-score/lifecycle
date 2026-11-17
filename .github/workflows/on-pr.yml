@@ -48,11 +48,11 @@ jobs:
             test: false # Cross-compiled ARM tests cannot run on these x86_64 runners.
           - name: asan_ubsan_lsan
             bazel-configs: x86_64-linux asan_ubsan_lsan
-            build: false # https://github.com/eclipse-score/lifecycle/issues/476
+            build: true
             test: true
           - name: tsan
             bazel-configs: x86_64-linux tsan
-            build: false # https://github.com/eclipse-score/lifecycle/issues/474
+            build: true
             test: true
     permissions:
       contents: read
