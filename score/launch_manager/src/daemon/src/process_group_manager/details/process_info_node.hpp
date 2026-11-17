@@ -216,7 +216,7 @@ class ProcessInfoNode final : public IComponent
     std::unique_ptr<IAliveSupervisionHandle> supervision_handle_;
 
     /// @brief Number of times to retry starting the process.
-    std::uint8_t total_start_attempts_{0U};
+    std::uint16_t total_start_attempts_{0U};
 
     /// @brief Unique hash to identify this node.
     IdentifierHash identifier_;
