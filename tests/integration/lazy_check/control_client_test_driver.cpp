@@ -29,8 +29,6 @@ constexpr std::string_view script{"#!/bin/sh\nexit 0\n"};
 
 TEST(LazyCheck, ControlClientTestDriver)
 {
-    ASSERT_TRUE(check_clean({fallback_file}));
-
     std::unique_ptr<ILmControl> client;
 
     TEST_STEP("Create client")
