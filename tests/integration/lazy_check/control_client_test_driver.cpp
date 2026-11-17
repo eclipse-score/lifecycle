@@ -24,8 +24,8 @@
 
 using namespace score::mw::lifecycle;
 
-constexpr std::string_view script_path {"/tmp/tests/lazy_check/created_at_runtime.sh"};
-constexpr std::string_view script {"#!/bin/sh\nexit 0\n"};
+constexpr std::string_view script_path{"/tmp/tests/lazy_check/created_at_runtime.sh"};
+constexpr std::string_view script{"#!/bin/sh\nexit 0\n"};
 
 TEST(LazyCheck, ControlClientTestDriver)
 {
