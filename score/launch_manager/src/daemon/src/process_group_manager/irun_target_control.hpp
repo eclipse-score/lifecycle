@@ -30,8 +30,9 @@ class IRunTargetControl
     ///        in transition.
     [[nodiscard]] virtual score::Result<IdentifierHash> getActiveRunTarget() const noexcept = 0;
 
-    /// @brief Set the requested Run Target.
-    [[nodiscard]] virtual score::Result<void> setRequestedRunTarget(IdentifierHash run_target) noexcept = 0;
+    /// @brief Set the requested run target, cancelling any ongoing transition and
+    ///        discarding all queued requests.
+    [[nodiscard]] virtual score::Result<void> setRequestedRunTarget(IdentifierHash run_target, bool force) noexcept = 0;
 
     /// @brief Register a callback to be fired when the active Run Target changes.
     virtual void registerActiveRunTargetCallback(ActivationCallbackT callback) noexcept = 0;
