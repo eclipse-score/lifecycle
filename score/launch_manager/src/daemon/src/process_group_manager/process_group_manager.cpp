@@ -409,16 +409,6 @@ void ProcessGroupManager::processGroupHandler(Graph& pg)
     }
 }
 
-ProcessInfoNode* ProcessGroupManager::getProcessInfoNode(uint32_t pg_index, IdentifierHash process_id)
-{
-    if (pg_index == 0U && graph_)
-    {
-        return graph_->getProcessInfoNode(process_id);
-    }
-
-    return nullptr;
-}
-
 void ProcessGroupManager::handleGetActiveRunTarget(GetActiveRunTarget* event) const noexcept
 {
     Result<IdentifierHash> result;
