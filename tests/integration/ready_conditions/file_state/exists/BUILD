@@ -26,11 +26,11 @@ cc_binary(
 
 integration_test(
     name = "ready_condition_file",
-    srcs = ["ready_condition_file.py"],
+    srcs = ["test.py"],
     binaries = [
         "//tests/integration/ready_conditions/file_state/common:file_modifier",
         ":control_client_test_driver",
         "//score/launch_manager",
     ],
-    config = ":ready_condition_file.json",
+    config = ":config.json",
 )
