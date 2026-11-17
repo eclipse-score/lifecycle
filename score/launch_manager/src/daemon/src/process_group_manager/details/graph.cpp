@@ -496,16 +496,6 @@ void Graph::forceKillProcesses()
     }
 }
 
-ProcessInfoNode* Graph::getProcessInfoNode(IdentifierHash process_index)
-{
-    if (nodes_.find(process_index) == nodes_.end())
-    {
-        return nullptr;
-    }
-
-    return std::get_if<ProcessInfoNode>(&nodes_[process_index]);
-}
-
 GraphState Graph::getState() const
 {
     return state_;
@@ -529,11 +519,6 @@ IdentifierHash Graph::setPendingState(IdentifierHash new_state, RunTargetActivat
     }
 
     return old_state;
-}
-
-IdentifierHash Graph::getPendingState()
-{
-    return pending_.run_target;
 }
 
 PendingTransition Graph::getPendingTransition() const
