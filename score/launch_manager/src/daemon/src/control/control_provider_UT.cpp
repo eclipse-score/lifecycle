@@ -274,7 +274,7 @@ class ControlProviderUT : public ::testing::Test
             activation_callback_ = std::move(cb);
         }));
         ON_CALL(graph_, getActiveRunTarget()).WillByDefault(Return(score::Result<IdentifierHash>{default_run_target_}));
-        ON_CALL(graph_, setRequestedRunTarget(_)).WillByDefault(Return(score::Result<void>{}));
+        ON_CALL(graph_, setRequestedRunTarget(_, _)).WillByDefault(Return(score::Result<void>{}));
     }
 
     void TearDown() override
@@ -449,7 +449,6 @@ TEST_F(ControlProviderUT, GivenAKnownQueuedRunTarget_ExpectQueueHasCapacity_When
     const ActivateRunTargetRequest request{RunTargetName{known.get_name()}, ActivationMode::kQueued};
 
     // Expect
-    EXPECT_CALL(graph_, setRequestedRunTarget(_)).Times(0);
     EXPECT_CALL(graph_, setRequestedRunTarget(known, false)).WillOnce(Return(score::Result<void>{}));
 
     // When
@@ -469,7 +468,7 @@ TEST_F(ControlProviderUT, ActivateRunTarget_UnknownRunTarget_Rejected)
     auto provider = MakeProvider();
     ASSERT_TRUE(on_activate_) << "activate_run_target handler was not registered";
 
-    EXPECT_CALL(graph_, setRequestedRunTarget(_)).Times(0);
+    EXPECT_CALL(graph_, setRequestedRunTarget(_, _)).Times(0);
 
     ActivateRunTargetResponse response{};
     const ActivateRunTargetRequest request{RunTargetName{"__cp_ut_does_not_exist__"}, ActivationMode::kForced};
@@ -490,7 +489,7 @@ TEST_F(ControlProviderUT, ActivateRunTarget_SetRequestedRunTargetFails_Rejected)
     ASSERT_TRUE(on_activate_) << "activate_run_target handler was not registered";
 
     const IdentifierHash known{"cp_ut_known_target_fail"};
-    EXPECT_CALL(graph_, setRequestedRunTarget(_)).WillOnce(Return(MakeUnexpected(ExecErrc::kFailed)));
+    EXPECT_CALL(graph_, setRequestedRunTarget(_, true)).WillOnce(Return(MakeUnexpected(ExecErrc::kFailed)));
 
     ActivateRunTargetResponse response{};
     const ActivateRunTargetRequest request{RunTargetName{known.get_name()}, ActivationMode::kForced};
@@ -511,7 +510,7 @@ TEST_F(ControlProviderUT, ActivateRunTarget_ForcedSuccess_Accepted)
     ASSERT_TRUE(on_activate_) << "activate_run_target handler was not registered";
 
     const IdentifierHash known{"cp_ut_known_target_ok"};
-    EXPECT_CALL(graph_, setRequestedRunTarget(_)).WillOnce(Return(score::Result<void>{}));
+    EXPECT_CALL(graph_, setRequestedRunTarget(_, true)).WillOnce(Return(score::Result<void>{}));
 
     ActivateRunTargetResponse response{};
     const ActivateRunTargetRequest request{RunTargetName{known.get_name()}, ActivationMode::kForced};
