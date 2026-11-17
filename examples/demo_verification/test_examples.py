@@ -17,6 +17,7 @@ from attribute_plugin import add_test_properties
 
 _DEMO_APPS = (
     "cpp_supervised_app",
+    "cpp_supervised_app_simple",
     "rust_supervised_app",
     "cpp_lifecycle_app",
     "c_supervised_app",
@@ -27,14 +28,14 @@ def _assert_running(target, *binaries):
     """Assert each binary has a live entry in /proc/*/cmdline."""
     for binary in binaries:
         pattern = f"[{binary[0]}]{binary[1:]}"
-        rc, _ = target.execute(f"grep -qa '{pattern}' /proc/*/cmdline 2>/dev/null")
+        rc, _ = target.execute(f"grep -qaw '{pattern}' /proc/*/cmdline 2>/dev/null")
         assert rc == 0, f"{binary} is not running"
 
 
 def _assert_not_running(target, binary):
     """Assert no live /proc/*/cmdline entry exists for binary."""
     pattern = f"[{binary[0]}]{binary[1:]}"
-    rc, _ = target.execute(f"grep -qa '{pattern}' /proc/*/cmdline 2>/dev/null")
+    rc, _ = target.execute(f"grep -qaw '{pattern}' /proc/*/cmdline 2>/dev/null")
     assert rc != 0, f"{binary} is still running; expected it to be stopped"
 
 
@@ -43,7 +44,7 @@ def _send_signal(target, binary, signal):
     pattern = f"[{binary[0]}]{binary[1:]}"
     _, pid_output = target.execute(
         f"p=; for c in /proc/[0-9]*/cmdline; do "
-        f"grep -qa '{pattern}' $c 2>/dev/null && p=$(echo $c | cut -d/ -f3) && break; "
+        f"grep -qaw '{pattern}' $c 2>/dev/null && p=$(echo $c | cut -d/ -f3) && break; "
         f"done; kill -{signal} $p 2>/dev/null; echo $p"
     )
     assert pid_output.strip(), f"Failed to find {binary} to send signal {signal}"

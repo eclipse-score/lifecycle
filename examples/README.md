@@ -35,6 +35,7 @@ The test verifies the following scenarios end-to-end:
 | Application | Description |
 |---|---|
 | `cpp_supervised_app` | C++ app with alive supervision and crash recovery |
+| `cpp_supervised_app_simple` | C++ app demonstrating the Alive API |
 | `rust_supervised_app` | Rust app with alive supervision and crash recovery |
 | `cpp_lifecycle_app` | C++ app demonstrating basic lifecycle management |
 | `control_daemon` | State Manager app for requesting RunTarget transitions |

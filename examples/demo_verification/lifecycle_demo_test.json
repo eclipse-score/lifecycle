@@ -72,6 +72,17 @@
                 }
             }
         },
+        "cpp_supervised_app_simple": {
+            "component_properties": {
+                "binary_name": "cpp_supervised_app_simple",
+                "application_profile": {
+                    "application_type": "Reporting_And_Supervised"
+                },
+                "process_arguments": [
+                    "-s50"
+                ]
+            }
+        },
         "rust_supervised_app": {
             "component_properties": {
                 "binary_name": "rust_supervised_app",
@@ -129,6 +140,7 @@
             "depends_on": [
                 "control_daemon",
                 "cpp_supervised_app",
+                "cpp_supervised_app_simple",
                 "rust_supervised_app",
                 "c_supervised_app",
                 "lifecycle_app"

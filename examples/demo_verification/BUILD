@@ -21,6 +21,7 @@ integration_test(
         "//examples/control_application:lmcontrol",
         "//examples/cpp_lifecycle_app",
         "//examples/cpp_supervised_app",
+        "//examples/cpp_supervised_app_simple",
         "//examples/rust_supervised_app",
         "//score/launch_manager",
     ],
