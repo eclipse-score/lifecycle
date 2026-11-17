@@ -276,11 +276,11 @@ void Graph::tryQueueNode(ComponentTask task)
 bool Graph::startTransition(IdentifierHash pg_state, RunTargetActivationSource source)
 {
     LM_LOG_DEBUG() << "Graph starting transition to" << pg_state;
-    // Set before the transition can finish synchronously below, which reports the activation source.
-    transition_source_ = source;
     IdentifierHash old_state_name;
     {
         std::lock_guard<std::mutex> lock(requested_state_mutex_);
+        // Set before the transition can finish synchronously below, which reports the activation source.
+        transition_source_ = source;
         old_state_name = requested_state_;
         requested_state_ = pg_state;
     }
@@ -338,6 +338,14 @@ bool Graph::isTransitioningToOff() const
     return (getState() == GraphState::kInTransition) && (requested_state_ == off_state_);
 }
 
+bool Graph::isRecovering() const
+{
+    std::lock_guard<std::mutex> lock(requested_state_mutex_);
+    const auto state = getState();
+    return (state == GraphState::kUndefinedState) ||
+           (state == GraphState::kInTransition && (transition_source_ == RunTargetActivationSource::kRecoveryAction));
+}
+
 void Graph::handleComponentEvent(const ComponentEvent& event)
 {
     std::visit(
@@ -384,6 +392,40 @@ void Graph::handleComponentEvent(const ComponentEvent& event)
 
                 IComponent& failingComponent = componentOf(nodes_[data.process_identifier]);
                 failingComponent.handleSupervisionFailure(data.failure_timestamp);
+            }
+            else
+            {
+                SCORE_LANGUAGE_FUTURECPP_UNREACHABLE_MESSAGE(
+                    "It is a programmer error to call handleComponentEvent with an unhandled type.");
+            }
+        },
+        event);
+}
+
+void Graph::unblockComponentEvent(const ComponentEvent& event, const ExecErrc reason)
+{
+    std::visit(
+        [this, reason](const auto& data) {
+            using T = std::decay_t<decltype(data)>;
+            if constexpr (std::is_same_v<T, GetActiveRunTarget>)
+            {
+                if (data.completion != nullptr)
+                {
+                    data.completion->complete(score::MakeUnexpected(reason));
+                }
+            }
+            else if constexpr (std::is_same_v<T, SetRequestedRunTarget>)
+            {
+                if (data.completion != nullptr)
+                {
+                    data.completion->complete(score::MakeUnexpected(reason));
+                }
+            }
+            else
+            {
+                SCORE_LANGUAGE_FUTURECPP_UNREACHABLE_MESSAGE(
+                    "It is a programmer error to call unblockComponentEvent with anything other than "
+                    "GetActiveRunTarget|SetRequestedRunTarget.");
             }
         },
         event);

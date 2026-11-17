@@ -90,7 +90,6 @@ class ProcessInfoNodeFixture : public ::testing::Test
     {
         configuration::ComponentConfig config{};
         config.name = kProcessName;
-        config.component_properties.binary_name = kProcessName;
 
         auto& profile = config.component_properties.application_profile;
         profile.application_type = application_type;
@@ -121,7 +120,6 @@ class ProcessInfoNodeFixture : public ::testing::Test
     {
         configuration::ComponentConfig config{};
         config.name = "test_process";
-        config.component_properties.binary_name = "test_process";
         config.component_properties.application_profile.application_type = application_type;
         config.component_properties.ready_condition =
             configuration::ReadyCondition{configuration::FileState{std::move(file_path), state, poll_interval}};

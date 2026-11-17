@@ -239,7 +239,7 @@ class MockRunTargetControl : public IRunTargetControl
 {
   public:
     MOCK_METHOD(score::Result<IdentifierHash>, getActiveRunTarget, (), (const, noexcept, override));
-    MOCK_METHOD(score::Result<void>, setRequestedRunTarget, (IdentifierHash), (noexcept, override));
+    MOCK_METHOD(score::Result<void>, setRequestedRunTarget, (IdentifierHash, bool), (noexcept, override));
     MOCK_METHOD(void, registerActiveRunTargetCallback, (ActivationCallbackT), (noexcept, override));
 };
 
@@ -274,7 +274,7 @@ class ControlProviderUT : public ::testing::Test
             activation_callback_ = std::move(cb);
         }));
         ON_CALL(graph_, getActiveRunTarget()).WillByDefault(Return(score::Result<IdentifierHash>{default_run_target_}));
-        ON_CALL(graph_, setRequestedRunTarget(_)).WillByDefault(Return(score::Result<void>{}));
+        ON_CALL(graph_, setRequestedRunTarget(_, _)).WillByDefault(Return(score::Result<void>{}));
     }
 
     void TearDown() override
@@ -430,24 +430,32 @@ TEST_F(ControlProviderUT, Create_Success_RegistersHandlersAndOffersService)
 // handleActivateRunTarget
 // ============================================================================
 
-TEST_F(ControlProviderUT, ActivateRunTarget_QueuedMode_Rejected)
+TEST_F(ControlProviderUT, GivenAKnownQueuedRunTarget_ExpectQueueHasCapacity_WhenActivated_ThenRequestAccepted)
 {
     RecordProperty(
         "Description",
-        "A queued-mode activation request is rejected with kRejected/kNotImplemented; "
-        "the graph is never consulted.");
+        "Given a known run target with queued mode set. "
+        "Expect that the queue has space for the run target request. "
+        "Expect that the queued request is not forced. "
+        "When the run target is activated. "
+        "Then the request is acknowledged with kAccepted.");
 
     auto provider = MakeProvider();
     ASSERT_TRUE(on_activate_) << "activate_run_target handler was not registered";
 
-    EXPECT_CALL(graph_, setRequestedRunTarget(_)).Times(0);
-
+    // Given
+    const IdentifierHash known{"cp_ut_known_target_queued"};
     ActivateRunTargetResponse response{};
-    const ActivateRunTargetRequest request{RunTargetName{"any_target"}, ActivationMode::kQueued};
+    const ActivateRunTargetRequest request{RunTargetName{known.get_name()}, ActivationMode::kQueued};
+
+    // Expect
+    EXPECT_CALL(graph_, setRequestedRunTarget(known, false)).WillOnce(Return(score::Result<void>{}));
+
+    // When
     on_activate_(response, request);
 
-    EXPECT_EQ(response.status, RequestStatus::kRejected);
-    EXPECT_EQ(response.rejection_reason, ExecErrc::kNotImplemented);
+    // Then
+    EXPECT_EQ(response.status, RequestStatus::kAccepted);
 }
 
 TEST_F(ControlProviderUT, ActivateRunTarget_UnknownRunTarget_Rejected)
@@ -460,7 +468,7 @@ TEST_F(ControlProviderUT, ActivateRunTarget_UnknownRunTarget_Rejected)
     auto provider = MakeProvider();
     ASSERT_TRUE(on_activate_) << "activate_run_target handler was not registered";
 
-    EXPECT_CALL(graph_, setRequestedRunTarget(_)).Times(0);
+    EXPECT_CALL(graph_, setRequestedRunTarget(_, _)).Times(0);
 
     ActivateRunTargetResponse response{};
     const ActivateRunTargetRequest request{RunTargetName{"__cp_ut_does_not_exist__"}, ActivationMode::kForced};
@@ -481,7 +489,7 @@ TEST_F(ControlProviderUT, ActivateRunTarget_SetRequestedRunTargetFails_Rejected)
     ASSERT_TRUE(on_activate_) << "activate_run_target handler was not registered";
 
     const IdentifierHash known{"cp_ut_known_target_fail"};
-    EXPECT_CALL(graph_, setRequestedRunTarget(_)).WillOnce(Return(MakeUnexpected(ExecErrc::kFailed)));
+    EXPECT_CALL(graph_, setRequestedRunTarget(_, true)).WillOnce(Return(MakeUnexpected(ExecErrc::kFailed)));
 
     ActivateRunTargetResponse response{};
     const ActivateRunTargetRequest request{RunTargetName{known.get_name()}, ActivationMode::kForced};
@@ -502,7 +510,7 @@ TEST_F(ControlProviderUT, ActivateRunTarget_ForcedSuccess_Accepted)
     ASSERT_TRUE(on_activate_) << "activate_run_target handler was not registered";
 
     const IdentifierHash known{"cp_ut_known_target_ok"};
-    EXPECT_CALL(graph_, setRequestedRunTarget(_)).WillOnce(Return(score::Result<void>{}));
+    EXPECT_CALL(graph_, setRequestedRunTarget(_, true)).WillOnce(Return(score::Result<void>{}));
 
     ActivateRunTargetResponse response{};
     const ActivateRunTargetRequest request{RunTargetName{known.get_name()}, ActivationMode::kForced};
@@ -555,23 +563,24 @@ TEST_F(ControlProviderUT, GetActiveRunTarget_Available)
 
 TEST_F(ControlProviderUT, GetActiveRunTarget_UnexpectedError_Aborts)
 {
+    RecordProperty("DerivationTechnique", "error-guessing");
     RecordProperty(
         "Description",
-        "If getActiveRunTarget() returns any error other than kActivationInProgress "
+        "If getActiveRunTarget() returns any error other than kActivationInProgress or kShuttingDown "
         "the handler hits an internal assertion and the process terminates, because "
         "no other error code can be communicated to the client.");
 
     auto provider = MakeProvider();
     ASSERT_TRUE(on_get_active_) << "get_active_run_target handler was not registered";
 
-    EXPECT_CALL(graph_, getActiveRunTarget()).WillRepeatedly(Return(MakeUnexpected(ExecErrc::kFailed)));
+    EXPECT_CALL(graph_, getActiveRunTarget()).WillRepeatedly(Return(MakeUnexpected(ExecErrc::kMetaModelError)));
 
     EXPECT_DEATH(
         {
             GetActiveRunTargetResponse response{};
             on_get_active_(response);
         },
-        "Impossible to communicate errors other than ExecErrc::kActivationInProgress to the client");
+        "Impossible to communicate errors other than kActivationInProgress & kShuttingDown to the client");
 }
 
 // ============================================================================

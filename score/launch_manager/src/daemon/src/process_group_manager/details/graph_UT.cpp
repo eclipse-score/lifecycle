@@ -260,6 +260,158 @@ TEST_F(GraphOrdinaryTransitionTest, simpleDeactivationTransition)
     EXPECT_EQ(graph_->getRequestedRunTarget(), target);
 }
 
+TEST_F(GraphOrdinaryTransitionTest, GivenGetActiveRunTargetEvent_WhenHandleComponentEventCalled_ThenAssert)
+{
+    RecordProperty("DerivationTechnique", "error-guessing");
+    RecordProperty(
+        "Description",
+        "Given a GetActiveRunTarget event. "
+        "When the event is passed to handleComponentEvent(). "
+        "Then the program asserts in debug builds, and does not assert in release builds.");
+
+    // Given
+    CompletionSlot<Result<IdentifierHash>> slot;
+    auto event = GetActiveRunTarget{&slot};
+
+#ifndef NDEBUG
+    // When
+    EXPECT_DEATH({ graph_->handleComponentEvent(event); }, "Assertion failed");
+#else
+    graph_->handleComponentEvent(event);
+#endif  // NDEBUG
+}
+
+TEST_F(GraphOrdinaryTransitionTest, GivenSetRequestedRunTargetEvent_WhenHandleComponentEventCalled_ThenAssert)
+{
+    RecordProperty("DerivationTechnique", "error-guessing");
+    RecordProperty(
+        "Description",
+        "Given a SetRequestedRunTarget event. "
+        "When the event is passed to handleComponentEvent(). "
+        "Then the program asserts in debug builds, and does not assert in release builds.");
+
+    // Given
+    CompletionSlot<Result<void>> slot;
+    auto event = SetRequestedRunTarget{IdentifierHash{run_target_name(0)}, &slot};
+
+#ifndef NDEBUG
+    // When
+    EXPECT_DEATH({ graph_->handleComponentEvent(event); }, "Assertion failed");
+#else
+    graph_->handleComponentEvent(event);
+#endif  // NDEBUG
+}
+
+TEST_F(GraphOrdinaryTransitionTest, GivenGetActiveRunTargetEvent_WhenUnblockComponentEventCalled_ThenSlotIsCompleted)
+{
+    RecordProperty("DerivationTechnique", "explorative-testing");
+    RecordProperty(
+        "Description",
+        "Given a GetActiveRunTarget event. "
+        "When the event is passed to unblockComponentEvent(). "
+        "Then the slot is completed with an error. "
+        "And the wait() does not block.");
+
+    // Given
+    constexpr auto COMPLETION_REASON = ExecErrc::kFailed;
+    CompletionSlot<Result<IdentifierHash>> slot;
+    auto event = GetActiveRunTarget{&slot};
+
+    // When
+    graph_->unblockComponentEvent(event, COMPLETION_REASON);
+
+    // Then
+    auto completion = slot.wait();
+    ASSERT_FALSE(completion.has_value());
+    EXPECT_EQ(completion.error(), COMPLETION_REASON);
+}
+
+TEST_F(GraphOrdinaryTransitionTest, GivenSetRequestedRunTarget_WhenUnblockComponentEventCalled_ThenSlotIsCompleted)
+{
+    RecordProperty("DerivationTechnique", "explorative-testing");
+    RecordProperty(
+        "Description",
+        "Given a SetRequestedRunTarget event. "
+        "When the event is passed to unblockComponentEvent(). "
+        "Then the slot is completed with an error. "
+        "And the wait() does not block.");
+
+    // Given
+    constexpr auto COMPLETION_REASON = ExecErrc::kFailed;
+    CompletionSlot<Result<void>> slot;
+    auto event = SetRequestedRunTarget{IdentifierHash{run_target_name(0)}, &slot};
+
+    // When
+    graph_->unblockComponentEvent(event, COMPLETION_REASON);
+
+    // Then
+    auto completion = slot.wait();
+    ASSERT_FALSE(completion.has_value());
+    EXPECT_EQ(completion.error(), COMPLETION_REASON);
+}
+
+TEST_F(
+    GraphOrdinaryTransitionTest,
+    GivenGetActiveRunTargetWithNullSlotEvent_WhenUnblockComponentEventCalled_ThenNullCheck)
+{
+    RecordProperty("DerivationTechnique", "explorative-testing");
+    RecordProperty(
+        "Description",
+        "Given a GetActiveRunTarget event with a nullptr completion slot. "
+        "When the event is passed to unblockComponentEvent(). "
+        "Then the nullptr slot is detected. "
+        "And no nullptr dereference occurs.");
+
+    // Given
+    constexpr auto COMPLETION_REASON = ExecErrc::kFailed;
+    auto event = GetActiveRunTarget{nullptr};
+
+    // When, Then
+    graph_->unblockComponentEvent(event, COMPLETION_REASON);
+}
+
+TEST_F(
+    GraphOrdinaryTransitionTest,
+    GivenSetRequestedRunTargetWithNullSlot_WhenUnblockComponentEventCalled_ThenNullCheck)
+{
+    RecordProperty("DerivationTechnique", "explorative-testing");
+    RecordProperty(
+        "Description",
+        "Given a SetRequestedRunTarget event with a nullptr completion slot. "
+        "When the event is passed to unblockComponentEvent(). "
+        "Then the nullptr slot is detected. "
+        "And no nullptr dereference occurs.");
+
+    // Given
+    constexpr auto COMPLETION_REASON = ExecErrc::kFailed;
+    auto event = SetRequestedRunTarget{IdentifierHash{run_target_name(0)}, nullptr};
+
+    // When, Then
+    graph_->unblockComponentEvent(event, COMPLETION_REASON);
+}
+
+TEST_F(GraphOrdinaryTransitionTest, GivenInvalidEvent_WhenUnblockComponentEventCalled_ThenAssert)
+{
+    RecordProperty("DerivationTechnique", "error-guessing");
+    RecordProperty(
+        "Description",
+        "Given a ActivationSuccessful event (which is not handled by unblockComponentEvent). "
+        "When the event is passed to unblockComponentEvent(). "
+        "Then the program asserts in debug builds, and does not assert in release builds.");
+
+    // Given
+    constexpr auto COMPLETION_REASON = ExecErrc::kFailed;
+    auto event = ActivationSuccessful{IdentifierHash{process_name(0)}};
+
+#ifndef NDEBUG
+    // When, Then
+    EXPECT_DEATH({ graph_->unblockComponentEvent(event, COMPLETION_REASON); }, "Assertion failed");
+#else
+    // When, Then
+    graph_->unblockComponentEvent(event, COMPLETION_REASON);
+#endif  // NDEBUG
+}
+
 class GraphActivationSourceTest : public GraphTest
 {
   protected:
