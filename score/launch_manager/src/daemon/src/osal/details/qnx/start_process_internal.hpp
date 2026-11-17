@@ -32,6 +32,7 @@
 #include "score/os/sched_impl.h"
 #include "score/os/spawn_impl.h"
 #include "score/os/unistd.h"
+#include "score/os/utils/signal_impl.h"
 #include <cerrno>
 #include <cstdint>
 #include <limits>
@@ -50,6 +51,7 @@ struct SpawnOs
     score::os::FcntlImpl fcntl{};
     score::os::internal::UnistdImpl unistd{};
     score::os::SchedImpl sched{};
+    score::os::SignalImpl signal{};
 };
 
 /// @brief Returns the description of @p error for log messages.
@@ -495,8 +497,8 @@ bool configureHeldProcess(const OsT& os, ProcessID pid, const configuration::Com
 /// @details The process is spawned held, so the scheduling, supplementary groups and resource limits can be applied
 /// before it runs. See osal::startProcess() for the parameters and the return value.
 /// @tparam OsT Provides the OS functions via the members spawn (score::os::Spawn), secpol (score::os::qnx::Secpol),
-/// qnx_unistd (score::os::qnx::QnxUnistd), fcntl (score::os::Fcntl), unistd (score::os::Unistd) and sched
-/// (score::os::Sched).
+/// qnx_unistd (score::os::qnx::QnxUnistd), fcntl (score::os::Fcntl), unistd (score::os::Unistd), sched
+/// (score::os::Sched) and signal (score::os::Signal).
 template <class OsT = SpawnOs>
 OsalReturnType startProcessImpl(
     const OsT& os,
@@ -542,24 +544,21 @@ OsalReturnType startProcessImpl(
     {
         // The process exists, so report it as started and let it terminate. This way the termination is reported
         // via the normal path, like a forked process that fails to apply its configuration on Linux.
-        // baselibs provides no abstraction for kill()
-        if (-1 == ::kill(pid, SIGKILL))
+        const auto kill_result = os.signal.Kill(pid, SIGKILL);
+        if (!kill_result.has_value())
         {
-            // Saved before logging, which may change errno
-            const int error_number = errno;
             LM_LOG_ERROR() << "Unable to kill held process" << executableOf(config) << "( pid" << pid
-                           << ") with error:" << errno_message(error_number);
+                           << ") with error:" << errorMessage(kill_result.error());
         }
         return OsalReturnType::kSuccess;
     }
 
-    if (-1 == ::kill(pid, SIGCONT))
+    const auto continue_result = os.signal.Kill(pid, SIGCONT);
+    if (!continue_result.has_value())
     {
-        // Saved before logging, which may change errno
-        const int error_number = errno;
         LM_LOG_ERROR() << "Unable to continue held process" << executableOf(config) << "( pid" << pid
-                       << ") with error:" << errno_message(error_number);
-        static_cast<void>(::kill(pid, SIGKILL));
+                       << ") with error:" << errorMessage(continue_result.error());
+        static_cast<void>(os.signal.Kill(pid, SIGKILL));
     }
 
     return OsalReturnType::kSuccess;

@@ -215,17 +215,15 @@ cc_library(
         "@score_baselibs//score/os:unistd",
         "@score_baselibs//score/os/qnx:secpol",
         "@score_baselibs//score/os/qnx:unistd",
+        "@score_baselibs//score/os/utils:signal",
     ],
 )
 
 lm_cc_test(
     name = "start_process_qnx_UT",
     srcs = ["details/qnx/start_process_UT.cpp"],
-    # baselibs provides no abstraction for prlimit() and kill()
-    linkopts = [
-        "-Wl,--wrap=prlimit",
-        "-Wl,--wrap=kill",
-    ],
+    # baselibs provides no abstraction for prlimit()
+    linkopts = ["-Wl,--wrap=prlimit"],
     linkstatic = True,
     target_compatible_with = ["@platforms//os:qnx"],
     deps = [
@@ -237,6 +235,7 @@ lm_cc_test(
         "@score_baselibs//score/os/mocklib:unistd_mock",
         "@score_baselibs//score/os/mocklib/qnx:secpol_mock",
         "@score_baselibs//score/os/mocklib/qnx:unistd_mock",
+        "@score_baselibs//score/os/utils/mocklib:signal_mock",
     ],
 )
 

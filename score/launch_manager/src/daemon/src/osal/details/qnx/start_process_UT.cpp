@@ -37,6 +37,7 @@
 #include "score/os/mocklib/sched_mock.h"
 #include "score/os/mocklib/spawn_mock.h"
 #include "score/os/mocklib/unistdmock.h"
+#include "score/os/utils/mocklib/signalmock.h"
 
 using namespace testing;
 
@@ -45,12 +46,11 @@ using namespace score::mw::lifecycle::internal;
 
 // NOLINTBEGIN
 
-/// @brief Mock for the functions without a baselibs abstraction, replaced at link time.
+/// @brief Mock for the function without a baselibs abstraction, replaced at link time.
 class ProcessControlMock
 {
   public:
     MOCK_METHOD(int, prlimit, (pid_t, int, const struct rlimit*, struct rlimit*), ());
-    MOCK_METHOD(int, kill, (pid_t, int), ());
 };
 
 std::unique_ptr<ProcessControlMock> g_process_control_mock = nullptr;
@@ -59,11 +59,6 @@ extern "C" {
 int __wrap_prlimit(pid_t pid, int resource, const struct rlimit* new_limit, struct rlimit* old_limit)
 {
     return g_process_control_mock->prlimit(pid, resource, new_limit, old_limit);
-}
-
-int __wrap_kill(pid_t pid, int sig)
-{
-    return g_process_control_mock->kill(pid, sig);
 }
 }
 
@@ -108,6 +103,7 @@ struct OsMock
     NiceMock<score::os::FcntlMock> fcntl{};
     NiceMock<score::os::UnistdMock> unistd{};
     StrictMock<score::os::SchedMock> sched{};
+    StrictMock<score::os::SignalMock> signal{};
 };
 
 }  // namespace
@@ -284,7 +280,7 @@ TEST_F(QnxStartProcessTest, spawnsHeldProcessWithConfiguredAttributes)
 
     ExpectSpawnSucceeds();
     ExpectHeldProcessConfigured();
-    EXPECT_CALL(*g_process_control_mock, kill(kChildPid, SIGCONT)).WillOnce(Return(0));
+    EXPECT_CALL(os_.signal, Kill(kChildPid, SIGCONT)).WillOnce(Return(OsSuccess()));
 
     EXPECT_EQ(StartProcess(), OsalReturnType::kSuccess);
     EXPECT_EQ(pid_, kChildPid);
@@ -313,7 +309,7 @@ TEST_F(QnxStartProcessTest, signalsAreResetToDefaultAndUnblocked)
 
     ExpectSpawnSucceeds();
     ExpectHeldProcessConfigured();
-    EXPECT_CALL(*g_process_control_mock, kill(kChildPid, SIGCONT)).WillOnce(Return(0));
+    EXPECT_CALL(os_.signal, Kill(kChildPid, SIGCONT)).WillOnce(Return(OsSuccess()));
 
     EXPECT_EQ(StartProcess(), OsalReturnType::kSuccess);
 
@@ -334,7 +330,7 @@ TEST_F(QnxStartProcessTest, affinityIsAppliedWhenConfigured)
 
     ExpectSpawnSucceeds();
     ExpectHeldProcessConfigured();
-    EXPECT_CALL(*g_process_control_mock, kill(kChildPid, SIGCONT)).WillOnce(Return(0));
+    EXPECT_CALL(os_.signal, Kill(kChildPid, SIGCONT)).WillOnce(Return(OsSuccess()));
 
     EXPECT_EQ(StartProcess(), OsalReturnType::kSuccess);
     EXPECT_NE(captured_.xflags & static_cast<std::uint32_t>(POSIX_SPAWN_EXPLICIT_CPU), 0U);
@@ -357,7 +353,7 @@ TEST_F(QnxStartProcessTest, workingDirIsOpenedAndClosed)
     EXPECT_CALL(os_.unistd, close(kCwdFd)).WillOnce(Return(score::cpp::expected_blank<score::os::Error>{}));
     ExpectSpawnSucceeds();
     ExpectHeldProcessConfigured();
-    EXPECT_CALL(*g_process_control_mock, kill(kChildPid, SIGCONT)).WillOnce(Return(0));
+    EXPECT_CALL(os_.signal, Kill(kChildPid, SIGCONT)).WillOnce(Return(OsSuccess()));
 
     EXPECT_EQ(StartProcess(), OsalReturnType::kSuccess);
 }
@@ -375,9 +371,9 @@ TEST_F(QnxStartProcessTest, commsFdIsDuplicatedAndPidStoredBeforeContinue)
         .WillOnce(Return(OsSuccess()));
     ExpectSpawnSucceeds();
     ExpectHeldProcessConfigured();
-    EXPECT_CALL(*g_process_control_mock, kill(kChildPid, SIGCONT)).WillOnce([block](pid_t, int) {
+    EXPECT_CALL(os_.signal, Kill(kChildPid, SIGCONT)).WillOnce([block](pid_t, std::int32_t) {
         EXPECT_EQ(block->pid_, kChildPid);
-        return 0;
+        return OsSuccess();
     });
 
     EXPECT_EQ(StartProcess(), OsalReturnType::kSuccess);
@@ -391,7 +387,7 @@ TEST_F(QnxStartProcessTest, noCommsDoesNotDuplicateFd)
     EXPECT_CALL(os_.spawn, posix_spawn_file_actions_adddup2).Times(0);
     ExpectSpawnSucceeds();
     ExpectHeldProcessConfigured();
-    EXPECT_CALL(*g_process_control_mock, kill(kChildPid, SIGCONT)).WillOnce(Return(0));
+    EXPECT_CALL(os_.signal, Kill(kChildPid, SIGCONT)).WillOnce(Return(OsSuccess()));
 
     EXPECT_EQ(StartProcess(), OsalReturnType::kSuccess);
 }
@@ -404,7 +400,7 @@ TEST_F(QnxStartProcessTest, supplementaryGroupsAreCleared)
     ExpectSpawnSucceeds();
     ExpectSchedulingSet();
     EXPECT_CALL(os_.qnx_unistd, setgroupspid(0, nullptr, kChildPid)).WillOnce(Return(OsSuccess()));
-    EXPECT_CALL(*g_process_control_mock, kill(kChildPid, SIGCONT)).WillOnce(Return(0));
+    EXPECT_CALL(os_.signal, Kill(kChildPid, SIGCONT)).WillOnce(Return(OsSuccess()));
 
     EXPECT_EQ(StartProcess(), OsalReturnType::kSuccess);
 }
@@ -441,7 +437,7 @@ TEST_F(QnxStartProcessTest, groupsAndLimitsAreAppliedBeforeContinue)
                 nullptr))
             .WillOnce(Return(0));
         EXPECT_CALL(*g_process_control_mock, prlimit(kChildPid, RLIMIT_STACK, _, nullptr)).WillOnce(Return(0));
-        EXPECT_CALL(*g_process_control_mock, kill(kChildPid, SIGCONT)).WillOnce(Return(0));
+        EXPECT_CALL(os_.signal, Kill(kChildPid, SIGCONT)).WillOnce(Return(OsSuccess()));
     }
 
     EXPECT_EQ(StartProcess(), OsalReturnType::kSuccess);
@@ -462,8 +458,8 @@ TEST_F(QnxStartProcessTest, prlimitFailureKillsHeldProcess)
     ExpectSchedulingSet();
     EXPECT_CALL(os_.qnx_unistd, setgroupspid).WillOnce(Return(OsSuccess()));
     EXPECT_CALL(*g_process_control_mock, prlimit).WillOnce(SetErrnoAndReturn(EPERM, -1));
-    EXPECT_CALL(*g_process_control_mock, kill(kChildPid, SIGKILL)).WillOnce(Return(0));
-    EXPECT_CALL(*g_process_control_mock, kill(kChildPid, SIGCONT)).Times(0);
+    EXPECT_CALL(os_.signal, Kill(kChildPid, SIGKILL)).WillOnce(Return(OsSuccess()));
+    EXPECT_CALL(os_.signal, Kill(kChildPid, SIGCONT)).Times(0);
 
     EXPECT_EQ(StartProcess(), OsalReturnType::kSuccess);
     EXPECT_EQ(pid_, kChildPid);
@@ -478,8 +474,8 @@ TEST_F(QnxStartProcessTest, setgroupspidFailureKillsHeldProcess)
     ExpectSpawnSucceeds();
     ExpectSchedulingSet();
     EXPECT_CALL(os_.qnx_unistd, setgroupspid).WillOnce(Return(OsError(EPERM)));
-    EXPECT_CALL(*g_process_control_mock, kill(kChildPid, SIGKILL)).WillOnce(Return(0));
-    EXPECT_CALL(*g_process_control_mock, kill(kChildPid, SIGCONT)).Times(0);
+    EXPECT_CALL(os_.signal, Kill(kChildPid, SIGKILL)).WillOnce(Return(OsSuccess()));
+    EXPECT_CALL(os_.signal, Kill(kChildPid, SIGCONT)).Times(0);
 
     EXPECT_EQ(StartProcess(), OsalReturnType::kSuccess);
     EXPECT_EQ(pid_, kChildPid);
@@ -499,7 +495,7 @@ TEST_F(QnxStartProcessTest, schedulingIsAppliedToHeldProcessBeforeContinue)
             os_.sched, sched_setscheduler(kChildPid, SCHED_RR, Pointee(Field(&sched_param::sched_priority, 10))))
             .WillOnce(Return(OsSuccess()));
         EXPECT_CALL(os_.qnx_unistd, setgroupspid(_, _, kChildPid)).WillOnce(Return(OsSuccess()));
-        EXPECT_CALL(*g_process_control_mock, kill(kChildPid, SIGCONT)).WillOnce(Return(0));
+        EXPECT_CALL(os_.signal, Kill(kChildPid, SIGCONT)).WillOnce(Return(OsSuccess()));
     }
 
     EXPECT_EQ(StartProcess(), OsalReturnType::kSuccess);
@@ -514,8 +510,8 @@ TEST_F(QnxStartProcessTest, schedulingFailureKillsHeldProcess)
     ExpectSpawnSucceeds();
     EXPECT_CALL(os_.sched, sched_setscheduler).WillOnce(Return(OsError(EPERM)));
     EXPECT_CALL(os_.qnx_unistd, setgroupspid).Times(0);
-    EXPECT_CALL(*g_process_control_mock, kill(kChildPid, SIGKILL)).WillOnce(Return(0));
-    EXPECT_CALL(*g_process_control_mock, kill(kChildPid, SIGCONT)).Times(0);
+    EXPECT_CALL(os_.signal, Kill(kChildPid, SIGKILL)).WillOnce(Return(OsSuccess()));
+    EXPECT_CALL(os_.signal, Kill(kChildPid, SIGCONT)).Times(0);
 
     EXPECT_EQ(StartProcess(), OsalReturnType::kSuccess);
     EXPECT_EQ(pid_, kChildPid);
@@ -528,8 +524,8 @@ TEST_F(QnxStartProcessTest, continueFailureKillsHeldProcess)
 
     ExpectSpawnSucceeds();
     ExpectHeldProcessConfigured();
-    EXPECT_CALL(*g_process_control_mock, kill(kChildPid, SIGCONT)).WillOnce(SetErrnoAndReturn(EPERM, -1));
-    EXPECT_CALL(*g_process_control_mock, kill(kChildPid, SIGKILL)).WillOnce(Return(0));
+    EXPECT_CALL(os_.signal, Kill(kChildPid, SIGCONT)).WillOnce(Return(OsError(EPERM)));
+    EXPECT_CALL(os_.signal, Kill(kChildPid, SIGKILL)).WillOnce(Return(OsSuccess()));
 
     EXPECT_EQ(StartProcess(), OsalReturnType::kSuccess);
     EXPECT_EQ(pid_, kChildPid);
@@ -541,7 +537,7 @@ TEST_F(QnxStartProcessTest, spawnFailureReturnsFail)
 
     EXPECT_CALL(os_.spawn, posix_spawn).WillOnce(Return(OsError(ENOENT)));
     EXPECT_CALL(os_.qnx_unistd, setgroupspid).Times(0);
-    EXPECT_CALL(*g_process_control_mock, kill).Times(0);
+    EXPECT_CALL(os_.signal, Kill).Times(0);
 
     EXPECT_EQ(StartProcess(), OsalReturnType::kFail);
 }
@@ -593,7 +589,7 @@ TEST_F(QnxStartProcessTest, securityPolicyIsApplied)
         .WillOnce(Return(OsSuccess()));
     ExpectSpawnSucceeds();
     ExpectHeldProcessConfigured();
-    EXPECT_CALL(*g_process_control_mock, kill(kChildPid, SIGCONT)).WillOnce(Return(0));
+    EXPECT_CALL(os_.signal, Kill(kChildPid, SIGCONT)).WillOnce(Return(OsSuccess()));
 
     EXPECT_EQ(StartProcess(), OsalReturnType::kSuccess);
 }
@@ -607,7 +603,7 @@ TEST_F(QnxStartProcessTest, securityPolicyNotSupportedIsIgnored)
     EXPECT_CALL(os_.secpol, secpol_posix_spawnattr_settypeid).WillOnce(Return(OsError(ENOTSUP)));
     ExpectSpawnSucceeds();
     ExpectHeldProcessConfigured();
-    EXPECT_CALL(*g_process_control_mock, kill(kChildPid, SIGCONT)).WillOnce(Return(0));
+    EXPECT_CALL(os_.signal, Kill(kChildPid, SIGCONT)).WillOnce(Return(OsSuccess()));
 
     EXPECT_EQ(StartProcess(), OsalReturnType::kSuccess);
 }
