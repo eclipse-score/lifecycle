@@ -19,6 +19,7 @@
 #include "score/mw/launch_manager/common/log.hpp"
 #include "score/mw/launch_manager/process_group_manager/details/icomponent_controller.hpp"
 #include "score/os/utils/thread.h"
+#include <csignal>
 #include <memory>
 #include <thread>
 #include <vector>
@@ -92,6 +93,7 @@ class ThreadPool final
     /// Blocks on pop() until a job arrives or the queue is stopped, then executes the job.
     void run()
     {
+        blockSignals();
         while (true)
         {
             auto job = the_job_queue_->pop();
@@ -106,6 +108,36 @@ class ThreadPool final
             }
             component_controller_.doWork(std::move(**job));
         }
+    }
+
+    /// @brief Blocks all signals (except fault signals) on worker threads.
+    /// @details Signals blocked on worker threads will be received by LM.
+    void blockSignals()
+    {
+        // If this static assert fails, pthread_sigmask will fail with EINVAL. See `man sigprocmask`.
+        // This more a porting guard than a real life scenario (libc / kernel mismatch)...
+        static_assert(
+            sizeof(sigset_t) >= (_NSIG / 8),
+            "sigset_t is too small to fulfill the kernel's rt_sigprocmask size requirement");
+
+        sigset_t mask;
+        int res = 0;
+
+        // We should block all signals
+        res = sigfillset(&mask);
+
+        // But we shouldn't touch synchronous hardware fault signals
+        res += sigdelset(&mask, SIGSEGV);
+        res += sigdelset(&mask, SIGBUS);
+        res += sigdelset(&mask, SIGFPE);
+        res += sigdelset(&mask, SIGILL);
+        res += sigdelset(&mask, SIGTRAP);
+        SCORE_LANGUAGE_FUTURECPP_ASSERT_DBG_MESSAGE(res == 0, "Failed to build signal mask");
+
+        res = pthread_sigmask(SIG_SETMASK, &mask, NULL);
+        SCORE_LANGUAGE_FUTURECPP_ASSERT_DBG_MESSAGE(res == 0, "Invalid argument(s) to pthread_sigmask");
+
+        static_cast<void>(res);
     }
 
     /// @brief The queue from which each thread takes work.

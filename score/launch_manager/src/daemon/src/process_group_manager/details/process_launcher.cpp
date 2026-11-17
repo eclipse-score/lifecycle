@@ -162,6 +162,39 @@ void changeSecurityPolicy(const score::mw::lifecycle::internal::configuration::S
     }
 }
 
+/// @brief Clears all signal handlers (where valid) and then unblocks them. This allows the child process to receive
+/// signals even before execve() is reached.
+void resetSignalHandlersAndUnblock()
+{
+    // If this static assert fails, pthread_sigmask will fail with EINVAL. See `man sigprocmask`.
+    // This is more a porting guard than a real life scenario (libc / kernel mismatch)...
+    static_assert(
+        sizeof(sigset_t) >= (_NSIG / 8),
+        "sigset_t is too small to fulfill the kernel's rt_sigprocmask size requirement");
+
+    // Reset all signal handlers to default except unblockable signals
+    struct sigaction act{};
+    act.sa_handler = SIG_DFL;
+
+    int err = 0;
+    for (int sig = 1; sig < _NSIG; ++sig)
+    {
+        if (sig == SIGKILL || sig == SIGSTOP)
+            continue;
+        err |= sigaction(sig, &act, NULL);
+    }
+    SCORE_LANGUAGE_FUTURECPP_ASSERT_DBG_MESSAGE(err == 0, "Failed to reset signal handlers");
+
+    // Unblock all signals by applying an empty mask
+    sigset_t mask;
+    err = sigemptyset(&mask);
+    SCORE_LANGUAGE_FUTURECPP_ASSERT_DBG_MESSAGE(err == 0, "Failed to build signal mask");
+
+    err = pthread_sigmask(SIG_SETMASK, &mask, NULL);
+    SCORE_LANGUAGE_FUTURECPP_ASSERT_DBG_MESSAGE(err == 0, "Invalid argument(s) to pthread_sigmask");
+    static_cast<void>(err);
+}
+
 }  // namespace
 
 namespace score::mw::lifecycle::internal::osal
@@ -360,6 +393,8 @@ OsalReturnType ProcessLauncher::setSchedulingAndSecurity(const configuration::Sa
 /// @details The implementation should be async signal safe.
 void ProcessLauncher::handleChildProcess(ChildProcessConfig& param)
 {
+    resetSignalHandlersAndUnblock();
+
     handleComms(param);
 
     applyResourceLimits(param.config.deployment_config.sandbox);
