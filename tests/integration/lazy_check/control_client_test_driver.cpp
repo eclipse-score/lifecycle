@@ -12,12 +12,20 @@
  ********************************************************************************/
 #include <gtest/gtest.h>
 
+#include <sys/stat.h>
+
+#include <fstream>
+#include <string>
+
 #include "tests/utils/test_helper/test_helper.hpp"
 #include "tests/utils/test_helper/test_runner.hpp"
 #include <score/mw/lifecycle/ilm_control.hpp>
 #include <score/mw/lifecycle/report_running.h>
 
 using namespace score::mw::lifecycle;
+
+constexpr std::string_view script_path {"/tmp/tests/lazy_check/created_at_runtime.sh"};
+constexpr std::string_view script {"#!/bin/sh\nexit 0\n"};
 
 TEST(LazyCheck, ControlClientTestDriver)
 {
@@ -67,6 +75,30 @@ TEST(LazyCheck, ControlClientTestDriver)
         {
             EXPECT_EQ(source, RunTargetActivationSource::kStateManagerRequest);
             EXPECT_EQ(target, "run_target_with_available_binary");
+        }
+    });
+
+    TEST_STEP("Create the executable of a component at runtime")
+    {
+        {
+            std::ofstream script_file(script_path.begin(), std::ios::trunc);
+            ASSERT_TRUE(script_file.is_open());
+            script_file << script;
+        }
+        ASSERT_EQ(chmod(script_path.begin(), 0755), 0);
+    }
+
+    TEST_STEP("Activate RT with a binary created at runtime")
+    {
+        const auto result = client->activate_run_target("run_target_with_runtime_created_binary", true);
+        EXPECT_TRUE(result.has_value()) << result.error().Message();
+    }
+
+    pop_event([](RunTargetActivationSource source, RunTargetName target) {
+        TEST_STEP("Callback for Run Target whose binary was created at runtime")
+        {
+            EXPECT_EQ(source, RunTargetActivationSource::kStateManagerRequest);
+            EXPECT_EQ(target, "run_target_with_runtime_created_binary");
         }
     });
 

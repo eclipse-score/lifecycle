@@ -70,6 +70,18 @@
                 }
             }
         },
+        "component_created_at_runtime": {
+            "component_properties": {
+                "binary_name": "created_at_runtime.sh",
+                "application_profile": {
+                    "application_type": "Native",
+                    "is_self_terminating": true
+                },
+                "ready_condition": {
+                    "process_state": "Terminated"
+                }
+            }
+        },
         "verification_component": {
             "component_properties": {
                 "binary_name": "verification_process",
@@ -98,6 +110,17 @@
             "depends_on": [
                 "control_client_test_driver",
                 "component_with_missing_binary"
+            ],
+            "recovery_action": {
+                "switch_run_target": {
+                    "run_target": "fallback_run_target"
+                }
+            }
+        },
+        "run_target_with_runtime_created_binary": {
+            "depends_on": [
+                "control_client_test_driver",
+                "component_created_at_runtime"
             ],
             "recovery_action": {
                 "switch_run_target": {
