@@ -41,6 +41,9 @@
                         "min_indications": 0
                     }
                 }
+            },
+            "deployment_config": {
+                "ready_timeout_ms": 5000
             }
         },
         "file_creating_component": {
