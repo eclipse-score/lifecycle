@@ -431,8 +431,6 @@ def gen_config(output_dir, config, input_filename):
             ]
 
         if "recovery_action" in depl_cfg:
-            # Only switch_run_target is configurable for components for now,
-            # restart is intentionally not passed on to the flatbuffer.
             ra = depl_cfg["recovery_action"]
             if "switch_run_target" in ra:
                 deployment["recovery_action"] = {
@@ -440,6 +438,14 @@ def gen_config(output_dir, config, input_filename):
                         "run_target": ra["switch_run_target"]["run_target"]
                     }
                 }
+            elif "restart" in ra:
+                # The restart reuses activation_retry_attempts / activation_retry_delay_ms,
+                # so it has no parameters of its own.
+                deployment["recovery_action"] = {"restart": {}}
+            else:
+                raise ValueError(
+                    f"Component '{component_name}': unsupported recovery_action {list(ra.keys())}."
+                )
 
         component["deployment_config"] = deployment
         out["components"].append(component)

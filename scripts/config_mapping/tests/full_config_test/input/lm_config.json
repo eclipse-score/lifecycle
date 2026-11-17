@@ -140,6 +140,9 @@
             },
             "deployment_config": {
                 "bin_dir": "/opt/apps/b",
+                "recovery_action": {
+                    "restart": {}
+                },
                 "sandbox": {
                     "uid": 1002,
                     "gid": 1002,

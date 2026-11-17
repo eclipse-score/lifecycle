@@ -336,6 +336,10 @@ SCHEMA_VALIDATION_TEST_CASES = [
         "config_filename": "invalid_switch_run_target.json",
         "test_id": "invalid_switch_run_target",
     },
+    {
+        "config_filename": "invalid_restart_parameters.json",
+        "test_id": "invalid_restart_parameters",
+    },
 ]
 
 
