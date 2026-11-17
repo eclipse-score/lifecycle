@@ -186,21 +186,8 @@
       "properties": {
         "restart": {
           "type": "object",
-          "description": "Defines a recovery action that restarts the POSIX process associated with this component.",
-          "properties": {
-            "number_of_attempts": {
-              "type": "integer",
-              "minimum": 0,
-              "maximum": 255,
-              "description": "Specifies the maximum number of restart attempts before the Launch Manager concludes that recovery cannot succeed."
-            },
-            "delay_before_restart_ms": {
-              "type": "integer",
-              "minimum": 0,
-              "maximum": 4294967295,
-              "description": "Specifies the delay duration, in milliseconds, that the Launch Manager waits before initiating a restart attempt."
-            }
-          },
+          "description": "Defines a recovery action that restarts the POSIX process associated with this component. The restart has no parameters of its own: it uses 'deployment_config.activation_retry_attempts' and 'deployment_config.activation_retry_delay_ms' of the component.",
+          "properties": {},
           "required": [],
           "additionalProperties": false
         },
@@ -269,33 +256,16 @@
           "type": "integer",
           "minimum": 0,
           "maximum": 255,
-          "description": "Specifies the number of additional attempts the Launch Manager makes to activate the component when it fails to reach its Ready State during a Run Target transition. A number of failures greater than this is treated as a Run Target transition failure."
+          "description": "Specifies the number of additional attempts the Launch Manager makes to activate the component when it fails to reach its Ready State during a Run Target transition or during a 'restart' recovery action. A number of failures greater than this is treated as a Run Target transition failure or as a failed recovery action, respectively."
         },
         "activation_retry_delay_ms": {
           "type": "integer",
           "minimum": 0,
           "maximum": 4294967295,
-          "description": "Specifies the delay duration, in milliseconds, that the Launch Manager waits before each activation retry. Currently not evaluated by the Launch Manager."
+          "description": "Specifies the delay duration, in milliseconds, that the Launch Manager waits before each activation retry, including the start attempts of a 'restart' recovery action. Currently not evaluated by the Launch Manager."
         },
         "recovery_action": {
-          "allOf": [
-            {
-              "$ref": "#/$defs/recovery_action"
-            },
-            {
-              "properties": {
-                "switch_run_target": true
-              },
-              "required": [
-                "switch_run_target"
-              ],
-              "not": {
-                "required": [
-                  "restart"
-                ]
-              }
-            }
-          ],
+          "$ref": "#/$defs/recovery_action",
           "description": "Specifies the recovery action to execute when the component malfunctions after reaching its ready state."
         },
         "sandbox": {

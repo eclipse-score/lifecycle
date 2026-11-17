@@ -24,8 +24,13 @@ Component
 * For ReadyCondition ``process_state:Terminated``, the mapping is only
   supported for Components that have at least one Component depending on them.
 * The ``activation_retry_delay_ms`` is currently not evaluated by the Launch Manager.
-* The ``recovery_action`` only supports ``switch_run_target`` with the
-  ``run_target`` set to ``fallback_run_target``.
+  This also applies to the start attempts of a ``restart`` recovery action.
+* The ``recovery_action`` ``switch_run_target`` only supports the ``run_target``
+  set to ``fallback_run_target``.
+* There is no limit on the number of ``restart`` recovery actions over time. Each
+  unexpected termination after reaching the Ready State triggers a new recovery with
+  the full ``activation_retry_attempts`` budget, so a component that reliably reaches
+  the Ready State and then terminates is restarted indefinitely.
 * The ``ready_timeout_ms`` is used as the timeout until process state Running is
   reached, even in case the ReadyCondition is ``process_state:Terminated``.
 

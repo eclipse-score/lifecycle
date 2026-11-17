@@ -157,10 +157,8 @@
                         "value": "value123"
                     }
                 ],
-                "recovery_action_type": "SwitchRunTargetAction",
-                "recovery_action": {
-                    "run_target": "fallback_run_target"
-                }
+                "recovery_action_type": "RestartAction",
+                "recovery_action": {}
             }
         },
         {
