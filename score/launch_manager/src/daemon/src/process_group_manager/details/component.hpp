@@ -24,6 +24,7 @@
 #include "score/mw/launch_manager/process_group_manager/details/stop_action/istop_action.hpp"
 #include <memory>
 #include <mutex>
+#include <optional>
 #include <variant>
 
 namespace score::mw::lifecycle::internal
@@ -122,6 +123,24 @@ class Component final : public IComponent
 
     /// @brief The current state of the component.
     State state_;
+
+    /// @brief First phase of the activation: start and track the resource, and change the state
+    ///        from TerminatedState to StartingState.
+    /// @details Locks the state. Afterwards, `activate` waits for the ready condition without
+    ///          holding the lock, so that `deactivate` and `tryHandleTermination` can interrupt it.
+    /// @param stop_token Token which can be used to interrupt the activation.
+    /// @param stop_activation Source which is stopped when the activation must be interrupted.
+    /// @return The handle of the started resource, or std::nullopt if the activation failed.
+    [[nodiscard]] std::optional<Handle> beginActivation(
+        cpp::stop_token stop_token,
+        const cpp::stop_source& stop_activation);
+
+    /// @brief Last phase of the activation, after the ready condition was met: change the state
+    ///        from StartingState to ReadyState, unless the activation was interrupted meanwhile.
+    /// @details Locks the state.
+    /// @param stop_activation Source which was stopped if the activation was interrupted.
+    /// @return Whether the component activation succeeded or failed.
+    [[nodiscard]] RequestResult completeActivation(const cpp::stop_source& stop_activation);
 
     /// @brief Handle the termination of the resource.
     /// @pre The state must be locked by the caller.
