@@ -406,6 +406,20 @@
     "FullyVerifies": null
   },
   {
+    "name": "test_component_order",
+    "file": "tests/integration/component_order/component_order.py",
+    "line": "20",
+    "result": "passed",
+    "repo_name": "local_repo",
+    "hash": "",
+    "url": "",
+    "TestType": "requirements-based",
+    "DerivationTechnique": "requirements-analysis",
+    "result_text": "",
+    "PartiallyVerifies": "feat_req__lifecycle__launch_support, comp_req__launch_man__stop_process_dependents, feat_req__lifecycle__termination_dependency",
+    "FullyVerifies": "comp_req__launch_man__dep_based_startup_order"
+  },
+  {
     "name": "test_incorrect_config_non_reporting",
     "file": "tests/integration/incorrect_config_non_reporting/test_incorrect_config_non_reporting.py",
     "line": "19",
@@ -968,7 +982,7 @@
   {
     "name": "ExecErrorDomainTest__AllKnownCodesReturnNonEmptyMessage",
     "file": "score/launch_manager/src/exec_error_domain_UT.cpp",
-    "line": "62",
+    "line": "63",
     "result": "passed",
     "repo_name": "local_repo",
     "hash": "",
@@ -982,7 +996,7 @@
   {
     "name": "ExecErrorDomainTest__AllKnownCodesHaveDistinctMessages",
     "file": "score/launch_manager/src/exec_error_domain_UT.cpp",
-    "line": "73",
+    "line": "74",
     "result": "passed",
     "repo_name": "local_repo",
     "hash": "",
@@ -996,7 +1010,7 @@
   {
     "name": "ExecErrorDomainTest__UnknownCodeReturnsNonEmptyMessage",
     "file": "score/launch_manager/src/exec_error_domain_UT.cpp",
-    "line": "86",
+    "line": "87",
     "result": "passed",
     "repo_name": "local_repo",
     "hash": "",
@@ -1932,6 +1946,20 @@
     "FullyVerifies": null
   },
   {
+    "name": "MpscBoundedQueueTest__GivenAnEmptyQueue_WhenBackIsCalled_ThenAssertAndCrash",
+    "file": "score/launch_manager/src/daemon/src/common/concurrency/mpsc_bounded_queue_test.cpp",
+    "line": "480",
+    "result": "passed",
+    "repo_name": "local_repo",
+    "hash": "",
+    "url": "",
+    "TestType": null,
+    "DerivationTechnique": "explorative-testing",
+    "result_text": "",
+    "PartiallyVerifies": null,
+    "FullyVerifies": null
+  },
+  {
     "name": "FixedSizeQueueTest__StaticProperties",
     "file": "score/launch_manager/src/daemon/src/common/concurrency/fixed_size_queue_test.cpp",
     "line": "34",
@@ -2019,6 +2047,34 @@
     "name": "FixedSizeQueueTest__TailAndHeadWrap",
     "file": "score/launch_manager/src/daemon/src/common/concurrency/fixed_size_queue_test.cpp",
     "line": "180",
+    "result": "passed",
+    "repo_name": "local_repo",
+    "hash": "",
+    "url": "",
+    "TestType": "interface-test",
+    "DerivationTechnique": "explorative-testing",
+    "result_text": "",
+    "PartiallyVerifies": null,
+    "FullyVerifies": null
+  },
+  {
+    "name": "FixedSizeQueueTest__GivenAPopulatedQueue_WhenBackIsCalled_ThenBackReturnsTail",
+    "file": "score/launch_manager/src/daemon/src/common/concurrency/fixed_size_queue_test.cpp",
+    "line": "222",
+    "result": "passed",
+    "repo_name": "local_repo",
+    "hash": "",
+    "url": "",
+    "TestType": "interface-test",
+    "DerivationTechnique": "explorative-testing",
+    "result_text": "",
+    "PartiallyVerifies": null,
+    "FullyVerifies": null
+  },
+  {
+    "name": "FixedSizeQueueTest__GivenAnEmptyQueue_WhenBackIsCalled_ThenAssert",
+    "file": "score/launch_manager/src/daemon/src/common/concurrency/fixed_size_queue_test.cpp",
+    "line": "250",
     "result": "passed",
     "repo_name": "local_repo",
     "hash": "",
@@ -9550,7 +9606,7 @@
   {
     "name": "ComponentEventQueueTest__GetOverflowStaysFalseUnderNormalUsage",
     "file": "score/launch_manager/src/daemon/src/process_group_manager/details/component_event_queue_UT.cpp",
-    "line": "117",
+    "line": "119",
     "result": "passed",
     "repo_name": "local_repo",
     "hash": "",
@@ -9564,7 +9620,7 @@
   {
     "name": "ComponentEventQueueTest__GetOverflowBecomesTrueOnceQueueIsFull",
     "file": "score/launch_manager/src/daemon/src/process_group_manager/details/component_event_queue_UT.cpp",
-    "line": "125",
+    "line": "127",
     "result": "passed",
     "repo_name": "local_repo",
     "hash": "",
@@ -9578,7 +9634,7 @@
   {
     "name": "ComponentEventQueueTest__StopFailsWaitForEventsOnEmptyQueue",
     "file": "score/launch_manager/src/daemon/src/process_group_manager/details/component_event_queue_UT.cpp",
-    "line": "143",
+    "line": "145",
     "result": "passed",
     "repo_name": "local_repo",
     "hash": "",
@@ -9592,7 +9648,7 @@
   {
     "name": "ComponentEventQueueTest__GetNextEventStillDrainsQueuedEventsAfterStop",
     "file": "score/launch_manager/src/daemon/src/process_group_manager/details/component_event_queue_UT.cpp",
-    "line": "154",
+    "line": "156",
     "result": "passed",
     "repo_name": "local_repo",
     "hash": "",
@@ -9606,7 +9662,7 @@
   {
     "name": "ComponentEventQueueTest__PushReturnsFalseAfterStop",
     "file": "score/launch_manager/src/daemon/src/process_group_manager/details/component_event_queue_UT.cpp",
-    "line": "169",
+    "line": "171",
     "result": "passed",
     "repo_name": "local_repo",
     "hash": "",
@@ -10724,7 +10780,7 @@
     "FullyVerifies": null
   },
   {
-    "name": "ControlProviderUT__ActivateRunTarget_QueuedMode_Rejected",
+    "name": "ControlProviderUT__GivenAKnownQueuedRunTarget_ExpectQueueHasCapacity_WhenActivated_ThenRequestAccepted",
     "file": "score/launch_manager/src/daemon/src/control/control_provider_UT.cpp",
     "line": "433",
     "result": "passed",
@@ -10740,7 +10796,7 @@
   {
     "name": "ControlProviderUT__ActivateRunTarget_UnknownRunTarget_Rejected",
     "file": "score/launch_manager/src/daemon/src/control/control_provider_UT.cpp",
-    "line": "453",
+    "line": "461",
     "result": "passed",
     "repo_name": "local_repo",
     "hash": "",
@@ -10754,7 +10810,7 @@
   {
     "name": "ControlProviderUT__ActivateRunTarget_SetRequestedRunTargetFails_Rejected",
     "file": "score/launch_manager/src/daemon/src/control/control_provider_UT.cpp",
-    "line": "473",
+    "line": "481",
     "result": "passed",
     "repo_name": "local_repo",
     "hash": "",
@@ -10768,7 +10824,7 @@
   {
     "name": "ControlProviderUT__ActivateRunTarget_ForcedSuccess_Accepted",
     "file": "score/launch_manager/src/daemon/src/control/control_provider_UT.cpp",
-    "line": "494",
+    "line": "502",
     "result": "passed",
     "repo_name": "local_repo",
     "hash": "",
@@ -10782,7 +10838,7 @@
   {
     "name": "ControlProviderUT__GetActiveRunTarget_ActivationInProgress_NotAvailable",
     "file": "score/launch_manager/src/daemon/src/control/control_provider_UT.cpp",
-    "line": "518",
+    "line": "526",
     "result": "passed",
     "repo_name": "local_repo",
     "hash": "",
@@ -10796,7 +10852,7 @@
   {
     "name": "ControlProviderUT__GetActiveRunTarget_Available",
     "file": "score/launch_manager/src/daemon/src/control/control_provider_UT.cpp",
-    "line": "536",
+    "line": "544",
     "result": "passed",
     "repo_name": "local_repo",
     "hash": "",
@@ -10810,7 +10866,7 @@
   {
     "name": "ControlProviderUT__GetActiveRunTarget_UnexpectedError_Aborts",
     "file": "score/launch_manager/src/daemon/src/control/control_provider_UT.cpp",
-    "line": "556",
+    "line": "564",
     "result": "passed",
     "repo_name": "local_repo",
     "hash": "",
@@ -10824,7 +10880,7 @@
   {
     "name": "ControlProviderUT__ActivationResult_AllocateFails_SendNotAttempted",
     "file": "score/launch_manager/src/daemon/src/control/control_provider_UT.cpp",
-    "line": "582",
+    "line": "590",
     "result": "passed",
     "repo_name": "local_repo",
     "hash": "",
@@ -10838,7 +10894,7 @@
   {
     "name": "ControlProviderUT__ActivationResult_SendFails_NocrashAfterAllocate",
     "file": "score/launch_manager/src/daemon/src/control/control_provider_UT.cpp",
-    "line": "595",
+    "line": "603",
     "result": "passed",
     "repo_name": "local_repo",
     "hash": "",
@@ -10852,7 +10908,7 @@
   {
     "name": "ControlProviderUT__ActivationResult_Success_EventPopulatedAndSent",
     "file": "score/launch_manager/src/daemon/src/control/control_provider_UT.cpp",
-    "line": "611",
+    "line": "619",
     "result": "passed",
     "repo_name": "local_repo",
     "hash": "",
@@ -10866,7 +10922,7 @@
   {
     "name": "ControlProviderUT__OfferService_OpenFd_SetsCloexec",
     "file": "score/launch_manager/src/daemon/src/control/control_provider_UT.cpp",
-    "line": "655",
+    "line": "663",
     "result": "passed",
     "repo_name": "local_repo",
     "hash": "",
@@ -10880,7 +10936,7 @@
   {
     "name": "ControlProviderUT__OfferService_FSetfdFails_LogsAndContinues",
     "file": "score/launch_manager/src/daemon/src/control/control_provider_UT.cpp",
-    "line": "690",
+    "line": "698",
     "result": "passed",
     "repo_name": "local_repo",
     "hash": "",
@@ -10894,7 +10950,7 @@
   {
     "name": "LmControlSpecifierFactoryUT__Create_ReturnsValidSpecifier",
     "file": "score/launch_manager/src/daemon/src/control/control_provider_UT.cpp",
-    "line": "715",
+    "line": "723",
     "result": "passed",
     "repo_name": "local_repo",
     "hash": "",
