@@ -3,7 +3,8 @@
     "appId": "LM",
     "logLevel": "kDebug",
     "logLevelThresholdConsole": "kDebug",
-    "logMode": "kConsole",
+    "logMode": "kConsole|kFile",
+    "logFilePath": "/tmp",
     "contextConfigs":[
         {
             "name": "LM",

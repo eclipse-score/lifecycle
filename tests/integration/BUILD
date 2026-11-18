@@ -17,6 +17,8 @@ test_suite(
         "//tests/integration/alive/cpp_alive",
         "//tests/integration/alive/rust_alive",
         "//tests/integration/complex_monitoring",
+        "//tests/integration/logs/activations:component_activation_log",
+        "//tests/integration/logs/recovery:component_recovery_log",
         "//tests/integration/component_order",
         "//tests/integration/crash_ignores_dependents",
         "//tests/integration/crash_on_startup",
