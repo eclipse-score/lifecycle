@@ -37,7 +37,11 @@ using namespace std::chrono_literals;
 class MockProcessMap : public SafeProcessMapInserter
 {
   public:
-    MOCK_METHOD(SafeProcessMapReturnType, insertIfNotTerminated, (osal::ProcessID key, IComponent* object), (override));
+    MOCK_METHOD(
+        SafeProcessMapInsertResult,
+        insertIfNotTerminated,
+        (osal::ProcessID key, IComponent* object),
+        (override));
 };
 
 class GraphTest : public ::testing::Test
@@ -123,7 +127,8 @@ class GraphTest : public ::testing::Test
             const osal::ProcessID pid = 100;
             EXPECT_CALL(process_interface_, startProcess)
                 .WillOnce(DoAll(SetArgReferee<0>(pid), Return(osal::OsalReturnType::kSuccess)));
-            EXPECT_CALL(*mock_process_map, insertIfNotTerminated).WillOnce(Return(SafeProcessMapReturnType::kInserted));
+            EXPECT_CALL(*mock_process_map, insertIfNotTerminated)
+                .WillOnce(Return(SafeProcessMapInsertResult{SafeProcessMapReturnType::kInserted}));
             res = job.component.get().activate(job.stop_token);
         }
         else if (job.type == ComponentTaskType::kDeactivate)
