@@ -58,7 +58,16 @@ class SupervisionEventQueue
     /// @return true if enqueued, false otherwise.
     bool tryEnqueue(const SupervisionEvent& event)
     {
-        return mapEnqueueResult(queue_.push(event), overflow_);
+        const auto result = queue_.push(event);
+        if (result.has_value())
+        {
+            return true;
+        }
+        if (result.error() == internal::ConcurrencyErrc::kOverflow)
+        {
+            overflow_.store(true, std::memory_order_relaxed);
+        }
+        return false;
     }
 
     /// @brief Try Dequeue
@@ -86,22 +95,6 @@ class SupervisionEventQueue
     }
 
   private:
-    friend struct SupervisionEventQueueTestPeer;
-
-    /// @brief Maps a push result to bool; only kOverflow sets the sticky flag.
-    static bool mapEnqueueResult(const score::Result<void>& result, std::atomic<bool>& overflow) noexcept
-    {
-        if (result.has_value())
-        {
-            return true;
-        }
-        if (result.error() == internal::ConcurrencyErrc::kOverflow)
-        {
-            overflow.store(true, std::memory_order_relaxed);
-        }
-        return false;
-    }
-
     score::mw::lifecycle::internal::MpscBoundedQueue<SupervisionEvent> queue_;
     std::atomic<bool> overflow_{false};
 };

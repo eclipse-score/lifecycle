@@ -90,6 +90,7 @@ class ObservableEventReader_UT : public ::testing::Test
 
 TEST_F(ObservableEventReader_UT, DistributeChanges_EmptyQueue_SucceedsWithoutUpdates)
 {
+    RecordProperty("Description", "Distributing changes with an empty queue succeeds and notifies no observer.");
     RecordProperty("DerivationTechnique", "boundary-values");
     EXPECT_TRUE(reader_->distributeChanges(kFarFuture));
     EXPECT_TRUE(observer_.received.empty());
@@ -97,7 +98,9 @@ TEST_F(ObservableEventReader_UT, DistributeChanges_EmptyQueue_SucceedsWithoutUpd
 
 TEST_F(ObservableEventReader_UT, DistributeChanges_QueuedEvents_DeliveredInOrder)
 {
-    RecordProperty("DerivationTechnique", "requirements-based");
+    RecordProperty(
+        "Description", "Queued events are delivered to the registered observable in the order they were enqueued.");
+    RecordProperty("DerivationTechnique", "equivalence-classes");
     ASSERT_TRUE(buffer_->tryEnqueue(makeEvent(SupervisionEventType::kActivation)));
     ASSERT_TRUE(buffer_->tryEnqueue(makeEvent(SupervisionEventType::kDeactivation)));
 
@@ -113,13 +116,17 @@ TEST_F(ObservableEventReader_UT, DistributeChanges_QueuedEvents_DeliveredInOrder
 
 TEST_F(ObservableEventReader_UT, RegisterObservableEvent_DuplicateId_ReturnsFalse)
 {
-    RecordProperty("DerivationTechnique", "error-condition-injection");
+    RecordProperty("Description", "Registering an observable event with an already registered id is rejected.");
+    RecordProperty("DerivationTechnique", "equivalence-classes");
     ifexm::ObservableEvent duplicate{process_};
     EXPECT_FALSE(reader_->registerObservableEvent(duplicate, process_));
 }
 
 TEST_F(ObservableEventReader_UT, DeregisterObservableEvent_RegisteredId_StopsDelivery)
 {
+    RecordProperty(
+        "Description",
+        "After deregistering an id, events for it are consumed but no longer delivered to the observer.");
     RecordProperty("DerivationTechnique", "equivalence-classes");
     reader_->deregisterObservableEvent(process_);
     ASSERT_TRUE(buffer_->tryEnqueue(makeEvent(SupervisionEventType::kActivation)));
@@ -130,6 +137,8 @@ TEST_F(ObservableEventReader_UT, DeregisterObservableEvent_RegisteredId_StopsDel
 
 TEST_F(ObservableEventReader_UT, DeregisterObservableEvent_UnknownId_IsNoOp)
 {
+    RecordProperty(
+        "Description", "Deregistering an unknown id has no effect; delivery to registered observables continues.");
     RecordProperty("DerivationTechnique", "equivalence-classes");
     reader_->deregisterObservableEvent(IdentifierHash{"Unknown"});
     ASSERT_TRUE(buffer_->tryEnqueue(makeEvent(SupervisionEventType::kActivation)));
@@ -140,6 +149,9 @@ TEST_F(ObservableEventReader_UT, DeregisterObservableEvent_UnknownId_IsNoOp)
 
 TEST_F(ObservableEventReader_UT, DistributeChanges_EventAfterSyncTimestamp_DeliveredInNextCycle)
 {
+    RecordProperty(
+        "Description",
+        "An event newer than the sync timestamp is withheld in the current cycle and delivered in the next one.");
     RecordProperty("DerivationTechnique", "boundary-values");
     ASSERT_TRUE(buffer_->tryEnqueue(makeEventAt(SupervisionEventType::kActivation, 10)));
 
@@ -153,6 +165,10 @@ TEST_F(ObservableEventReader_UT, DistributeChanges_EventAfterSyncTimestamp_Deliv
 
 TEST_F(ObservableEventReader_UT, DistributeChanges_EventAfterSyncTimestamp_LaterEventsStayQueued)
 {
+    RecordProperty(
+        "Description",
+        "When an event is newer than the sync timestamp, later queued events are held back and all are delivered in "
+        "order in a later cycle.");
     RecordProperty("DerivationTechnique", "boundary-values");
     ASSERT_TRUE(buffer_->tryEnqueue(makeEventAt(SupervisionEventType::kActivation, 10)));
     ASSERT_TRUE(buffer_->tryEnqueue(makeEventAt(SupervisionEventType::kDeactivation, 11)));
@@ -169,7 +185,11 @@ TEST_F(ObservableEventReader_UT, DistributeChanges_EventAfterSyncTimestamp_Later
 
 TEST_F(ObservableEventReader_UT, DistributeChanges_Overflow_ReturnsFalse_AndStaysFailedUntilReset)
 {
-    RecordProperty("DerivationTechnique", "error-condition-injection");
+    RecordProperty(
+        "Description",
+        "After a queue overflow distributeChanges fails and delivers nothing until the overflow flag is cleared, after "
+        "which queued events are delivered.");
+    RecordProperty("DerivationTechnique", "boundary-values");
     ASSERT_TRUE(buffer_->tryEnqueue(makeEvent(SupervisionEventType::kActivation)));
     ASSERT_TRUE(buffer_->tryEnqueue(makeEvent(SupervisionEventType::kDeactivation)));
     EXPECT_FALSE(buffer_->tryEnqueue(makeEvent(SupervisionEventType::kActivation)));
