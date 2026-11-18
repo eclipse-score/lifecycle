@@ -435,6 +435,7 @@ void ProcessGroupManager::processGroupHandler(Graph& pg)
             //
             // we will try to perform recovery action
 
+            // req-id: comp_req__launch_man__ra_logging_support
             LM_LOG_WARN() << "Problem discovered, activating recovery state:" << Graph::recovery_state_name;
 
             // no point checking errors here...

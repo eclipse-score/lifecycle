@@ -20,7 +20,7 @@ from attribute_plugin import add_test_properties
 
 
 @add_test_properties(
-    partially_verifies=["comp_req__launch_man__process_logging_support"],
+    partially_verifies=["comp_req__launch_man__ra_logging_support"],
     test_type="requirements-based",
     derivation_technique="requirements-analysis",
 )
@@ -42,7 +42,7 @@ def test_component_recovery_log(
     run_test(
         target=target,
         binary_path=str(remote_test_dir / "launch_manager"),
-        args=["-c", str(remote_test_dir / "etc/component_recovery_log.bin")],
+        args=["-c", str(remote_test_dir / "etc/config.bin")],
         cwd=str(remote_test_dir),
     )
 

@@ -25,10 +25,10 @@ cc_binary(
 
 integration_test(
     name = "component_activation_log",
-    srcs = ["component_activation_log.py"],
+    srcs = ["test.py"],
     binaries = [
         ":logging_process",
         "//score/launch_manager",
     ],
-    config = ":component_activation_log.json",
+    config = ":config.json",
 )

@@ -43,7 +43,7 @@ def test_component_activation_log(
     run_test(
         target=target,
         binary_path=str(remote_test_dir / "launch_manager"),
-        args=["-c", str(remote_test_dir / "etc/component_activation_log.bin")],
+        args=["-c", str(remote_test_dir / "etc/config.bin")],
         cwd=str(remote_test_dir),
     )
 
@@ -53,9 +53,9 @@ def test_component_activation_log(
     pid = get_testcase_property(test_output_dir / "logging_process.xml", "pid")
     logs = parse_dlt_file(test_output_dir / "LM.dlt")
 
-    start_pattern = re.compile(r"startProcess for process \(\s*component_logging\s*\) done")
+    start_pattern = re.compile(r"Name:\s*component_logging\s*,\s*PID:\s*-?\d+\s*startProcess done")
     termination_pattern = re.compile(
-        r"Process\s+component_logging\s*\(\s*pid\s*(\d+)\s*\)\s*terminated with status\s*(-?\d+)"
+        r"Name:\s*component_logging\s*,\s*PID:\s*(\d+)\s*Process terminated with status\s*(-?\d+)"
     )
 
     starts = [log for log in logs if start_pattern.search(log.message)]

@@ -14,10 +14,10 @@ load("//tests/utils/bazel:integration.bzl", "integration_test")
 
 integration_test(
     name = "component_recovery_log",
-    srcs = ["component_recovery_log.py"],
+    srcs = ["test.py"],
     binaries = [
         "//score/launch_manager",
         "//tests/utils/test_helper:verification_process",
     ],
-    config = ":component_recovery_log.json",
+    config = ":config.json",
 )
