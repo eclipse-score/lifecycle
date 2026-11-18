@@ -43,34 +43,27 @@ Alive::Alive(
       timeSortingUpdateEventBuffer(common::TimeSortingBuffer<TimeSortedUpdateEvent>(bufferSize))
 {
     interface.attachObserver(*this);
-    SCORE_LANGUAGE_FUTURECPP_PRECONDITION_PRD_MESSAGE(
+    SCORE_LANGUAGE_FUTURECPP_PRECONDITION_DBG_MESSAGE(
         (k_aliveReferenceCycle.count() != 0U), "k_aliveReferenceCycle=0 causes infinite loop during evaluation.");
 
-    SCORE_LANGUAGE_FUTURECPP_PRECONDITION_PRD_MESSAGE(
+    SCORE_LANGUAGE_FUTURECPP_PRECONDITION_DBG_MESSAGE(
         (aliveStatus == EStatus::kDeactivated), "Alive Supervision must start in deactivated state");
 
-    SCORE_LANGUAGE_FUTURECPP_PRECONDITION_PRD_MESSAGE(
+    SCORE_LANGUAGE_FUTURECPP_PRECONDITION_DBG_MESSAGE(
         (recoveryClient_p != nullptr), "Recovery client must be provided");
 }
 
 void Alive::updateData(const score::mw::lifecycle::internal::saf::ifappl::Checkpoint& f_observable_r) noexcept(true)
 {
-    std::chrono::nanoseconds timestamp{f_observable_r.timestamp};
-
     if (f_observable_r.isDataLossEvent)
     {
         dataLossReason = EDataLossReason::kSharedMemory;
-        // If clock error is detected, last syncTimestamp is used as event timestamp.
-        eventTimestamp = ((timestamp.count() == 0U) ? lastSyncTimestamp : timestamp);
+        eventTimestamp = lastSyncTimestamp;
     }
-    else
+    else if (!timeSortingUpdateEventBuffer.push(CheckpointSnapshot{f_observable_r.timestamp}, f_observable_r.timestamp))
     {
-        CheckpointSnapshot checkpointSnapshot{timestamp};
-        if (!timeSortingUpdateEventBuffer.push(checkpointSnapshot, timestamp))
-        {
-            dataLossReason = EDataLossReason::kBufferFull;
-            eventTimestamp = lastSyncTimestamp;
-        }
+        dataLossReason = EDataLossReason::kBufferFull;
+        eventTimestamp = lastSyncTimestamp;
     }
 }
 
@@ -78,8 +71,8 @@ void Alive::updateData(const ifexm::ObservableEvent& f_observable_r) noexcept(tr
 {
     const std::chrono::nanoseconds timestamp{
         timers::TimeConversion::convertToNanoSec(f_observable_r.event.systemClockTimestamp)};
-    SupervisionEventSnapshot snapshot{timestamp, f_observable_r.event.eventType};
-    if (!timeSortingUpdateEventBuffer.push(snapshot, timestamp))
+    if (!timeSortingUpdateEventBuffer.push(
+            SupervisionEventSnapshot{timestamp, f_observable_r.event.eventType}, timestamp))
     {
         dataLossReason = EDataLossReason::kBufferFull;
         eventTimestamp = lastSyncTimestamp;
@@ -113,7 +106,7 @@ void Alive::evaluate(const std::chrono::nanoseconds f_syncTimestamp)
     while (sortedUpdateEvent_p != nullptr)
     {
         std::chrono::nanoseconds timestampOfUpdateEvent{getTimestampOfUpdateEvent(*sortedUpdateEvent_p)};
-        SCORE_LANGUAGE_FUTURECPP_ASSERT_PRD_MESSAGE(
+        SCORE_LANGUAGE_FUTURECPP_ASSERT_DBG_MESSAGE(
             (timestampOfUpdateEvent <= f_syncTimestamp),
             "Alive supervision: Checkpoint events are reported beyond syncTimestamp.");
 
@@ -155,12 +148,7 @@ void Alive::evaluate(const std::chrono::nanoseconds f_syncTimestamp)
                 break;
             }
 
-            default:
-            {
-                eventTimestamp = lastSyncTimestamp;
-                switchToExpired(EReason::kDataCorruption);
-                break;
-            }
+                SCORE_LANGUAGE_FUTURECPP_UNREACHABLE();
         }
 
         checkTransitionsToDeactivated(currentUpdateType, timestampOfUpdateEvent);
@@ -266,15 +254,14 @@ Alive::EUpdateEventType Alive::getAliveEventType(
     if (std::holds_alternative<SupervisionEventSnapshot>(f_updateEvent))
     {
         const auto& snapshot = std::get<SupervisionEventSnapshot>(f_updateEvent);
-        if (snapshot.eventType == score::mw::lifecycle::SupervisionEventType::kActivation)
+        switch (snapshot.eventType)
         {
-            return EUpdateEventType::kActivation;
+            case SupervisionEventType::kActivation:
+                return EUpdateEventType::kActivation;
+            case SupervisionEventType::kDeactivation:
+                return EUpdateEventType::kDeactivation;
         }
-        if (snapshot.eventType == score::mw::lifecycle::SupervisionEventType::kDeactivation)
-        {
-            return EUpdateEventType::kDeactivation;
-        }
-        return EUpdateEventType::kNoChange;
+        SCORE_LANGUAGE_FUTURECPP_UNREACHABLE();
     }
 
     if (std::holds_alternative<CheckpointSnapshot>(f_updateEvent))
@@ -283,7 +270,7 @@ Alive::EUpdateEventType Alive::getAliveEventType(
     }
 
     // SyncSnapshot
-    SCORE_LANGUAGE_FUTURECPP_ASSERT_PRD(std::holds_alternative<SyncSnapshot>(f_updateEvent));
+    SCORE_LANGUAGE_FUTURECPP_ASSERT_DBG(std::holds_alternative<SyncSnapshot>(f_updateEvent));
     return EUpdateEventType::kSync;
 }
 
@@ -291,13 +278,10 @@ void Alive::checkTransitionsOutOfDeactivated(
     const EUpdateEventType f_updateEventType,
     const std::chrono::nanoseconds f_updateEventTimestamp) noexcept(true)
 {
-    if (f_updateEventType == EUpdateEventType::kActivation)
+    if ((f_updateEventType == EUpdateEventType::kActivation) && !setReferenceCycleTimestamps(f_updateEventTimestamp))
     {
-        if (!setReferenceCycleTimestamps(f_updateEventTimestamp))
-        {
-            eventTimestamp = f_updateEventTimestamp;
-            switchToOk();
-        }
+        eventTimestamp = f_updateEventTimestamp;
+        switchToOk();
     }
 }
 
@@ -485,7 +469,7 @@ void Alive::switchToExpired(Alive::EReason reason) noexcept(true)
                                    << ") switched to EXPIRED, due to buffer overflow.";
                     break;
                 default:
-                    SCORE_LANGUAGE_FUTURECPP_ASSERT_PRD(dataLossReason != EDataLossReason::kNoDataLoss);
+                    SCORE_LANGUAGE_FUTURECPP_ASSERT_DBG(dataLossReason != EDataLossReason::kNoDataLoss);
                     LM_LOG_ERROR() << "Alive Supervision (" << getConfigName()
                                    << ") switched to EXPIRED, due to unknown data loss case.";
                     break;
@@ -575,22 +559,16 @@ void Alive::logExpiredFailedStateDetails() const noexcept(true)
 
 std::chrono::nanoseconds Alive::getTimestampOfUpdateEvent(const TimeSortedUpdateEvent f_updateEvent) noexcept(true)
 {
-    std::chrono::nanoseconds timestamp{0U};
-    if (std::holds_alternative<SupervisionEventSnapshot>(f_updateEvent))
+    if (const auto* snapshot = std::get_if<SupervisionEventSnapshot>(&f_updateEvent))
     {
-        timestamp = std::get<SupervisionEventSnapshot>(f_updateEvent).timestamp;
+        return snapshot->timestamp;
     }
-    else if (std::holds_alternative<CheckpointSnapshot>(f_updateEvent))
+    if (const auto* snapshot = std::get_if<CheckpointSnapshot>(&f_updateEvent))
     {
-        timestamp = std::get<CheckpointSnapshot>(f_updateEvent).timestamp;
+        return snapshot->timestamp;
     }
-    else
-    {
-        SCORE_LANGUAGE_FUTURECPP_ASSERT_PRD(std::holds_alternative<SyncSnapshot>(f_updateEvent));
-        timestamp = std::get<SyncSnapshot>(f_updateEvent);
-    }
-
-    return timestamp;
+    SCORE_LANGUAGE_FUTURECPP_ASSERT_DBG(std::holds_alternative<SyncSnapshot>(f_updateEvent));
+    return std::get<SyncSnapshot>(f_updateEvent);
 }
 
 IdentifierHash Alive::getIdentifier() const noexcept
