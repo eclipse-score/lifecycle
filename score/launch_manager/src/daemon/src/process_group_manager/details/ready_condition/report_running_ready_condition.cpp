@@ -32,12 +32,10 @@ Result<void> ReportRunningReadyCondition::wait(cpp::stop_token /*stop_token*/, c
         process->sync != nullptr,
         "ReportRunningReadyCondition should only be called with a ProcessHandle containing IPCCommsSync");
 
+    // waitForkRunning only succeeds if the process itself reported kRunning, not if it was woken up by
+    // tryHandleTermination.
     const osal::OsalReturnType result = launcher_.waitForkRunning(process->sync, timeout_);
 
-    // The handshake needs two posts, the first of which is the kRunning report. tryHandleTermination
-    // adds exactly one post when the process terminates, after all posts of the process. So success
-    // means the process reported kRunning itself, even if it terminated afterwards. A process which
-    // terminated without reporting leaves the second step without a post, which fails.
     if (result == osal::OsalReturnType::kSuccess)
     {
         return {};
