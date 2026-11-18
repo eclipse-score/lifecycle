@@ -473,10 +473,6 @@ void ProcessGroupManager::handleSetRequestedRunTarget(SetRequestedRunTarget* eve
         // Reject before this can reach Graph::startTransition() with no matching node (#541).
         response = score::MakeUnexpected(ExecErrc::kRunTargetDoesntExist);
     }
-    else if (graph_->isRecovering())
-    {
-        response = score::MakeUnexpected(ExecErrc::kRecoveryInProgress);
-    }
     else if (!event->forced && isActivationBusy())
     {
         const auto push_result = pending_activation_queue_.push(event->run_target);
