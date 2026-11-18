@@ -13,7 +13,7 @@
 
 #include "score/mw/launch_manager/process_group_manager/details/component.hpp"
 #include "score/mw/launch_manager/common/log.hpp"
-#include "score/mw/lifecycle/execution_error.h"
+#include "score/launch_manager/src/execution_error.h"
 
 namespace score::mw::lifecycle::internal
 {
@@ -87,41 +87,23 @@ Component::Component(
 
 IComponent::RequestResult Component::activate(cpp::stop_token stop_token)
 {
-    std::unique_lock<std::mutex> lock{state_mutex_};
-
-    SCORE_LANGUAGE_FUTURECPP_ASSERT_MESSAGE(
-        std::holds_alternative<TerminatedState>(state_), "Cannot activate component in a running state");
-
-    if (isSupervised(config_->component_properties.application_profile.application_type) && !supervision_handle_)
-    {
-        LM_LOG_ERROR() << config_->name << ": alive supervision is not set up";
-        state_ = FaultState{};
-        return RequestResult::kFailure;
-    }
-
-    // Anything left over from a previous activation is dropped.
-    ready_condition_->prepare();
-
-    const Result<Handle> start_result = start_action_->start(stop_token);
-    if (!start_result.has_value())
-    {
-        state_ = FaultState{};
-        return RequestResult::kFailure;
-    }
-    const Handle& handle = start_result.value();
-
     cpp::stop_source stop_activation{};
+
+    const std::optional<Handle> handle = beginActivation(stop_token, stop_activation);
+    if (!handle.has_value())
+    {
+        return RequestResult::kFailure;
+    }
+
     const cpp::stop_callback forward_stop{stop_token, [&stop_activation] {
                                               // This can fail if stop is requested from both places.
                                               static_cast<void>(stop_activation.request_stop());
                                           }};
 
-    state_ = StartingState{handle, stop_activation};
-
-    // Wait for the ready condition. The state is unlocked so that `deactivate` or
-    // `tryHandleTermination` are callable while we are waiting.
-    lock.unlock();
-    const Result<void> ready = ready_condition_->wait(stop_activation.get_token(), handle);
+    // The state is deliberately not locked while waiting for the ready condition: the wait may take
+    // up to the ready timeout, and `deactivate` or `tryHandleTermination` must be able to interrupt
+    // it in the meantime. Some ready conditions can only be woken up by `tryHandleTermination`.
+    const Result<void> ready = ready_condition_->wait(stop_activation.get_token(), handle.value());
     if (!ready.has_value())
     {
         if (ready.error() == ExecErrc::kTimeout)
@@ -131,7 +113,51 @@ IComponent::RequestResult Component::activate(cpp::stop_token stop_token)
         }
         return RequestResult::kFailure;
     }
-    lock.lock();
+
+    return completeActivation(stop_activation);
+}
+
+std::optional<Handle> Component::beginActivation(cpp::stop_token stop_token, const cpp::stop_source& stop_activation)
+{
+    const std::lock_guard<std::mutex> lock{state_mutex_};
+
+    SCORE_LANGUAGE_FUTURECPP_ASSERT_MESSAGE(
+        std::holds_alternative<TerminatedState>(state_), "Cannot activate component in a running state");
+
+    if (isSupervised(config_->component_properties.application_profile.application_type) && !supervision_handle_)
+    {
+        LM_LOG_ERROR() << config_->name << ": alive supervision is not set up";
+        state_ = FaultState{};
+        return std::nullopt;
+    }
+
+    // Anything left over from a previous activation is dropped.
+    ready_condition_->prepare();
+
+    const Result<StartedResource> start_result = start_action_->start(stop_token, *this);
+    if (!start_result.has_value())
+    {
+        state_ = FaultState{};
+        return std::nullopt;
+    }
+    const StartedResource& started = start_result.value();
+
+    state_ = StartingState{started.handle, stop_activation};
+
+    // If the resource terminated before it could be tracked, its termination is not reported
+    // later, so it is handled here, while the state is still locked.
+    if (started.exit_status.has_value() &&
+        (tryHandleTerminationInternally(started.exit_status.value()) == TerminationResult::kFailure))
+    {
+        return std::nullopt;
+    }
+
+    return started.handle;
+}
+
+IComponent::RequestResult Component::completeActivation(const cpp::stop_source& stop_activation)
+{
+    const std::lock_guard<std::mutex> lock{state_mutex_};
 
     // If `deactivate` or `tryHandleTermination` was called during the wait then
     // activation fails.
@@ -140,7 +166,7 @@ IComponent::RequestResult Component::activate(cpp::stop_token stop_token)
         return RequestResult::kFailure;
     }
 
-    // The state could change while the lock was released, so we have to check.
+    // The state could change while it was not locked, so we have to check.
     if (const StartingState* const starting = std::get_if<StartingState>(&state_))
     {
         if (activateSupervision())
@@ -187,8 +213,9 @@ IComponent::RequestResult Component::deactivate(cpp::stop_token stop_token)
         return RequestResult::kFailure;
     }
 
-    // Without a live resource, nothing will terminate, so the component is inactive immediately.
-    // This includes a process which already terminated while the component was starting or ready.
+    // Without a resource, or if its termination was already handled (e.g. a self-terminating
+    // process which exited successfully), no termination will be reported anymore, so the
+    // component is inactive immediately.
     if (!isAlive(handle))
     {
         state_ = TerminatedState{};
@@ -203,7 +230,11 @@ IComponent::RequestResult Component::deactivate(cpp::stop_token stop_token)
 IComponent::TerminationResult Component::tryHandleTermination(int32_t status)
 {
     const std::lock_guard<std::mutex> lock{state_mutex_};
+    return tryHandleTerminationInternally(status);
+}
 
+IComponent::TerminationResult Component::tryHandleTerminationInternally(int32_t status)
+{
     // If we are waiting for termination, mark it as done. We do not care
     // about the exit code.
     if (std::holds_alternative<TerminatingState>(state_))

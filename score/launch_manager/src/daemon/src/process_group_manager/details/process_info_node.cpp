@@ -195,11 +195,9 @@ bool ProcessInfoNode::setState(score::mw::lifecycle::ProcessState new_state)
 
 void ProcessInfoNode::unblockSync()
 {
-    auto sync = sync_;  // take a copy as the pointer otherwise may become invalidated
+    auto sync = sync_;  // take a copy so the shared block stays alive during the post
     if (sync)
     {
-        // note that we ignore the return code. The semaphore operation may fail because it could
-        // be destroyed by another thread
         static_cast<void>(sync->send_sync_.post());
     }
 }
@@ -423,13 +421,7 @@ score::cpp::expected_blank<IComponent::RequestResult> ProcessInfoNode::handlePro
             else if constexpr (std::is_same_v<T, configuration::FileState>)
             {
 
-                if (isReporting())
-                {
-                    // currently we do not support multiple ready conditions so we need
-                    // to ignore the krunning signal.
-                    auto wait_res = process_handling_.process_interface_->waitForkRunning(sync_, std::nullopt);
-                    static_cast<void>(wait_res);
-                }
+                // if the process is reporting, the kRunning signal is currently ignored here
 
                 const auto wait_res = process_handling_.file_waiter_->waitForFile(
                     arg.file_path,
@@ -478,15 +470,16 @@ score::cpp::expected_blank<IComponent::RequestResult> ProcessInfoNode::handlePro
 score::cpp::expected<score::cpp::expected_blank<IComponent::RequestResult>, IComponent::RequestResult>
 ProcessInfoNode::handleProcessStarted(const score::cpp::stop_token& stop_token)
 {
-    switch (process_handling_.process_map_->insertIfNotTerminated(pid_, this))
+    const SafeProcessMapInsertResult insert_result = process_handling_.process_map_->insertIfNotTerminated(pid_, this);
+    switch (insert_result.type)
     {
         case score::mw::lifecycle::internal::SafeProcessMapReturnType::kInserted:  // Entry was inserted; process is
                                                                                    // still running
             return handleProcessStillStarting(stop_token);
         case score::mw::lifecycle::internal::SafeProcessMapReturnType::kMatched:
-            // Process has already exited and tryHandleTermination has completed.
-            // tryHandleTermination is called by insertIfNotTerminated() and therefore executes in sequence in this
-            // case.
+            // Process has already exited. The process map does not report the termination in this case, so it is
+            // handled here. While starting, a termination is never reported as a failure, so the result is ignored.
+            static_cast<void>(tryHandleTermination(insert_result.exit_status));
             return handleProcessAlreadyTerminated();
         default:  // Error case when pn == -1
             // really bad fatal error, should not happen, treat as a failure to set the state & kill the process
@@ -538,8 +531,6 @@ void ProcessInfoNode::handleTerminationProcess(const score::cpp::stop_token& sto
         // handle forced termination
         handleForcedTermination(stop_token);
     }
-
-    termination_requested_.store(false);
 }
 
 void ProcessInfoNode::handleForcedTermination(const score::cpp::stop_token& stop_token)

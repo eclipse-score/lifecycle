@@ -26,7 +26,7 @@ using score::mw::lifecycle::g_ExecErrorDomain;
 namespace
 {
 
-constexpr std::array<ExecErrc, 19> kAllKnownCodes{{
+constexpr std::array<ExecErrc, 18> kAllKnownCodes{{
     ExecErrc::kGeneralError,
     ExecErrc::kInvalidArguments,
     ExecErrc::kCommunicationError,
@@ -45,7 +45,6 @@ constexpr std::array<ExecErrc, 19> kAllKnownCodes{{
     ExecErrc::kTimeout,
     ExecErrc::kShuttingDown,
     ExecErrc::kRecoveryInProgress,
-    ExecErrc::kTimeout,
 }};
 
 }  // namespace

@@ -67,6 +67,7 @@ cc_library(
     deps = [
         ":component",
         ":icomponent",
+        ":safe_process_map",
         "//score/launch_manager:error",
         "//score/launch_manager/src/daemon/src/alive_monitor:isupervision_factory",
         "//score/launch_manager/src/daemon/src/common:log",
@@ -92,6 +93,7 @@ lm_cc_test(
     srcs = ["component_factory_UT.cpp"],
     deps = [
         ":component_factory",
+        ":mock_safe_process_map_inserter",
         "//score/launch_manager:error",
         "//score/launch_manager/src/daemon/src/alive_monitor:mock_supervision_factory",
         "//score/launch_manager/src/daemon/src/osal:mock_ifile_waiter",
@@ -186,6 +188,19 @@ cc_library(
     visibility = ["//score:__subpackages__"],
     deps = [
         ":icomponent_event_publisher_consumer",
+        "@googletest//:gtest_main",
+    ],
+)
+
+cc_library(
+    name = "mock_safe_process_map_inserter",
+    testonly = True,
+    hdrs = ["mock_safe_process_map_inserter.hpp"],
+    include_prefix = "score/mw/launch_manager/process_group_manager/details",
+    strip_include_prefix = "/score/launch_manager/src/daemon/src/process_group_manager/details",
+    visibility = ["//score/launch_manager/src/daemon/src/process_group_manager:__subpackages__"],
+    deps = [
+        ":safe_process_map",
         "@googletest//:gtest_main",
     ],
 )
@@ -414,7 +429,7 @@ cc_library(
     hdrs = ["safe_process_map.hpp"],
     include_prefix = "score/mw/launch_manager/process_group_manager/details",
     strip_include_prefix = "/score/launch_manager/src/daemon/src/process_group_manager/details",
-    visibility = ["//score/launch_manager/src/daemon/src/process_group_manager:__pkg__"],
+    visibility = ["//score/launch_manager/src/daemon/src/process_group_manager:__subpackages__"],
     deps = [
         ":icomponent_controller",
         "//score/launch_manager/src/daemon/src/common:init_only_resource",

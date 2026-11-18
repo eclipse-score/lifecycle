@@ -108,13 +108,11 @@ class IProcess
 
     virtual OsalReturnType waitForTermination(ProcessID& pid, int32_t& status) = 0;
 
-    /// @brief This method wait for kRunning to be received from the process that was started
-    /// @param sync     The valid pointer returned from startProcess. Must not be NULL
-    /// @param timeout  How long to wait for kRunning. If nullopt is provided, kRunning notifications are ignored
-    /// @return kSuccess if kRunning was reported (or ignored because no timeout was given),
-    ///         kTimeout if kRunning was not reported within the timeout,
-    ///         kFail if sync is NULL, a semaphore operation failed, or the process did not complete the handshake
-    virtual OsalReturnType waitForkRunning(IpcCommsP sync, std::optional<std::chrono::milliseconds> timeout) = 0;
+    /// @brief This method wait for kRunning to be received from the process that was started.
+    /// @param sync     The valid pointer returned from startProcess. Must not be NULL.
+    /// @param timeout  How long to wait for kRunning.
+    /// @return kFail if sync is NULL or waiting fails, kTimeout on timeout, kSuccess otherwise.
+    virtual OsalReturnType waitForkRunning(IpcCommsP sync, std::chrono::milliseconds timeout) = 0;
 };
 
 }  // namespace score::mw::lifecycle::internal::osal
