@@ -181,7 +181,7 @@ TEST_F(SafeProcessMapTest, TerminationHandlerMayAccessMapWhenFindTerminatedMatch
     sut_.insertIfNotTerminated(1000, &callback_);
 
     // then — re-entering the map from the handler must not deadlock
-    EXPECT_CALL(controller, terminated(Ref(callback_), 42)).WillOnce(Invoke([this](IComponent& component, int32_t) {
+    EXPECT_CALL(controller_, terminated(Ref(callback_), 42)).WillOnce(Invoke([this](IComponent& component, int32_t) {
         EXPECT_EQ(
             sut_.insertIfNotTerminated(2000, &component).type,
             score::mw::lifecycle::internal::SafeProcessMapReturnType::kInserted);

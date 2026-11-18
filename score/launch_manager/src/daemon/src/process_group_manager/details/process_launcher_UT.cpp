@@ -409,12 +409,12 @@ TEST_F(ProcessLauncherTest, releasingCommsObjectDestroysSemaphore)
         "dropped");
 
     const int fd = 123;
-    void* data = static_cast<void*>(test_buffer.data());
+    void* data = static_cast<void*>(test_buffer_.data());
     EXPECT_CALL(*g_syscall_mock, mmap(_, _, _, _, fd, _)).WillOnce(Return(data));
     EXPECT_CALL(*semaphore_mock_, sem_init).WillOnce(Return(kSemSuccess));
 
     // Fill with garbage to verify that reported_running_ is initialized explicitly
-    std::memset(test_buffer.data(), 0xFF, test_buffer.size());
+    std::memset(test_buffer_.data(), 0xFF, test_buffer_.size());
 
     IpcCommsP block = IpcCommsSync::createCommsObject(fd);
     ASSERT_NE(block, nullptr);
@@ -437,7 +437,7 @@ TEST_F(ProcessLauncherTest, releasingCommsObjectSkipsDestroyOnInvalidMemory)
         "unmapped");
 
     const int fd = 123;
-    void* data = static_cast<void*>(test_buffer.data());
+    void* data = static_cast<void*>(test_buffer_.data());
     EXPECT_CALL(*g_syscall_mock, mmap(_, _, _, _, fd, _)).WillOnce(Return(data));
     EXPECT_CALL(*semaphore_mock_, sem_init).WillOnce(Return(kSemSuccess));
 
@@ -914,7 +914,7 @@ TEST_F(ProcessLauncherTest, kRunningWokenUpWithoutReport)
     EXPECT_CALL(*semaphore_mock_, sem_timedwait_monotonic).Times(1).WillOnce(Return(kSemSuccess));
 
     EXPECT_FALSE(sync->hasReportedRunning());
-    EXPECT_EQ(process_launcher->waitForkRunning(sync, 1ms), OsalReturnType::kFail);
+    EXPECT_EQ(process_launcher_->waitForkRunning(sync, 1ms), OsalReturnType::kFail);
 }
 
 TEST_F(ProcessLauncherTest, kRunningTimeout)
