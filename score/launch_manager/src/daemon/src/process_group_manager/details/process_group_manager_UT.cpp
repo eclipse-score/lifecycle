@@ -304,7 +304,7 @@ TEST_F(ProcessGroupManagerReportingTest, GetActiveRunTargetAndSetRequestedRunTar
     EXPECT_FALSE(active_result.has_value());
     EXPECT_EQ(active_result.error(), ExecErrc::kActivationInProgress);
 
-    auto set_result = process_group_manager_->setRequestedRunTarget(IdentifierHash{"InvalidTarget"});
+    auto set_result = process_group_manager_->setRequestedRunTarget(IdentifierHash{"InvalidTarget"}, false);
     EXPECT_FALSE(set_result.has_value());
     EXPECT_EQ(set_result.error(), ExecErrc::kRunTargetDoesntExist);
 
@@ -329,7 +329,7 @@ TEST_F(ProcessGroupManagerWatchdogTest, GetActiveRunTargetWhenStoppedReturnsShut
     EXPECT_FALSE(active_result.has_value());
     EXPECT_EQ(active_result.error(), ExecErrc::kShuttingDown);
 
-    auto set_result = process_group_manager_->setRequestedRunTarget(IdentifierHash{"Startup"});
+    auto set_result = process_group_manager_->setRequestedRunTarget(IdentifierHash{"Startup"}, false);
     EXPECT_FALSE(set_result.has_value());
     EXPECT_EQ(set_result.error(), ExecErrc::kShuttingDown);
 }

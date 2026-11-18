@@ -435,19 +435,6 @@ Process Configuration
     .. note::
        This is security policies on QNX, and capabilities on Linux
 
-.. comp_req:: File descriptor inheritance support
-    :id: comp_req__launch_man__fd_inheritance
-    :reqtype: Functional
-    :security: NO
-    :safety: ASIL_B
-    :derived_from: feat_req__lifecycle__sandbox_options[version==1]
-    :status: valid
-    :version: 1
-    :satisfied_by: comp__lifecycle_launch_manager
-
-    The :term:`Launch Manager` shall provide support for launching a process with
-    given :term:`File Descriptor` inheritance restrictions.
-
 .. comp_req:: Supplementary group support
     :id: comp_req__launch_man__supplementary_groups
     :reqtype: Functional

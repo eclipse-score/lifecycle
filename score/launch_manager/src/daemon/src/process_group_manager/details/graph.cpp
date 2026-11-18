@@ -276,11 +276,11 @@ void Graph::tryQueueNode(ComponentTask task)
 bool Graph::startTransition(IdentifierHash pg_state, RunTargetActivationSource source)
 {
     LM_LOG_DEBUG() << "Graph starting transition to" << pg_state;
-    // Set before the transition can finish synchronously below, which reports the activation source.
-    transition_source_ = source;
     IdentifierHash old_state_name;
     {
         std::lock_guard<std::mutex> lock(requested_state_mutex_);
+        // Set before the transition can finish synchronously below, which reports the activation source.
+        transition_source_ = source;
         old_state_name = requested_state_;
         requested_state_ = pg_state;
     }
@@ -336,6 +336,14 @@ bool Graph::isTransitioningToOff() const
 {
     std::lock_guard<std::mutex> lock(requested_state_mutex_);
     return (getState() == GraphState::kInTransition) && (requested_state_ == off_state_);
+}
+
+bool Graph::isRecovering() const
+{
+    std::lock_guard<std::mutex> lock(requested_state_mutex_);
+    const auto state = getState();
+    return (state == GraphState::kUndefinedState) ||
+           (state == GraphState::kInTransition && (transition_source_ == RunTargetActivationSource::kRecoveryAction));
 }
 
 void Graph::handleComponentEvent(const ComponentEvent& event)
@@ -488,16 +496,6 @@ void Graph::forceKillProcesses()
     }
 }
 
-ProcessInfoNode* Graph::getProcessInfoNode(IdentifierHash process_index)
-{
-    if (nodes_.find(process_index) == nodes_.end())
-    {
-        return nullptr;
-    }
-
-    return std::get_if<ProcessInfoNode>(&nodes_[process_index]);
-}
-
 GraphState Graph::getState() const
 {
     return state_;
@@ -521,11 +519,6 @@ IdentifierHash Graph::setPendingState(IdentifierHash new_state, RunTargetActivat
     }
 
     return old_state;
-}
-
-IdentifierHash Graph::getPendingState()
-{
-    return pending_.run_target;
 }
 
 PendingTransition Graph::getPendingTransition() const
