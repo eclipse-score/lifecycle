@@ -21,6 +21,7 @@
 #include "score/mw/launch_manager/process_group_manager/details/start_action/istart_action.hpp"
 #include "score/mw/launch_manager/process_group_manager/iprocess.hpp"
 #include "score/result/result.h"
+#include <optional>
 
 namespace score::mw::lifecycle::internal
 {
@@ -49,11 +50,15 @@ class ProcessStartAction final : public IStartAction
     Result<StartedResource> start(cpp::stop_token stop_token, IComponent& component) const override;
 
   private:
-    /// @brief Insert the started process into the process map.
+    /// @brief Insert the started process into the process map, so that its termination is
+    ///        reported to @p component.
     /// @param pid The process ID of the started process.
+    /// @param sync The synchronization object of the started process.
     /// @param component The component which owns the process.
-    /// @return The result of the insertion, with the exit status on \c kMatched.
-    [[nodiscard]] SafeProcessMapInsertResult track(osal::ProcessID pid, IComponent& component) const;
+    /// @return The started process, with its exit status if it has already terminated, or
+    ///         std::nullopt if the process could not be inserted into the process map.
+    [[nodiscard]] std::optional<StartedResource>
+    track(osal::ProcessID pid, const osal::IpcCommsP& sync, IComponent& component) const;
 
     /// @brief The process launcher used to start the process.
     osal::IProcess& launcher_;

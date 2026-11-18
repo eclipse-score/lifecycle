@@ -37,7 +37,22 @@ Result<StartedResource> ProcessStartAction::start(cpp::stop_token /*stop_token*/
         return MakeUnexpected(ExecErrc::kGeneralError);
     }
 
-    const SafeProcessMapInsertResult tracked = track(pid, component);
+    const std::optional<StartedResource> started = track(pid, sync, component);
+    if (started.has_value())
+    {
+        return started.value();
+    }
+
+    // The termination of an untracked process would never be reported, so do not leave it running.
+    LM_LOG_ERROR() << config_.name << ": could not add pid" << pid << "to the process map, killing the process";
+    static_cast<void>(launcher_.forceTermination(pid));
+    return MakeUnexpected(ExecErrc::kGeneralError);
+}
+
+std::optional<StartedResource>
+ProcessStartAction::track(osal::ProcessID pid, const osal::IpcCommsP& sync, IComponent& component) const
+{
+    const SafeProcessMapInsertResult tracked = process_map_.insertIfNotTerminated(pid, &component);
     switch (tracked.type)
     {
         case SafeProcessMapReturnType::kInserted:
@@ -53,15 +68,7 @@ Result<StartedResource> ProcessStartAction::start(cpp::stop_token /*stop_token*/
             break;
     }
 
-    // The termination of an untracked process would never be reported, so do not leave it running.
-    LM_LOG_ERROR() << config_.name << ": could not add pid" << pid << "to the process map, killing the process";
-    static_cast<void>(launcher_.forceTermination(pid));
-    return MakeUnexpected(ExecErrc::kGeneralError);
-}
-
-SafeProcessMapInsertResult ProcessStartAction::track(osal::ProcessID pid, IComponent& component) const
-{
-    return process_map_.insertIfNotTerminated(pid, &component);
+    return std::nullopt;
 }
 
 }  // namespace score::mw::lifecycle::internal
