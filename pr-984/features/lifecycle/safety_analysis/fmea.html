@@ -499,7 +499,7 @@
                   
   <section id="fmea-failure-modes-and-effects-analysis">
 <h1>FMEA (Failure Modes and Effects Analysis)<a class="headerlink" href="#fmea-failure-modes-and-effects-analysis" title="Link to this heading">#</a></h1>
-<div class="need_container docutils container" id="SNCB-c31f0e47">
+<div class="need_container docutils container" id="SNCB-1c523b58">
 <div class="pst-scrollable-table-container"><table class="need needs_grid_complex needs_layout_score needs_style_none needs_type_document table" id="doc__lifecycle_fmea">
 <tbody>
 <tr class="head row-odd"><td class="head_left" colspan="2"><div class="needs_head_left line-block">
@@ -720,7 +720,7 @@ so the reaction does not wait for the timeout.</div>
 <td><p>MF_01_05, MF_01_07 (corrupted or unintended message in the shared monitoring data)</p></td>
 <td><p>A corrupted message hides a failure, or a spurious one triggers a recovery action of a healthy
 process. A stale process identifier in shared memory was such a defect (<code class="docutils literal notranslate"><span class="pre">UI_01_09</span></code> in the
-dependent failure analysis, fixed by pull request #830).</p></td>
+feature DFA draft of pull request #902). The fix is pull request #830, which is not yet merged.</p></td>
 <td><div class="line-block">
 <div class="line"><strong>Detection:</strong> none on the message content yet. The Health Monitor’s protection of its own data
 structures (<code class="docutils literal notranslate"><span class="pre">HM_FMEA_003</span></code> in <a class="reference internal" href="../../../components/health_monitor/safety_analysis/fmea.html#doc__health_monitor_fmea" title="doc__health_monitor_fmea"><em class="xref need">Health Monitor FMEA (doc__health_monitor_fmea)</em></a>) does not cover the messages
@@ -763,8 +763,10 @@ feature; its existence is an assumption of use of the integrator.</div>
 <td><p>A wrong transition or recovery action starts or stops components that should not change state.</p></td>
 <td><div class="line-block">
 <div class="line"><strong>Detection and mitigation:</strong> the integration tests of the run target transitions and of the
-recovery actions in <code class="docutils literal notranslate"><span class="pre">//tests/integration:integration</span></code> (for example
-<code class="docutils literal notranslate"><span class="pre">run_target_requests</span></code>, <code class="docutils literal notranslate"><span class="pre">switch_run_target</span></code>, <code class="docutils literal notranslate"><span class="pre">crash_ignores_dependents</span></code>).</div>
+recovery actions in the suite <code class="docutils literal notranslate"><span class="pre">//tests/integration:integration</span></code>, for example
+<code class="docutils literal notranslate"><span class="pre">//tests/integration/run_target_requests/...</span></code>,
+<code class="docutils literal notranslate"><span class="pre">//tests/integration/switch_run_target:switch_run_target</span></code> and
+<code class="docutils literal notranslate"><span class="pre">//tests/integration/crash_ignores_dependents:crash_ignores_dependents</span></code>.</div>
 <div class="line"><strong>Open point:</strong> the tests show behaviour, but there is no argument yet that they cover every
 transition in the design. Owner: Janis, trigger: the feature verification report.</div>
 </div>
@@ -776,8 +778,8 @@ transition in the design. Owner: Janis, trigger: the feature verification report
 <td><p>An unintended program runs with the rights of the process.</p></td>
 <td><div class="line-block">
 <div class="line"><strong>Detection and mitigation:</strong> the start of the configured binary is checked, and the integration
-test <code class="docutils literal notranslate"><span class="pre">//tests/integration:process_wrong_binary_failure</span></code> reports the failure. The sandbox
-options of the configuration apply to the started process, see
+test <code class="docutils literal notranslate"><span class="pre">//tests/integration/process_wrong_binary_failure:process_wrong_binary_failure</span></code> reports
+the failure. The sandbox options of the configuration apply to the started process, see
 <a class="external_link reference external" href="https://eclipse-score.github.io/score/main/features/lifecycle/requirements/index.html#feat_req__lifecycle__sandbox_options">feat_req__lifecycle__sandbox_options</a>.</div>
 </div>
 </td>
