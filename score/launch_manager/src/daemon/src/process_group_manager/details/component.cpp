@@ -37,6 +37,15 @@ bool isSupervised(const ApplicationType& application_type) noexcept
     SCORE_LANGUAGE_FUTURECPP_UNREACHABLE_MESSAGE("All possible cases are covered");
 }
 
+/// @brief Whether the termination of the resource referred to by @p handle will still be reported.
+/// @details This is not the case without a resource (EmptyHandle), or if the termination of the
+///          process was already handled and its handle was invalidated.
+bool isTerminationPending(const Handle& handle) noexcept
+{
+    const ProcessHandle* const process = std::get_if<ProcessHandle>(&handle);
+    return (process != nullptr) && (process->pid != -1);
+}
+
 std::unique_ptr<IAliveSupervisionHandle> constructSupervision(
     configuration::ComponentConfig& config,
     ISupervisionFactory& supervision_factory)
@@ -203,8 +212,10 @@ IComponent::RequestResult Component::deactivate(cpp::stop_token stop_token)
         return RequestResult::kFailure;
     }
 
-    // Without a resource, nothing will terminate, so the component is inactive immediately.
-    if (std::holds_alternative<EmptyHandle>(handle))
+    // Without a resource, or if its termination was already handled (e.g. a self-terminating
+    // process which exited successfully), no termination will be reported anymore, so the
+    // component is inactive immediately.
+    if (!isTerminationPending(handle))
     {
         state_ = TerminatedState{};
         return RequestResult::kSuccess;

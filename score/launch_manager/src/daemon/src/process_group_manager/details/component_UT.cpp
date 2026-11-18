@@ -547,6 +547,133 @@ TEST(ComponentTest, CanActivateAgainAfterDeactivateWithEmptyHandle)
     EXPECT_TRUE(component.active());
 }
 
+TEST(ComponentTest, CanActivateAgainAfterSelfTerminatingProcessExitedBeforeTrackingAndWasDeactivated)
+{
+    RecordProperty("TestType", "interface-test");
+    RecordProperty("DerivationTechnique", "error-guessing");
+    RecordProperty(
+        "Description",
+        "Given an active self-terminating component whose process exited with status 0 before it was tracked. "
+        "When the component is deactivated and activated again. "
+        "Then deactivation makes the component inactive immediately, since the termination was already handled, and "
+        "the second activation succeeds.");
+
+    NiceMock<MockSupervisionFactory> factory;
+
+    auto start_action = std::make_unique<MockStartAction>();
+    EXPECT_CALL(*start_action, start(_, _))
+        .WillOnce(Return(Result<StartedResource>{StartedResource{mock_handle, 0}}))
+        .WillOnce(Return(Result<StartedResource>{StartedResource{mock_handle}}));
+
+    // The stop action succeeds for the invalidated handle without anything left to terminate.
+    auto stop_action = std::make_unique<MockStopAction>();
+    EXPECT_CALL(*stop_action, stop(_, _)).WillOnce(Invoke([](cpp::stop_token, const Handle& handle) {
+        EXPECT_EQ(std::get<ProcessHandle>(handle).pid, -1);
+        return Result<IComponent::RequestResult>{IComponent::RequestResult::kSuccess};
+    }));
+
+    auto config = std::make_shared<configuration::ComponentConfig>();
+    config->component_properties.application_profile.is_self_terminating = true;
+
+    Component component(
+        std::move(start_action),
+        std::move(stop_action),
+        std::make_unique<MockForceStopAction>(),
+        std::make_unique<MockReadyCondition>(),
+        factory,
+        std::move(config));
+
+    ASSERT_EQ(component.activate(cpp::stop_token{}), IComponent::RequestResult::kSuccess);
+
+    EXPECT_EQ(component.deactivate(cpp::stop_token{}), IComponent::RequestResult::kSuccess);
+    EXPECT_FALSE(component.active());
+
+    EXPECT_EQ(component.activate(cpp::stop_token{}), IComponent::RequestResult::kSuccess);
+    EXPECT_TRUE(component.active());
+}
+
+TEST(ComponentTest, CanActivateAgainAfterSelfTerminatingProcessExitedWhileReadyAndWasDeactivated)
+{
+    RecordProperty("TestType", "interface-test");
+    RecordProperty("DerivationTechnique", "error-guessing");
+    RecordProperty(
+        "Description",
+        "Given an active self-terminating component whose process exited with status 0 while it was ready. "
+        "When the component is deactivated and activated again. "
+        "Then deactivation makes the component inactive immediately, since the termination was already handled, and "
+        "the second activation succeeds.");
+
+    NiceMock<MockSupervisionFactory> factory;
+
+    auto start_action = std::make_unique<MockStartAction>();
+    EXPECT_CALL(*start_action, start(_, _))
+        .Times(2)
+        .WillRepeatedly(Return(Result<StartedResource>{StartedResource{mock_handle}}));
+
+    auto stop_action = std::make_unique<MockStopAction>();
+    ON_CALL(*stop_action, stop(_, _)).WillByDefault(Return(IComponent::RequestResult::kSuccess));
+
+    auto config = std::make_shared<configuration::ComponentConfig>();
+    config->component_properties.application_profile.is_self_terminating = true;
+
+    Component component(
+        std::move(start_action),
+        std::move(stop_action),
+        std::make_unique<MockForceStopAction>(),
+        std::make_unique<MockReadyCondition>(),
+        factory,
+        std::move(config));
+
+    ASSERT_EQ(component.activate(cpp::stop_token{}), IComponent::RequestResult::kSuccess);
+    ASSERT_EQ(terminateFromOtherThread(component, 0), IComponent::TerminationResult::kIgnore);
+
+    EXPECT_EQ(component.deactivate(cpp::stop_token{}), IComponent::RequestResult::kSuccess);
+    EXPECT_FALSE(component.active());
+
+    EXPECT_EQ(component.activate(cpp::stop_token{}), IComponent::RequestResult::kSuccess);
+    EXPECT_TRUE(component.active());
+}
+
+TEST(ComponentTest, DeactivateOfRunningProcessWaitsForTermination)
+{
+    RecordProperty("TestType", "interface-test");
+    RecordProperty("DerivationTechnique", "equivalence-classes");
+    RecordProperty(
+        "Description",
+        "Given an active component whose process is still running. "
+        "When the component is deactivated. "
+        "Then the component stays in the terminating state until the termination is reported, and can be activated "
+        "again afterwards.");
+
+    NiceMock<MockSupervisionFactory> factory;
+
+    auto start_action = std::make_unique<MockStartAction>();
+    EXPECT_CALL(*start_action, start(_, _))
+        .Times(2)
+        .WillRepeatedly(Return(Result<StartedResource>{StartedResource{mock_handle}}));
+
+    auto stop_action = std::make_unique<MockStopAction>();
+    ON_CALL(*stop_action, stop(_, _)).WillByDefault(Return(IComponent::RequestResult::kSuccess));
+
+    Component component(
+        std::move(start_action),
+        std::move(stop_action),
+        std::make_unique<MockForceStopAction>(),
+        std::make_unique<MockReadyCondition>(),
+        factory,
+        std::make_shared<configuration::ComponentConfig>());
+
+    ASSERT_EQ(component.activate(cpp::stop_token{}), IComponent::RequestResult::kSuccess);
+    ASSERT_EQ(component.deactivate(cpp::stop_token{}), IComponent::RequestResult::kSuccess);
+
+    // Still terminating: activation is not allowed yet.
+    EXPECT_DEATH(
+        { static_cast<void>(component.activate(cpp::stop_token{})); }, "Cannot activate component in a running state");
+
+    EXPECT_EQ(terminateFromOtherThread(component, 0), IComponent::TerminationResult::kIgnore);
+    EXPECT_EQ(component.activate(cpp::stop_token{}), IComponent::RequestResult::kSuccess);
+}
+
 TEST(ComponentTest, DeactivateWithEmptyHandleFailsWhenStopActionFails)
 {
     RecordProperty("TestType", "interface-test");
