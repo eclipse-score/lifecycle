@@ -46,4 +46,9 @@ integration_test(
         "//tests/utils/test_helper:verification_process",
     ],
     config = ":sandbox_options.json",
+    # Sanitizers cannot reserve their shadow memory under the RLIMIT_AS configured for the processes.
+    target_compatible_with = [
+        "@score_cpp_policies//sanitizers/constraints:no_asan",
+        "@score_cpp_policies//sanitizers/constraints:no_tsan",
+    ],
 )

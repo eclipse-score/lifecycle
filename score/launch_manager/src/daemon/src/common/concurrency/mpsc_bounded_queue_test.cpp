@@ -476,3 +476,27 @@ TEST(MpscBoundedQueueTest, OnlyOneConsumerThreadIsAllowed)
         },
         "");
 }
+
+TEST(MpscBoundedQueueTest, GivenAnEmptyQueue_WhenBackIsCalled_ThenAssertAndCrash)
+{
+    RecordProperty("DerivationTechnique", "explorative-testing");
+    RecordProperty(
+        "Description",
+        "Given an empty queue."
+        "When back() is called. "
+        "Then back() asserts.");
+
+    // Given
+    using IntQueue = MpscBoundedQueue<int>;
+    IntQueue queue{1};
+    ASSERT_TRUE(queue.empty());
+    queue.stop();
+
+    // When, Then
+    EXPECT_DEATH(
+        {
+            const int& result = queue.back();
+            (void)result;
+        },
+        "");
+}

@@ -14,17 +14,16 @@
 #ifndef CONSTANTS_HPP_INCLUDED
 #define CONSTANTS_HPP_INCLUDED
 
+#include <algorithm>
 #include <chrono>
+#include <climits>
 #include <cstddef>
 #include <cstdint>
 
 namespace score::mw::lifecycle::internal
 {
 
-constexpr std::size_t kMaxArg = 20U;   ///< Maximum number of arguments
 constexpr std::size_t kMaxEnv = 100U;  ///< Maximum number of env variables
-constexpr std::size_t kArgvArraySize =
-    kMaxArg + 2U;  ///< As required by posix we need extra space in argv_ for process name and NULL pointer
 constexpr std::size_t kEnvArraySize =
     kMaxEnv + 1U;  ///< As required by posix we need extra space in envp_ for NULL pointer
 
@@ -32,9 +31,6 @@ constexpr std::chrono::milliseconds kMaxQueueDelay{
     500};  ///< The maximum time to wait trying to add items to, or get items from, a queue
 constexpr std::chrono::milliseconds kGraphTimeout{10000};   ///< Timeout duration for graph operations.
 constexpr std::chrono::milliseconds kMaxSigKillDelay{500};  ///< The maximum time to wait for a process termination
-
-constexpr std::chrono::milliseconds kMaxRunningDelay{
-    1000};  ///< report_running() API will wait for Launch Manager to respond
 
 constexpr std::chrono::milliseconds kDefaultOffStateTransitionTimeout{
     3000};  ///< Default timeout for Off state transition
@@ -48,8 +44,20 @@ enum class ProcessLimits : std::uint32_t
     kNumWorkerThreads = 16U,  ///< Size of the used thread pool
 };
 
+/// @brief Stack size of each worker thread in the thread pool, in bytes.
+/// Sanitizer builds need much more stack, so they use the platform default (a stack size hint of 0 is ignored).
+#if defined(__SANITIZE_ADDRESS__) || defined(__SANITIZE_THREAD__)
+constexpr std::size_t kWorkerThreadStackSize{0U};
+#else
+inline const std::size_t kWorkerThreadStackSize{
+    std::max(static_cast<std::size_t>(PTHREAD_STACK_MIN), std::size_t{32UL * 1024UL})};
+#endif
+
 /// @brief Default size of Alive Supervision checkpoint buffer
 constexpr uint16_t kDefaultAliveSupCheckpointBufferElements{100U};
+
+/// @brief Default size of the pending activation queue
+constexpr std::uint8_t kPendingActivationQueueCapacity = 10U;
 
 }  // namespace score::mw::lifecycle::internal
 

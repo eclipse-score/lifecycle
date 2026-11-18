@@ -193,6 +193,9 @@ int run(int argc, const char* argv[])
         if (process_group_manager)
         {
             process_group_manager->deinitialize();
+            // Handlers registered by the control provider hold a pointer to the process group manager,
+            // so stop serving requests before destroying it.
+            control_provider.reset();
             process_group_manager.reset();
         }
     }

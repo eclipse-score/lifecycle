@@ -530,6 +530,7 @@ cc_library(
         "//score/launch_manager/src/daemon/src/osal:shm_open_anon",
         "//score/launch_manager/src/daemon/src/osal:sys_exit",
         "//score/launch_manager/src/daemon/src/process_group_manager:iprocess",
+        "@score_baselibs//score/language/futurecpp",
     ],
 )
 

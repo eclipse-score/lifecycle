@@ -71,9 +71,7 @@ class ProcessLauncherTest : public ::testing::Test
         std::memset(test_buffer.data(), 0, test_buffer.size());
         auto* sync = reinterpret_cast<IpcCommsSync*>(test_buffer.data());
 
-        sync->comms_type_ = score::mw::lifecycle::internal::osal::CommsType::kNoComms;
         sync->pid_ = 0;
-        EXPECT_EQ(sync->reply_sync_.init(0, false), OsalReturnType::kSuccess);
         EXPECT_EQ(sync->send_sync_.init(0, false), OsalReturnType::kSuccess);
         // Real msync calls would treat this fake shared memory as invalid because it isn't page aligned.
         ON_CALL(*g_syscall_mock, msync(sync, _, _)).WillByDefault(Return(0));
@@ -83,12 +81,6 @@ class ProcessLauncherTest : public ::testing::Test
                                              }};
 
         return shared;
-    }
-
-    void ExpectSemaphoreLifecycle()
-    {
-        EXPECT_CALL(*semaphore_mock_, sem_init).Times(AtLeast(1)).WillRepeatedly(Return(kSemSuccess));
-        EXPECT_CALL(*g_syscall_mock, sem_destroy).Times(AtLeast(1)).WillRepeatedly(Return(0));
     }
 
     score::os::MockGuard<NiceMock<score::os::SemaphoreMock>, score::os::Semaphore> semaphore_mock_;
@@ -254,9 +246,8 @@ class StartProcessTest : public ProcessLauncherTest
         EXPECT_CALL(*g_syscall_mock, getpid).Times(AnyNumber()).WillRepeatedly(Return(forked_pid));
 
         config_.name = "TestComponent";
-        config_.component_properties.binary_name = "TestProcess";
         config_.component_properties.application_profile.application_type = configuration::ApplicationType::Native;
-        config_.deployment_config.executable_path = "/bin/TestProcess";
+        config_.deployment_config.process_command = configuration::ProcessCommand{"/bin/TestProcess", {}};
         config_.deployment_config.working_dir = "/tmp";
         config_.deployment_config.sandbox.security_policy = std::nullopt;
         config_.deployment_config.sandbox.scheduling_priority = 1;
@@ -324,16 +315,6 @@ TEST_F(StartProcessTest, startProcessNoFile)
     RecordProperty("Description", "Test that startProcess returns a failure if the provided path does not exist");
 
     EXPECT_CALL(*g_syscall_mock, access(_, _)).WillOnce(Return(-1));
-
-    EXPECT_EQ(process_launcher->startProcess(pid_, sync_, config_), OsalReturnType::kFail);
-}
-
-TEST_F(StartProcessTest, startProcessNoPath)
-{
-    RecordProperty("Description", "Test that startProcess returns a failure if the provided path is empty");
-
-    config_.component_properties.binary_name = "";
-    EXPECT_CALL(*g_syscall_mock, access).Times(0);  // Access should not be called on an empty path
 
     EXPECT_EQ(process_launcher->startProcess(pid_, sync_, config_), OsalReturnType::kFail);
 }
@@ -413,6 +394,50 @@ TEST_F(SetupCommsTest, initSemaphoresFails)
     EXPECT_CALL(*semaphore_mock_, sem_init).WillRepeatedly(Return(SemError(EINVAL)));
 
     EXPECT_EQ(process_launcher->startProcess(pid_, sync_, config_), OsalReturnType::kFail);
+}
+
+TEST_F(ProcessLauncherTest, releasingCommsObjectDestroysSemaphore)
+{
+    RecordProperty(
+        "Description",
+        "Verify that the comms object created for Launch Manager destroys its semaphore when the last reference is "
+        "dropped");
+
+    const int fd = 123;
+    void* data = static_cast<void*>(test_buffer.data());
+    EXPECT_CALL(*g_syscall_mock, mmap(_, _, _, _, fd, _)).WillOnce(Return(data));
+    EXPECT_CALL(*semaphore_mock_, sem_init).WillOnce(Return(kSemSuccess));
+
+    IpcCommsP block = IpcCommsSync::createCommsObject(fd);
+    ASSERT_NE(block, nullptr);
+
+    EXPECT_CALL(*g_syscall_mock, msync(data, _, _)).WillOnce(Return(0));
+    Expectation destroyed = EXPECT_CALL(*g_syscall_mock, sem_destroy).WillOnce(Return(0));
+    EXPECT_CALL(*g_syscall_mock, munmap(data, sizeof(IpcCommsSync))).After(destroyed).WillOnce(Return(0));
+
+    block.reset();
+}
+
+TEST_F(ProcessLauncherTest, releasingCommsObjectSkipsDestroyOnInvalidMemory)
+{
+    RecordProperty(
+        "Description",
+        "Verify that the semaphore is not destroyed if the shared memory appears invalid, but memory is still "
+        "unmapped");
+
+    const int fd = 123;
+    void* data = static_cast<void*>(test_buffer.data());
+    EXPECT_CALL(*g_syscall_mock, mmap(_, _, _, _, fd, _)).WillOnce(Return(data));
+    EXPECT_CALL(*semaphore_mock_, sem_init).WillOnce(Return(kSemSuccess));
+
+    IpcCommsP block = IpcCommsSync::createCommsObject(fd);
+    ASSERT_NE(block, nullptr);
+
+    EXPECT_CALL(*g_syscall_mock, msync(data, _, _)).WillOnce(Return(-1));
+    EXPECT_CALL(*g_syscall_mock, sem_destroy).Times(0);
+    EXPECT_CALL(*g_syscall_mock, munmap(data, sizeof(IpcCommsSync))).WillOnce(Return(0));
+
+    block.reset();
 }
 
 class SetSchedulingAndSecurityTest : public StartProcessTest
@@ -782,7 +807,7 @@ TEST_F(StartProcessTest, startProcessChildSuccess)
     const std::string security_policy = "security";
     const std::vector<std::string> args_in = {"-c 2", "--argument yes"};
     const std::vector<std::string> expected_launch_args = {
-        config_.deployment_config.executable_path, args_in[0], args_in[1]};
+        config_.deployment_config.process_command.executablePath(), args_in[0], args_in[1]};
 
     config_.component_properties.application_profile.application_type = configuration::ApplicationType::Reporting;
     config_.deployment_config.sandbox.scheduling_policy = scheduler;
@@ -797,7 +822,8 @@ TEST_F(StartProcessTest, startProcessChildSuccess)
     config_.deployment_config.sandbox.security_policy = security_policy;
     config_.deployment_config.environmental_variables.add("environment", "yes");
     config_.deployment_config.environmental_variables.add("errors", "no");
-    config_.component_properties.process_arguments = args_in;
+    config_.deployment_config.process_command =
+        configuration::ProcessCommand{config_.deployment_config.process_command.executablePath(), args_in};
 
     IpcCommsSync* block = StubShmObject();
 
@@ -805,7 +831,7 @@ TEST_F(StartProcessTest, startProcessChildSuccess)
     EXPECT_CALL(*g_syscall_mock, fork).WillOnce(Return(0));
     EXPECT_CALL(*g_syscall_mock, getpid).WillRepeatedly(Return(forked_pid));
     EXPECT_CALL(*g_syscall_mock, fcntl).WillOnce(Return(0));
-    EXPECT_CALL(*semaphore_mock_, sem_init).Times(2).WillRepeatedly(Return(kSemSuccess));
+    EXPECT_CALL(*semaphore_mock_, sem_init).Times(1).WillRepeatedly(Return(kSemSuccess));
     EXPECT_CALL(*g_syscall_mock, setpgid(0, forked_pid));
     EXPECT_CALL(*g_syscall_mock, sched_setscheduler(0, scheduler, _)).WillOnce(Return(0));
     EXPECT_CALL(*g_syscall_mock, setaffinity(affinity_mask)).WillOnce(Return(0));
@@ -833,7 +859,6 @@ TEST_F(StartProcessTest, startProcessChildSuccess)
     EXPECT_THROW(static_cast<void>(process_launcher->startProcess(pid_, sync_, config_)), ExecveSuccess);
 
     EXPECT_EQ(block->pid_, forked_pid);
-    EXPECT_EQ(block->comms_type_, CommsType::kReporting);
 }
 
 class ClientMethodsTest : public ProcessLauncherTest
@@ -841,32 +866,6 @@ class ClientMethodsTest : public ProcessLauncherTest
 };
 
 using namespace std::chrono_literals;
-
-TEST_F(ProcessLauncherTest, ignoreRunningNoPost)
-{
-    RecordProperty("Description", "Verify that ignoreRunning correctly handles a failed semaphore post");
-
-    EXPECT_CALL(*semaphore_mock_, sem_init).WillRepeatedly(Return(kSemSuccess));
-    EXPECT_CALL(*g_syscall_mock, sem_destroy).WillRepeatedly(Return(0));
-    std::shared_ptr<IpcCommsSync> sync = GetInitialisedIpc();
-    EXPECT_CALL(*semaphore_mock_, sem_post).WillOnce(Return(SemError(EINVAL)));
-
-    EXPECT_EQ(process_launcher->waitForkRunning(sync, std::nullopt), OsalReturnType::kFail);
-}
-
-TEST_F(ProcessLauncherTest, ignoreRunningSuccess)
-{
-    RecordProperty(
-        "Description",
-        "Verify that waitForkRunning without a timeout posts on the reply semaphore without waiting and returns a "
-        "success");
-
-    ExpectSemaphoreLifecycle();
-    std::shared_ptr<IpcCommsSync> sync = GetInitialisedIpc();
-    EXPECT_CALL(*semaphore_mock_, sem_post).WillOnce(Return(kSemSuccess));
-
-    EXPECT_EQ(process_launcher->waitForkRunning(sync, std::nullopt), OsalReturnType::kSuccess);
-}
 
 TEST_F(ProcessLauncherTest, kRunningNoSync)
 {
@@ -880,16 +879,12 @@ TEST_F(ProcessLauncherTest, kRunningNoSync)
 TEST_F(ProcessLauncherTest, kRunningSuccess)
 {
     RecordProperty(
-        "Description",
-        "Verify that waitForkRunning waits for a notification, posts a reply, and then waits for another notification "
-        "before proceeding");
+        "Description", "Verify that waitForkRunning waits for exactly one notification and does not post a reply");
 
-    ExpectSemaphoreLifecycle();
     std::shared_ptr<IpcCommsSync> sync = GetInitialisedIpc();
 
-    Expectation waits = EXPECT_CALL(*semaphore_mock_, sem_timedwait_monotonic).WillOnce(Return(kSemSuccess));
-    Expectation posts = EXPECT_CALL(*semaphore_mock_, sem_post).After(waits).WillOnce(Return(kSemSuccess));
-    EXPECT_CALL(*semaphore_mock_, sem_timedwait_monotonic).After(posts).WillOnce(Return(kSemSuccess));
+    EXPECT_CALL(*semaphore_mock_, sem_timedwait_monotonic).Times(1).WillOnce(Return(kSemSuccess));
+    EXPECT_CALL(*semaphore_mock_, sem_post).Times(0);
 
     EXPECT_EQ(process_launcher->waitForkRunning(sync, 1ms), OsalReturnType::kSuccess);
 }
@@ -900,11 +895,9 @@ TEST_F(ProcessLauncherTest, kRunningTimeout)
         "Description",
         "Verify that waitForkRunning returns a timeout failure if no notification is received within the timeout");
 
-    ExpectSemaphoreLifecycle();
-
     std::shared_ptr<IpcCommsSync> sync = GetInitialisedIpc();
     EXPECT_CALL(*semaphore_mock_, sem_timedwait_monotonic).WillRepeatedly(Return(SemError(ETIMEDOUT)));
-    EXPECT_CALL(*semaphore_mock_, sem_post).WillOnce(Return(kSemSuccess));  // Posts even if the wait fails...
+    EXPECT_CALL(*semaphore_mock_, sem_post).Times(0);
 
     EXPECT_EQ(process_launcher->waitForkRunning(sync, 1ms), OsalReturnType::kTimeout);
 }

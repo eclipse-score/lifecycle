@@ -64,6 +64,51 @@ void operator delete(void* ptr, std::size_t) noexcept
     std::free(ptr);
 }
 
+// The remaining (non-aligned) allocation functions are replaced as well, so that every allocation and deallocation
+// goes through malloc/free. Otherwise e.g. AddressSanitizer's operator new(nothrow) would be paired with the
+// replaced operator delete above, which ASan reports as alloc-dealloc-mismatch.
+void* operator new(std::size_t size, const std::nothrow_t&) noexcept
+{
+    try
+    {
+        return ::operator new(size);
+    }
+    catch (...)
+    {
+        return nullptr;
+    }
+}
+
+void* operator new[](std::size_t size)
+{
+    return ::operator new(size);
+}
+
+void* operator new[](std::size_t size, const std::nothrow_t& tag) noexcept
+{
+    return ::operator new(size, tag);
+}
+
+void operator delete(void* ptr, const std::nothrow_t&) noexcept
+{
+    ::operator delete(ptr);
+}
+
+void operator delete[](void* ptr) noexcept
+{
+    ::operator delete(ptr);
+}
+
+void operator delete[](void* ptr, std::size_t) noexcept
+{
+    ::operator delete(ptr);
+}
+
+void operator delete[](void* ptr, const std::nothrow_t&) noexcept
+{
+    ::operator delete(ptr);
+}
+
 namespace score::mw::lifecycle::internal::saf::daemon
 {
 

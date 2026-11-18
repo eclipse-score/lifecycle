@@ -113,6 +113,27 @@ class MpscBoundedQueue
         return queue_.tryPop();
     }
 
+    /// @brief Non-blocking back(). Never waits, regardless of whether the queue has been stopped.
+    /// @warning Shall only be called by the single consumer thread on a non-empty queue. The reference
+    ///          remains valid until that element is popped; producers never touch existing elements.
+    /// @return Const reference to the most recently pushed item.
+    [[nodiscard]] const T& back() const
+    {
+        std::unique_lock lock(mutex_);
+        SCORE_LANGUAGE_FUTURECPP_ASSERT_DBG_MESSAGE(!queue_.empty(), "Can only be called on a non-empty queue.");
+        [[maybe_unused]] const bool is_single_consumer = ensure_single_consumer();
+        SCORE_LANGUAGE_FUTURECPP_ASSERT_DBG_MESSAGE(is_single_consumer, "Only a single consumer thread is allowed.");
+        return queue_.back();
+    }
+
+    /// @brief Checks whether the queue currently holds no items.
+    /// @return true if empty, otherwise false.
+    [[nodiscard]] bool empty() const
+    {
+        std::lock_guard lock(mutex_);
+        return queue_.empty();
+    }
+
     /// @brief Permanently marks the queue stopped and wakes every thread currently blocked in
     ///        wait(). After this call, push() and wait() always return
     ///        ConcurrencyErrc::kStopped. tryPop() is unaffected and continues to drain any
@@ -135,7 +156,7 @@ class MpscBoundedQueue
     }
 
     /// @brief Checks whether the consumer thread id is unchanged
-    [[nodiscard]] bool ensure_single_consumer()
+    [[nodiscard]] bool ensure_single_consumer() const
     {
         if (consumer_thread_id_ == std::thread::id{})
         {
@@ -172,7 +193,8 @@ class MpscBoundedQueue
     /// @brief True if the queue has been stopped, false otherwise.
     bool stopped_{false};
     /// @brief Consumer thread id.
-    std::thread::id consumer_thread_id_{};
+    /// @details Made mutable to allow this access instrumentation to be used in const methods
+    mutable std::thread::id consumer_thread_id_{};
 };
 
 }  // namespace score::mw::lifecycle::internal

@@ -50,7 +50,7 @@ class ProcessInfoNode final : public IComponent
     /// @brief Explicit move constructor required due to atomics. PIN must be moveable to exist in the graph
     ProcessInfoNode(ProcessInfoNode&& other) noexcept
         : termination_requested_(other.termination_requested_.load()),
-          pid_(other.pid_),
+          pid_(other.pid_.load()),
           exit_status_(other.exit_status_.load()),
           process_state_(other.process_state_.load()),
           reached_ready_(other.reached_ready_.load()),
@@ -173,7 +173,7 @@ class ProcessInfoNode final : public IComponent
     std::atomic_bool termination_requested_{false};
 
     /// @brief The process id reported by the operating system when the process was started
-    osal::ProcessID pid_ = 0;
+    std::atomic<osal::ProcessID> pid_{0};
 
     /// @brief The status reported by the operating system when the process terminated
     std::atomic<int32_t> exit_status_{0};

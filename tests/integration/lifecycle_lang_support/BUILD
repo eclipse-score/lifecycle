@@ -30,6 +30,10 @@ cc_binary(
 rust_binary(
     name = "rust_reporting_process",
     srcs = ["rust_reporting_process.rs"],
+    target_compatible_with = [
+        "@score_cpp_policies//sanitizers/constraints:no_tsan",
+        "@score_cpp_policies//sanitizers/constraints:no_asan",
+    ],
     deps = ["//score/launch_manager:lifecycle_rust"],
 )
 

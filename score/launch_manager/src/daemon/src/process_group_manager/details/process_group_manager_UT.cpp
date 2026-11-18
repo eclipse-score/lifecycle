@@ -49,13 +49,12 @@ Config makeMinimalConfig(ApplicationType application_type = ApplicationType::Nat
     ComponentConfig component;
     component.name = "comp_a";
     component.description = "Component A";
-    component.component_properties.binary_name = "true";
     component.component_properties.application_profile.application_type = application_type;
     component.component_properties.application_profile.is_self_terminating = true;
     component.component_properties.ready_condition = ReadyCondition{ProcessState::Running};
     component.deployment_config.ready_timeout_ms = 500U;
     component.deployment_config.shutdown_timeout_ms = 500U;
-    component.deployment_config.executable_path = "/bin/true";
+    component.deployment_config.process_command = configuration::ProcessCommand{"/bin/true", {}};
     component.deployment_config.working_dir = "/workspaces/lifecycle";
     component.deployment_config.sandbox.uid = getuid();
     component.deployment_config.sandbox.gid = getgid();
@@ -309,7 +308,7 @@ TEST_F(ProcessGroupManagerReportingTest, GetActiveRunTargetAndSetRequestedRunTar
     EXPECT_FALSE(active_result.has_value());
     EXPECT_EQ(active_result.error(), ExecErrc::kActivationInProgress);
 
-    auto set_result = process_group_manager_->setRequestedRunTarget(IdentifierHash{"InvalidTarget"});
+    auto set_result = process_group_manager_->setRequestedRunTarget(IdentifierHash{"InvalidTarget"}, false);
     EXPECT_FALSE(set_result.has_value());
     EXPECT_EQ(set_result.error(), ExecErrc::kRunTargetDoesntExist);
 
@@ -318,7 +317,7 @@ TEST_F(ProcessGroupManagerReportingTest, GetActiveRunTargetAndSetRequestedRunTar
     run_thread.join();
 }
 
-TEST_F(ProcessGroupManagerWatchdogTest, GetActiveRunTargetWhenStoppedReturnsFailedErrorPromptly)
+TEST_F(ProcessGroupManagerWatchdogTest, GetActiveRunTargetWhenStoppedReturnsShuttingDownErrorPromptly)
 {
     RecordProperty(
         "Description",
@@ -332,11 +331,11 @@ TEST_F(ProcessGroupManagerWatchdogTest, GetActiveRunTargetWhenStoppedReturnsFail
 
     auto active_result = process_group_manager_->getActiveRunTarget();
     EXPECT_FALSE(active_result.has_value());
-    EXPECT_EQ(active_result.error(), ExecErrc::kFailed);
+    EXPECT_EQ(active_result.error(), ExecErrc::kShuttingDown);
 
-    auto set_result = process_group_manager_->setRequestedRunTarget(IdentifierHash{"Startup"});
+    auto set_result = process_group_manager_->setRequestedRunTarget(IdentifierHash{"Startup"}, false);
     EXPECT_FALSE(set_result.has_value());
-    EXPECT_EQ(set_result.error(), ExecErrc::kFailed);
+    EXPECT_EQ(set_result.error(), ExecErrc::kShuttingDown);
 }
 
 }  // namespace
