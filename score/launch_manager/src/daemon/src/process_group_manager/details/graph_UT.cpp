@@ -828,7 +828,7 @@ class GraphComponentRecoveryTest : public GraphTest
     /// @brief Simulates a crash of an active process as reported by the OS handler.
     void crash(int process_index)
     {
-        auto* const node = graph_->getProcessInfoNode(IdentifierHash{process_name(process_index)});
+        auto* const node = findActivatedComponent(IdentifierHash{process_name(process_index)});
         ASSERT_NE(node, nullptr);
         ASSERT_EQ(node->tryHandleTermination(134), IComponent::TerminationResult::kFailure);
         graph_->handleComponentEvent(UnexpectedTermination{node->getIdentifier()});
@@ -1028,6 +1028,7 @@ TEST_F(GraphComponentRecoveryTest, crashWithRestartActionDuringTransitionAborts)
         if (job->value().component.get().getIdentifier() == IdentifierHash{process_name(0)})
         {
             executeJobSuccessfully(job->value());
+            activated_components_.push_back(&job->value().component.get());
             graph_->handleComponentEvent(ActivationSuccessful{job->value().component.get().getIdentifier()});
         }
         else
