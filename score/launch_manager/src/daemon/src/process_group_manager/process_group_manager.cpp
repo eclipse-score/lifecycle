@@ -395,9 +395,6 @@ void ProcessGroupManager::processGroupHandler(Graph& pg)
 
             LM_LOG_WARN() << "Problem discovered, activating recovery state:" << Graph::recovery_state_name;
 
-            // All pending activations are cancelled before a recovery action runs.
-            clearQueuedActivations("failed transition");
-
             // no point checking errors here...
             // nobody requested this transition, so there is nowhere to communicate an error
             // if we failed and there is no external request, we will try again next time
