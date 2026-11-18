@@ -85,6 +85,8 @@ lm_cc_test(
         "clock_getres",
     ]),
     linkstatic = True,
+    # Some system calls are inlined on tsan build (compiles with -O1) which breaks the --wrap=fstat mock usage
+    target_compatible_with = ["@score_cpp_policies//sanitizers/constraints:no_tsan"],
     deps = [
         ":report_running_impl",
         "//tests/utils/accessors:accessor_report_running_impl",

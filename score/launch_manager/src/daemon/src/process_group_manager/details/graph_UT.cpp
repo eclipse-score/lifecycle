@@ -13,6 +13,7 @@
 #include <gmock/gmock.h>
 #include <gtest/gtest.h>
 
+#include <algorithm>
 #include <memory>
 #include <optional>
 #include <string>
@@ -122,7 +123,7 @@ class GraphTest : public ::testing::Test
             const osal::ProcessID pid = 100;
             EXPECT_CALL(process_interface_, startProcess)
                 .WillOnce(DoAll(SetArgReferee<0>(pid), Return(osal::OsalReturnType::kSuccess)));
-            EXPECT_CALL(*mock_process_map, insertIfNotTerminated).WillOnce(Return(SafeProcessMapReturnType::kOk));
+            EXPECT_CALL(*mock_process_map, insertIfNotTerminated).WillOnce(Return(SafeProcessMapReturnType::kInserted));
             res = job.component.get().activate(job.stop_token);
         }
         else if (job.type == ComponentTaskType::kDeactivate)
@@ -162,6 +163,7 @@ class GraphTest : public ::testing::Test
             executeJobSuccessfully(job->value());
             if (job->value().type == ComponentTaskType::kActivate)
             {
+                activated_components_.push_back(&job->value().component.get());
                 graph_->handleComponentEvent(ActivationSuccessful{job->value().component.get().getIdentifier()});
             }
             else
@@ -174,6 +176,16 @@ class GraphTest : public ::testing::Test
         ASSERT_EQ(graph_->getRequestedRunTarget(), target);
     }
 
+    /// @return The component activated by completeTransition() with the given identifier, or nullptr.
+    IComponent* findActivatedComponent(IdentifierHash id) const
+    {
+        const auto it = std::find_if(activated_components_.begin(), activated_components_.end(), [id](const auto* c) {
+            return c->getIdentifier() == id;
+        });
+        return it == activated_components_.end() ? nullptr : *it;
+    }
+
+    std::vector<IComponent*> activated_components_{};
     GraphConfig graph_config_{};
     std::shared_ptr<WorkerQueue> job_queue_ = std::make_shared<WorkerQueue>();
     StrictMock<osal::MockIProcess> process_interface_{};
@@ -258,6 +270,158 @@ TEST_F(GraphOrdinaryTransitionTest, simpleDeactivationTransition)
 
     ASSERT_EQ(graph_->getState(), GraphState::kSuccess);
     EXPECT_EQ(graph_->getRequestedRunTarget(), target);
+}
+
+TEST_F(GraphOrdinaryTransitionTest, GivenGetActiveRunTargetEvent_WhenHandleComponentEventCalled_ThenAssert)
+{
+    RecordProperty("DerivationTechnique", "error-guessing");
+    RecordProperty(
+        "Description",
+        "Given a GetActiveRunTarget event. "
+        "When the event is passed to handleComponentEvent(). "
+        "Then the program asserts in debug builds, and does not assert in release builds.");
+
+    // Given
+    CompletionSlot<Result<IdentifierHash>> slot;
+    auto event = GetActiveRunTarget{&slot};
+
+#ifndef NDEBUG
+    // When
+    EXPECT_DEATH({ graph_->handleComponentEvent(event); }, "Assertion failed");
+#else
+    graph_->handleComponentEvent(event);
+#endif  // NDEBUG
+}
+
+TEST_F(GraphOrdinaryTransitionTest, GivenSetRequestedRunTargetEvent_WhenHandleComponentEventCalled_ThenAssert)
+{
+    RecordProperty("DerivationTechnique", "error-guessing");
+    RecordProperty(
+        "Description",
+        "Given a SetRequestedRunTarget event. "
+        "When the event is passed to handleComponentEvent(). "
+        "Then the program asserts in debug builds, and does not assert in release builds.");
+
+    // Given
+    CompletionSlot<Result<void>> slot;
+    auto event = SetRequestedRunTarget{IdentifierHash{run_target_name(0)}, &slot};
+
+#ifndef NDEBUG
+    // When
+    EXPECT_DEATH({ graph_->handleComponentEvent(event); }, "Assertion failed");
+#else
+    graph_->handleComponentEvent(event);
+#endif  // NDEBUG
+}
+
+TEST_F(GraphOrdinaryTransitionTest, GivenGetActiveRunTargetEvent_WhenUnblockComponentEventCalled_ThenSlotIsCompleted)
+{
+    RecordProperty("DerivationTechnique", "explorative-testing");
+    RecordProperty(
+        "Description",
+        "Given a GetActiveRunTarget event. "
+        "When the event is passed to unblockComponentEvent(). "
+        "Then the slot is completed with an error. "
+        "And the wait() does not block.");
+
+    // Given
+    constexpr auto COMPLETION_REASON = ExecErrc::kFailed;
+    CompletionSlot<Result<IdentifierHash>> slot;
+    auto event = GetActiveRunTarget{&slot};
+
+    // When
+    graph_->unblockComponentEvent(event, COMPLETION_REASON);
+
+    // Then
+    auto completion = slot.wait();
+    ASSERT_FALSE(completion.has_value());
+    EXPECT_EQ(completion.error(), COMPLETION_REASON);
+}
+
+TEST_F(GraphOrdinaryTransitionTest, GivenSetRequestedRunTarget_WhenUnblockComponentEventCalled_ThenSlotIsCompleted)
+{
+    RecordProperty("DerivationTechnique", "explorative-testing");
+    RecordProperty(
+        "Description",
+        "Given a SetRequestedRunTarget event. "
+        "When the event is passed to unblockComponentEvent(). "
+        "Then the slot is completed with an error. "
+        "And the wait() does not block.");
+
+    // Given
+    constexpr auto COMPLETION_REASON = ExecErrc::kFailed;
+    CompletionSlot<Result<void>> slot;
+    auto event = SetRequestedRunTarget{IdentifierHash{run_target_name(0)}, &slot};
+
+    // When
+    graph_->unblockComponentEvent(event, COMPLETION_REASON);
+
+    // Then
+    auto completion = slot.wait();
+    ASSERT_FALSE(completion.has_value());
+    EXPECT_EQ(completion.error(), COMPLETION_REASON);
+}
+
+TEST_F(
+    GraphOrdinaryTransitionTest,
+    GivenGetActiveRunTargetWithNullSlotEvent_WhenUnblockComponentEventCalled_ThenNullCheck)
+{
+    RecordProperty("DerivationTechnique", "explorative-testing");
+    RecordProperty(
+        "Description",
+        "Given a GetActiveRunTarget event with a nullptr completion slot. "
+        "When the event is passed to unblockComponentEvent(). "
+        "Then the nullptr slot is detected. "
+        "And no nullptr dereference occurs.");
+
+    // Given
+    constexpr auto COMPLETION_REASON = ExecErrc::kFailed;
+    auto event = GetActiveRunTarget{nullptr};
+
+    // When, Then
+    graph_->unblockComponentEvent(event, COMPLETION_REASON);
+}
+
+TEST_F(
+    GraphOrdinaryTransitionTest,
+    GivenSetRequestedRunTargetWithNullSlot_WhenUnblockComponentEventCalled_ThenNullCheck)
+{
+    RecordProperty("DerivationTechnique", "explorative-testing");
+    RecordProperty(
+        "Description",
+        "Given a SetRequestedRunTarget event with a nullptr completion slot. "
+        "When the event is passed to unblockComponentEvent(). "
+        "Then the nullptr slot is detected. "
+        "And no nullptr dereference occurs.");
+
+    // Given
+    constexpr auto COMPLETION_REASON = ExecErrc::kFailed;
+    auto event = SetRequestedRunTarget{IdentifierHash{run_target_name(0)}, nullptr};
+
+    // When, Then
+    graph_->unblockComponentEvent(event, COMPLETION_REASON);
+}
+
+TEST_F(GraphOrdinaryTransitionTest, GivenInvalidEvent_WhenUnblockComponentEventCalled_ThenAssert)
+{
+    RecordProperty("DerivationTechnique", "error-guessing");
+    RecordProperty(
+        "Description",
+        "Given a ActivationSuccessful event (which is not handled by unblockComponentEvent). "
+        "When the event is passed to unblockComponentEvent(). "
+        "Then the program asserts in debug builds, and does not assert in release builds.");
+
+    // Given
+    constexpr auto COMPLETION_REASON = ExecErrc::kFailed;
+    auto event = ActivationSuccessful{IdentifierHash{process_name(0)}};
+
+#ifndef NDEBUG
+    // When, Then
+    EXPECT_DEATH({ graph_->unblockComponentEvent(event, COMPLETION_REASON); }, "Assertion failed");
+#else
+    // When, Then
+    graph_->unblockComponentEvent(event, COMPLETION_REASON);
+#endif  // NDEBUG
 }
 
 class GraphActivationSourceTest : public GraphTest
@@ -390,14 +554,14 @@ TEST_F(GraphOffTransitionTest, shutdownDuringTransition)
         "Description",
         "Test that, in the case of a shutdown while a cancellation is in progress, no new transition is started");
     graph_->startTransition(IdentifierHash{run_target_name(0)});
-    const auto first_pending_state = graph_->getPendingState();
+    const auto first_pending_state = graph_->getPendingTransition().run_target;
 
     graph_->cancel();
     // Job still in flight, cancellation does not complete.
     EXPECT_EQ(graph_->getState(), GraphState::kAborting);
 
     const auto start_res = graph_->startTransitionToOffState();
-    const auto second_pending_state = graph_->getPendingState();
+    const auto second_pending_state = graph_->getPendingTransition().run_target;
 
     EXPECT_FALSE(start_res);
     EXPECT_EQ(first_pending_state, second_pending_state);
@@ -591,7 +755,8 @@ TEST_F(GraphHandleComponentEventTest, unexpectedTerminationDuringSuccess)
 
     completeTransition(IdentifierHash{run_target_name(0)});
 
-    const auto component = graph_->getProcessInfoNode(IdentifierHash{process_name(0)});
+    auto* const component = findActivatedComponent(IdentifierHash{process_name(0)});
+    ASSERT_NE(component, nullptr);
     EXPECT_CALL(process_interface_, requestTermination)
         .WillOnce(DoAll(
             InvokeWithoutArgs([component] {
@@ -618,7 +783,7 @@ TEST_F(GraphHandleComponentEventTest, unexpectedTerminationDuringTransition)
     const auto component_index = first_job.value()->component.get().getIdentifier();
     graph_->handleComponentEvent(ActivationSuccessful{component_index});
 
-    const auto component = graph_->getProcessInfoNode(component_index);
+    auto* const component = &first_job.value()->component.get();
     EXPECT_CALL(process_interface_, requestTermination)
         .WillOnce(DoAll(
             InvokeWithoutArgs([component] {
@@ -675,7 +840,7 @@ TEST_F(GraphSupervisionFailureTest, supervisionFailureKillsActiveComponent)
     EXPECT_CALL(process_interface_, waitForkRunning(_, _)).WillOnce(Return(osal::OsalReturnType::kSuccess));
     completeTransition(IdentifierHash{run_target_name(0)});
     const auto component_id = IdentifierHash{process_name(0)};
-    ASSERT_NE(graph_->getProcessInfoNode(component_id), nullptr);
+    ASSERT_NE(findActivatedComponent(component_id), nullptr);
 
     EXPECT_CALL(process_interface_, forceTermination).WillOnce(Return(osal::OsalReturnType::kSuccess));
 
@@ -746,22 +911,6 @@ class GraphUtilitiesTest : public GraphTest
 {
 };
 
-TEST_F(GraphUtilitiesTest, getProcessInfoNode)
-{
-    RecordProperty(
-        "Description", "Test that getProcessInfoNode returns process info node pointer or null pointer when expected");
-
-    const auto* pin = graph_->getProcessInfoNode(IdentifierHash{process_name(0)});
-    const auto* oob = graph_->getProcessInfoNode(IdentifierHash{"Not real"});
-    const auto* rt = graph_->getProcessInfoNode(IdentifierHash{run_target_name(0)});
-
-    EXPECT_NE(pin, nullptr);
-    EXPECT_EQ(oob, nullptr);
-    EXPECT_EQ(rt, nullptr);
-    // Check *pin is actually valid
-    EXPECT_NO_FATAL_FAILURE(static_cast<void>(pin->getState()));
-}
-
 TEST_F(GraphUtilitiesTest, isValidRunTarget)
 {
     RecordProperty(
@@ -826,9 +975,9 @@ TEST_F(GraphUtilitiesTest, gettersSetters)
     RecordProperty("Description", "Test that basic getters return the value the setter sets");
 
     const IdentifierHash pending_state{"Pending"};
-    const auto previous_pending_state = graph_->getPendingState();
+    const auto previous_pending_state = graph_->getPendingTransition().run_target;
     EXPECT_EQ(graph_->setPendingState(pending_state), previous_pending_state);
-    EXPECT_EQ(graph_->getPendingState(), pending_state);
+    EXPECT_EQ(graph_->getPendingTransition().run_target, pending_state);
     EXPECT_EQ(graph_->getPendingTransition().source, RunTargetActivationSource::kStateManagerRequest);
 
     graph_->setPendingState(pending_state, RunTargetActivationSource::kRecoveryAction);

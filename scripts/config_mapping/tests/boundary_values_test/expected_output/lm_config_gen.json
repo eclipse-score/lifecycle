@@ -1,0 +1,109 @@
+{
+    "schema_version": 2,
+    "components": [
+        {
+            "name": "max_values",
+            "description": "",
+            "component_properties": {
+                "binary_name": "max_values",
+                "application_profile": {
+                    "application_type": "Reporting_And_Supervised",
+                    "is_self_terminating": false,
+                    "alive_supervision": {
+                        "reporting_cycle_ms": 100,
+                        "failed_cycles_tolerance": 4294967295,
+                        "min_indications": 4294967295,
+                        "max_indications": 4294967295
+                    }
+                },
+                "depends_on": [],
+                "process_arguments": [],
+                "ready_condition": {
+                    "process_state": "Running"
+                }
+            },
+            "deployment_config": {
+                "ready_timeout_ms": 500,
+                "shutdown_timeout_ms": 500,
+                "bin_dir": "/opt/apps/max_values",
+                "working_dir": "/opt/apps/max_values",
+                "activation_retry_attempts": 0,
+                "activation_retry_delay_ms": 0,
+                "sandbox": {
+                    "uid": 2147483647,
+                    "gid": 2147483647,
+                    "supplementary_group_ids": [
+                        2147483647
+                    ],
+                    "security_policy": "",
+                    "scheduling_policy": "FIFO",
+                    "scheduling_priority": 99
+                },
+                "recovery_action": {
+                    "run_target": "fallback_run_target"
+                }
+            }
+        },
+        {
+            "name": "min_values",
+            "description": "",
+            "component_properties": {
+                "binary_name": "min_values",
+                "application_profile": {
+                    "application_type": "Reporting_And_Supervised",
+                    "is_self_terminating": false,
+                    "alive_supervision": {
+                        "reporting_cycle_ms": 500,
+                        "failed_cycles_tolerance": 2,
+                        "min_indications": 1,
+                        "max_indications": 3
+                    }
+                },
+                "depends_on": [],
+                "process_arguments": [],
+                "ready_condition": {
+                    "process_state": "Running"
+                }
+            },
+            "deployment_config": {
+                "ready_timeout_ms": 500,
+                "shutdown_timeout_ms": 500,
+                "bin_dir": "/opt/apps/min_values",
+                "working_dir": "/opt/apps/min_values",
+                "activation_retry_attempts": 0,
+                "activation_retry_delay_ms": 0,
+                "sandbox": {
+                    "uid": 1000,
+                    "gid": 1000,
+                    "supplementary_group_ids": [],
+                    "security_policy": "",
+                    "scheduling_policy": "OTHER",
+                    "scheduling_priority": 0
+                },
+                "recovery_action": {
+                    "run_target": "fallback_run_target"
+                }
+            }
+        }
+    ],
+    "run_targets": [
+        {
+            "name": "Startup",
+            "transition_timeout_ms": 3000,
+            "recovery_action": {
+                "run_target": "fallback_run_target"
+            },
+            "depends_on": [
+                "max_values",
+                "min_values"
+            ]
+        }
+    ],
+    "initial_run_target": "Startup",
+    "fallback_run_target": {
+        "transition_timeout_ms": 3000
+    },
+    "alive_supervision": {
+        "evaluation_cycle_ms": 500
+    }
+}

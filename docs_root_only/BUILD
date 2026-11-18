@@ -11,18 +11,12 @@
 # SPDX-License-Identifier: Apache-2.0
 # *******************************************************************************
 
-load("@rules_cc//cc:cc_library.bzl", "cc_library")
+load("@score_docs_as_code//:docs.bzl", "docs_bundle")
 
-cc_library(
-    name = "acl",
-    srcs = select({
-        "@platforms//cpu:aarch64": ["usr/lib/aarch64-linux-gnu/libacl.a"],
-        "//conditions:default": ["usr/lib/libacl.a"],
-    }),
-    hdrs = [
-        "usr/include/acl/libacl.h",
-        "usr/include/sys/acl.h",
-    ],
-    includes = ["usr/include/"],
-    visibility = ["//visibility:public"],
+# Docs mounted by //:BUILD only in lifecycle's own doc build, not in ref_int.
+# Kept outside docs/, because Sphinx reads docs/ directly and would always pick them up.
+docs_bundle(
+    name = "docs",
+    srcs = ["index.rst"],  # Needs the extension docs/feat_req_verification_table.py
+    visibility = ["//:__pkg__"],
 )

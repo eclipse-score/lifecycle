@@ -17,6 +17,7 @@ import tempfile
 from pathlib import Path
 
 import pytest
+from attribute_plugin import add_test_properties
 
 # Ensure lifecycle_config.py can be found regardless of how Bazel lays out runfiles
 _scripts_dir = Path(__file__).resolve().parent
@@ -539,6 +540,13 @@ def test_cyclic_dependencies_no_cycle():
     check_cyclic_dependencies(config)  # no exception == pass
 
 
+@add_test_properties(
+    partially_verifies=[
+        "comp_req__launch_man__consistent_dependencies",
+    ],
+    test_type="requirements-based",
+    derivation_technique="requirements-analysis",
+)
 def test_cyclic_dependencies_direct_component_cycle():
     """A -> B -> A in component dependencies should raise (when reachable from a Run Target)."""
     config = {
@@ -554,6 +562,13 @@ def test_cyclic_dependencies_direct_component_cycle():
         check_cyclic_dependencies(config)
 
 
+@add_test_properties(
+    partially_verifies=[
+        "comp_req__launch_man__consistent_dependencies",
+    ],
+    test_type="requirements-based",
+    derivation_technique="requirements-analysis",
+)
 def test_cyclic_dependencies_indirect_component_cycle():
     """A -> B -> C -> A in component dependencies should raise (when reachable)."""
     config = {
@@ -570,6 +585,13 @@ def test_cyclic_dependencies_indirect_component_cycle():
         check_cyclic_dependencies(config)
 
 
+@add_test_properties(
+    partially_verifies=[
+        "comp_req__launch_man__consistent_dependencies",
+    ],
+    test_type="requirements-based",
+    derivation_technique="requirements-analysis",
+)
 def test_cyclic_dependencies_run_target_cycle():
     """Run Target depending on another that depends back should raise."""
     config = {
@@ -598,6 +620,13 @@ def test_cyclic_dependencies_diamond_no_false_positive():
     check_cyclic_dependencies(config)  # no exception == pass
 
 
+@add_test_properties(
+    partially_verifies=[
+        "comp_req__launch_man__consistent_dependencies",
+    ],
+    test_type="requirements-based",
+    derivation_technique="requirements-analysis",
+)
 def test_cyclic_dependencies_component_depends_on_nonexistent():
     """Component depending on something not in components or run_targets should raise."""
     config = {
@@ -610,6 +639,13 @@ def test_cyclic_dependencies_component_depends_on_nonexistent():
         check_cyclic_dependencies(config)
 
 
+@add_test_properties(
+    partially_verifies=[
+        "comp_req__launch_man__consistent_dependencies",
+    ],
+    test_type="requirements-based",
+    derivation_technique="requirements-analysis",
+)
 def test_cyclic_dependencies_run_target_depends_on_unknown():
     """Run Target depending on unknown target/component should raise."""
     config = {
@@ -622,6 +658,13 @@ def test_cyclic_dependencies_run_target_depends_on_unknown():
         check_cyclic_dependencies(config)
 
 
+@add_test_properties(
+    partially_verifies=[
+        "comp_req__launch_man__consistent_dependencies",
+    ],
+    test_type="requirements-based",
+    derivation_technique="requirements-analysis",
+)
 def test_cyclic_dependencies_self_referencing_component():
     """A component depending on itself should raise."""
     config = {
@@ -734,6 +777,13 @@ def test_custom_validations_ready_condition_both_states(full_valid_config):
     assert custom_validations(full_valid_config) is False
 
 
+@add_test_properties(
+    partially_verifies=[
+        "comp_req__launch_man__consistent_dependencies",
+    ],
+    test_type="requirements-based",
+    derivation_technique="requirements-analysis",
+)
 def test_custom_validations_cyclic_deps_fails(full_valid_config):
     """Cyclic dependencies from check_cyclic_dependencies should be caught."""
     full_valid_config["components"]["c1"] = {
@@ -1425,32 +1475,6 @@ def test_gen_config_activation_retry_inherited_and_overridden(tmp_path, key):
     config = _activation_retry_config(key, defaults_value=4, component_value=1)
     config = preprocess_defaults(score_defaults, config)
     assert _generated_activation_retry(tmp_path, config, key) == {"c1": 1, "c2": 4}
-
-
-def test_ready_recovery_action_converted_to_activation_retry(tmp_path):
-    """The deprecated ready_recovery_action is converted to both activation_retry_* values."""
-    config = _activation_retry_config("activation_retry_attempts")
-    config["components"]["c1"]["deployment_config"]["ready_recovery_action"] = {
-        "restart": {"number_of_attempts": 5, "delay_before_restart_ms": 250}
-    }
-    config = preprocess_defaults(score_defaults, config)
-    depl = config["components"]["c1"]["deployment_config"]
-    assert "ready_recovery_action" not in depl
-    assert depl["activation_retry_attempts"] == 5
-    assert depl["activation_retry_delay_ms"] == 250
-
-
-def test_ready_recovery_action_does_not_override_activation_retry(tmp_path):
-    """Explicit activation_retry_* values take precedence over ready_recovery_action."""
-    config = _activation_retry_config("activation_retry_attempts", component_value=2)
-    depl = config["components"]["c1"]["deployment_config"]
-    depl["ready_recovery_action"] = {
-        "restart": {"number_of_attempts": 5, "delay_before_restart_ms": 250}
-    }
-    config = preprocess_defaults(score_defaults, config)
-    depl = config["components"]["c1"]["deployment_config"]
-    assert depl["activation_retry_attempts"] == 2
-    assert depl["activation_retry_delay_ms"] == 250
 
 
 ## TODO

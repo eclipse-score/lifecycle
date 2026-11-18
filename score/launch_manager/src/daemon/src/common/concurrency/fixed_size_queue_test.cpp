@@ -218,3 +218,53 @@ TEST_F(FixedSizeQueueTest, TailAndHeadWrap)
     EXPECT_EQ(queue_cap_three.tryPop(), 4);
     EXPECT_EQ(queue_cap_three.size(), 0U);
 }
+
+TEST_F(FixedSizeQueueTest, GivenAPopulatedQueue_WhenBackIsCalled_ThenBackReturnsTail)
+{
+    RecordProperty("DerivationTechnique", "explorative-testing");
+    RecordProperty(
+        "Description",
+        "Given a populated queue. "
+        "When back() is called after pops and index wraparound. "
+        "Then back() returns the tail element of the queue.");
+
+    // Given
+    FixedSizeQueue<int> queue{3U};
+
+    for (int e : {1, 2, 3})
+    {
+        EXPECT_TRUE(queue.push(e));
+        EXPECT_EQ(queue.back(), e);
+    }
+
+    EXPECT_EQ(queue.tryPop(), 1);
+    EXPECT_EQ(queue.back(), 3);
+    EXPECT_TRUE(queue.push(4));
+    EXPECT_EQ(queue.back(), 4);
+
+    EXPECT_EQ(queue.tryPop(), 2);
+    EXPECT_EQ(queue.tryPop(), 3);
+    EXPECT_EQ(queue.tryPop(), 4);
+}
+
+TEST_F(FixedSizeQueueTest, GivenAnEmptyQueue_WhenBackIsCalled_ThenAssert)
+{
+    RecordProperty("DerivationTechnique", "explorative-testing");
+    RecordProperty(
+        "Description",
+        "Given an empty queue. "
+        "When back() is called. "
+        "Then the test asserts");
+
+    // Given
+    const std::size_t capacity{1U};
+    FixedSizeQueue<int> queue{capacity};
+
+    // When, Then
+    EXPECT_DEATH(
+        {
+            const int& result = queue.back();
+            (void)result;
+        },
+        "");
+}

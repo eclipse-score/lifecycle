@@ -33,6 +33,10 @@ rust_binary(
             "-Clink-arg=-lstdc++",
         ],
     }),
+    target_compatible_with = [
+        "@score_cpp_policies//sanitizers/constraints:no_tsan",
+        "@score_cpp_policies//sanitizers/constraints:no_asan",
+    ],
     deps = [
         "//score/health_monitor:health_monitoring_rust",
         "//score/launch_manager:lifecycle_rust",

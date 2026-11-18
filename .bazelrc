@@ -30,6 +30,14 @@ build --credential_helper=*.qnx.com=%workspace%/scripts/internal/qnx_creds.py
 # Import central S-CORE toolchain configuration
 import %workspace%/score.bazelrc/score_toolchain.bazelrc
 
+# Warning exceptions for targets using the existing _score_common configuration.
+build:_score_common --cxxopt=-Wno-error=mismatched-new-delete
+build:_score_common --cxxopt=-Wno-error=redundant-decls
+build:_score_common --cxxopt=-Wno-error=stringop-overflow
+build:_score_common --host_cxxopt=-Wno-error=mismatched-new-delete
+build:_score_common --host_cxxopt=-Wno-error=redundant-decls
+build:_score_common --host_cxxopt=-Wno-error=stringop-overflow
+
 # Disable warnings for external code
 build --per_file_copt=external/.*@-w
 build --host_per_file_copt=external/.*@-w

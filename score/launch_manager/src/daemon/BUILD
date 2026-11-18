@@ -48,5 +48,9 @@ cc_binary(
     visibility = ["//score/launch_manager:__subpackages__"],
     deps = [
         "//score/launch_manager/src/daemon:run",
-    ],
+    ] + select({
+        "//config:lm_use_cout_log": [],
+        # Enables logMode kRemote: DLT through the datarouter.
+        "//conditions:default": ["@score_logging//score/mw/log/backend:remote"],
+    }),
 )

@@ -1,0 +1,50 @@
+{
+    "schema_version": 2,
+    "components": {
+        "max_values": {
+            "component_properties": {
+                "binary_name": "max_values",
+                "application_profile": {
+                    "application_type": "Reporting_And_Supervised",
+                    "alive_supervision": {
+                        "reporting_cycle_ms": 100,
+                        "failed_cycles_tolerance": 4294967295,
+                        "min_indications": 4294967295,
+                        "max_indications": 4294967295
+                    }
+                }
+            },
+            "deployment_config": {
+                "bin_dir": "/opt/apps/max_values",
+                "sandbox": {
+                    "uid": 2147483647,
+                    "gid": 2147483647,
+                    "supplementary_group_ids": [2147483647],
+                    "scheduling_policy": "SCHED_FIFO",
+                    "scheduling_priority": 99
+                }
+            }
+        },
+        "min_values": {
+            "component_properties": {
+                "binary_name": "min_values"
+            },
+            "deployment_config": {
+                "bin_dir": "/opt/apps/min_values",
+                "sandbox": {
+                    "scheduling_policy": "SCHED_OTHER",
+                    "scheduling_priority": 0
+                }
+            }
+        }
+    },
+    "run_targets": {
+        "Startup": {
+            "depends_on": ["max_values", "min_values"]
+        }
+    },
+    "initial_run_target": "Startup",
+    "fallback_run_target": {
+        "depends_on": []
+    }
+}

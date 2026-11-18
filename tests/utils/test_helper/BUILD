@@ -37,6 +37,21 @@ cc_library(
 )
 
 cc_library(
+    name = "arg_parser",
+    hdrs = ["arg_parser.hpp"],
+    visibility = ["//tests:__subpackages__"],
+)
+
+cc_library(
+    name = "shm_counter",
+    hdrs = ["shm_counter.hpp"],
+    visibility = ["//tests:__subpackages__"],
+    deps = [
+        "@googletest//:gtest_main",
+    ],
+)
+
+cc_library(
     name = "test_helper",
     srcs = ["test_helper.cpp"],
     hdrs = ["test_helper.hpp"],
@@ -146,6 +161,15 @@ cc_binary(
     deps = [
         "//score/launch_manager:alive_cc",
         "//score/launch_manager:lifecycle_cc",
+    ],
+)
+
+cc_binary(
+    name = "fail_test",
+    srcs = ["fail_test.cpp"],
+    visibility = ["//tests:__subpackages__"],
+    deps = [
+        ":test_helper",
     ],
 )
 

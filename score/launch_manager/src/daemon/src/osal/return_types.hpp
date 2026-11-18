@@ -27,13 +27,6 @@ namespace score::mw::lifecycle::internal::osal
 
 using ProcessID = pid_t;
 
-/// @brief The type of communications used for a child process.
-enum class CommsType : std::uint_least8_t
-{
-    kNoComms = 0,    // Do not create any communications channel
-    kReporting = 1,  // Create an osal::Comms object only
-};
-
 ///@brief This enum class likely represents the return status or outcome of an operating system abstraction layer (OSAL)
 /// function or operation and also it provides a clear way to convey success or failure status for OSAL-related
 /// operations in a codebase.

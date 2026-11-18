@@ -26,8 +26,6 @@ integration_test(
     ],
     config = ":lifecycle_demo_test.json",
     files = [
-        "ecu_logging_config.json",
-        "hm_logging.json",
         "logging.json",
     ],
     target_compatible_with = ["@score_cpp_policies//sanitizers/constraints:no_tsan"],

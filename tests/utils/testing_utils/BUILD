@@ -20,6 +20,7 @@ exports_files(
 py_library(
     name = "testing_utils",
     srcs = [
+        "realtime_docker.py",
         "run_test.py",
         "setup_test.py",
         "test_results.py",

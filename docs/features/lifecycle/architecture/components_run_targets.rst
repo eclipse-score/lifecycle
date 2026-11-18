@@ -152,7 +152,7 @@ A component maintains the following internal state machine:
 .. feat_arc_dyn:: Component State Machine
    :id: feat_arc_dyn__lifecycle__comp_sm_if
    :security: YES
-   :status: valid
+   :status: valid_inspected
    :version: 1
    :safety: ASIL_B
    :fulfils: feat_req__lifecycle__process_termination[version==1],
@@ -173,7 +173,7 @@ This is the case if the component is configured to be ready when the underlying 
 .. feat_arc_dyn:: Process State Machine
    :id: feat_arc_dyn__lifecycle__proc_sm_if
    :security: YES
-   :status: valid
+   :status: valid_inspected
    :version: 1
    :safety: ASIL_B
    :fulfils: feat_req__lifecycle__process_termination[version==1],

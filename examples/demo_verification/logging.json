@@ -1,4 +1,9 @@
 {
     "appId": "LM",
-    "logLevel": "kDebug"
+    "contextConfigs": [
+        {
+            "name": "LM",
+            "logLevel": "kDebug"
+        }
+    ]
 }

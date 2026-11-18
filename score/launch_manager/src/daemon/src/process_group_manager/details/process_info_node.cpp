@@ -99,7 +99,7 @@ ProcessInfoNode::ProcessInfoNode(configuration::ComponentConfig&& config, Proces
 
 IComponent::RequestResult ProcessInfoNode::tryReportCompletion(score::mw::lifecycle::ProcessState new_state)
 {
-    ProcessState desired_state;
+    ProcessState desired_state{ProcessState::kRunning};
 
     const auto& ready_condition = config_.component_properties.ready_condition;
 
@@ -195,18 +195,17 @@ bool ProcessInfoNode::setState(score::mw::lifecycle::ProcessState new_state)
 
 void ProcessInfoNode::unblockSync()
 {
-    auto sync = sync_;  // take a copy as the pointer otherwise may become invalidated
+    auto sync = sync_;  // take a copy so the shared block stays alive during the post
     if (sync)
     {
-        // note that we ignore the return code. The semaphore operation may fail because it could
-        // be destroyed by another thread
         static_cast<void>(sync->send_sync_.post());
     }
 }
 
 IComponent::TerminationResult ProcessInfoNode::tryHandleTermination(int32_t process_status)
 {
-    LM_LOG_DEBUG() << "Process" << identifier_ << "( pid" << pid_ << ") terminated with status" << process_status;
+    LM_LOG_DEBUG() << "Process" << identifier_ << "( pid" << pid_.load() << ") terminated with status"
+                   << process_status;
     pid_ = 0;
     exit_status_ = process_status;
     TerminationResult res = TerminationResult::kIgnore;
@@ -247,7 +246,7 @@ IComponent::TerminationResult ProcessInfoNode::tryHandleTermination(int32_t proc
         }
         else
         {
-            LM_LOG_WARN() << "unexpected termination of process" << identifier_ << "( pid" << pid_ << "status"
+            LM_LOG_WARN() << "unexpected termination of process" << identifier_ << "( pid" << pid_.load() << "status"
                           << exit_status_ << ")";
             res = TerminationResult::kFailure;
         }
@@ -273,7 +272,7 @@ bool ProcessInfoNode::isSupervised() const
 IComponent::RequestResult ProcessInfoNode::startProcess(score::cpp::stop_token stop_token)
 {
     LM_LOG_DEBUG() << "Starting process (" << identifier_ << ") from executable"
-                   << config_.deployment_config.executable_path;
+                   << config_.deployment_config.process_command.executablePath();
 
     std::optional<RequestResult> error;
     const std::chrono::time_point initial_time = std::chrono::steady_clock::now();
@@ -301,10 +300,14 @@ IComponent::RequestResult ProcessInfoNode::startProcess(score::cpp::stop_token s
         termination_waiter_->reset();
         static_cast<void>(setState(score::mw::lifecycle::ProcessState::kStarting));  // Cannot fail by design
 
-        if (osal::OsalReturnType::kSuccess == process_handling_.process_interface_->startProcess(pid_, sync_, config_))
+        osal::ProcessID started_pid{0};
+        const auto start_result = process_handling_.process_interface_->startProcess(started_pid, sync_, config_);
+        pid_ = started_pid;
+        if (osal::OsalReturnType::kSuccess == start_result)
         {
             const std::chrono::time_point launched_time = std::chrono::steady_clock::now();
-            LM_LOG_DEBUG() << "startProcess pid" << pid_ << "received for process:" << identifier_ << "( startup time:"
+            LM_LOG_DEBUG() << "startProcess pid" << started_pid << "received for process:" << identifier_
+                           << "( startup time:"
                            << std::chrono::round<std::chrono::microseconds>(launched_time - initial_time) << ")";
 
             auto res = handleProcessStarted(stop_token);
@@ -418,13 +421,7 @@ score::cpp::expected_blank<IComponent::RequestResult> ProcessInfoNode::handlePro
             else if constexpr (std::is_same_v<T, configuration::FileState>)
             {
 
-                if (isReporting())
-                {
-                    // currently we do not support multiple ready conditions so we need
-                    // to ignore the krunning signal.
-                    auto wait_res = process_handling_.process_interface_->waitForkRunning(sync_, std::nullopt);
-                    static_cast<void>(wait_res);
-                }
+                // if the process is reporting, the kRunning signal is currently ignored here
 
                 const auto wait_res = process_handling_.file_waiter_->waitForFile(
                     arg.file_path,
@@ -475,10 +472,10 @@ ProcessInfoNode::handleProcessStarted(const score::cpp::stop_token& stop_token)
 {
     switch (process_handling_.process_map_->insertIfNotTerminated(pid_, this))
     {
-        case score::mw::lifecycle::internal::SafeProcessMapReturnType::kOk:  // Normal case, entry was put in
-                                                                             // the map, process still running
+        case score::mw::lifecycle::internal::SafeProcessMapReturnType::kInserted:  // Entry was inserted; process is
+                                                                                   // still running
             return handleProcessStillStarting(stop_token);
-        case score::mw::lifecycle::internal::SafeProcessMapReturnType::kYield:
+        case score::mw::lifecycle::internal::SafeProcessMapReturnType::kMatched:
             // Process has already exited and tryHandleTermination has completed.
             // tryHandleTermination is called by insertIfNotTerminated() and therefore executes in sequence in this
             // case.
@@ -495,11 +492,12 @@ void ProcessInfoNode::handleProcessRunning()
 {
     if (!isReporting())
     {
-        LM_LOG_DEBUG() << "Considered kRunning for Non Reporting Process pid" << pid_ << "(" << identifier_ << ")";
+        LM_LOG_DEBUG() << "Considered kRunning for Non Reporting Process pid" << pid_.load() << "(" << identifier_
+                       << ")";
     }
     else
     {
-        LM_LOG_DEBUG() << "Got kRunning for pid" << pid_ << "(" << identifier_ << ")";
+        LM_LOG_DEBUG() << "Got kRunning for pid" << pid_.load() << "(" << identifier_ << ")";
     }
 }
 
@@ -517,7 +515,7 @@ void ProcessInfoNode::terminateProcess(const score::cpp::stop_token& stop_token)
 void ProcessInfoNode::handleTerminationProcess(const score::cpp::stop_token& stop_token)
 {
     termination_requested_.store(true);
-    LM_LOG_DEBUG() << "Requesting termination of process pid" << pid_ << "(" << identifier_ << ")";
+    LM_LOG_DEBUG() << "Requesting termination of process pid" << pid_.load() << "(" << identifier_ << ")";
 
     // handle request termination
     // Allow timeout to play out even if stop token is set, to allow proper shutdown

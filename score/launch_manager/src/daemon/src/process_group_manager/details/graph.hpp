@@ -171,6 +171,12 @@ class Graph final
     /// @param event The event to process.
     void handleComponentEvent(const ComponentEvent& event);
 
+    /// @brief Completes the slot attached to certain events.
+    /// Does not follow through on the request, the event is ignored.
+    /// @param event The event to complete.
+    /// @param reason The error code containing the reason for ignoring the request.
+    void unblockComponentEvent(const ComponentEvent& event, const ExecErrc reason);
+
     /// @brief Cancel the current transition because a new state has been requested.
     /// Sets the graph state to kAborting.
     /// If no jobs are in progress, transitions immediately to kUndefinedState.
@@ -204,27 +210,15 @@ class Graph final
     /// @return True if the graph is currently transitioning to the Off state.
     bool isTransitioningToOff() const;
 
+    /// @return True if the graph is currently recovering.
+    bool isRecovering() const;
+
     /// @return The current graph state.
     GraphState getState() const;
-
-    /// @param process_index Index of the process node to retrieve.
-    /// @return The ProcessInfoNode at the given index, or nullptr if out of bounds or if the node
-    /// at that index is a RunTarget rather than a ProcessInfoNode.
-    ProcessInfoNode* getProcessInfoNode(IdentifierHash process_index);
 
     /// @return The currently requested Run Target.
     /// @note Only meaningful when getState() returns GraphState::kSuccess.
     IdentifierHash getRequestedRunTarget();
-
-    /// @brief Update the details for the cancel message to match the current state.
-    void updateCancelMessage();
-
-    /// @return The error code set by the last process that caused an unexpected termination.
-    uint32_t getLastExecutionError();
-
-    /// @brief Stores an error code representing the last execution failure.
-    /// @param code The error code to store.
-    void setLastExecutionError(uint32_t code);
 
     /// @brief Replaces the pending state with new_state and returns the previous pending state.
     /// @param new_state The new pending state to set.
@@ -233,9 +227,6 @@ class Graph final
     IdentifierHash setPendingState(
         IdentifierHash new_state,
         RunTargetActivationSource source = RunTargetActivationSource::kStateManagerRequest);
-
-    /// @return The pending state, or an empty hash if no state is pending.
-    IdentifierHash getPendingState();
 
     /// @return The pending state together with why it was requested.
     PendingTransition getPendingTransition() const;

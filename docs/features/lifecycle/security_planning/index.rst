@@ -52,7 +52,7 @@ Security Work products List
     * - :need:`wp__requirements_feat`
       - :need:`gd_temp__req_feat_req`
       - :ndf:`copy('status', need_id='gd_temp__req_feat_req')`
-      - doc__lifecycle_requirements
+      - :need:`doc__lifecycle_requirements`
 
     * - :need:`wp__requirements_feat_aou`
       - :need:`gd_temp__req_aou_req`
@@ -77,7 +77,8 @@ Security Work products List
     * - :need:`wp__verification_feat_int_test`
       - :need:`gd_guidl__verification_guide`
       - :ndf:`copy('status', need_id='gd_guidl__verification_guide')`
-      - <Link to WP>
+      - Bazel test suite ``//tests/integration:integration``,
+        results in :need:`mod_vrep__lifecycle__report`
 
 .. attention::
     The above table must be updated according to your feature security planning.
@@ -96,7 +97,8 @@ Feature Documents Status
 For all the work product documents the status can be seen by following the "Link to WP".
 A summary of the status is also documented in the project's documentation management plan.
 
-See <add here the section reference to the documentation management plan>
+See `Lifecycle feature documents <https://eclipse-score.github.io/reference_integration/main/process_methods_tools/score_platform/platform_management_plan/documentation_management.html#documents-docs-features-lifecycle>`__
+(the tables are filled in the reference integration build)
 
 Feature Requirements Status
 ---------------------------

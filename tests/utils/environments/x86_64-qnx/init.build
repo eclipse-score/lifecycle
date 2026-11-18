@@ -65,7 +65,7 @@
     echo "---> Starting devb-ram"
     devb-ram ram capacity=1 blk ramdisk=10m,cache=512k,vnode=256 2>/dev/null
     waitfor /dev/ram0
-    devb-ram ram capacity=1 blk ramdisk=128m,cache=512k,vnode=256 2>/dev/null
+    devb-ram ram capacity=1 blk ramdisk=256m,cache=512k,vnode=256 2>/dev/null
     waitfor /dev/ram1
 
     echo "---> Mounting discovery RAM disk"
