@@ -89,9 +89,14 @@ class MonitorIfDaemon : public common::Observer<ifexm::ObservableEvent>, public 
     /// Internal states for instances of this class
     enum class EInternalState : std::uint8_t
     {
-        kActive,           ///< Interface active
-        kInactive,         ///< Interface inactive
-        kInactiveOverflow  ///< Interface inactive due to overflow
+        /// @brief Interface active
+        kActive,
+
+        /// @brief Interface inactive
+        kInactive,
+
+        /// @brief Interface inactive due to overflow
+        kInactiveOverflow
     };
 
     /// Current internal state
