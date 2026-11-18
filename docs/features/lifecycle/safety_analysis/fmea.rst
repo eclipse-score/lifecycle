@@ -163,7 +163,7 @@ is named; the assumptions of use of the feature are in :need:`doc__lifecycle_fea
       - MF_01_05, MF_01_07 (corrupted or unintended message in the shared monitoring data)
       - A corrupted message hides a failure, or a spurious one triggers a recovery action of a healthy
         process. A stale process identifier in shared memory was such a defect (``UI_01_09`` in the
-        dependent failure analysis, fixed by pull request #830).
+        feature DFA draft of pull request #902). The fix is pull request #830, which is not yet merged.
       - | **Detection:** none on the message content yet. The Health Monitor's protection of its own data
           structures (``HM_FMEA_003`` in :need:`doc__health_monitor_fmea`) does not cover the messages
           of the Launch Manager.
@@ -193,8 +193,10 @@ is named; the assumptions of use of the feature are in :need:`doc__lifecycle_fea
       - EX_01_01 (wrong run target transition or recovery action)
       - A wrong transition or recovery action starts or stops components that should not change state.
       - | **Detection and mitigation:** the integration tests of the run target transitions and of the
-          recovery actions in ``//tests/integration:integration`` (for example
-          ``run_target_requests``, ``switch_run_target``, ``crash_ignores_dependents``).
+          recovery actions in the suite ``//tests/integration:integration``, for example
+          ``//tests/integration/run_target_requests/...``,
+          ``//tests/integration/switch_run_target:switch_run_target`` and
+          ``//tests/integration/crash_ignores_dependents:crash_ignores_dependents``.
         | **Open point:** the tests show behaviour, but there is no argument yet that they cover every
           transition in the design. Owner: Janis, trigger: the feature verification report.
       - no, until the argument is written
@@ -202,7 +204,7 @@ is named; the assumptions of use of the feature are in :need:`doc__lifecycle_fea
       - EX_01_05 (a process other than the configured binary is started)
       - An unintended program runs with the rights of the process.
       - | **Detection and mitigation:** the start of the configured binary is checked, and the integration
-          test ``//tests/integration:process_wrong_binary_failure`` reports the failure. The sandbox
-          options of the configuration apply to the started process, see
+          test ``//tests/integration/process_wrong_binary_failure:process_wrong_binary_failure`` reports
+          the failure. The sandbox options of the configuration apply to the started process, see
           :need:`feat_req__lifecycle__sandbox_options`.
       - yes
