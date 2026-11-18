@@ -23,27 +23,23 @@ namespace
 TEST(EmptyStartActionTest, StartSucceeds)
 {
     EmptyStartAction empty_start_action;
+    MockComponent component;
 
-    const auto result = empty_start_action.start(cpp::stop_token{});
+    const auto result = empty_start_action.start(cpp::stop_token{}, component);
 
     EXPECT_TRUE(result.has_value());
 }
 
-TEST(EmptyStartActionTest, StartReturnsEmptyHandle)
-{
-    EmptyStartAction empty_start_action;
-
-    const auto result = empty_start_action.start(cpp::stop_token{});
-
-    EXPECT_TRUE(std::holds_alternative<EmptyHandle>(result.value()));
-}
-
-TEST(EmptyStartActionTest, TrackSucceeds)
+TEST(EmptyStartActionTest, StartReturnsEmptyHandleWhichHasNotTerminated)
 {
     EmptyStartAction empty_start_action;
     MockComponent component;
 
-    EXPECT_EQ(empty_start_action.track(component, EmptyHandle{}).type, SafeProcessMapReturnType::kInserted);
+    const auto result = empty_start_action.start(cpp::stop_token{}, component);
+
+    ASSERT_TRUE(result.has_value());
+    EXPECT_TRUE(std::holds_alternative<EmptyHandle>(result.value().handle));
+    EXPECT_FALSE(result.value().exit_status.has_value());
 }
 
 }  // namespace

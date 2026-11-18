@@ -39,20 +39,22 @@ class ProcessStartAction final : public IStartAction
         SafeProcessMapInserter& process_map,
         const configuration::ComponentConfig& config);
 
-    /// @brief Start a process.
+    /// @brief Start a process and insert it into the process map, so that its termination is
+    ///        reported to @p component.
     /// @param stop_token Token which can be used to interrupt the action.
-    /// @return The handle of the started process, or an error if the action failed.
-    Result<Handle> start(cpp::stop_token stop_token) const override;
-
-    /// @brief Register the started process in the process map, so that its later termination is
-    ///        reported to the component.
     /// @param component The component which owns the process.
-    /// @param handle The process handle returned by start().
-    /// @return The result of inserting the process into the process map. On \c kMatched, the
-    ///         process has already terminated and the caller must handle the termination itself.
-    [[nodiscard]] SafeProcessMapInsertResult track(IComponent& component, const Handle& handle) const override;
+    /// @return The started process, with its exit status if it terminated before it could be
+    ///         tracked, or an error if the process could not be started or tracked. A process which
+    ///         could not be tracked is killed.
+    Result<StartedResource> start(cpp::stop_token stop_token, IComponent& component) const override;
 
   private:
+    /// @brief Insert the started process into the process map.
+    /// @param pid The process ID of the started process.
+    /// @param component The component which owns the process.
+    /// @return The result of the insertion, with the exit status on \c kMatched.
+    [[nodiscard]] SafeProcessMapInsertResult track(osal::ProcessID pid, IComponent& component) const;
+
     /// @brief The process launcher used to start the process.
     osal::IProcess& launcher_;
 

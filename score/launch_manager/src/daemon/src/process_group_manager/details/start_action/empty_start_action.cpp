@@ -16,14 +16,9 @@
 namespace score::mw::lifecycle::internal
 {
 
-Result<Handle> EmptyStartAction::start(cpp::stop_token /*stop_token*/) const
+Result<StartedResource> EmptyStartAction::start(cpp::stop_token /*stop_token*/, IComponent& /*component*/) const
 {
-    return EmptyHandle{};
-}
-
-SafeProcessMapInsertResult EmptyStartAction::track(IComponent& /*component*/, const Handle& /*handle*/) const
-{
-    return SafeProcessMapInsertResult{SafeProcessMapReturnType::kInserted};
+    return StartedResource{EmptyHandle{}, std::nullopt};
 }
 
 }  // namespace score::mw::lifecycle::internal

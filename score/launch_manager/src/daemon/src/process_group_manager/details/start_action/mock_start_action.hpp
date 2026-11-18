@@ -23,15 +23,7 @@ namespace score::mw::lifecycle::internal
 class MockStartAction : public IStartAction
 {
   public:
-    MockStartAction()
-    {
-        // Tracking succeeds by default, so that tests only need to set it up when they care about it.
-        ON_CALL(*this, track(::testing::_, ::testing::_))
-            .WillByDefault(::testing::Return(SafeProcessMapInsertResult{SafeProcessMapReturnType::kInserted}));
-    }
-
-    MOCK_METHOD(Result<Handle>, start, (cpp::stop_token), (override, const));
-    MOCK_METHOD(SafeProcessMapInsertResult, track, (IComponent&, const Handle&), (override, const));
+    MOCK_METHOD(Result<StartedResource>, start, (cpp::stop_token, IComponent&), (override, const));
 };
 
 }  // namespace score::mw::lifecycle::internal

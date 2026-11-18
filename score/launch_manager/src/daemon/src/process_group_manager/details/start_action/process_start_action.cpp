@@ -27,35 +27,41 @@ ProcessStartAction::ProcessStartAction(
 {
 }
 
-Result<Handle> ProcessStartAction::start(cpp::stop_token /*stop_token*/) const
+Result<StartedResource> ProcessStartAction::start(cpp::stop_token /*stop_token*/, IComponent& component) const
 {
     osal::ProcessID pid = 0;
     osal::IpcCommsP sync = nullptr;
 
-    const auto result = launcher_.startProcess(pid, sync, config_);
-
-    if (result == osal::OsalReturnType::kSuccess)
+    if (launcher_.startProcess(pid, sync, config_) != osal::OsalReturnType::kSuccess)
     {
-        return ProcessHandle{pid, sync};
+        return MakeUnexpected(ExecErrc::kGeneralError);
     }
 
+    const SafeProcessMapInsertResult tracked = track(pid, component);
+    switch (tracked.type)
+    {
+        case SafeProcessMapReturnType::kInserted:
+            // The process is still running, its termination is reported later.
+            return StartedResource{ProcessHandle{pid, sync}, std::nullopt};
+
+        case SafeProcessMapReturnType::kMatched:
+            // The process has already terminated, so its termination is not reported later.
+            return StartedResource{ProcessHandle{pid, sync}, tracked.exit_status};
+
+        case SafeProcessMapReturnType::kInsertionError:
+        case SafeProcessMapReturnType::kInvalidIdError:
+            break;
+    }
+
+    // The termination of an untracked process would never be reported, so do not leave it running.
+    LM_LOG_ERROR() << config_.name << ": could not add pid" << pid << "to the process map, killing the process";
+    static_cast<void>(launcher_.forceTermination(pid));
     return MakeUnexpected(ExecErrc::kGeneralError);
 }
 
-SafeProcessMapInsertResult ProcessStartAction::track(IComponent& component, const Handle& handle) const
+SafeProcessMapInsertResult ProcessStartAction::track(osal::ProcessID pid, IComponent& component) const
 {
-    const ProcessHandle* const process = std::get_if<ProcessHandle>(&handle);
-    SCORE_LANGUAGE_FUTURECPP_ASSERT_MESSAGE(process != nullptr, "ProcessStartAction can only track a process handle");
-
-    const SafeProcessMapInsertResult result = process_map_.insertIfNotTerminated(process->pid, &component);
-
-    if ((result.type == SafeProcessMapReturnType::kInsertionError) ||
-        (result.type == SafeProcessMapReturnType::kInvalidIdError))
-    {
-        LM_LOG_ERROR() << config_.name << ": could not add pid" << process->pid << "to the process map";
-    }
-
-    return result;
+    return process_map_.insertIfNotTerminated(pid, &component);
 }
 
 }  // namespace score::mw::lifecycle::internal

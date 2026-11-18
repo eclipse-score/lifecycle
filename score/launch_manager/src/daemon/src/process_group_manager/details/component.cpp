@@ -13,7 +13,6 @@
 
 #include "score/mw/launch_manager/process_group_manager/details/component.hpp"
 #include "score/mw/launch_manager/common/log.hpp"
-#include "score/mw/launch_manager/process_group_manager/details/safe_process_map.hpp"
 
 namespace score::mw::lifecycle::internal
 {
@@ -125,40 +124,25 @@ std::optional<Handle> Component::beginActivation(cpp::stop_token stop_token, con
         return std::nullopt;
     }
 
-    const Result<Handle> start_result = start_action_->start(stop_token);
+    const Result<StartedResource> start_result = start_action_->start(stop_token, *this);
     if (!start_result.has_value())
     {
         state_ = FaultState{};
         return std::nullopt;
     }
-    const Handle& handle = start_result.value();
+    const StartedResource& started = start_result.value();
 
-    state_ = StartingState{handle, stop_activation};
+    state_ = StartingState{started.handle, stop_activation};
 
-    // Track the resource so that its termination is reported. If it has already terminated, the
-    // termination is handled here, while the state is still locked.
-    const SafeProcessMapInsertResult track_result = start_action_->track(*this, handle);
-    switch (track_result.type)
+    // If the resource terminated before it could be tracked, its termination is not reported
+    // later, so it is handled here, while the state is still locked.
+    if (started.exit_status.has_value() &&
+        (tryHandleTerminationInternally(started.exit_status.value()) == TerminationResult::kFailure))
     {
-        case SafeProcessMapReturnType::kInserted:
-            break;
-
-        case SafeProcessMapReturnType::kMatched:
-            if (tryHandleTerminationInternally(track_result.exit_status) == TerminationResult::kFailure)
-            {
-                return std::nullopt;
-            }
-            break;
-
-        case SafeProcessMapReturnType::kInsertionError:
-        case SafeProcessMapReturnType::kInvalidIdError:
-            LM_LOG_ERROR() << config_->name << ": failed to track the started resource";
-            static_cast<void>(force_stop_action_->forceStop(stop_token, handle));
-            state_ = FaultState{handle};
-            return std::nullopt;
+        return std::nullopt;
     }
 
-    return handle;
+    return started.handle;
 }
 
 IComponent::RequestResult Component::completeActivation(const cpp::stop_source& stop_activation)

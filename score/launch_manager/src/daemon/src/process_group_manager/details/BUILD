@@ -23,7 +23,6 @@ cc_library(
     visibility = ["//score/launch_manager/src/daemon/src/process_group_manager:__subpackages__"],
     deps = [
         ":icomponent",
-        ":safe_process_map",
         "//score/launch_manager/src/daemon/src/alive_monitor:ialive_supervision_handle",
         "//score/launch_manager/src/daemon/src/alive_monitor:isupervision_factory",
         "//score/launch_manager/src/daemon/src/common:log",
