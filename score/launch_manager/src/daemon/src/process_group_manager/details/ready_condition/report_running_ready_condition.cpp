@@ -32,11 +32,11 @@ Result<void> ReportRunningReadyCondition::wait(cpp::stop_token /*stop_token*/, c
         process->sync != nullptr,
         "ReportRunningReadyCondition should only be called with a ProcessHandle containing IPCCommsSync");
 
+    // waitForkRunning only succeeds if the process itself reported kRunning, not if it was woken up by
+    // tryHandleTermination.
     const osal::OsalReturnType result = launcher_.waitForkRunning(process->sync, timeout_);
 
-    // If the PID is invalid, the process died and the notification was sent
-    // from tryHandleTermination rather than the process itself.
-    if (result == osal::OsalReturnType::kSuccess && process->pid > 0)
+    if (result == osal::OsalReturnType::kSuccess)
     {
         return {};
     }

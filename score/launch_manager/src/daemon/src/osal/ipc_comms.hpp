@@ -15,6 +15,7 @@
 #define OSAL_IPC_COMMS_HPP_INCLUDED
 
 #include <sys/mman.h>
+#include <atomic>
 #include <cstdint>
 #include <memory>
 
@@ -29,8 +30,11 @@ using IpcCommsP = std::shared_ptr<IpcCommsSync>;
 
 /// @brief Structure for managing inter-process communication synchronization.
 /// The `IpcCommsSync` structure is designed to handle synchronization mechanisms required
-/// for inter-process communication. It uses a semaphore to signal kRunning, preceded by a magic number and a
-/// layout version that allow the client to verify that the shared memory really was set up by Launch Manager.
+/// for inter-process communication. The process reports kRunning by setting `reported_running_` and then posting a
+/// semaphore. The semaphore only signals that something happened: Launch Manager also posts it to wake up the waiter
+/// when the process terminates, so `reported_running_` is what tells whether kRunning was actually reported.
+/// Both are preceded by a magic number and a layout version that allow the client to verify that the shared memory
+/// really was set up by Launch Manager.
 /// It is only created for processes that are expected to report kRunning.
 struct IpcCommsSync final
 {
@@ -40,6 +44,9 @@ struct IpcCommsSync final
     /// @brief Expected value of `version_`.
     static constexpr std::uint32_t kLayoutVersion{1U};
 
+    // The atomic is shared between processes, which is only valid if it does not rely on a process-local lock.
+    static_assert(std::atomic<bool>::is_always_lock_free, "reported_running_ must be lock-free");
+
     /// @brief Marks the shared memory as a comms object created by Launch Manager.
     /// It is the first member, so that checking it does not depend on the layout of the remaining members.
     /// Launch Manager writes it last, after all other members have been initialized.
@@ -48,9 +55,14 @@ struct IpcCommsSync final
     /// @brief Layout version of this structure, to detect a Launch Manager and client built from different versions.
     std::uint32_t version_;
 
-    /// @brief Semaphore used by the process to report kRunning.
-    /// The communicating process posts this semaphore exactly once to signal that it has finished initialization.
-    /// Launch Manager waits on it (and also posts it to wake the waiter up early if the process terminates).
+    /// @brief Whether the process has reported kRunning.
+    /// Use reportRunning() and hasReportedRunning() to access it.
+    std::atomic<bool> reported_running_;
+
+    /// @brief Semaphore used to wake up Launch Manager while it waits for kRunning.
+    /// The communicating process posts it exactly once after calling reportRunning().
+    /// Launch Manager also posts it to wake the waiter up early if the process terminates, so being woken up alone
+    /// does not mean that kRunning was reported; check hasReportedRunning() afterwards.
     Semaphore send_sync_;
 
     /// @brief Constant for the synchronization file descriptor.
@@ -80,6 +92,21 @@ struct IpcCommsSync final
     /// These objects are managed by a shared pointer and destroyed using a deleter
     ~IpcCommsSync() = delete;
 
+    /// @brief Marks kRunning as reported. Called by the process before posting `send_sync_`.
+    void reportRunning() noexcept
+    {
+        reported_running_.store(true, std::memory_order_release);
+    }
+
+    /// @brief Returns whether the process has reported kRunning. Called by Launch Manager after `send_sync_` was
+    /// posted.
+    /// @details Launch Manager only posts `send_sync_` itself after the process has terminated, so at that point any
+    /// report the process made before terminating is visible here.
+    bool hasReportedRunning() const noexcept
+    {
+        return reported_running_.load(std::memory_order_acquire);
+    }
+
     /// @brief Creation method to return a shared pointer to the comms object
     /// These objects are only ever created in-place in shared memory mapped from a
     /// file descriptor. The Lifecycle Client library will use the default file descriptor
@@ -104,6 +131,8 @@ struct IpcCommsSync final
         {
             return nullptr;
         }
+
+        block->reported_running_.store(false, std::memory_order_relaxed);
 
         if (osal::OsalReturnType::kFail == block->send_sync_.init(0U, true))
         {

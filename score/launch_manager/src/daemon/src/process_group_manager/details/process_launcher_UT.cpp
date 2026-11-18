@@ -413,10 +413,14 @@ TEST_F(ProcessLauncherTest, releasingCommsObjectDestroysSemaphore)
     EXPECT_CALL(*g_syscall_mock, mmap(_, _, _, _, fd, _)).WillOnce(Return(data));
     EXPECT_CALL(*semaphore_mock_, sem_init).WillOnce(Return(kSemSuccess));
 
+    // Fill with garbage to verify that reported_running_ is initialized explicitly
+    std::memset(test_buffer.data(), 0xFF, test_buffer.size());
+
     IpcCommsP block = IpcCommsSync::createCommsObject(fd);
     ASSERT_NE(block, nullptr);
     EXPECT_EQ(block->magic_, IpcCommsSync::kMagic);
     EXPECT_EQ(block->version_, IpcCommsSync::kLayoutVersion);
+    EXPECT_FALSE(block->hasReportedRunning());
 
     EXPECT_CALL(*g_syscall_mock, msync(data, _, _)).WillOnce(Return(0));
     Expectation destroyed = EXPECT_CALL(*g_syscall_mock, sem_destroy).WillOnce(Return(0));
@@ -890,11 +894,27 @@ TEST_F(ProcessLauncherTest, kRunningSuccess)
         "Description", "Verify that waitForkRunning waits for exactly one notification and does not post a reply");
 
     std::shared_ptr<IpcCommsSync> sync = GetInitialisedIpc();
+    sync->reportRunning();
 
     EXPECT_CALL(*semaphore_mock_, sem_timedwait_monotonic).Times(1).WillOnce(Return(kSemSuccess));
     EXPECT_CALL(*semaphore_mock_, sem_post).Times(0);
 
     EXPECT_EQ(process_launcher->waitForkRunning(sync, 1ms), OsalReturnType::kSuccess);
+}
+
+TEST_F(ProcessLauncherTest, kRunningWokenUpWithoutReport)
+{
+    RecordProperty(
+        "Description",
+        "Verify that waitForkRunning fails if the semaphore was posted without kRunning being reported, as happens "
+        "when Launch Manager wakes up the waiter because the process terminated");
+
+    std::shared_ptr<IpcCommsSync> sync = GetInitialisedIpc();
+
+    EXPECT_CALL(*semaphore_mock_, sem_timedwait_monotonic).Times(1).WillOnce(Return(kSemSuccess));
+
+    EXPECT_FALSE(sync->hasReportedRunning());
+    EXPECT_EQ(process_launcher->waitForkRunning(sync, 1ms), OsalReturnType::kFail);
 }
 
 TEST_F(ProcessLauncherTest, kRunningTimeout)
