@@ -421,7 +421,12 @@ TEST_F(ReportRunningImplTest, GivenReportRunningImplInstance_WhenReportRunningSt
     ReportRunningImpl impl;
 
     // Expect
-    EXPECT_CALL(*semaphore_mock_, sem_post(_)).Times(1).WillOnce(Return(kSemSuccess));
+    const IpcCommsSync* const comms = reinterpret_cast<const IpcCommsSync*>(g_fake_ipc_storage);
+    EXPECT_CALL(*semaphore_mock_, sem_post(_)).Times(1).WillOnce(::testing::Invoke([comms](sem_t*) {
+        // reported_running_ must already be set when Launch Manager is woken up
+        EXPECT_TRUE(comms->hasReportedRunning());
+        return kSemSuccess;
+    }));
     EXPECT_CALL(*semaphore_mock_, sem_timedwait_monotonic(_, _)).Times(0);
     EXPECT_CALL(*semaphore_mock_, sem_wait(_)).Times(0);
 

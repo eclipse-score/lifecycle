@@ -100,6 +100,10 @@ score::Result<std::monostate> ReportRunningImpl::reportKRunningtoDaemon() const 
         return comms_error;
     }
 
+    // Set the reported_running_ flag before waking up Launch Manager, which uses it to tell our report apart from a
+    // wake-up caused by our termination.
+    sync->reportRunning();
+
     if (sync->send_sync_.post() == OsalReturnType::kFail)
     {
         LM_LOG_ERROR() << "[Lifecycle Client] Sending kRunning to Launch Manager failed.";
