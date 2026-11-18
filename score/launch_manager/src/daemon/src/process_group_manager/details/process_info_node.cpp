@@ -530,8 +530,6 @@ void ProcessInfoNode::handleTerminationProcess(const score::cpp::stop_token& sto
         // handle forced termination
         handleForcedTermination(stop_token);
     }
-
-    termination_requested_.store(false);
 }
 
 void ProcessInfoNode::handleForcedTermination(const score::cpp::stop_token& stop_token)
