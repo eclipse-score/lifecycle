@@ -698,6 +698,26 @@ Run Targets
         unprocessed selections to complete, ensuring that the system transitions in an orderly manner without 
         abruptly interrupting ongoing processes.
 
+.. comp_req:: Activating a run target that is already active
+    :id: comp_req__launch_man__rt_already_active
+    :reqtype: Functional
+    :security: NO
+    :safety: ASIL_B
+    :derived_from: feat_req__lifecycle__control_commands[version==1]
+    :status: valid
+    :version: 1
+    :satisfied_by: comp__lifecycle_launch_manager
+
+    The :term:`Launch Manager` shall send a notification of a successful
+    :term:`Run Target` activation when it processes an activation request for a
+    :term:`Run Target` that is already active.
+
+    .. note::
+       **Rationale:** Activating a run target that is already active is a
+       no-op, however a state manager should be able to rely on getting the
+       same number of notifications as the number of accepted activation
+       requests.
+
 .. comp_req:: Force a run target selection
     :id: comp_req__launch_man__force_rt_selection
     :reqtype: Functional
@@ -799,8 +819,8 @@ Recovery Actions
     action if a :term:`Component` recovery action has failed or is not
     configured.
 
-.. comp_req:: Recovery Action cancel queued transitions
-    :id: comp_req__launch_man__ra_rt_cancel_trans
+.. comp_req:: Recovery Action queue preservation
+    :id: comp_req__launch_man__rt_queue
     :reqtype: Functional
     :security: NO
     :safety: ASIL_B
@@ -809,8 +829,55 @@ Recovery Actions
     :version: 1
     :satisfied_by: comp__lifecycle_launch_manager
 
-    The :term:`Launch Manager` shall cancel all pending and ongoing :term:`Run Target`
-    activations before running any :term:`Run Target` recovery action.
+    The :term:`Launch Manager` shall resume servicing the :term:`Run Target`
+    activation queue, once any :term:`Recovery Action` is finished.
+
+    .. note::
+       **Use Case**: Recovery Actions shall be transparent to the user and so
+       any transition previously queued shall stay valid.
+
+       Executing recovery action should not have an impact on
+       the already queued run target activations.
+
+.. comp_req:: Cancel Recovery Action on forced activation
+    :id: comp_req__launch_man__cancel_rt_force
+    :reqtype: Functional
+    :security: NO
+    :safety: ASIL_B
+    :derived_from: feat_req__lifecycle__recovery_action_support[version==1]
+    :status: valid
+    :version: 1
+    :satisfied_by: comp__lifecycle_launch_manager
+
+    The :term:`Launch Manager` shall abort any ongoing :term:`Recovery Action`
+    if a **forced** :term:`Run Target` activation request arrives. Then it shall
+    process the request as per
+    :need:`comp_req__launch_man__force_rt_selection`.
+
+    .. note::
+       **Rationale:** Forced run target activations shall act as recovery
+       actions, taken by a state manager.
+
+.. comp_req:: Queue Run Target activations during recovery action
+    :id: comp_req__launch_man__ra_rt_queue
+    :reqtype: Functional
+    :security: NO
+    :safety: ASIL_B
+    :derived_from: feat_req__lifecycle__recovery_action_support[version==1]
+    :status: valid
+    :version: 1
+    :satisfied_by: comp__lifecycle_launch_manager
+
+    The :term:`Launch Manager` shall process the request as per
+    :need:`comp_req__launch_man__queue_rt_selection`.
+    if a **non-forced** :term:`Run Target` activation request arrives during a
+    :term:`Recovery Action`.
+
+    .. note::
+        **Rationale:** State manager is not aware of any ongoing
+        :term:`Recovery Actions<Recovery Action>`. The :term:`Recovery Action` shall bring the
+        system back into a configured state, so :term:`Launch Manager` can
+        resume processing any activations that were previously requested.
 
 .. comp_req:: Component failure
     :id: comp_req__launch_man__comp_failure
