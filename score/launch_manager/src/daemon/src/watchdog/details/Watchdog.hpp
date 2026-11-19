@@ -15,7 +15,7 @@
 #define WATCHDOG_HPP_INCLUDED
 
 #ifndef __QNXNTO__
-#include <linux/watchdog.h>
+#include <linux/watchdog.h>  // IWYU pragma: export
 #else
 // for _IOW, _IOR, _IOWR
 #include <sys/ioctl.h>

@@ -54,7 +54,7 @@ cc_library(
     strip_include_prefix = "/score/launch_manager/src/daemon/src/recovery_client",
     visibility = ["//score:__subpackages__"],
     deps = [
-        ":recovery_client",
+        ":irecovery_client",
         "@googletest//:gtest",
     ],
 )

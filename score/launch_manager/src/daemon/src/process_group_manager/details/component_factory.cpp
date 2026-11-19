@@ -18,13 +18,18 @@
 #include "score/mw/launch_manager/process_group_manager/details/force_stop_action/process_force_stop_action.hpp"
 #include "score/mw/launch_manager/process_group_manager/details/ready_condition/empty_ready_condition.hpp"
 #include "score/mw/launch_manager/process_group_manager/details/ready_condition/file_ready_condition.hpp"
+#include "score/mw/launch_manager/process_group_manager/details/ready_condition/iready_condition.hpp"
 #include "score/mw/launch_manager/process_group_manager/details/ready_condition/report_running_ready_condition.hpp"
 #include "score/mw/launch_manager/process_group_manager/details/start_action/empty_start_action.hpp"
 #include "score/mw/launch_manager/process_group_manager/details/start_action/process_start_action.hpp"
 #include "score/mw/launch_manager/process_group_manager/details/stop_action/empty_stop_action.hpp"
 #include "score/mw/launch_manager/process_group_manager/details/stop_action/process_stop_action.hpp"
 #include "score/mw/lifecycle/execution_error.h"
+#include "score/result/error.h"
+#include <score/assert.hpp>
 #include <chrono>
+#include <utility>
+#include <variant>
 
 namespace score::mw::lifecycle::internal
 {

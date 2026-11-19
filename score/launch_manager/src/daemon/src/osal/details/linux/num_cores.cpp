@@ -11,7 +11,8 @@
  * SPDX-License-Identifier: Apache-2.0
  ********************************************************************************/
 
-#include <sys/unistd.h>
+#include <unistd.h>
+#include <stdint.h>
 
 #include "score/mw/launch_manager/osal/num_cores.hpp"
 

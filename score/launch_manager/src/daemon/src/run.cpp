@@ -15,17 +15,36 @@
 
 #include <fcntl.h>
 #include <unistd.h>
+#include <errno.h>
+#include <algorithm>
+#include <cstdlib>
 #include <cstring>
 #include <iostream>
 #include <memory>
+#include <optional>
+#include <string_view>
+#include <utility>
+#include <vector>
 
+#include "score/filesystem/path.h"
+#include "score/mw/launch_manager/alive_monitor/IAliveMonitor.hpp"
 #include "score/mw/launch_manager/alive_monitor/details/daemon/AliveMonitorImpl.hpp"
 #include "score/mw/launch_manager/common/log.hpp"
+#include "score/mw/launch_manager/configuration/component_config.hpp"
+#include "score/mw/launch_manager/configuration/config.hpp"
 #include "score/mw/launch_manager/configuration/flatbuffer_config_loader.hpp"
+#include "score/mw/launch_manager/configuration/watchdog_config.hpp"
 #include "score/mw/launch_manager/control/control_provider.hpp"
+#include "score/mw/launch_manager/osal/ipc_comms.hpp"
 #include "score/mw/launch_manager/process_group_manager/process_group_manager.hpp"
+#include "score/mw/launch_manager/recovery_client/irecovery_client.h"
 #include "score/mw/launch_manager/recovery_client/recovery_client.hpp"
+#include "score/mw/launch_manager/watchdog/IWatchdogIf.hpp"
 #include "score/mw/launch_manager/watchdog/WatchdogFactory.hpp"
+#include "score/mw/lifecycle/run_target_activation_source.hpp"
+#include "score/result/error.h"
+#include "score/result/result.h"
+#include <score/expected.hpp>
 
 namespace score::mw::lifecycle::internal
 {

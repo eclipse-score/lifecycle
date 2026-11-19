@@ -14,16 +14,17 @@
 #ifndef SCORE_MW_LIFECYCLE_LIFECYCLEMANAGER_H_
 #define SCORE_MW_LIFECYCLE_LIFECYCLEMANAGER_H_
 
-#include "score/mw/lifecycle/application.h"
-#include "score/mw/lifecycle/applicationcontext.h"
-
-#include "score/os/utils/signal_impl.h"
-
 #include <score/stop_token.hpp>
-
+#include <signal.h>
 #include <atomic>
 #include <cstdint>
+#include <memory>
 #include <thread>
+
+#include "score/mw/lifecycle/application.h"
+#include "score/mw/lifecycle/applicationcontext.h"
+#include "score/os/utils/signal.h"
+#include "score/os/utils/signal_impl.h"
 
 namespace score
 {

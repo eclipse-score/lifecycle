@@ -70,9 +70,10 @@ cc_library(
         "//score/launch_manager/src/daemon/src/common/concurrency/details:helgrind_annotations",
         "//score/launch_manager/src/daemon/src/osal:return_types",
         "//score/launch_manager/src/daemon/src/osal:semaphore",
-        "@score_baselibs//score/language/futurecpp",
         "@score_baselibs//score/mw/log",
+        "@score_baselibs//score/mw/log:frontend",
         "@score_baselibs//score/result",
+        "@score_baselibs//score/result:error",
     ],
 )
 
@@ -98,6 +99,7 @@ cc_library(
         ":fixed_size_queue",
         "@score_baselibs//score/language/futurecpp",
         "@score_baselibs//score/result",
+        "@score_baselibs//score/result:error",
     ],
 )
 

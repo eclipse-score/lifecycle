@@ -12,6 +12,7 @@
  ********************************************************************************/
 
 #include "score/mw/launch_manager/process_group_manager/details/ready_condition/empty_ready_condition.hpp"
+#include <score/stop_token.hpp>
 
 namespace score::mw::lifecycle::internal
 {

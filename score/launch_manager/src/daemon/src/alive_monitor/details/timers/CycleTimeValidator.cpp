@@ -12,6 +12,8 @@
  ********************************************************************************/
 #include "score/mw/launch_manager/alive_monitor/details/timers/CycleTimeValidator.hpp"
 
+#include <time.h>
+
 namespace score::mw::lifecycle::internal::saf::timers
 {
 

@@ -36,6 +36,7 @@ cc_library(
     visibility = ["//score/launch_manager/src/daemon/src/process_group_manager:__subpackages__"],
     deps = [
         ":iforce_stop_action",
+        "@googletest//:gtest",
         "@googletest//:gtest_main",
     ],
 )
@@ -47,7 +48,13 @@ cc_library(
     include_prefix = "score/mw/launch_manager/process_group_manager/details/force_stop_action",
     strip_include_prefix = "/score/launch_manager/src/daemon/src/process_group_manager/details/force_stop_action",
     visibility = ["//score/launch_manager/src/daemon/src/process_group_manager:__subpackages__"],
-    deps = [":iforce_stop_action"],
+    deps = [
+        ":iforce_stop_action",
+        "//score/launch_manager/src/daemon/src/process_group_manager/details:handle",
+        "//score/launch_manager/src/daemon/src/process_group_manager/details:icomponent",
+        "@score_baselibs//score/language/futurecpp",
+        "@score_baselibs//score/result",
+    ],
 )
 
 lm_cc_test(
@@ -71,6 +78,10 @@ cc_library(
         "//score/launch_manager:error",
         "//score/launch_manager/src/daemon/src/osal:return_types",
         "//score/launch_manager/src/daemon/src/process_group_manager:iprocess",
+        "//score/launch_manager/src/daemon/src/process_group_manager/details:handle",
+        "//score/launch_manager/src/daemon/src/process_group_manager/details:icomponent",
+        "@score_baselibs//score/language/futurecpp",
+        "@score_baselibs//score/result",
     ],
 )
 
