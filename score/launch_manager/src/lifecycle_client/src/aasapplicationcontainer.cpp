@@ -122,7 +122,7 @@ std::int32_t AasApplicationContainer::Run(const score::cpp::stop_token& token)
 
 std::int32_t AasApplicationContainer::Launch()
 {
-    return lifecycle_manager.run(*this, context_);
+    return lifecycle_manager_.run(*this, context_);
 }
 
 }  // namespace score::mw::lifecycle

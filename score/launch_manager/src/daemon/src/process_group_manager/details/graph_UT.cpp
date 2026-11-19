@@ -63,7 +63,7 @@ class GraphTest : public ::testing::Test
             10U,
             graph_config_,
             job_queue_,
-            ProcessHandling{&process_interface_, mock_process_map, nullptr, mock_factory_});
+            ProcessHandling{&process_interface_, mock_process_map_, nullptr, mock_factory_});
     }
 
     virtual void SetConfig()
@@ -75,7 +75,7 @@ class GraphTest : public ::testing::Test
                           .setComponents(std::move(procs))
                           .setRunTargets(std::move(rts))
                           .setInitialRunTarget("Startup")
-                          .setFallbackRunTarget(std::move(fallback))
+                          .setFallbackRunTarget(std::move(fallback_))
                           .build();
 
         graph_config_ = config.takeGraph();
@@ -98,14 +98,14 @@ class GraphTest : public ::testing::Test
     std::vector<RunTargetConfig> generateRunTargets(int count)
     {
         std::vector<RunTargetConfig> rts{};
-        rts.push_back(startup);
+        rts.push_back(startup_);
         for (int i = 0; i < count; i++)
         {
             RunTargetConfig config{};
             config.name = run_target_name(i);
             rts.push_back(std::move(config));
         }
-        rts.push_back(off);
+        rts.push_back(off_);
         return rts;
     }
 
@@ -127,7 +127,7 @@ class GraphTest : public ::testing::Test
             const osal::ProcessID pid = 100;
             EXPECT_CALL(process_interface_, startProcess)
                 .WillOnce(DoAll(SetArgReferee<0>(pid), Return(osal::OsalReturnType::kSuccess)));
-            EXPECT_CALL(*mock_process_map, insertIfNotTerminated)
+            EXPECT_CALL(*mock_process_map_, insertIfNotTerminated)
                 .WillOnce(Return(SafeProcessMapInsertResult{SafeProcessMapReturnType::kInserted}));
             res = job.component.get().activate(job.stop_token);
         }
@@ -194,14 +194,14 @@ class GraphTest : public ::testing::Test
     GraphConfig graph_config_{};
     std::shared_ptr<WorkerQueue> job_queue_ = std::make_shared<WorkerQueue>();
     StrictMock<osal::MockIProcess> process_interface_{};
-    std::shared_ptr<MockProcessMap> mock_process_map = std::make_shared<MockProcessMap>();
+    std::shared_ptr<MockProcessMap> mock_process_map_ = std::make_shared<MockProcessMap>();
     NiceMock<MockAliveSupervisionHandle> mock_alive_supervision_handle_{};
     MockSupervisionFactory mock_factory_{};
     std::unique_ptr<Graph> graph_{};
 
-    RunTargetConfig startup = {"Startup", "", {}, 10, {}};
-    RunTargetConfig off = {"Off", "", {}, 10, {}};
-    FallbackRunTargetConfig fallback = {
+    RunTargetConfig startup_ = {"Startup", "", {}, 10, {}};
+    RunTargetConfig off_ = {"Off", "", {}, 10, {}};
+    FallbackRunTargetConfig fallback_ = {
         "",
         {},
         10,
@@ -221,7 +221,7 @@ class GraphOrdinaryTransitionTest : public GraphTest
                           .setComponents(std::move(procs))
                           .setRunTargets(std::move(rts))
                           .setInitialRunTarget("Startup")
-                          .setFallbackRunTarget(std::move(fallback))
+                          .setFallbackRunTarget(std::move(fallback_))
                           .build();
 
         graph_config_ = config.takeGraph();
@@ -266,7 +266,7 @@ TEST_F(GraphOrdinaryTransitionTest, simpleDeactivationTransition)
 
     completeTransition(IdentifierHash{run_target_name(0)});
 
-    const auto target = IdentifierHash{off.name};
+    const auto target = IdentifierHash{off_.name};
     graph_->startTransition(target);
 
     const auto job = job_queue_->pop();
@@ -475,11 +475,11 @@ TEST_F(GraphActivationSourceTest, recoverySourceDoesNotLeakIntoNextTransition)
         "Description", "Test that a transition following a recovery action is reported as kStateManagerRequest again");
 
     graph_->startTransition(IdentifierHash{Graph::recovery_state_name}, RunTargetActivationSource::kRecoveryAction);
-    graph_->startTransition(IdentifierHash{startup.name});
+    graph_->startTransition(IdentifierHash{startup_.name});
 
     ASSERT_EQ(graph_->getState(), GraphState::kSuccess);
     ASSERT_EQ(activations_.size(), 2U);
-    EXPECT_EQ(activations_[1].first, IdentifierHash{startup.name});
+    EXPECT_EQ(activations_[1].first, IdentifierHash{startup_.name});
     EXPECT_EQ(activations_[1].second, RunTargetActivationSource::kStateManagerRequest);
 }
 
@@ -491,7 +491,7 @@ TEST_F(GraphInitialTransitionTest, nothingToDo)
 {
     RecordProperty("Description", "Test that the initial transition to an empty Run Target succeeds immediately");
 
-    graph_->startInitialTransition(IdentifierHash{startup.name});
+    graph_->startInitialTransition(IdentifierHash{startup_.name});
 
     EXPECT_EQ(graph_->getState(), GraphState::kSuccess);
 }
@@ -586,14 +586,14 @@ class GraphImplicitOffTargetTest : public GraphTest
         rt.depends_on = {procs[0].name};
 
         std::vector<RunTargetConfig> rts{};
-        rts.push_back(startup);
+        rts.push_back(startup_);
         rts.push_back(std::move(rt));
 
         auto config = ConfigBuilder{}
                           .setComponents(std::move(procs))
                           .setRunTargets(std::move(rts))
                           .setInitialRunTarget("Startup")
-                          .setFallbackRunTarget(std::move(fallback))
+                          .setFallbackRunTarget(std::move(fallback_))
                           .build();
 
         graph_config_ = config.takeGraph();
@@ -649,7 +649,7 @@ class GraphOffStateTimeoutTest : public GraphTest
                           .setComponents(std::move(procs))
                           .setRunTargets(std::move(rts))
                           .setInitialRunTarget("Startup")
-                          .setFallbackRunTarget(std::move(fallback))
+                          .setFallbackRunTarget(std::move(fallback_))
                           .build();
 
         graph_config_ = config.takeGraph();
@@ -678,7 +678,7 @@ class GraphHandleComponentEventTest : public GraphTest
                           .setComponents(std::move(procs))
                           .setRunTargets(std::move(rts))
                           .setInitialRunTarget("Startup")
-                          .setFallbackRunTarget(std::move(fallback))
+                          .setFallbackRunTarget(std::move(fallback_))
                           .build();
 
         graph_config_ = config.takeGraph();
@@ -828,7 +828,7 @@ class GraphSupervisionFailureTest : public GraphTest
                           .setComponents(std::move(procs))
                           .setRunTargets(std::move(rts))
                           .setInitialRunTarget("Startup")
-                          .setFallbackRunTarget(std::move(fallback))
+                          .setFallbackRunTarget(std::move(fallback_))
                           .build();
 
         graph_config_ = config.takeGraph();
@@ -924,8 +924,8 @@ TEST_F(GraphUtilitiesTest, isValidRunTarget)
         "configuration and false for one that doesn't.");
 
     EXPECT_TRUE(graph_->isValidRunTarget(IdentifierHash{run_target_name(0)}));
-    EXPECT_TRUE(graph_->isValidRunTarget(IdentifierHash{startup.name}));
-    EXPECT_TRUE(graph_->isValidRunTarget(IdentifierHash{off.name}));
+    EXPECT_TRUE(graph_->isValidRunTarget(IdentifierHash{startup_.name}));
+    EXPECT_TRUE(graph_->isValidRunTarget(IdentifierHash{off_.name}));
     EXPECT_FALSE(graph_->isValidRunTarget(IdentifierHash{"NotARealRunTarget"}));
 }
 
