@@ -55,6 +55,7 @@ lm_cc_test(
         "//score/launch_manager/src/daemon/src/process_group_manager/details/start_action:mock_start_action",
         "//score/launch_manager/src/daemon/src/process_group_manager/details/stop_action:mock_stop_action",
         "@googletest//:gtest_main",
+        "@score_baselibs//score/language/futurecpp",
     ],
 )
 

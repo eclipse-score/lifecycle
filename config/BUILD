@@ -139,9 +139,10 @@ config_setting(
 )
 
 # Use Component instead of ProcessInfoNode for the components of the process group graph.
+# Set --//config:use_component=False to fall back to the legacy ProcessInfoNode.
 bool_flag(
     name = "use_component",
-    build_setting_default = False,
+    build_setting_default = True,
     visibility = ["//visibility:public"],
 )
 

@@ -112,12 +112,6 @@ IComponent::RequestResult Component::activate(cpp::stop_token stop_token)
             LM_LOG_DEBUG() << config_->name << ": activation was cancelled, not retrying";
             return result;
         }
-
-        if (attempt < attempts)
-        {
-            LM_LOG_WARN() << config_->name << ": activation failed, retrying (attempt" << (attempt + 1U) << "of"
-                          << attempts << ")";
-        }
     }
 
     return result;
@@ -234,6 +228,7 @@ bool Component::stopAfterFailedActivation()
 bool Component::stopAndWait(std::unique_lock<std::mutex>& lock, const Handle& handle)
 {
     // Stopping cannot be interrupted, so no stop token is passed on.
+    state_ = TerminatingState{handle};
     const Result<RequestResult> stopped = stop_action_->stop(cpp::stop_token{}, handle);
 
     // Without a resource, or if its termination was already handled, no termination will be reported
@@ -253,7 +248,6 @@ bool Component::stopAndWait(std::unique_lock<std::mutex>& lock, const Handle& ha
         return false;
     }
 
-    state_ = TerminatingState{handle};
     if (waitUntilTerminated(lock, std::chrono::milliseconds{config_->deployment_config.shutdown_timeout_ms}))
     {
         return true;
