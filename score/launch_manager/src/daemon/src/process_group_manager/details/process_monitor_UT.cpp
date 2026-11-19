@@ -30,13 +30,13 @@ class ProcessMonitorTest : public ::testing::Test
         RecordProperty("TestType", "interface-test");
         RecordProperty("DerivationTechnique", "explorative-testing");
 
-        ON_CALL(mock_component, getIdentifier).WillByDefault(Return(kDefaultIdentifier));
+        ON_CALL(mock_component_, getIdentifier).WillByDefault(Return(kDefaultIdentifier));
     }
 
-    MockComponentEventQueue mock_queue{};
-    ProcessMonitor process_monitor{mock_queue};
-    MockComponent mock_component{};
-    score::cpp::stop_source stop_source{};
+    MockComponentEventQueue mock_queue_{};
+    ProcessMonitor process_monitor_{mock_queue_};
+    MockComponent mock_component_{};
+    score::cpp::stop_source stop_source_{};
 };
 
 TEST_F(ProcessMonitorTest, DoWorkNormalActivation)
@@ -44,13 +44,13 @@ TEST_F(ProcessMonitorTest, DoWorkNormalActivation)
     RecordProperty("Description", "Verify that the process monitor activates components during activate tasks");
     // Given a valid activate task
     // Then
-    EXPECT_CALL(mock_component, activate).WillOnce(Return(IComponent::RequestResult::kSuccess));
+    EXPECT_CALL(mock_component_, activate).WillOnce(Return(IComponent::RequestResult::kSuccess));
     EXPECT_CALL(
-        mock_queue,
+        mock_queue_,
         push(VariantWith<ActivationSuccessful>(Field(&ActivationSuccessful::node_identifier, kDefaultIdentifier))))
         .Times(1);
     // When
-    process_monitor.doWork(ComponentTask{ComponentTaskType::kActivate, mock_component, stop_source.get_token()});
+    process_monitor_.doWork(ComponentTask{ComponentTaskType::kActivate, mock_component_, stop_source_.get_token()});
 }
 
 TEST_F(ProcessMonitorTest, DoWorkNormalDeactivation)
@@ -58,13 +58,13 @@ TEST_F(ProcessMonitorTest, DoWorkNormalDeactivation)
     RecordProperty("Description", "Verify that the process monitor deactivates components during deactivate tasks");
     // Given a valid activate task
     // Then
-    EXPECT_CALL(mock_component, deactivate).WillOnce(Return(IComponent::RequestResult::kSuccess));
+    EXPECT_CALL(mock_component_, deactivate).WillOnce(Return(IComponent::RequestResult::kSuccess));
     EXPECT_CALL(
-        mock_queue,
+        mock_queue_,
         push(VariantWith<DeactivationComplete>(Field(&DeactivationComplete::node_identifier, kDefaultIdentifier))))
         .Times(1);
     // When
-    process_monitor.doWork(ComponentTask{ComponentTaskType::kDeactivate, mock_component, stop_source.get_token()});
+    process_monitor_.doWork(ComponentTask{ComponentTaskType::kDeactivate, mock_component_, stop_source_.get_token()});
 }
 
 TEST_F(ProcessMonitorTest, TerminatedUnexpectedly)
@@ -75,13 +75,13 @@ TEST_F(ProcessMonitorTest, TerminatedUnexpectedly)
 
     // Given a terminated signal on a component that is not expected to terminate:
     // Then
-    EXPECT_CALL(mock_component, tryHandleTermination).WillOnce(Return(IComponent::TerminationResult::kFailure));
+    EXPECT_CALL(mock_component_, tryHandleTermination).WillOnce(Return(IComponent::TerminationResult::kFailure));
     EXPECT_CALL(
-        mock_queue,
+        mock_queue_,
         push(VariantWith<UnexpectedTermination>(Field(&UnexpectedTermination::node_identifier, kDefaultIdentifier))))
         .Times(1);
 
-    process_monitor.terminated(mock_component, 0);
+    process_monitor_.terminated(mock_component_, 0);
 }
 
 TEST_F(ProcessMonitorTest, ActivationFailed)
@@ -93,8 +93,8 @@ TEST_F(ProcessMonitorTest, ActivationFailed)
     // Given a task that will fail to activate
     auto errc = IComponent::RequestResult::kTimeout;
     // Then
-    EXPECT_CALL(mock_component, activate).WillOnce(Return(errc));
-    EXPECT_CALL(mock_queue, push(VariantWith<ActivationFailed>(Field(&ActivationFailed::reason, errc)))).Times(1);
+    EXPECT_CALL(mock_component_, activate).WillOnce(Return(errc));
+    EXPECT_CALL(mock_queue_, push(VariantWith<ActivationFailed>(Field(&ActivationFailed::reason, errc)))).Times(1);
     // When
-    process_monitor.doWork(ComponentTask{ComponentTaskType::kActivate, mock_component, stop_source.get_token()});
+    process_monitor_.doWork(ComponentTask{ComponentTaskType::kActivate, mock_component_, stop_source_.get_token()});
 }

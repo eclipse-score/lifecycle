@@ -81,7 +81,7 @@ class AliveWorkerFactoryTest : public ::testing::Test
         supervision::g_mock_alive_supervision.reset();
     }
 
-    AliveWorkerFactory factory{};
+    AliveWorkerFactory factory_{};
 
     const IdentifierHash component_id_{"Component"};
     std::unique_ptr<ifappl::CheckpointIpcServer> ipc_;
@@ -103,7 +103,7 @@ TEST_F(AliveWorkerFactoryTest, createObservableEventFails)
 
     EXPECT_CALL(reader, registerObservableEvent).WillOnce(Throw(FactoryException{"Exception during registration"}));
 
-    EXPECT_NO_THROW(create_result = factory.createObservableEvent(out, component_id_, reader));
+    EXPECT_NO_THROW(create_result = factory_.createObservableEvent(out, component_id_, reader));
     EXPECT_FALSE(create_result);
 }
 
@@ -121,7 +121,7 @@ TEST_F(AliveWorkerFactoryTest, createObservableEventSucceeds)
 
     EXPECT_CALL(reader, registerObservableEvent(event_matcher, component_id_)).WillOnce(Return(true));
 
-    create_result = factory.createObservableEvent(out, component_id_, reader);
+    create_result = factory_.createObservableEvent(out, component_id_, reader);
 
     EXPECT_TRUE(create_result);
     EXPECT_THAT(out.back(), event_matcher);
@@ -138,7 +138,7 @@ TEST_F(AliveWorkerFactoryTest, createAliveIfIpcThrows)
 
     EXPECT_CALL(*ifappl::g_mock_checkpoint_ipc_server, init).WillOnce(Throw(FactoryException{"IPC init error"}));
 
-    EXPECT_NO_THROW(create_result = factory.createAliveIfIpc(out, component_id_, 0));
+    EXPECT_NO_THROW(create_result = factory_.createAliveIfIpc(out, component_id_, 0));
     EXPECT_FALSE(create_result);
 }
 
@@ -152,7 +152,7 @@ TEST_F(AliveWorkerFactoryTest, createAliveIfIpcInitFails)
     EXPECT_CALL(*ifappl::g_mock_checkpoint_ipc_server, init)
         .WillOnce(Return(ifappl::CheckpointIpcServer::EIpcInitResult::kFailed));
 
-    EXPECT_NO_THROW(create_result = factory.createAliveIfIpc(out, component_id_, 0));
+    EXPECT_NO_THROW(create_result = factory_.createAliveIfIpc(out, component_id_, 0));
     EXPECT_FALSE(create_result);
 }
 
@@ -167,7 +167,7 @@ TEST_F(AliveWorkerFactoryTest, createAliveIfIpcSetAccessFails)
         .WillOnce(Return(ifappl::CheckpointIpcServer::EIpcInitResult::kOk));
     EXPECT_CALL(*ifappl::g_mock_checkpoint_ipc_server, setAccessRights).WillOnce(Return(false));
 
-    EXPECT_NO_THROW(create_result = factory.createAliveIfIpc(out, component_id_, 0));
+    EXPECT_NO_THROW(create_result = factory_.createAliveIfIpc(out, component_id_, 0));
     EXPECT_FALSE(create_result);
 }
 
@@ -183,7 +183,7 @@ TEST_F(AliveWorkerFactoryTest, createAliveIfIpcSucceeds)
         .WillOnce(Return(ifappl::CheckpointIpcServer::EIpcInitResult::kOk));
     EXPECT_CALL(*ifappl::g_mock_checkpoint_ipc_server, setAccessRights(uid)).WillOnce(Return(true));
 
-    create_result = factory.createAliveIfIpc(out, component_id_, uid);
+    create_result = factory_.createAliveIfIpc(out, component_id_, uid);
     EXPECT_TRUE(create_result);
     EXPECT_EQ(out.size(), 1);
 }
@@ -201,7 +201,7 @@ TEST_F(AliveWorkerFactoryTest, createAliveIfFails)
         .WillOnce(Throw(FactoryException{"Exception during construction"}));
     EXPECT_CALL(*ifappl::g_mock_checkpoint_ipc_server, getPath).WillOnce(Return("/dev/null"));
 
-    EXPECT_NO_THROW(create_result = factory.createAliveIf(out, *ipc_, event_));
+    EXPECT_NO_THROW(create_result = factory_.createAliveIf(out, *ipc_, event_));
     EXPECT_FALSE(create_result);
 }
 
@@ -215,7 +215,7 @@ TEST_F(AliveWorkerFactoryTest, createAliveIfSucceeds)
     EXPECT_CALL(*ifappl::g_mock_monitor_if_daemon, ctor);
     EXPECT_CALL(*ifappl::g_mock_checkpoint_ipc_server, getPath).WillOnce(Return("/dev/null"));
 
-    create_result = factory.createAliveIf(out, *ipc_, event_);
+    create_result = factory_.createAliveIf(out, *ipc_, event_);
     EXPECT_TRUE(create_result);
     EXPECT_EQ(out.size(), 1);
 }
@@ -233,7 +233,7 @@ TEST_F(AliveWorkerFactoryTest, createAliveSupervisionFails)
 
     EXPECT_NO_THROW(
         create_result =
-            factory.createAliveSupervision(out, *interface_, event_, mock_recovery_client_, component_id_, config_));
+            factory_.createAliveSupervision(out, *interface_, event_, mock_recovery_client_, component_id_, config_));
     EXPECT_FALSE(create_result);
 }
 
@@ -247,7 +247,7 @@ TEST_F(AliveWorkerFactoryTest, createAliveSupervisionSucceeds)
     EXPECT_CALL(*supervision::g_mock_alive_supervision, ctor(component_id_, _, _, _, _));
 
     create_result =
-        factory.createAliveSupervision(out, *interface_, event_, mock_recovery_client_, component_id_, config_);
+        factory_.createAliveSupervision(out, *interface_, event_, mock_recovery_client_, component_id_, config_);
     EXPECT_TRUE(create_result);
     EXPECT_EQ(out.size(), 1);
 }
