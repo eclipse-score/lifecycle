@@ -88,12 +88,38 @@ Component::Component(
 
 IComponent::RequestResult Component::activate(cpp::stop_token stop_token)
 {
-    const RequestResult result = tryActivate(stop_token);
-    if (result != RequestResult::kSuccess)
+    const std::uint32_t attempts = 1U + config_->deployment_config.activation_retry_attempts;
+
+    RequestResult result{RequestResult::kFailure};
+    for (std::uint32_t attempt = 1U; attempt <= attempts; ++attempt)
     {
-        // A failed activation must not leave anything running.
-        stopAfterFailedActivation();
+        LM_LOG_DEBUG() << config_->name << ": starting activation attempt" << attempt << "of" << attempts;
+        result = tryActivate(stop_token);
+        if (result == RequestResult::kSuccess)
+        {
+            return result;
+        }
+
+        // A failed attempt must not leave anything running. If the resource may still be running, another
+        // attempt could start a second instance of it.
+        if (!stopAfterFailedActivation())
+        {
+            return result;
+        }
+
+        if (stop_token.stop_requested())
+        {
+            LM_LOG_DEBUG() << config_->name << ": activation was cancelled, not retrying";
+            return result;
+        }
+
+        if (attempt < attempts)
+        {
+            LM_LOG_WARN() << config_->name << ": activation failed, retrying (attempt" << (attempt + 1U) << "of"
+                          << attempts << ")";
+        }
     }
+
     return result;
 }
 
@@ -123,7 +149,7 @@ std::optional<Handle> Component::beginActivation(cpp::stop_token stop_token)
 
     if (isSupervised(config_->component_properties.application_profile.application_type) && !supervision_handle_)
     {
-        LM_LOG_ERROR() << config_->name << ": alive supervision is not set up";
+        LM_LOG_ERROR() << config_->name << ": alive supervision could not set up, aborting activation";
         return std::nullopt;
     }
 
@@ -187,14 +213,14 @@ IComponent::RequestResult Component::completeActivation(const Result<void>& read
     return RequestResult::kSuccess;
 }
 
-void Component::stopAfterFailedActivation()
+bool Component::stopAfterFailedActivation()
 {
     std::unique_lock<std::mutex> lock{state_mutex_};
 
     // Nothing was started.
     if (std::holds_alternative<TerminatedState>(state_))
     {
-        return;
+        return true;
     }
 
     const StartingState* const starting = std::get_if<StartingState>(&state_);
@@ -202,7 +228,7 @@ void Component::stopAfterFailedActivation()
         starting != nullptr, "Component must still be starting after a failed activation");
 
     const Handle handle = starting->handle_;
-    static_cast<void>(stopAndWait(lock, handle));
+    return stopAndWait(lock, handle);
 }
 
 bool Component::stopAndWait(std::unique_lock<std::mutex>& lock, const Handle& handle)

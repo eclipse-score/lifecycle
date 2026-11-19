@@ -215,6 +215,34 @@ TEST_F(ComponentFactoryTest, ReportingRunningComponentFailsWhenkRunningIsNotRepo
     EXPECT_FALSE(component->active());
 }
 
+TEST_F(ComponentFactoryTest, ReportingComponentRetriesWhenkRunningIsNotReported)
+{
+    RecordProperty("TestType", "interface-test");
+    RecordProperty("DerivationTechnique", "equivalence-classes");
+    RecordProperty(
+        "Description",
+        "Given a component created from a reporting configuration with one activation retry. "
+        "When the first process does not report kRunning, but the second one does. "
+        "Then the first process is stopped, a second process is started and activation succeeds.");
+
+    auto config = makeConfig(configuration::ApplicationType::Reporting, configuration::ProcessState::Running);
+    config->deployment_config.activation_retry_attempts = 1U;
+    const auto component = createComponent(config);
+    ASSERT_NE(component, nullptr);
+
+    EXPECT_CALL(launcher_, startProcess(_, _, _))
+        .Times(2)
+        .WillRepeatedly(
+            DoAll(SetArgReferee<0>(kPid), SetArgReferee<1>(mock_sync), Return(osal::OsalReturnType::kSuccess)));
+    EXPECT_CALL(launcher_, waitForkRunning(_, _))
+        .WillOnce(Return(osal::OsalReturnType::kFail))
+        .WillOnce(Return(osal::OsalReturnType::kSuccess));
+    expectProcessStopped(*component);
+
+    EXPECT_EQ(component->activate(cpp::stop_token{}), IComponent::RequestResult::kSuccess);
+    EXPECT_TRUE(component->active());
+}
+
 TEST_F(ComponentFactoryTest, FileStateComponentWaitsForConfiguredFile)
 {
     RecordProperty("TestType", "interface-test");

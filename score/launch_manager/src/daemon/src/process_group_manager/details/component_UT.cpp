@@ -1719,6 +1719,229 @@ TEST(ComponentTest, FailedActivationDoesNotWaitForeverForForcedStop)
     EXPECT_EQ(terminateFromOtherThread(component, 0), IComponent::TerminationResult::kIgnore);
 }
 
+/// @brief Configuration which retries a failed activation @p retries times.
+std::shared_ptr<configuration::ComponentConfig> configWithRetries(std::uint8_t retries)
+{
+    auto config = configWithShutdownTimeout(kNeverExpires);
+    config->deployment_config.activation_retry_attempts = retries;
+    return config;
+}
+
+TEST(ComponentTest, FailedActivationIsRetriedUpToConfiguredAttempts)
+{
+    RecordProperty(
+        "Description",
+        "Given a component configured with 2 activation retries whose ready condition always times out. "
+        "When it is activated. "
+        "Then it is started 3 times, every attempt is cleaned up, the result of the last attempt is returned and "
+        "the component is inactive.");
+
+    NiceMock<MockSupervisionFactory> factory;
+
+    auto start_action = std::make_unique<MockStartAction>();
+    EXPECT_CALL(*start_action, start(_, _)).Times(3).WillRepeatedly(kStartsProcess);
+
+    auto stop_action = std::make_unique<MockStopAction>();
+    auto* const stop_action_ptr = stop_action.get();
+
+    auto ready_condition = std::make_unique<NiceMock<MockReadyCondition>>();
+    EXPECT_CALL(*ready_condition, prepare()).Times(3);
+    EXPECT_CALL(*ready_condition, wait(_, _, _))
+        .Times(3)
+        .WillRepeatedly(Return(Result<void>{MakeUnexpected(ExecErrc::kTimeout)}));
+
+    Component component(
+        std::move(start_action),
+        std::move(stop_action),
+        std::make_unique<StrictMock<MockForceStopAction>>(),
+        std::move(ready_condition),
+        factory,
+        configWithRetries(2U));
+
+    JoiningThread termination_thread;
+    EXPECT_CALL(*stop_action_ptr, stop(_, _))
+        .Times(3)
+        .WillRepeatedly(Invoke(reportTerminationLater(component, termination_thread)));
+
+    EXPECT_EQ(component.activate(cpp::stop_token{}), IComponent::RequestResult::kTimeout);
+    EXPECT_FALSE(component.active());
+}
+
+TEST(ComponentTest, RetrySucceedsAfterFailedAttempt)
+{
+    RecordProperty(
+        "Description",
+        "Given a component configured with activation retries whose first attempt fails. "
+        "When it is activated and the second attempt succeeds. "
+        "Then the first process is stopped, activation succeeds and the component is active.");
+
+    NiceMock<MockSupervisionFactory> factory;
+
+    auto start_action = std::make_unique<MockStartAction>();
+    EXPECT_CALL(*start_action, start(_, _)).Times(2).WillRepeatedly(kStartsProcess);
+
+    auto stop_action = std::make_unique<MockStopAction>();
+    auto* const stop_action_ptr = stop_action.get();
+
+    auto ready_condition = std::make_unique<NiceMock<MockReadyCondition>>();
+    EXPECT_CALL(*ready_condition, wait(_, _, _))
+        .WillOnce(Return(Result<void>{MakeUnexpected(ExecErrc::kGeneralError)}))
+        .WillOnce(Return(Result<void>{}));
+
+    Component component(
+        std::move(start_action),
+        std::move(stop_action),
+        std::make_unique<StrictMock<MockForceStopAction>>(),
+        std::move(ready_condition),
+        factory,
+        configWithRetries(3U));
+
+    JoiningThread termination_thread;
+    EXPECT_CALL(*stop_action_ptr, stop(_, _)).WillOnce(Invoke(reportTerminationLater(component, termination_thread)));
+
+    EXPECT_EQ(component.activate(cpp::stop_token{}), IComponent::RequestResult::kSuccess);
+    EXPECT_TRUE(component.active());
+}
+
+TEST(ComponentTest, UnexpectedTerminationDuringStartupIsRetried)
+{
+    RecordProperty(
+        "Description",
+        "Given a component configured with activation retries whose process crashes during startup. "
+        "When it is activated and the process of the second attempt starts up. "
+        "Then the crash is ignored, so that the graph does not abort, and activation succeeds.");
+
+    NiceMock<MockSupervisionFactory> factory;
+
+    auto start_action = std::make_unique<MockStartAction>();
+    EXPECT_CALL(*start_action, start(_, _)).Times(2).WillRepeatedly(kStartsProcess);
+
+    auto ready_condition = std::make_unique<NiceMock<MockReadyCondition>>();
+    auto* const ready_condition_ptr = ready_condition.get();
+
+    Component component(
+        std::move(start_action),
+        std::make_unique<NiceMock<MockStopAction>>(),
+        std::make_unique<StrictMock<MockForceStopAction>>(),
+        std::move(ready_condition),
+        factory,
+        configWithRetries(1U));
+
+    EXPECT_CALL(*ready_condition_ptr, wait(_, _, _))
+        .WillOnce(Invoke([&component](cpp::stop_token, const Handle&, std::chrono::milliseconds) {
+            EXPECT_EQ(terminateFromOtherThread(component, 1), IComponent::TerminationResult::kIgnore);
+            return Result<void>{MakeUnexpected(ExecErrc::kGeneralError)};
+        }))
+        .WillOnce(Return(Result<void>{}));
+
+    EXPECT_EQ(component.activate(cpp::stop_token{}), IComponent::RequestResult::kSuccess);
+    EXPECT_TRUE(component.active());
+}
+
+TEST(ComponentTest, CancelledActivationIsNotRetried)
+{
+    RecordProperty(
+        "Description",
+        "Given a component configured with activation retries. "
+        "When its activation is cancelled while the first attempt waits for the ready condition. "
+        "Then the process is stopped, no further attempt is made, activation fails and the component is inactive, "
+        "so that it can be activated again.");
+
+    NiceMock<MockSupervisionFactory> factory;
+
+    auto start_action = std::make_unique<MockStartAction>();
+    EXPECT_CALL(*start_action, start(_, _)).Times(2).WillRepeatedly(kStartsProcess);
+
+    auto stop_action = std::make_unique<MockStopAction>();
+    auto* const stop_action_ptr = stop_action.get();
+
+    auto ready_condition = std::make_unique<NiceMock<MockReadyCondition>>();
+    auto* const ready_condition_ptr = ready_condition.get();
+
+    Component component(
+        std::move(start_action),
+        std::move(stop_action),
+        std::make_unique<StrictMock<MockForceStopAction>>(),
+        std::move(ready_condition),
+        factory,
+        configWithRetries(3U));
+
+    cpp::stop_source stop_source;
+    EXPECT_CALL(*ready_condition_ptr, wait(_, _, _))
+        .WillOnce(Invoke([&stop_source](cpp::stop_token, const Handle&, std::chrono::milliseconds) {
+            static_cast<void>(stop_source.request_stop());
+            return Result<void>{MakeUnexpected(ExecErrc::kGeneralError)};
+        }))
+        .WillOnce(Return(Result<void>{}));
+
+    JoiningThread termination_thread;
+    EXPECT_CALL(*stop_action_ptr, stop(_, _)).WillOnce(Invoke(reportTerminationLater(component, termination_thread)));
+
+    EXPECT_EQ(component.activate(stop_source.get_token()), IComponent::RequestResult::kFailure);
+    EXPECT_FALSE(component.active());
+
+    // The second start is the reactivation, not a retry.
+    EXPECT_EQ(component.activate(cpp::stop_token{}), IComponent::RequestResult::kSuccess);
+}
+
+TEST(ComponentTest, StartFailureIsRetried)
+{
+    RecordProperty(
+        "Description",
+        "Given a component configured with activation retries. "
+        "When starting its resource fails once. "
+        "Then nothing is stopped, the start is retried and activation succeeds.");
+
+    NiceMock<MockSupervisionFactory> factory;
+
+    auto start_action = std::make_unique<MockStartAction>();
+    EXPECT_CALL(*start_action, start(_, _))
+        .WillOnce(Return(Result<StartedResource>{MakeUnexpected(ExecErrc::kGeneralError)}))
+        .WillOnce(kStartsProcess);
+
+    Component component(
+        std::move(start_action),
+        std::make_unique<StrictMock<MockStopAction>>(),
+        std::make_unique<StrictMock<MockForceStopAction>>(),
+        std::make_unique<NiceMock<MockReadyCondition>>(),
+        factory,
+        configWithRetries(1U));
+
+    EXPECT_EQ(component.activate(cpp::stop_token{}), IComponent::RequestResult::kSuccess);
+    EXPECT_TRUE(component.active());
+}
+
+TEST(ComponentTest, FailedCleanupIsNotRetried)
+{
+    RecordProperty(
+        "Description",
+        "Given a component configured with activation retries whose first attempt fails. "
+        "When its process cannot be asked to stop. "
+        "Then no further attempt is made, since it could start a second instance, and activation fails.");
+
+    NiceMock<MockSupervisionFactory> factory;
+
+    auto start_action = std::make_unique<MockStartAction>();
+    EXPECT_CALL(*start_action, start(_, _)).WillOnce(kStartsProcess);
+
+    auto stop_action = std::make_unique<MockStopAction>();
+    EXPECT_CALL(*stop_action, stop(_, _)).WillOnce(Return(IComponent::RequestResult::kFailure));
+
+    auto ready_condition = std::make_unique<NiceMock<MockReadyCondition>>();
+    EXPECT_CALL(*ready_condition, wait(_, _, _)).WillOnce(Return(Result<void>{MakeUnexpected(ExecErrc::kTimeout)}));
+
+    Component component(
+        std::move(start_action),
+        std::move(stop_action),
+        std::make_unique<StrictMock<MockForceStopAction>>(),
+        std::move(ready_condition),
+        factory,
+        configWithRetries(3U));
+
+    EXPECT_EQ(component.activate(cpp::stop_token{}), IComponent::RequestResult::kTimeout);
+    EXPECT_FALSE(component.active());
+}
+
 TEST(ComponentTest, SupervisionConstructedFromConfig)
 {
     NiceMock<MockSupervisionFactory> factory;

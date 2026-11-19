@@ -24,6 +24,7 @@
 #include "score/mw/launch_manager/process_group_manager/details/stop_action/istop_action.hpp"
 #include <chrono>
 #include <condition_variable>
+#include <cstdint>
 #include <memory>
 #include <mutex>
 #include <optional>
@@ -56,12 +57,15 @@ class Component final : public IComponent
         std::shared_ptr<configuration::ComponentConfig>&& config);
 
     /// @brief Start the resource and set the component to active.
-    /// @details If the activation fails, the resource is stopped and its termination is waited for
-    ///          before this call returns, so that nothing is left running.
+    /// @details If an attempt fails, the resource is stopped and its termination is waited for, so that
+    ///          nothing is left running. A failed attempt is retried up to `activation_retry_attempts`
+    ///          times, each with the full ready timeout. Retrying ends early if the stop token was stopped
+    ///          meanwhile, or if the resource could not be cleaned up, since another attempt could then
+    ///          start a second instance of it. The component is inactive after a failed activation.
     /// @pre deactivate() is not running.
     /// @param stop_token Token which can be used to interrupt the wait for the ready condition.
     ///                   It does not interrupt stopping the resource after a failed activation.
-    /// @return Whether the component activation succeeded, timed out or failed.
+    /// @return Whether the component activation succeeded, or the result of the last failed attempt.
     RequestResult activate(cpp::stop_token stop_token) override;
 
     /// @brief Stop the resource and set the component to inactive.
@@ -156,7 +160,7 @@ class Component final : public IComponent
     /// @brief The current state of the component.
     State state_;
 
-    /// @brief Activate the component, without cleaning up if the activation fails.
+    /// @brief One activation attempt, without cleaning up if it fails.
     /// @param stop_token Token which can be used to interrupt the wait for the ready condition.
     /// @return Whether the component activation succeeded, timed out or failed.
     [[nodiscard]] RequestResult tryActivate(cpp::stop_token stop_token);
@@ -179,7 +183,8 @@ class Component final : public IComponent
 
     /// @brief Stop the resource after a failed activation and wait for its termination.
     /// @details Locks the state. Does nothing if no resource was started.
-    void stopAfterFailedActivation();
+    /// @return True if nothing is left running, false if the resource could not be cleaned up.
+    [[nodiscard]] bool stopAfterFailedActivation();
 
     /// @brief Stop the resource and wait for its termination, forcefully if needed.
     /// @details Always ends in TerminatedState. The lock is released while waiting.
