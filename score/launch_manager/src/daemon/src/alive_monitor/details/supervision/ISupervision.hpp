@@ -63,7 +63,7 @@ class ISupervision
     ISupervision& operator=(const ISupervision&) = delete;
 
   private:
-    /// Unique name set by configuration
+    /// @brief Unique name set by configuration
     const IdentifierHash k_cfgName;
 };
 

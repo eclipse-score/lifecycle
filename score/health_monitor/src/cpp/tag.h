@@ -20,12 +20,12 @@
 namespace score::mw::health
 {
 
-/// Common string-based tag.
+/// @brief Common string-based tag.
 template <typename T>
 class Tag
 {
   public:
-    /// Create a new tag from a C-style string.
+    /// @brief Create a new tag from a C-style string.
     template <size_t N>
     explicit Tag(const char (&tag)[N]) : data_(tag), length_(N - 1)
     {
@@ -44,26 +44,26 @@ class Tag
     }
 
   private:
-    /// SAFETY: This has to be FFI compatible with the Rust side representation.
+    /// @brief SAFETY: This has to be FFI compatible with the Rust side representation.
     const char* data_;
     size_t length_;
 };
 
-/// Monitor tag.
+/// @brief Monitor tag.
 class MonitorTag : public Tag<MonitorTag>
 {
   public:
     using Tag::Tag;
 };
 
-/// Deadline tag.
+/// @brief Deadline tag.
 class DeadlineTag : public Tag<DeadlineTag>
 {
   public:
     using Tag::Tag;
 };
 
-/// State tag.
+/// @brief State tag.
 class StateTag : public Tag<StateTag>
 {
   public:

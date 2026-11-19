@@ -147,14 +147,14 @@ class ShmCounter
         std::atomic<value_type>::is_always_lock_free,
         "ShmCounter requires a lock-free atomic to work across processes");
 
-    /// Throws a std::runtime_error describing the failed call and the current errno.
+    /// @brief Throws a std::runtime_error describing the failed call and the current errno.
     [[noreturn]] static void throw_errno(const char* what, const char* name)
     {
         throw std::runtime_error(
             std::string{"ShmCounter: "} + what + "(\"" + name + "\") failed: " + std::strerror(errno));
     }
 
-    /// The creator may not have called ftruncate yet; mapping a zero-sized object and touching it
+    /// @brief The creator may not have called ftruncate yet; mapping a zero-sized object and touching it
     /// would raise SIGBUS. Wait (bounded) until the object has its final size.
     void wait_until_sized()
     {

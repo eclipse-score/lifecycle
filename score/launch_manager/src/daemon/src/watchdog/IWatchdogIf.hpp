@@ -50,7 +50,7 @@ class IWatchdogIf
     /// @brief Maximum supported timeout value in ms
     static constexpr std::uint16_t kTimeoutMaxMillis{30U /*seconds*/ * 1000U /*millis per second*/};
 
-    /// The main loop cycle time must be strictly less than the minimum watchdog timeout to ensure that
+    /// @brief The main loop cycle time must be strictly less than the minimum watchdog timeout to ensure that
     /// the watchdog timeout cannot expire during an unblocked run of the main loop.
     static_assert(
         score::mw::lifecycle::internal::kMainLoopCycleTimeMs < kTimeoutMinMillis,

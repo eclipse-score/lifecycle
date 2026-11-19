@@ -36,7 +36,7 @@
 
 namespace
 {
-/// Used when --checkpointIntervalMs is not given.
+/// @brief Used when --checkpointIntervalMs is not given.
 constexpr std::chrono::milliseconds kDefaultCheckpointInterval{100};
 
 std::atomic<bool> exit_requested{false};

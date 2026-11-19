@@ -57,8 +57,8 @@ class MockMonitorIfDaemon : public common::Observable<ifappl::Checkpoint>
     }
 };
 
-/// Helper: build a minimal Alive under test.
-/// Owns all supporting objects so they outlive the Alive.
+/// @brief Helper: build a minimal Alive under test.
+/// @details Owns all supporting objects so they outlive the Alive.
 struct AliveFixture
 {
     inline static const IdentifierHash kProcessId{"42U"};
@@ -119,7 +119,7 @@ struct AliveFixture
         processState.attachObserver(*alive);
     }
 
-    /// Send an activation event and notify observers.
+    /// @brief Send an activation event and notify observers.
     void activateProcess(std::chrono::nanoseconds ts)
     {
         processState.event.systemClockTimestamp.tv_nsec = ts.count();
@@ -127,7 +127,7 @@ struct AliveFixture
         processState.pushData();
     }
 
-    /// Send a deactivation event and notify observers.
+    /// @brief Send a deactivation event and notify observers.
     void deactivateProcess(std::chrono::nanoseconds ts)
     {
         processState.event.systemClockTimestamp.tv_nsec = ts.count();
@@ -135,7 +135,7 @@ struct AliveFixture
         processState.pushData();
     }
 
-    /// Report one alive heartbeat checkpoint at the given timestamp.
+    /// @brief Report one alive heartbeat checkpoint at the given timestamp.
     void reportHeartbeat(std::chrono::nanoseconds timestamp)
     {
         mock_monitor.PushCheckpointToObservers(ifappl::Checkpoint{timestamp});

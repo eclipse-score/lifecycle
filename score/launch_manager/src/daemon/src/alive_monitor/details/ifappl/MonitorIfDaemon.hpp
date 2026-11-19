@@ -86,7 +86,7 @@ class MonitorIfDaemon : public common::Observer<ifexm::ObservableEvent>, public 
     /// @returns True if successful, false if an error reading from the buffer occurred.
     bool readIpcUntil(const std::chrono::nanoseconds f_syncTimestamp);
 
-    /// Internal states for instances of this class
+    /// @brief Internal states for instances of this class
     enum class EInternalState : std::uint8_t
     {
         /// @brief Interface active
@@ -99,7 +99,7 @@ class MonitorIfDaemon : public common::Observer<ifexm::ObservableEvent>, public 
         kInactiveOverflow
     };
 
-    /// Current internal state
+    /// @brief Current internal state
     EInternalState status{EInternalState::kInactive};
 
     /// @brief Current Activation request
@@ -111,7 +111,7 @@ class MonitorIfDaemon : public common::Observer<ifexm::ObservableEvent>, public 
     /// @brief Process restart status
     bool isProcessRestarted{false};
 
-    /// Interface name
+    /// @brief Interface name
     const IdentifierHash k_interfaceName;
 
     /// @brief IPC connection to application

@@ -127,7 +127,7 @@ template <typename Trait>
 class LmControlService : public Trait::Base
 {
   public:
-    /// Inherit mw::com's binding constructors.
+    /// @brief Inherit mw::com's binding constructors.
     using Trait::Base::Base;
 
     /// @brief Request Run Target activation.

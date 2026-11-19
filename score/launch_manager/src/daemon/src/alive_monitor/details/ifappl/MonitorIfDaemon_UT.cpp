@@ -30,7 +30,7 @@ namespace score::mw::lifecycle::internal::saf
 namespace
 {
 
-/// Counter used to generate unique POSIX shared-memory names across tests.
+/// @brief Counter used to generate unique POSIX shared-memory names across tests.
 std::atomic<int> g_ipcCounter{0};
 
 std::string makeUniqueIpcName()
@@ -62,14 +62,14 @@ struct MonitorIfDaemonFixture
         monitor.attachObserver(checkpointMock);
     }
 
-    /// Initialize the IPC server so that peek/pop/hasOverflow use real shared memory.
+    /// @brief Initialize the IPC server so that peek/pop/hasOverflow use real shared memory.
     void initIpc()
     {
         ASSERT_TRUE(ipcServer.init(makeUniqueIpcName()) == ifappl::CheckpointIpcServer::EIpcInitResult::kOk)
             << "CheckpointIpcServer init failed";
     }
 
-    /// Send an activation event and notify observers.
+    /// @brief Send an activation event and notify observers.
     void activateProcess(std::chrono::nanoseconds ts)
     {
         processState.event.systemClockTimestamp.tv_nsec = ts.count();
@@ -77,7 +77,7 @@ struct MonitorIfDaemonFixture
         processState.pushData();
     }
 
-    /// Send a deactivation event and notify observers.
+    /// @brief Send a deactivation event and notify observers.
     void deactivateProcess(std::chrono::nanoseconds ts)
     {
         processState.event.systemClockTimestamp.tv_nsec = ts.count();
@@ -85,13 +85,13 @@ struct MonitorIfDaemonFixture
         processState.pushData();
     }
 
-    /// Write a single checkpoint element into the IPC ring buffer.
+    /// @brief Write a single checkpoint element into the IPC ring buffer.
     void sendCheckpoint(std::chrono::nanoseconds ts)
     {
         ipcServer.sendEmplace(ts);
     }
 
-    /// Fill the IPC ring buffer past its capacity to set the overflow flag.
+    /// @brief Fill the IPC ring buffer past its capacity to set the overflow flag.
     void fillIpcBufferToTriggerOverflow()
     {
         // Sending one element beyond capacity sets the ring-buffer overflow flag.

@@ -14,8 +14,8 @@
 #include "score/mw/log/rust/stdout_logger_init.h"
 #include <gtest/gtest.h>
 
-/// Initializer for `StdoutLogger`.
-/// This enables logging for Rust libraries.
+/// @brief Initializer for `StdoutLogger`.
+/// @details This enables logging for Rust libraries.
 class LogEnvironment final : public ::testing::Environment
 {
   protected:
