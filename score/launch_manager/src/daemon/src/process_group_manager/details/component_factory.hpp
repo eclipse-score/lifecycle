@@ -34,7 +34,10 @@ namespace score::mw::lifecycle::internal
 ///          are registered in the process map, so that their termination is reported to their
 ///          component.
 ///          The ready condition is chosen from the configured ready condition:
-///          - \c FileState: FileReadyCondition.
+///          - \c FileState for a \c Native application: FileReadyCondition.
+///          - \c FileState for any other application type: SequenceReadyCondition, which first waits
+///            for kRunning (ReportRunningReadyCondition) and then for the file (FileReadyCondition).
+///            Both share the ready timeout.
 ///          - \c Running for a \c Native application: EmptyReadyCondition.
 ///          - \c Running for any other application type: ReportRunningReadyCondition.
 ///          - \c Terminated: ProcessTerminatedReadyCondition, for every application type. A

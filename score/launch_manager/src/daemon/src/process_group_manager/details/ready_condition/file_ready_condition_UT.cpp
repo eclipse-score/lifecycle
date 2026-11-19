@@ -34,24 +34,24 @@ TEST(FileReadyConditionTest, WaitCallsWaitForFile)
 {
     StrictMock<osal::MockIFileWaiter> file_waiter;
     const FileReadyCondition file_ready_condition(
-        file_waiter, kFilePath, configuration::FileExistenceState::Exists, 10ms, 5ms);
+        file_waiter, kFilePath, configuration::FileExistenceState::Exists, 5ms);
 
     EXPECT_CALL(
         file_waiter, waitForFile(Eq(kFilePath), Eq(configuration::FileExistenceState::Exists), Eq(10ms), Eq(5ms), _))
         .WillOnce(Return(osal::OsalReturnType::kSuccess));
 
-    static_cast<void>(file_ready_condition.wait(cpp::stop_token{}, EmptyHandle{}));
+    static_cast<void>(file_ready_condition.wait(cpp::stop_token{}, EmptyHandle{}, 10ms));
 }
 
 TEST(FileReadyConditionTest, WaitSucceedsReturnsSuccess)
 {
     NiceMock<osal::MockIFileWaiter> file_waiter;
     const FileReadyCondition file_ready_condition(
-        file_waiter, kFilePath, configuration::FileExistenceState::Exists, 10ms, 5ms);
+        file_waiter, kFilePath, configuration::FileExistenceState::Exists, 5ms);
 
     ON_CALL(file_waiter, waitForFile(_, _, _, _, _)).WillByDefault(Return(osal::OsalReturnType::kSuccess));
 
-    const Result<void> result = file_ready_condition.wait(cpp::stop_token{}, EmptyHandle{});
+    const Result<void> result = file_ready_condition.wait(cpp::stop_token{}, EmptyHandle{}, 10ms);
 
     EXPECT_TRUE(result.has_value());
 }
@@ -60,11 +60,11 @@ TEST(FileReadyConditionTest, WaitFailsReturnsError)
 {
     NiceMock<osal::MockIFileWaiter> file_waiter;
     const FileReadyCondition file_ready_condition(
-        file_waiter, kFilePath, configuration::FileExistenceState::Exists, 10ms, 5ms);
+        file_waiter, kFilePath, configuration::FileExistenceState::Exists, 5ms);
 
     ON_CALL(file_waiter, waitForFile(_, _, _, _, _)).WillByDefault(Return(osal::OsalReturnType::kFail));
 
-    const Result<void> result = file_ready_condition.wait(cpp::stop_token{}, EmptyHandle{});
+    const Result<void> result = file_ready_condition.wait(cpp::stop_token{}, EmptyHandle{}, 10ms);
 
     EXPECT_FALSE(result.has_value());
     EXPECT_EQ(result.error(), ExecErrc::kGeneralError);
@@ -74,11 +74,11 @@ TEST(FileReadyConditionTest, WaitTimesOutReturnsTimeout)
 {
     NiceMock<osal::MockIFileWaiter> file_waiter;
     const FileReadyCondition file_ready_condition(
-        file_waiter, kFilePath, configuration::FileExistenceState::Exists, 10ms, 5ms);
+        file_waiter, kFilePath, configuration::FileExistenceState::Exists, 5ms);
 
     ON_CALL(file_waiter, waitForFile(_, _, _, _, _)).WillByDefault(Return(osal::OsalReturnType::kTimeout));
 
-    const Result<void> result = file_ready_condition.wait(cpp::stop_token{}, EmptyHandle{});
+    const Result<void> result = file_ready_condition.wait(cpp::stop_token{}, EmptyHandle{}, 10ms);
 
     EXPECT_FALSE(result.has_value());
     EXPECT_EQ(result.error(), ExecErrc::kTimeout);
@@ -88,14 +88,14 @@ TEST(FileReadyConditionTest, WaitAcceptsVariousHandles)
 {
     NiceMock<osal::MockIFileWaiter> file_waiter;
     const FileReadyCondition file_ready_condition(
-        file_waiter, kFilePath, configuration::FileExistenceState::Exists, 10ms, 5ms);
+        file_waiter, kFilePath, configuration::FileExistenceState::Exists, 5ms);
 
     ON_CALL(file_waiter, waitForFile(_, _, _, _, _)).WillByDefault(Return(osal::OsalReturnType::kSuccess));
 
-    const Result<void> result_empty = file_ready_condition.wait(cpp::stop_token{}, EmptyHandle{});
+    const Result<void> result_empty = file_ready_condition.wait(cpp::stop_token{}, EmptyHandle{}, 10ms);
     EXPECT_TRUE(result_empty.has_value());
 
-    const Result<void> result_process = file_ready_condition.wait(cpp::stop_token{}, ProcessHandle{});
+    const Result<void> result_process = file_ready_condition.wait(cpp::stop_token{}, ProcessHandle{}, 10ms);
     EXPECT_TRUE(result_process.has_value());
 }
 
@@ -136,7 +136,7 @@ TEST(FileReadyConditionTest, TerminationBeforeWaitSucceedsIfFileReachedState)
 
     StrictMock<osal::MockIFileWaiter> file_waiter;
     const FileReadyCondition file_ready_condition(
-        file_waiter, kFilePath, configuration::FileExistenceState::Exists, kNeverExpires, 5ms);
+        file_waiter, kFilePath, configuration::FileExistenceState::Exists, 5ms);
 
     file_ready_condition.prepare();
     file_ready_condition.handleTermination(ProcessHandle{42, nullptr}, 0);
@@ -146,7 +146,7 @@ TEST(FileReadyConditionTest, TerminationBeforeWaitSucceedsIfFileReachedState)
     EXPECT_CALL(file_waiter, waitForFile(Eq(kFilePath), Eq(configuration::FileExistenceState::Exists), Eq(0ms), _, _))
         .WillOnce(Return(osal::OsalReturnType::kSuccess));
 
-    EXPECT_TRUE(file_ready_condition.wait(cpp::stop_token{}, ProcessHandle{42, nullptr}).has_value());
+    EXPECT_TRUE(file_ready_condition.wait(cpp::stop_token{}, ProcessHandle{42, nullptr}, kNeverExpires).has_value());
 }
 
 TEST(FileReadyConditionTest, TerminationFailsWaitIfFileDidNotReachState)
@@ -159,7 +159,7 @@ TEST(FileReadyConditionTest, TerminationFailsWaitIfFileDidNotReachState)
 
     StrictMock<osal::MockIFileWaiter> file_waiter;
     const FileReadyCondition file_ready_condition(
-        file_waiter, kFilePath, configuration::FileExistenceState::Exists, kNeverExpires, 5ms);
+        file_waiter, kFilePath, configuration::FileExistenceState::Exists, 5ms);
 
     file_ready_condition.prepare();
     file_ready_condition.handleTermination(ProcessHandle{42, nullptr}, 0);
@@ -168,7 +168,7 @@ TEST(FileReadyConditionTest, TerminationFailsWaitIfFileDidNotReachState)
     EXPECT_CALL(file_waiter, waitForFile(_, _, Eq(kNeverExpires), _, _)).WillOnce(Invoke(blockUntilStopped));
     EXPECT_CALL(file_waiter, waitForFile(_, _, Eq(0ms), _, _)).WillOnce(Return(osal::OsalReturnType::kTimeout));
 
-    const Result<void> result = file_ready_condition.wait(cpp::stop_token{}, ProcessHandle{42, nullptr});
+    const Result<void> result = file_ready_condition.wait(cpp::stop_token{}, ProcessHandle{42, nullptr}, kNeverExpires);
 
     ASSERT_FALSE(result.has_value());
     EXPECT_EQ(result.error(), ExecErrc::kGeneralError);
@@ -184,7 +184,7 @@ TEST(FileReadyConditionTest, TerminationDuringWaitEndsWait)
 
     StrictMock<osal::MockIFileWaiter> file_waiter;
     const FileReadyCondition file_ready_condition(
-        file_waiter, kFilePath, configuration::FileExistenceState::Exists, kNeverExpires, 5ms);
+        file_waiter, kFilePath, configuration::FileExistenceState::Exists, 5ms);
     std::promise<void> waiting;
 
     InSequence sequence;
@@ -197,7 +197,7 @@ TEST(FileReadyConditionTest, TerminationDuringWaitEndsWait)
 
     file_ready_condition.prepare();
     auto future = std::async(std::launch::async, [&file_ready_condition] {
-        return file_ready_condition.wait(cpp::stop_token{}, ProcessHandle{42, nullptr});
+        return file_ready_condition.wait(cpp::stop_token{}, ProcessHandle{42, nullptr}, kNeverExpires);
     });
     waiting.get_future().wait();
     file_ready_condition.handleTermination(ProcessHandle{42, nullptr}, 1);
@@ -217,14 +217,15 @@ TEST(FileReadyConditionTest, StopRequestDoesNotCheckFileAgain)
 
     StrictMock<osal::MockIFileWaiter> file_waiter;
     const FileReadyCondition file_ready_condition(
-        file_waiter, kFilePath, configuration::FileExistenceState::Exists, kNeverExpires, 5ms);
+        file_waiter, kFilePath, configuration::FileExistenceState::Exists, 5ms);
     cpp::stop_source stop_source;
     static_cast<void>(stop_source.request_stop());
 
     EXPECT_CALL(file_waiter, waitForFile(_, _, _, _, _)).WillOnce(Invoke(blockUntilStopped));
 
     file_ready_condition.prepare();
-    const Result<void> result = file_ready_condition.wait(stop_source.get_token(), ProcessHandle{42, nullptr});
+    const Result<void> result =
+        file_ready_condition.wait(stop_source.get_token(), ProcessHandle{42, nullptr}, kNeverExpires);
 
     ASSERT_FALSE(result.has_value());
     EXPECT_EQ(result.error(), ExecErrc::kGeneralError);
@@ -240,7 +241,7 @@ TEST(FileReadyConditionTest, PrepareDiscardsTerminationOfPreviousActivation)
 
     StrictMock<osal::MockIFileWaiter> file_waiter;
     const FileReadyCondition file_ready_condition(
-        file_waiter, kFilePath, configuration::FileExistenceState::Exists, 10ms, 5ms);
+        file_waiter, kFilePath, configuration::FileExistenceState::Exists, 5ms);
 
     file_ready_condition.prepare();
     file_ready_condition.handleTermination(ProcessHandle{42, nullptr}, 0);
@@ -252,7 +253,7 @@ TEST(FileReadyConditionTest, PrepareDiscardsTerminationOfPreviousActivation)
             return osal::OsalReturnType::kTimeout;
         }));
 
-    const Result<void> result = file_ready_condition.wait(cpp::stop_token{}, ProcessHandle{42, nullptr});
+    const Result<void> result = file_ready_condition.wait(cpp::stop_token{}, ProcessHandle{42, nullptr}, 10ms);
 
     ASSERT_FALSE(result.has_value());
     EXPECT_EQ(result.error(), ExecErrc::kTimeout);

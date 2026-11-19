@@ -22,9 +22,8 @@ FileReadyCondition::FileReadyCondition(
     const osal::IFileWaiter& file_waiter,
     score::safecpp::zstring_view file_path,
     configuration::FileExistenceState state,
-    std::chrono::milliseconds timeout,
     std::chrono::milliseconds interval)
-    : file_waiter_(file_waiter), file_path_(file_path), state_(state), timeout_(timeout), interval_(interval)
+    : file_waiter_(file_waiter), file_path_(file_path), state_(state), interval_(interval)
 {
 }
 
@@ -34,7 +33,10 @@ void FileReadyCondition::prepare() const
     terminated_ = cpp::stop_source{};
 }
 
-Result<void> FileReadyCondition::wait(cpp::stop_token stop_token, [[maybe_unused]] const Handle&) const
+Result<void> FileReadyCondition::wait(
+    cpp::stop_token stop_token,
+    [[maybe_unused]] const Handle&,
+    std::chrono::milliseconds timeout) const
 {
     // The file wait is ended by a stop request of the caller or by the termination of the resource.
     cpp::stop_source wait_stop;
@@ -47,7 +49,7 @@ Result<void> FileReadyCondition::wait(cpp::stop_token stop_token, [[maybe_unused
                                                  }};
 
     osal::OsalReturnType result =
-        file_waiter_.waitForFile(file_path_, state_, timeout_, interval_, wait_stop.get_token());
+        file_waiter_.waitForFile(file_path_, state_, timeout, interval_, wait_stop.get_token());
 
     if ((result != osal::OsalReturnType::kSuccess) && terminated.stop_requested() && !stop_token.stop_requested())
     {

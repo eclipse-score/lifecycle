@@ -102,10 +102,11 @@ class JoiningThread
     std::thread thread_;
 };
 
-/// @brief Configuration with the given shutdown timeout.
+/// @brief Configuration with the given shutdown timeout, and a ready timeout which never expires.
 std::shared_ptr<configuration::ComponentConfig> configWithShutdownTimeout(std::chrono::milliseconds timeout)
 {
     auto config = std::make_shared<configuration::ComponentConfig>();
+    config->deployment_config.ready_timeout_ms = static_cast<uint32_t>(kNeverExpires.count());
     config->deployment_config.shutdown_timeout_ms = static_cast<uint32_t>(timeout.count());
     return config;
 }
@@ -269,10 +270,42 @@ TEST(ComponentTest, ReadyConditionCalled)
         factory,
         std::make_shared<configuration::ComponentConfig>());
 
-    EXPECT_CALL(*ready_condition_ptr, wait(_, _))
+    EXPECT_CALL(*ready_condition_ptr, wait(_, _, _))
         .WillOnce(DoAll(WithArg<1>(Invoke(expect_mock_handle)), Return(Result<void>{})));
 
     static_cast<void>(component.activate(mock_stop_token));
+}
+
+TEST(ComponentTest, ReadyConditionWaitsWithConfiguredReadyTimeout)
+{
+    RecordProperty("TestType", "interface-test");
+    RecordProperty("DerivationTechnique", "interface-analysis");
+    RecordProperty(
+        "Description",
+        "Given a component configured with a ready timeout. "
+        "When the component is activated. "
+        "Then the ready condition is waited for with the configured ready timeout.");
+
+    NiceMock<MockSupervisionFactory> factory;
+
+    auto start_action = std::make_unique<MockStartAction>();
+    ON_CALL(*start_action, start(_, _)).WillByDefault(kStartsProcess);
+
+    auto ready_condition = std::make_unique<NiceMock<MockReadyCondition>>();
+    EXPECT_CALL(*ready_condition, wait(_, _, std::chrono::milliseconds{1234})).WillOnce(Return(Result<void>{}));
+
+    auto config = std::make_shared<configuration::ComponentConfig>();
+    config->deployment_config.ready_timeout_ms = 1234U;
+
+    Component component(
+        std::move(start_action),
+        std::make_unique<MockStopAction>(),
+        std::make_unique<MockForceStopAction>(),
+        std::move(ready_condition),
+        factory,
+        std::move(config));
+
+    EXPECT_EQ(component.activate(mock_stop_token), IComponent::RequestResult::kSuccess);
 }
 
 TEST(ComponentTest, ReadyConditionPreparedBeforeStart)
@@ -302,7 +335,7 @@ TEST(ComponentTest, ReadyConditionPreparedBeforeStart)
     InSequence sequence;
     EXPECT_CALL(*ready_condition_ptr, prepare());
     EXPECT_CALL(*start_action_ptr, start(_, _)).WillOnce(Return(Result<StartedResource>{StartedResource{mock_handle}}));
-    EXPECT_CALL(*ready_condition_ptr, wait(_, _)).WillOnce(Return(Result<void>{}));
+    EXPECT_CALL(*ready_condition_ptr, wait(_, _, _)).WillOnce(Return(Result<void>{}));
 
     EXPECT_EQ(component.activate(mock_stop_token), IComponent::RequestResult::kSuccess);
 }
@@ -324,7 +357,7 @@ TEST(ComponentTest, ReadyConditionTimeoutReturnsTimeout)
     auto* const stop_action_ptr = stop_action.get();
 
     auto ready_condition = std::make_unique<NiceMock<MockReadyCondition>>();
-    EXPECT_CALL(*ready_condition, wait(_, _)).WillOnce(Return(Result<void>{MakeUnexpected(ExecErrc::kTimeout)}));
+    EXPECT_CALL(*ready_condition, wait(_, _, _)).WillOnce(Return(Result<void>{MakeUnexpected(ExecErrc::kTimeout)}));
 
     Component component(
         std::move(start_action),
@@ -357,7 +390,8 @@ TEST(ComponentTest, ReadyConditionErrorReturnsFailure)
     auto* const stop_action_ptr = stop_action.get();
 
     auto ready_condition = std::make_unique<NiceMock<MockReadyCondition>>();
-    EXPECT_CALL(*ready_condition, wait(_, _)).WillOnce(Return(Result<void>{MakeUnexpected(ExecErrc::kGeneralError)}));
+    EXPECT_CALL(*ready_condition, wait(_, _, _))
+        .WillOnce(Return(Result<void>{MakeUnexpected(ExecErrc::kGeneralError)}));
 
     Component component(
         std::move(start_action),
@@ -402,10 +436,11 @@ TEST(ComponentTest, TerminationWhileStartingIsReportedToReadyCondition)
         // The handle is already invalidated, the resource is gone.
         EXPECT_FALSE(isAlive(handle));
     }));
-    EXPECT_CALL(*ready_condition_ptr, wait(_, _)).WillOnce(Invoke([&component](cpp::stop_token, const Handle&) {
-        EXPECT_EQ(terminateFromOtherThread(component, 3), IComponent::TerminationResult::kIgnore);
-        return Result<void>{MakeUnexpected(ExecErrc::kGeneralError)};
-    }));
+    EXPECT_CALL(*ready_condition_ptr, wait(_, _, _))
+        .WillOnce(Invoke([&component](cpp::stop_token, const Handle&, std::chrono::milliseconds) {
+            EXPECT_EQ(terminateFromOtherThread(component, 3), IComponent::TerminationResult::kIgnore);
+            return Result<void>{MakeUnexpected(ExecErrc::kGeneralError)};
+        }));
 
     EXPECT_EQ(component.activate(cpp::stop_token{}), IComponent::RequestResult::kFailure);
 }
@@ -463,11 +498,12 @@ TEST(ComponentTest, UnexpectedTerminationDuringStartupFailsActivation)
         factory,
         configWithShutdownTimeout(kNeverExpires));
 
-    EXPECT_CALL(*ready_condition_ptr, wait(_, _)).WillOnce(Invoke([&component](cpp::stop_token token, const Handle) {
-        EXPECT_EQ(terminateFromOtherThread(component, 0), IComponent::TerminationResult::kIgnore);
-        EXPECT_FALSE(token.stop_requested());
-        return Result<void>{};
-    }));
+    EXPECT_CALL(*ready_condition_ptr, wait(_, _, _))
+        .WillOnce(Invoke([&component](cpp::stop_token token, const Handle, std::chrono::milliseconds) {
+            EXPECT_EQ(terminateFromOtherThread(component, 0), IComponent::TerminationResult::kIgnore);
+            EXPECT_FALSE(token.stop_requested());
+            return Result<void>{};
+        }));
 
     EXPECT_EQ(component.activate(cpp::stop_token{}), IComponent::RequestResult::kFailure);
     EXPECT_FALSE(component.active());
@@ -502,10 +538,11 @@ TEST(ComponentTest, StartActionReceivesComponentAndReadyConditionWaitsOnStartedR
     const InSequence sequence;
     EXPECT_CALL(*start_action_ptr, start(_, Ref(component)))
         .WillOnce(Return(Result<StartedResource>{StartedResource{mock_handle}}));
-    EXPECT_CALL(*ready_condition_ptr, wait(_, _)).WillOnce(Invoke([](cpp::stop_token, const Handle& handle) {
-        expect_mock_handle(handle);
-        return Result<void>{};
-    }));
+    EXPECT_CALL(*ready_condition_ptr, wait(_, _, _))
+        .WillOnce(Invoke([](cpp::stop_token, const Handle& handle, std::chrono::milliseconds) {
+            expect_mock_handle(handle);
+            return Result<void>{};
+        }));
 
     EXPECT_EQ(component.activate(cpp::stop_token{}), IComponent::RequestResult::kSuccess);
 }
@@ -530,7 +567,7 @@ TEST(ComponentTest, AlreadyTerminatedResourceFailsActivation)
     {
         InSequence sequence;
         EXPECT_CALL(*ready_condition, handleTermination(_, 1));
-        EXPECT_CALL(*ready_condition, wait(_, _))
+        EXPECT_CALL(*ready_condition, wait(_, _, _))
             .WillOnce(Return(Result<void>{MakeUnexpected(ExecErrc::kGeneralError)}));
     }
 
@@ -563,10 +600,11 @@ TEST(ComponentTest, SelfTerminatingAlreadyExitedWithZeroIsIgnored)
     EXPECT_CALL(*start_action, start(_, _)).WillOnce(Return(Result<StartedResource>{StartedResource{mock_handle, 0}}));
 
     auto ready_condition = std::make_unique<MockReadyCondition>();
-    EXPECT_CALL(*ready_condition, wait(_, _)).WillOnce(Invoke([](cpp::stop_token token, const Handle&) {
-        EXPECT_FALSE(token.stop_requested());
-        return Result<void>{};
-    }));
+    EXPECT_CALL(*ready_condition, wait(_, _, _))
+        .WillOnce(Invoke([](cpp::stop_token token, const Handle&, std::chrono::milliseconds) {
+            EXPECT_FALSE(token.stop_requested());
+            return Result<void>{};
+        }));
 
     auto config = std::make_shared<configuration::ComponentConfig>();
     config->component_properties.application_profile.is_self_terminating = true;
@@ -624,13 +662,14 @@ TEST(ComponentTest, TerminationDuringStartWaitsUntilComponentIsStarting)
         EXPECT_FALSE(termination_handled.load());
         return Result<StartedResource>{StartedResource{mock_handle}};
     }));
-    EXPECT_CALL(*ready_condition_ptr, wait(_, _)).WillOnce(Invoke([&](cpp::stop_token token, const Handle&) {
-        termination_thread.join();
+    EXPECT_CALL(*ready_condition_ptr, wait(_, _, _))
+        .WillOnce(Invoke([&](cpp::stop_token token, const Handle&, std::chrono::milliseconds) {
+            termination_thread.join();
 
-        EXPECT_TRUE(termination_handled.load());
-        EXPECT_FALSE(token.stop_requested());
-        return Result<void>{};
-    }));
+            EXPECT_TRUE(termination_handled.load());
+            EXPECT_FALSE(token.stop_requested());
+            return Result<void>{};
+        }));
 
     EXPECT_EQ(component.activate(cpp::stop_token{}), IComponent::RequestResult::kFailure);
     EXPECT_FALSE(component.active());
@@ -738,12 +777,13 @@ TEST(ComponentTest, CannotDeactivateWhileActivating)
         factory,
         std::make_shared<configuration::ComponentConfig>());
 
-    EXPECT_CALL(*ready_condition_ptr, wait(_, _)).WillOnce(Invoke([&component](cpp::stop_token, const Handle&) {
-        EXPECT_DEATH(
-            { static_cast<void>(component.deactivate(cpp::stop_token{})); },
-            "Cannot deactivate component while it is activating or deactivating");
-        return Result<void>{};
-    }));
+    EXPECT_CALL(*ready_condition_ptr, wait(_, _, _))
+        .WillOnce(Invoke([&component](cpp::stop_token, const Handle&, std::chrono::milliseconds) {
+            EXPECT_DEATH(
+                { static_cast<void>(component.deactivate(cpp::stop_token{})); },
+                "Cannot deactivate component while it is activating or deactivating");
+            return Result<void>{};
+        }));
 
     EXPECT_EQ(component.activate(cpp::stop_token{}), IComponent::RequestResult::kSuccess);
 }
@@ -1303,10 +1343,11 @@ TEST(ComponentTest, SelfTerminatingExitZeroInStartingStateIsIgnored)
         std::move(config));
 
     IComponent::TerminationResult result;
-    EXPECT_CALL(*ready_condition_ptr, wait(_, _)).WillOnce(Invoke([&](cpp::stop_token, const Handle) {
-        result = terminateFromOtherThread(component, 0);
-        return Result<void>{};
-    }));
+    EXPECT_CALL(*ready_condition_ptr, wait(_, _, _))
+        .WillOnce(Invoke([&](cpp::stop_token, const Handle, std::chrono::milliseconds) {
+            result = terminateFromOtherThread(component, 0);
+            return Result<void>{};
+        }));
 
     static_cast<void>(component.activate(cpp::stop_token{}));
 
@@ -1334,10 +1375,11 @@ TEST(ComponentTest, SelfTerminatingExitZeroInStartingStateIsActive)
         factory,
         std::move(config));
 
-    EXPECT_CALL(*ready_condition_ptr, wait(_, _)).WillOnce(Invoke([&](cpp::stop_token, const Handle) {
-        static_cast<void>(terminateFromOtherThread(component, 0));
-        return Result<void>{};
-    }));
+    EXPECT_CALL(*ready_condition_ptr, wait(_, _, _))
+        .WillOnce(Invoke([&](cpp::stop_token, const Handle, std::chrono::milliseconds) {
+            static_cast<void>(terminateFromOtherThread(component, 0));
+            return Result<void>{};
+        }));
 
     static_cast<void>(component.activate(cpp::stop_token{}));
 
@@ -1369,10 +1411,11 @@ TEST(ComponentTest, SelfTerminatingExitNonZeroInStartingStateFailsActivation)
         selfTerminatingConfig());
 
     IComponent::TerminationResult result;
-    EXPECT_CALL(*ready_condition_ptr, wait(_, _)).WillOnce(Invoke([&](cpp::stop_token, const Handle) {
-        result = terminateFromOtherThread(component, 1);
-        return Result<void>{};
-    }));
+    EXPECT_CALL(*ready_condition_ptr, wait(_, _, _))
+        .WillOnce(Invoke([&](cpp::stop_token, const Handle, std::chrono::milliseconds) {
+            result = terminateFromOtherThread(component, 1);
+            return Result<void>{};
+        }));
 
     EXPECT_EQ(component.activate(cpp::stop_token{}), IComponent::RequestResult::kFailure);
     EXPECT_EQ(result, IComponent::TerminationResult::kIgnore);
@@ -1399,10 +1442,11 @@ TEST(ComponentTest, SelfTerminatingExitNonZeroInStartingStateIsNotActive)
         factory,
         std::move(config));
 
-    EXPECT_CALL(*ready_condition_ptr, wait(_, _)).WillOnce(Invoke([&](cpp::stop_token, const Handle) {
-        static_cast<void>(terminateFromOtherThread(component, 1));
-        return Result<void>{};
-    }));
+    EXPECT_CALL(*ready_condition_ptr, wait(_, _, _))
+        .WillOnce(Invoke([&](cpp::stop_token, const Handle, std::chrono::milliseconds) {
+            static_cast<void>(terminateFromOtherThread(component, 1));
+            return Result<void>{};
+        }));
 
     static_cast<void>(component.activate(cpp::stop_token{}));
 
@@ -1437,12 +1481,13 @@ TEST(ComponentTest, StopTokenInterruptsWaitForReadyCondition)
         configWithShutdownTimeout(kNeverExpires));
 
     cpp::stop_source stop_source;
-    EXPECT_CALL(*ready_condition_ptr, wait(_, _)).WillOnce(Invoke([&stop_source](cpp::stop_token token, const Handle&) {
-        EXPECT_FALSE(token.stop_requested());
-        static_cast<void>(stop_source.request_stop());
-        EXPECT_TRUE(token.stop_requested());
-        return Result<void>{MakeUnexpected(ExecErrc::kGeneralError)};
-    }));
+    EXPECT_CALL(*ready_condition_ptr, wait(_, _, _))
+        .WillOnce(Invoke([&stop_source](cpp::stop_token token, const Handle&, std::chrono::milliseconds) {
+            EXPECT_FALSE(token.stop_requested());
+            static_cast<void>(stop_source.request_stop());
+            EXPECT_TRUE(token.stop_requested());
+            return Result<void>{MakeUnexpected(ExecErrc::kGeneralError)};
+        }));
 
     JoiningThread termination_thread;
     EXPECT_CALL(*stop_action_ptr, stop(_, _)).WillOnce(Invoke([&](cpp::stop_token token, const Handle& handle) {
@@ -1469,7 +1514,7 @@ TEST(ComponentTest, ReadyConditionMetDespiteStopRequestActivatesComponent)
     ON_CALL(*start_action, start(_, _)).WillByDefault(kStartsProcess);
 
     auto ready_condition = std::make_unique<NiceMock<MockReadyCondition>>();
-    EXPECT_CALL(*ready_condition, wait(_, _)).WillOnce(Return(Result<void>{}));
+    EXPECT_CALL(*ready_condition, wait(_, _, _)).WillOnce(Return(Result<void>{}));
 
     Component component(
         std::move(start_action),
@@ -1542,7 +1587,7 @@ TEST(ComponentTest, FailedActivationStopsProcessAndAllowsReactivation)
     auto* const stop_action_ptr = stop_action.get();
 
     auto ready_condition = std::make_unique<NiceMock<MockReadyCondition>>();
-    EXPECT_CALL(*ready_condition, wait(_, _))
+    EXPECT_CALL(*ready_condition, wait(_, _, _))
         .WillOnce(Return(Result<void>{MakeUnexpected(ExecErrc::kTimeout)}))
         .WillOnce(Return(Result<void>{}));
 
@@ -1586,7 +1631,8 @@ TEST(ComponentTest, FailedActivationForcesStopAfterShutdownTimeout)
     auto* const force_stop_action_ptr = force_stop_action.get();
 
     auto ready_condition = std::make_unique<NiceMock<MockReadyCondition>>();
-    EXPECT_CALL(*ready_condition, wait(_, _)).WillOnce(Return(Result<void>{MakeUnexpected(ExecErrc::kGeneralError)}));
+    EXPECT_CALL(*ready_condition, wait(_, _, _))
+        .WillOnce(Return(Result<void>{MakeUnexpected(ExecErrc::kGeneralError)}));
 
     Component component(
         std::move(start_action),
@@ -1621,7 +1667,7 @@ TEST(ComponentTest, FailedActivationDoesNotStopForcefullyWhenStopActionFails)
     EXPECT_CALL(*stop_action, stop(_, _)).WillOnce(Return(IComponent::RequestResult::kFailure));
 
     auto ready_condition = std::make_unique<NiceMock<MockReadyCondition>>();
-    EXPECT_CALL(*ready_condition, wait(_, _))
+    EXPECT_CALL(*ready_condition, wait(_, _, _))
         .WillOnce(Return(Result<void>{MakeUnexpected(ExecErrc::kGeneralError)}))
         .WillOnce(Return(Result<void>{}));
 
@@ -1658,7 +1704,7 @@ TEST(ComponentTest, FailedActivationDoesNotWaitForeverForForcedStop)
     EXPECT_CALL(*force_stop_action, forceStop(_, _)).WillOnce(Return(IComponent::RequestResult::kSuccess));
 
     auto ready_condition = std::make_unique<NiceMock<MockReadyCondition>>();
-    EXPECT_CALL(*ready_condition, wait(_, _)).WillOnce(Return(Result<void>{MakeUnexpected(ExecErrc::kTimeout)}));
+    EXPECT_CALL(*ready_condition, wait(_, _, _)).WillOnce(Return(Result<void>{MakeUnexpected(ExecErrc::kTimeout)}));
 
     Component component(
         std::move(start_action),
@@ -2112,10 +2158,11 @@ TEST(ComponentTest, SupervisionFailureWhileNotReadyIsIgnored)
         factory,
         supervisedConfig());
 
-    EXPECT_CALL(*ready_condition_ptr, wait(_, _)).WillOnce(Invoke([&component](cpp::stop_token, const Handle&) {
-        component.handleSupervisionFailure(std::chrono::nanoseconds::max());
-        return Result<void>{};
-    }));
+    EXPECT_CALL(*ready_condition_ptr, wait(_, _, _))
+        .WillOnce(Invoke([&component](cpp::stop_token, const Handle&, std::chrono::milliseconds) {
+            component.handleSupervisionFailure(std::chrono::nanoseconds::max());
+            return Result<void>{};
+        }));
 
     EXPECT_EQ(component.activate(cpp::stop_token{}), IComponent::RequestResult::kSuccess);
 }
@@ -2212,10 +2259,11 @@ TEST(ComponentTest, ForceStopStopsStartingProcess)
         factory,
         std::make_shared<configuration::ComponentConfig>());
 
-    EXPECT_CALL(*ready_condition_ptr, wait(_, _)).WillOnce(Invoke([&component](cpp::stop_token, const Handle&) {
-        component.forceStop();
-        return Result<void>{};
-    }));
+    EXPECT_CALL(*ready_condition_ptr, wait(_, _, _))
+        .WillOnce(Invoke([&component](cpp::stop_token, const Handle&, std::chrono::milliseconds) {
+            component.forceStop();
+            return Result<void>{};
+        }));
 
     EXPECT_EQ(component.activate(cpp::stop_token{}), IComponent::RequestResult::kSuccess);
 }
@@ -2270,7 +2318,7 @@ TEST(ComponentTest, ProcessTerminatedReadyConditionSucceedsOnExitZero)
         std::move(start_action),
         std::make_unique<MockStopAction>(),
         std::make_unique<MockForceStopAction>(),
-        std::make_unique<ProcessTerminatedReadyCondition>(kNeverExpires),
+        std::make_unique<ProcessTerminatedReadyCondition>(),
         factory,
         selfTerminatingConfig());
 
@@ -2309,7 +2357,7 @@ TEST(ComponentTest, ProcessTerminatedReadyConditionFailsOnNonZeroExit)
         std::move(start_action),
         std::make_unique<NiceMock<MockStopAction>>(),
         std::make_unique<StrictMock<MockForceStopAction>>(),
-        std::make_unique<ProcessTerminatedReadyCondition>(kNeverExpires),
+        std::make_unique<ProcessTerminatedReadyCondition>(),
         factory,
         selfTerminatingConfig());
 
@@ -2347,7 +2395,7 @@ TEST(ComponentTest, ProcessTerminatedReadyConditionFailsWhenNotSelfTerminating)
         std::move(start_action),
         std::make_unique<NiceMock<MockStopAction>>(),
         std::make_unique<StrictMock<MockForceStopAction>>(),
-        std::make_unique<ProcessTerminatedReadyCondition>(kNeverExpires),
+        std::make_unique<ProcessTerminatedReadyCondition>(),
         factory,
         configWithShutdownTimeout(kNeverExpires));
 
@@ -2403,8 +2451,8 @@ TEST(ComponentTest, SelfTerminatingExitWhileStartingDoesNotBlockReactivation)
         factory,
         std::move(config));
 
-    EXPECT_CALL(*ready_condition_ptr, wait(_, _))
-        .WillOnce(Invoke([&component](cpp::stop_token, const Handle&) {
+    EXPECT_CALL(*ready_condition_ptr, wait(_, _, _))
+        .WillOnce(Invoke([&component](cpp::stop_token, const Handle&, std::chrono::milliseconds) {
             EXPECT_EQ(terminateFromOtherThread(component, 0), IComponent::TerminationResult::kIgnore);
             return Result<void>{};
         }))
@@ -2436,7 +2484,7 @@ TEST(ComponentTest, SelfTerminatingExitWhileReadyDoesNotBlockReactivation)
     expectStopOfDeadProcess(*stop_action);
 
     auto ready_condition = std::make_unique<MockReadyCondition>();
-    ON_CALL(*ready_condition, wait(_, _)).WillByDefault(Return(Result<void>{}));
+    ON_CALL(*ready_condition, wait(_, _, _)).WillByDefault(Return(Result<void>{}));
 
     auto config = std::make_shared<configuration::ComponentConfig>();
     config->component_properties.application_profile.is_self_terminating = true;

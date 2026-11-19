@@ -108,7 +108,8 @@ IComponent::RequestResult Component::tryActivate(cpp::stop_token stop_token)
     // The state is deliberately not locked while waiting for the ready condition: the wait may take
     // up to the ready timeout, and terminations must be reported to the ready condition meanwhile.
     // Some ready conditions can only be woken up by a termination.
-    const Result<void> ready = ready_condition_->wait(stop_token, handle.value());
+    const Result<void> ready = ready_condition_->wait(
+        stop_token, handle.value(), std::chrono::milliseconds{config_->deployment_config.ready_timeout_ms});
 
     return completeActivation(ready);
 }

@@ -50,7 +50,7 @@ class ProcessTerminatedReadyConditionTest : public ::testing::Test
         auto result = std::async(
             std::launch::async, [this, &ready_condition, stop_token, entering = std::move(entering)]() mutable {
                 entering.set_value();
-                return ready_condition.wait(stop_token, process_handle_);
+                return ready_condition.wait(stop_token, process_handle_, kNeverExpires);
             });
         entering_future.wait();
         return result;
@@ -69,9 +69,9 @@ TEST_F(ProcessTerminatedReadyConditionTest, WaitTimesOutReturnsError)
         "When wait is called. "
         "Then wait returns kTimeout after the timeout.");
 
-    const ProcessTerminatedReadyCondition ready_condition(10ms);
+    const ProcessTerminatedReadyCondition ready_condition{};
 
-    const Result<void> result = ready_condition.wait(cpp::stop_token{}, process_handle_);
+    const Result<void> result = ready_condition.wait(cpp::stop_token{}, process_handle_, 10ms);
 
     ASSERT_FALSE(result.has_value());
     EXPECT_EQ(result.error(), ExecErrc::kTimeout);
@@ -85,10 +85,10 @@ TEST_F(ProcessTerminatedReadyConditionTest, TerminationBeforeWaitReturnsSuccess)
         "When wait is called. "
         "Then the termination is not lost and wait returns success.");
 
-    const ProcessTerminatedReadyCondition ready_condition(0ms);
+    const ProcessTerminatedReadyCondition ready_condition{};
 
     ready_condition.handleTermination(process_handle_, 0);
-    const Result<void> result = ready_condition.wait(cpp::stop_token{}, process_handle_);
+    const Result<void> result = ready_condition.wait(cpp::stop_token{}, process_handle_, 0ms);
 
     EXPECT_TRUE(result.has_value());
 }
@@ -102,7 +102,7 @@ TEST_F(ProcessTerminatedReadyConditionTest, TerminationDuringWaitReturnsSuccess)
         "When a successful termination is reported. "
         "Then wait is unblocked and returns success.");
 
-    const ProcessTerminatedReadyCondition ready_condition(kNeverExpires);
+    const ProcessTerminatedReadyCondition ready_condition{};
 
     auto future = waitOnOtherThread(ready_condition, cpp::stop_token{});
     ready_condition.handleTermination(process_handle_, 0);
@@ -120,10 +120,10 @@ TEST_F(ProcessTerminatedReadyConditionTest, NonZeroExitStatusBeforeWaitReturnsEr
         "When wait is called with a timeout which never expires. "
         "Then wait returns kGeneralError without waiting for the timeout.");
 
-    const ProcessTerminatedReadyCondition ready_condition(kNeverExpires);
+    const ProcessTerminatedReadyCondition ready_condition{};
 
     ready_condition.handleTermination(process_handle_, 1);
-    const Result<void> result = ready_condition.wait(cpp::stop_token{}, process_handle_);
+    const Result<void> result = ready_condition.wait(cpp::stop_token{}, process_handle_, kNeverExpires);
 
     ASSERT_FALSE(result.has_value());
     EXPECT_EQ(result.error(), ExecErrc::kGeneralError);
@@ -138,7 +138,7 @@ TEST_F(ProcessTerminatedReadyConditionTest, NonZeroExitStatusDuringWaitReturnsEr
         "When a termination with a non-zero exit status is reported. "
         "Then wait is unblocked and returns kGeneralError rather than kTimeout.");
 
-    const ProcessTerminatedReadyCondition ready_condition(kNeverExpires);
+    const ProcessTerminatedReadyCondition ready_condition{};
 
     auto future = waitOnOtherThread(ready_condition, cpp::stop_token{});
     ready_condition.handleTermination(process_handle_, 1);
@@ -156,11 +156,11 @@ TEST_F(ProcessTerminatedReadyConditionTest, StoppedTokenReturnsErrorImmediately)
         "When wait is called with a timeout which never expires. "
         "Then wait returns kGeneralError, which shows it did not wait for the timeout.");
 
-    const ProcessTerminatedReadyCondition ready_condition(kNeverExpires);
+    const ProcessTerminatedReadyCondition ready_condition{};
     cpp::stop_source stop_source;
     static_cast<void>(stop_source.request_stop());
 
-    const Result<void> result = ready_condition.wait(stop_source.get_token(), process_handle_);
+    const Result<void> result = ready_condition.wait(stop_source.get_token(), process_handle_, kNeverExpires);
 
     ASSERT_FALSE(result.has_value());
     EXPECT_EQ(result.error(), ExecErrc::kGeneralError);
@@ -174,7 +174,7 @@ TEST_F(ProcessTerminatedReadyConditionTest, StopRequestedMidWaitReturnsError)
         "When a stop is requested. "
         "Then wait is unblocked and returns kGeneralError rather than kTimeout.");
 
-    const ProcessTerminatedReadyCondition ready_condition(kNeverExpires);
+    const ProcessTerminatedReadyCondition ready_condition{};
     cpp::stop_source stop_source;
 
     auto future = waitOnOtherThread(ready_condition, stop_source.get_token());
@@ -193,18 +193,18 @@ TEST_F(ProcessTerminatedReadyConditionTest, LateTerminationAfterTimeoutIsDiscard
         "When prepare is called for the next activation and wait is called again. "
         "Then the stale termination is discarded and wait returns kTimeout.");
 
-    const ProcessTerminatedReadyCondition ready_condition(10ms);
+    const ProcessTerminatedReadyCondition ready_condition{};
 
     // First activation: the process does not terminate in time.
     ready_condition.prepare();
-    EXPECT_FALSE(ready_condition.wait(cpp::stop_token{}, process_handle_).has_value());
+    EXPECT_FALSE(ready_condition.wait(cpp::stop_token{}, process_handle_, 10ms).has_value());
 
     // The first process terminates successfully, but too late.
     ready_condition.handleTermination(process_handle_, 0);
 
     // Second activation: the new process has not terminated yet.
     ready_condition.prepare();
-    const Result<void> result = ready_condition.wait(cpp::stop_token{}, process_handle_);
+    const Result<void> result = ready_condition.wait(cpp::stop_token{}, process_handle_, 10ms);
 
     ASSERT_FALSE(result.has_value());
     EXPECT_EQ(result.error(), ExecErrc::kTimeout);
@@ -218,26 +218,26 @@ TEST_F(ProcessTerminatedReadyConditionTest, TerminationAfterPrepareIsKept)
         "When the process terminates successfully before wait is called. "
         "Then the termination is kept and wait returns success.");
 
-    const ProcessTerminatedReadyCondition ready_condition(0ms);
+    const ProcessTerminatedReadyCondition ready_condition{};
 
     ready_condition.prepare();
     ready_condition.handleTermination(process_handle_, 0);
 
-    EXPECT_TRUE(ready_condition.wait(cpp::stop_token{}, process_handle_).has_value());
+    EXPECT_TRUE(ready_condition.wait(cpp::stop_token{}, process_handle_, 0ms).has_value());
 }
 
 TEST_F(ProcessTerminatedReadyConditionTest, WaitWithEmptyHandleAborts)
 {
-    const ProcessTerminatedReadyCondition ready_condition(0ms);
+    const ProcessTerminatedReadyCondition ready_condition{};
 
     EXPECT_DEATH(
-        static_cast<void>(ready_condition.wait(cpp::stop_token{}, EmptyHandle{})),
+        static_cast<void>(ready_condition.wait(cpp::stop_token{}, EmptyHandle{}, 0ms)),
         "ProcessTerminatedReadyCondition should only be called with a ProcessHandle");
 }
 
 TEST_F(ProcessTerminatedReadyConditionTest, HandleTerminationWithEmptyHandleAborts)
 {
-    const ProcessTerminatedReadyCondition ready_condition(0ms);
+    const ProcessTerminatedReadyCondition ready_condition{};
 
     EXPECT_DEATH(
         ready_condition.handleTermination(EmptyHandle{}, 0),

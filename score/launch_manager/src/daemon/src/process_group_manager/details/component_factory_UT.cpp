@@ -11,6 +11,7 @@
  * SPDX-License-Identifier: Apache-2.0
  ********************************************************************************/
 
+#include "score/mw/launch_manager/alive_monitor/mock_alive_supervision_handle.hpp"
 #include "score/mw/launch_manager/alive_monitor/mock_supervision_factory.hpp"
 #include "score/mw/launch_manager/osal/mock_ifile_waiter.hpp"
 #include "score/mw/launch_manager/process_group_manager/details/component_factory.hpp"
@@ -244,7 +245,30 @@ TEST_F(ComponentFactoryTest, FileStateComponentWaitsForConfiguredFile)
     EXPECT_EQ(component->activate(cpp::stop_token{}), IComponent::RequestResult::kSuccess);
 }
 
-TEST_F(ComponentFactoryTest, ReportingFileStateComponentWaitsOnlyForFile)
+/// @brief Every application type which reports kRunning through the lifecycle API.
+class ComponentFactoryReportingTest : public ComponentFactoryTest,
+                                      public WithParamInterface<configuration::ApplicationType>
+{
+  protected:
+    std::shared_ptr<configuration::ComponentConfig> makeReportingFileStateConfig()
+    {
+        const configuration::FileState file_state{"/tmp/ready", configuration::FileExistenceState::Exists, 5ms};
+        auto config = makeConfig(GetParam(), file_state);
+
+        // Supervised application types need alive supervision, which is not the subject of these tests.
+        config->component_properties.application_profile.alive_supervision = configuration::ComponentAliveSupervision{};
+        EXPECT_CALL(supervision_factory_, constructSupervision(_, _, _))
+            .WillRepeatedly(Invoke([](auto&&...) -> std::unique_ptr<IAliveSupervisionHandle> {
+                auto handle = std::make_unique<NiceMock<MockAliveSupervisionHandle>>();
+                ON_CALL(*handle, activateSupervision(_)).WillByDefault(Return(true));
+                ON_CALL(*handle, deactivateSupervision(_)).WillByDefault(Return(true));
+                return handle;
+            }));
+        return config;
+    }
+};
+
+TEST_P(ComponentFactoryReportingTest, FileStateComponentWaitsForkRunningAndThenForFile)
 {
     RecordProperty("TestType", "interface-test");
     RecordProperty("DerivationTechnique", "equivalence-classes");
@@ -252,20 +276,60 @@ TEST_F(ComponentFactoryTest, ReportingFileStateComponentWaitsOnlyForFile)
         "Description",
         "Given a component created from a reporting configuration with a FileState ready condition. "
         "When the component is activated. "
-        "Then only the file is waited for, kRunning is not waited for, and activation succeeds.");
+        "Then kRunning is waited for with the complete ready timeout, afterwards the file is waited for with the "
+        "remaining ready timeout, and activation succeeds.");
 
-    const configuration::FileState file_state{"/tmp/gone", configuration::FileExistenceState::NotExisting, 5ms};
-    auto config = makeConfig(configuration::ApplicationType::Reporting, file_state);
-    const auto component = createComponent(config);
+    const auto component = createComponent(makeReportingFileStateConfig());
     ASSERT_NE(component, nullptr);
 
-    // The strict launcher mock fails the test if kRunning is waited for.
     expectProcessStarted(mock_sync);
-    EXPECT_CALL(file_waiter_, waitForFile(_, configuration::FileExistenceState::NotExisting, _, _, _))
-        .WillOnce(Return(osal::OsalReturnType::kSuccess));
+    {
+        const InSequence in_sequence;
+        EXPECT_CALL(launcher_, waitForkRunning(mock_sync, std::chrono::milliseconds{kReadyTimeoutMs}))
+            .WillOnce(Return(osal::OsalReturnType::kSuccess));
+        EXPECT_CALL(
+            file_waiter_,
+            waitForFile(
+                Eq(score::safecpp::zstring_view{"/tmp/ready"}),
+                configuration::FileExistenceState::Exists,
+                AllOf(Le(std::chrono::milliseconds{kReadyTimeoutMs}), Ge(std::chrono::milliseconds::zero())),
+                5ms,
+                _))
+            .WillOnce(Return(osal::OsalReturnType::kSuccess));
+    }
 
     EXPECT_EQ(component->activate(cpp::stop_token{}), IComponent::RequestResult::kSuccess);
 }
+
+TEST_P(ComponentFactoryReportingTest, FileStateComponentFailsWithoutWaitingForFileWhenkRunningIsNotReported)
+{
+    RecordProperty("TestType", "fault-injection");
+    RecordProperty("DerivationTechnique", "error-guessing");
+    RecordProperty(
+        "Description",
+        "Given a component created from a reporting configuration with a FileState ready condition. "
+        "When the component is activated and waiting for kRunning fails. "
+        "Then the file is not waited for, the process is stopped and activation fails.");
+
+    const auto component = createComponent(makeReportingFileStateConfig());
+    ASSERT_NE(component, nullptr);
+
+    // The strict file waiter mock fails the test if the file is waited for.
+    expectProcessStarted(mock_sync);
+    EXPECT_CALL(launcher_, waitForkRunning(_, _)).WillOnce(Return(osal::OsalReturnType::kFail));
+    expectProcessStopped(*component);
+
+    EXPECT_EQ(component->activate(cpp::stop_token{}), IComponent::RequestResult::kFailure);
+    EXPECT_FALSE(component->active());
+}
+
+INSTANTIATE_TEST_SUITE_P(
+    ReportingApplicationTypes,
+    ComponentFactoryReportingTest,
+    Values(
+        configuration::ApplicationType::Reporting,
+        configuration::ApplicationType::ReportingAndSupervised,
+        configuration::ApplicationType::StateManager));
 
 TEST_F(ComponentFactoryTest, FileStateComponentFailsWhenFileWaitFails)
 {

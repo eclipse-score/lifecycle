@@ -19,12 +19,14 @@
 namespace score::mw::lifecycle::internal
 {
 
-ReportRunningReadyCondition::ReportRunningReadyCondition(osal::IProcess& launcher, std::chrono::milliseconds timeout)
-    : launcher_(launcher), timeout_(timeout)
+ReportRunningReadyCondition::ReportRunningReadyCondition(osal::IProcess& launcher) : launcher_(launcher)
 {
 }
 
-Result<void> ReportRunningReadyCondition::wait(cpp::stop_token stop_token, const Handle& handle) const
+Result<void> ReportRunningReadyCondition::wait(
+    cpp::stop_token stop_token,
+    const Handle& handle,
+    std::chrono::milliseconds timeout) const
 {
     const ProcessHandle* const process = std::get_if<ProcessHandle>(&handle);
     SCORE_LANGUAGE_FUTURECPP_ASSERT_MESSAGE(
@@ -42,7 +44,7 @@ Result<void> ReportRunningReadyCondition::wait(cpp::stop_token stop_token, const
 
     // waitForkRunning only succeeds if the process itself reported kRunning, not if it was woken up by
     // handleTermination or a stop request.
-    const osal::OsalReturnType result = launcher_.waitForkRunning(process->sync, timeout_);
+    const osal::OsalReturnType result = launcher_.waitForkRunning(process->sync, timeout);
 
     if (result == osal::OsalReturnType::kSuccess)
     {

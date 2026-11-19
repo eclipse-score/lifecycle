@@ -17,6 +17,7 @@
 #include "score/mw/launch_manager/process_group_manager/details/handle.hpp"
 #include "score/result/result.h"
 #include <score/stop_token.hpp>
+#include <chrono>
 
 namespace score::mw::lifecycle::internal
 {
@@ -38,8 +39,11 @@ class IReadyCondition
     /// @brief Wait until the resource represented by the given handle is ready.
     /// @param stop_token Token which can be used to interrupt the wait.
     /// @param handle The resource to wait on.
+    /// @param timeout The maximum duration to wait for the condition. A timeout of zero still
+    ///                checks the condition once.
     /// @return Whether the wait was successful, or failed with an error.
-    virtual Result<void> wait(cpp::stop_token stop_token, const Handle& handle) const = 0;
+    virtual Result<void> wait(cpp::stop_token stop_token, const Handle& handle, std::chrono::milliseconds timeout)
+        const = 0;
 
     /// @brief Notify the ready condition that the component has already terminated.
     /// @details Called after prepare(), possibly before, during or after wait() of the same activation.

@@ -36,13 +36,11 @@ class FileReadyCondition final : public IReadyCondition
     /// @param file_waiter The waiter used to check the state of the file.
     /// @param file_path The path to the file to wait for.
     /// @param state The desired state of the file.
-    /// @param timeout The maximum duration to wait for the file condition.
     /// @param interval How often to poll for the file.
     explicit FileReadyCondition(
         const osal::IFileWaiter& file_waiter,
         score::safecpp::zstring_view file_path,
         configuration::FileExistenceState state,
-        std::chrono::milliseconds timeout,
         std::chrono::milliseconds interval);
 
     /// @brief Prepare the ready condition for a new activation.
@@ -55,8 +53,10 @@ class FileReadyCondition final : public IReadyCondition
     ///          wait without this final check.
     /// @param stop_token Token which can be used to interrupt the wait.
     /// @param handle The resource to wait on.
+    /// @param timeout The maximum duration to wait for the file condition.
     /// @return Whether the wait was successful, or failed with an error.
-    Result<void> wait(cpp::stop_token stop_token, const Handle& handle) const override;
+    Result<void> wait(cpp::stop_token stop_token, const Handle& handle, std::chrono::milliseconds timeout)
+        const override;
 
     /// @brief Notify the ready condition that the component has already terminated.
     /// @details Ends a running wait(), see wait().
@@ -73,9 +73,6 @@ class FileReadyCondition final : public IReadyCondition
 
     /// @brief The desired state of the file.
     const configuration::FileExistenceState state_;
-
-    /// @brief The maximum duration to wait for the file to exist/not exist.
-    const std::chrono::milliseconds timeout_;
 
     /// @brief How often to poll for the file.
     const std::chrono::milliseconds interval_;

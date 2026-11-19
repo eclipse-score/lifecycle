@@ -33,8 +33,7 @@ class ProcessTerminatedReadyCondition final : public IReadyCondition
 {
   public:
     /// @brief Creates a new process terminated ready condition.
-    /// @param timeout The maximum duration to wait for the process to terminate.
-    explicit ProcessTerminatedReadyCondition(std::chrono::milliseconds timeout);
+    ProcessTerminatedReadyCondition() = default;
 
     /// @brief Prepare the ready condition for a new activation.
     /// @details Discards a termination left over from a previous activation.
@@ -44,10 +43,12 @@ class ProcessTerminatedReadyCondition final : public IReadyCondition
     /// @details A termination reported after prepare() and before this call is not lost.
     /// @param stop_token Token which can be used to interrupt the wait.
     /// @param handle The process to wait on.
+    /// @param timeout The maximum duration to wait for the process to terminate.
     /// @return Success if the process terminated with exit status 0 within the timeout,
     ///         kGeneralError if it terminated with another exit status or a stop was requested,
     ///         kTimeout otherwise.
-    Result<void> wait(cpp::stop_token stop_token, const Handle& handle) const override;
+    Result<void> wait(cpp::stop_token stop_token, const Handle& handle, std::chrono::milliseconds timeout)
+        const override;
 
     /// @brief Notify the ready condition that a POSIX process has terminated.
     /// @param handle The process that terminated.
@@ -56,9 +57,6 @@ class ProcessTerminatedReadyCondition final : public IReadyCondition
     void handleTermination(const Handle& handle, int32_t status) const override;
 
   private:
-    /// @brief The maximum duration to wait for the process to terminate.
-    const std::chrono::milliseconds timeout_;
-
     /// @brief Synchronises the terminating thread with the waiting thread.
     /// @note Mutable because the IReadyCondition API is const. The waiter is thread-safe.
     mutable TerminationWaiter waiter_;
