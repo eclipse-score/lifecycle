@@ -494,7 +494,7 @@
                   
   <section id="safety-plan">
 <h1>Safety Plan<a class="headerlink" href="#safety-plan" title="Link to this heading">#</a></h1>
-<div class="need_container docutils container" id="SNCB-e494dd35">
+<div class="need_container docutils container" id="SNCB-64e4f091">
 <div class="pst-scrollable-table-container"><table class="need needs_grid_complex needs_layout_score needs_style_none needs_type_document table" id="doc__lifecycle_safety_plan">
 <tbody>
 <tr class="head row-odd"><td class="head_left" colspan="2"><div class="needs_head_left line-block">
@@ -563,10 +563,10 @@ The module consists of one or more SW components and will be qualified as a SEoo
 </thead>
 <tbody>
 <tr class="row-even"><td><p>Safety Manager</p></td>
-<td><p>&lt;link to Module’s Safety Manager assignment or name&gt;</p></td>
+<td><p>Alexander Schemmel</p></td>
 </tr>
-<tr class="row-odd"><td><p>Module Project Manager</p></td>
-<td><p>&lt;link to Module’s Project Manager assignment or name&gt;</p></td>
+<tr class="row-odd"><td><p>Module Project Manager (= Feature team lead)</p></td>
+<td><p>Committers of feature team see <a class="reference external" href="https://github.com/eclipse-score/lifecycle/blob/main/.github/CODEOWNERS">Lifecycle FT</a></p></td>
 </tr>
 </tbody>
 </table>
@@ -1026,15 +1026,23 @@ A summary of the status is also documented in the project’s documentation mana
 </tr>
 </thead>
 <tbody>
-<tr class="need row-even"><td class="needs_id"><p><a class="reference internal" href="../../components/launch_manager/requirements/requirements.html#comp_req__launch_man__alive_failure">comp_req__launch_man__alive_failure</a></p></td>
+<tr class="need row-even"><td class="needs_id"><p><a class="reference internal" href="../../components/launch_manager/requirements/requirements.html#comp_req__launch_man__rt_already_active">comp_req__launch_man__rt_already_active</a></p></td>
 <td class="needs_status"><p>valid</p></td>
 <td class="needs_tags"><p>lifecycle<em>; </em>launch_manager</p></td>
 </tr>
-<tr class="need row-odd"><td class="needs_id"><p><a class="reference internal" href="../../components/launch_manager/requirements/requirements.html#comp_req__launch_man__report_lang_support">comp_req__launch_man__report_lang_support</a></p></td>
+<tr class="need row-odd"><td class="needs_id"><p><a class="reference internal" href="../../components/launch_manager/requirements/requirements.html#comp_req__launch_man__alive_failure">comp_req__launch_man__alive_failure</a></p></td>
 <td class="needs_status"><p>valid</p></td>
 <td class="needs_tags"><p>lifecycle<em>; </em>launch_manager</p></td>
 </tr>
-<tr class="need row-even"><td class="needs_id"><p><a class="reference internal" href="../../components/launch_manager/requirements/requirements.html#comp_req__launch_man__aslr_support">comp_req__launch_man__aslr_support</a></p></td>
+<tr class="need row-even"><td class="needs_id"><p><a class="reference internal" href="../../components/launch_manager/requirements/requirements.html#comp_req__launch_man__report_lang_support">comp_req__launch_man__report_lang_support</a></p></td>
+<td class="needs_status"><p>valid</p></td>
+<td class="needs_tags"><p>lifecycle<em>; </em>launch_manager</p></td>
+</tr>
+<tr class="need row-odd"><td class="needs_id"><p><a class="reference internal" href="../../components/launch_manager/requirements/requirements.html#comp_req__launch_man__aslr_support">comp_req__launch_man__aslr_support</a></p></td>
+<td class="needs_status"><p>valid</p></td>
+<td class="needs_tags"><p>lifecycle<em>; </em>launch_manager</p></td>
+</tr>
+<tr class="need row-even"><td class="needs_id"><p><a class="reference internal" href="../../components/launch_manager/requirements/requirements.html#comp_req__launch_man__cancel_rt_force">comp_req__launch_man__cancel_rt_force</a></p></td>
 <td class="needs_status"><p>valid</p></td>
 <td class="needs_tags"><p>lifecycle<em>; </em>launch_manager</p></td>
 </tr>
@@ -1059,12 +1067,12 @@ A summary of the status is also documented in the project’s documentation mana
 <td class="needs_tags"><p>lifecycle<em>; </em>launch_manager</p></td>
 </tr>
 <tr class="need row-even"><td class="needs_id"><p><a class="reference internal" href="../../components/launch_manager/requirements/requirements.html#comp_req__launch_man__check_dependency_exec">comp_req__launch_man__check_dependency_exec</a></p></td>
-<td class="needs_status"><p>valid</p></td>
-<td class="needs_tags"><p>lifecycle<em>; </em>launch_manager</p></td>
+<td class="needs_status"><p>invalid</p></td>
+<td class="needs_tags"><p>unclear<em>; </em>lifecycle<em>; </em>launch_manager</p></td>
 </tr>
 <tr class="need row-odd"><td class="needs_id"><p><a class="reference internal" href="../../components/launch_manager/requirements/requirements.html#comp_req__launch_man__define_swc_dependencies">comp_req__launch_man__define_swc_dependencies</a></p></td>
-<td class="needs_status"><p>valid</p></td>
-<td class="needs_tags"><p>lifecycle<em>; </em>launch_manager</p></td>
+<td class="needs_status"><p>invalid</p></td>
+<td class="needs_tags"><p>unclear<em>; </em>lifecycle<em>; </em>launch_manager</p></td>
 </tr>
 <tr class="need row-even"><td class="needs_id"><p><a class="reference internal" href="../../components/launch_manager/requirements/requirements.html#comp_req__launch_man__retries_configurable">comp_req__launch_man__retries_configurable</a></p></td>
 <td class="needs_status"><p>valid</p></td>
@@ -1075,12 +1083,12 @@ A summary of the status is also documented in the project’s documentation mana
 <td class="needs_tags"><p>lifecycle<em>; </em>launch_manager</p></td>
 </tr>
 <tr class="need row-even"><td class="needs_id"><p><a class="reference internal" href="../../components/launch_manager/requirements/requirements.html#comp_req__launch_man__dependency_visu">comp_req__launch_man__dependency_visu</a></p></td>
-<td class="needs_status"><p>invalid</p></td>
-<td class="needs_tags"><p>not_planned<em>; </em>lifecycle<em>; </em>launch_manager</p></td>
+<td class="needs_status"><p>valid</p></td>
+<td class="needs_tags"><p>lifecycle<em>; </em>launch_manager</p></td>
 </tr>
 <tr class="need row-odd"><td class="needs_id"><p><a class="reference internal" href="../../components/launch_manager/requirements/requirements.html#comp_req__launch_man__modular_config_support">comp_req__launch_man__modular_config_support</a></p></td>
-<td class="needs_status"><p>invalid</p></td>
-<td class="needs_tags"><p>not_planned<em>; </em>lifecycle<em>; </em>launch_manager</p></td>
+<td class="needs_status"><p>valid</p></td>
+<td class="needs_tags"><p>lifecycle<em>; </em>launch_manager</p></td>
 </tr>
 <tr class="need row-even"><td class="needs_id"><p><a class="reference internal" href="../../components/launch_manager/requirements/requirements.html#comp_req__launch_man__conf_of_comp_ready_cond">comp_req__launch_man__conf_of_comp_ready_cond</a></p></td>
 <td class="needs_status"><p>valid</p></td>
@@ -1111,122 +1119,122 @@ A summary of the status is also documented in the project’s documentation mana
 <td class="needs_tags"><p>lifecycle<em>; </em>launch_manager</p></td>
 </tr>
 <tr class="need row-odd"><td class="needs_id"><p><a class="reference internal" href="../../components/launch_manager/requirements/requirements.html#comp_req__launch_man__drop_supervsion">comp_req__launch_man__drop_supervsion</a></p></td>
-<td class="needs_status"><p>invalid</p></td>
-<td class="needs_tags"><p>not_planned<em>; </em>lifecycle<em>; </em>launch_manager</p></td>
+<td class="needs_status"><p>valid</p></td>
+<td class="needs_tags"><p>lifecycle<em>; </em>launch_manager</p></td>
 </tr>
 <tr class="need row-even"><td class="needs_id"><p><a class="reference internal" href="../../components/launch_manager/requirements/requirements.html#comp_req__launch_man__ra_fallback_failed_esc">comp_req__launch_man__ra_fallback_failed_esc</a></p></td>
-<td class="needs_status"><p>invalid</p></td>
-<td class="needs_tags"><p>not_planned<em>; </em>lifecycle<em>; </em>launch_manager</p></td>
+<td class="needs_status"><p>valid</p></td>
+<td class="needs_tags"><p>lifecycle<em>; </em>launch_manager</p></td>
 </tr>
 <tr class="need row-odd"><td class="needs_id"><p><a class="reference internal" href="../../components/launch_manager/requirements/requirements.html#comp_req__launch_man__fast_shutdown_support">comp_req__launch_man__fast_shutdown_support</a></p></td>
-<td class="needs_status"><p>invalid</p></td>
-<td class="needs_tags"><p>not_planned<em>; </em>lifecycle<em>; </em>launch_manager</p></td>
-</tr>
-<tr class="need row-even"><td class="needs_id"><p><a class="reference internal" href="../../components/launch_manager/requirements/requirements.html#comp_req__launch_man__fd_inheritance">comp_req__launch_man__fd_inheritance</a></p></td>
 <td class="needs_status"><p>valid</p></td>
 <td class="needs_tags"><p>lifecycle<em>; </em>launch_manager</p></td>
 </tr>
-<tr class="need row-odd"><td class="needs_id"><p><a class="reference internal" href="../../components/launch_manager/requirements/requirements.html#comp_req__launch_man__force_rt_selection">comp_req__launch_man__force_rt_selection</a></p></td>
+<tr class="need row-even"><td class="needs_id"><p><a class="reference internal" href="../../components/launch_manager/requirements/requirements.html#comp_req__launch_man__force_rt_selection">comp_req__launch_man__force_rt_selection</a></p></td>
 <td class="needs_status"><p>valid</p></td>
 <td class="needs_tags"><p>lifecycle<em>; </em>launch_manager</p></td>
 </tr>
-<tr class="need row-even"><td class="needs_id"><p><a class="reference internal" href="../../components/launch_manager/requirements/requirements.html#comp_req__launch_man__process_input_output">comp_req__launch_man__process_input_output</a></p></td>
-<td class="needs_status"><p>invalid</p></td>
-<td class="needs_tags"><p>not_planned<em>; </em>lifecycle<em>; </em>launch_manager</p></td>
-</tr>
-<tr class="need row-odd"><td class="needs_id"><p><a class="reference internal" href="../../components/launch_manager/requirements/requirements.html#comp_req__launch_man__central_default_defines">comp_req__launch_man__central_default_defines</a></p></td>
+<tr class="need row-odd"><td class="needs_id"><p><a class="reference internal" href="../../components/launch_manager/requirements/requirements.html#comp_req__launch_man__process_input_output">comp_req__launch_man__process_input_output</a></p></td>
 <td class="needs_status"><p>valid</p></td>
 <td class="needs_tags"><p>lifecycle<em>; </em>launch_manager</p></td>
 </tr>
-<tr class="need row-even"><td class="needs_id"><p><a class="reference internal" href="../../components/launch_manager/requirements/requirements.html#comp_req__launch_man__process_launch_args">comp_req__launch_man__process_launch_args</a></p></td>
+<tr class="need row-even"><td class="needs_id"><p><a class="reference internal" href="../../components/launch_manager/requirements/requirements.html#comp_req__launch_man__central_default_defines">comp_req__launch_man__central_default_defines</a></p></td>
 <td class="needs_status"><p>valid</p></td>
 <td class="needs_tags"><p>lifecycle<em>; </em>launch_manager</p></td>
 </tr>
-<tr class="need row-odd"><td class="needs_id"><p><a class="reference internal" href="../../components/launch_manager/requirements/requirements.html#comp_req__launch_man__consistent_dependencies">comp_req__launch_man__consistent_dependencies</a></p></td>
+<tr class="need row-odd"><td class="needs_id"><p><a class="reference internal" href="../../components/launch_manager/requirements/requirements.html#comp_req__launch_man__process_launch_args">comp_req__launch_man__process_launch_args</a></p></td>
 <td class="needs_status"><p>valid</p></td>
 <td class="needs_tags"><p>lifecycle<em>; </em>launch_manager</p></td>
 </tr>
-<tr class="need row-even"><td class="needs_id"><p><a class="reference internal" href="../../components/launch_manager/requirements/requirements.html#comp_req__launch_man__lm_ext_watchdog_cfg">comp_req__launch_man__lm_ext_watchdog_cfg</a></p></td>
+<tr class="need row-even"><td class="needs_id"><p><a class="reference internal" href="../../components/launch_manager/requirements/requirements.html#comp_req__launch_man__consistent_dependencies">comp_req__launch_man__consistent_dependencies</a></p></td>
 <td class="needs_status"><p>valid</p></td>
 <td class="needs_tags"><p>lifecycle<em>; </em>launch_manager</p></td>
 </tr>
-<tr class="need row-odd"><td class="needs_id"><p><a class="reference internal" href="../../components/launch_manager/requirements/requirements.html#comp_req__launch_man__lm_ext_watchdog_notify">comp_req__launch_man__lm_ext_watchdog_notify</a></p></td>
+<tr class="need row-odd"><td class="needs_id"><p><a class="reference internal" href="../../components/launch_manager/requirements/requirements.html#comp_req__launch_man__lm_ext_watchdog_cfg">comp_req__launch_man__lm_ext_watchdog_cfg</a></p></td>
 <td class="needs_status"><p>valid</p></td>
 <td class="needs_tags"><p>lifecycle<em>; </em>launch_manager</p></td>
 </tr>
-<tr class="need row-even"><td class="needs_id"><p><a class="reference internal" href="../../components/launch_manager/requirements/requirements.html#comp_req__launch_man__lm_ext_wdg_failed_test">comp_req__launch_man__lm_ext_wdg_failed_test</a></p></td>
+<tr class="need row-even"><td class="needs_id"><p><a class="reference internal" href="../../components/launch_manager/requirements/requirements.html#comp_req__launch_man__lm_ext_watchdog_notify">comp_req__launch_man__lm_ext_watchdog_notify</a></p></td>
 <td class="needs_status"><p>valid</p></td>
 <td class="needs_tags"><p>lifecycle<em>; </em>launch_manager</p></td>
 </tr>
-<tr class="need row-odd"><td class="needs_id"><p><a class="reference internal" href="../../components/launch_manager/requirements/requirements.html#comp_req__launch_man__launcher_exit_shutdown">comp_req__launch_man__launcher_exit_shutdown</a></p></td>
+<tr class="need row-odd"><td class="needs_id"><p><a class="reference internal" href="../../components/launch_manager/requirements/requirements.html#comp_req__launch_man__lm_ext_wdg_failed_test">comp_req__launch_man__lm_ext_wdg_failed_test</a></p></td>
 <td class="needs_status"><p>valid</p></td>
 <td class="needs_tags"><p>lifecycle<em>; </em>launch_manager</p></td>
 </tr>
-<tr class="need row-even"><td class="needs_id"><p><a class="reference internal" href="../../components/launch_manager/requirements/requirements.html#comp_req__launch_man__launch_parallel">comp_req__launch_man__launch_parallel</a></p></td>
+<tr class="need row-even"><td class="needs_id"><p><a class="reference internal" href="../../components/launch_manager/requirements/requirements.html#comp_req__launch_man__launcher_exit_shutdown">comp_req__launch_man__launcher_exit_shutdown</a></p></td>
 <td class="needs_status"><p>valid</p></td>
 <td class="needs_tags"><p>lifecycle<em>; </em>launch_manager</p></td>
 </tr>
-<tr class="need row-odd"><td class="needs_id"><p><a class="reference internal" href="../../components/launch_manager/requirements/requirements.html#comp_req__launch_man__start_named_run_target">comp_req__launch_man__start_named_run_target</a></p></td>
+<tr class="need row-odd"><td class="needs_id"><p><a class="reference internal" href="../../components/launch_manager/requirements/requirements.html#comp_req__launch_man__launch_parallel">comp_req__launch_man__launch_parallel</a></p></td>
 <td class="needs_status"><p>valid</p></td>
 <td class="needs_tags"><p>lifecycle<em>; </em>launch_manager</p></td>
 </tr>
-<tr class="need row-even"><td class="needs_id"><p><a class="reference internal" href="../../components/launch_manager/requirements/requirements.html#comp_req__launch_man__terminal_support">comp_req__launch_man__terminal_support</a></p></td>
+<tr class="need row-even"><td class="needs_id"><p><a class="reference internal" href="../../components/launch_manager/requirements/requirements.html#comp_req__launch_man__start_named_run_target">comp_req__launch_man__start_named_run_target</a></p></td>
 <td class="needs_status"><p>valid</p></td>
 <td class="needs_tags"><p>lifecycle<em>; </em>launch_manager</p></td>
 </tr>
-<tr class="need row-odd"><td class="needs_id"><p><a class="reference internal" href="../../components/launch_manager/requirements/requirements.html#comp_req__launch_man__lazy_check">comp_req__launch_man__lazy_check</a></p></td>
+<tr class="need row-odd"><td class="needs_id"><p><a class="reference internal" href="../../components/launch_manager/requirements/requirements.html#comp_req__launch_man__terminal_support">comp_req__launch_man__terminal_support</a></p></td>
 <td class="needs_status"><p>valid</p></td>
 <td class="needs_tags"><p>lifecycle<em>; </em>launch_manager</p></td>
 </tr>
-<tr class="need row-even"><td class="needs_id"><p><a class="reference internal" href="../../components/launch_manager/requirements/requirements.html#comp_req__launch_man__lifecycle_lang_support">comp_req__launch_man__lifecycle_lang_support</a></p></td>
+<tr class="need row-even"><td class="needs_id"><p><a class="reference internal" href="../../components/launch_manager/requirements/requirements.html#comp_req__launch_man__lazy_check">comp_req__launch_man__lazy_check</a></p></td>
 <td class="needs_status"><p>valid</p></td>
 <td class="needs_tags"><p>lifecycle<em>; </em>launch_manager</p></td>
 </tr>
-<tr class="need row-odd"><td class="needs_id"><p><a class="reference internal" href="../../components/launch_manager/requirements/requirements.html#comp_req__launch_man__dag_logging_controlif">comp_req__launch_man__dag_logging_controlif</a></p></td>
+<tr class="need row-odd"><td class="needs_id"><p><a class="reference internal" href="../../components/launch_manager/requirements/requirements.html#comp_req__launch_man__lifecycle_lang_support">comp_req__launch_man__lifecycle_lang_support</a></p></td>
 <td class="needs_status"><p>valid</p></td>
 <td class="needs_tags"><p>lifecycle<em>; </em>launch_manager</p></td>
 </tr>
-<tr class="need row-even"><td class="needs_id"><p><a class="reference internal" href="../../components/launch_manager/requirements/requirements.html#comp_req__launch_man__process_logging_support">comp_req__launch_man__process_logging_support</a></p></td>
+<tr class="need row-even"><td class="needs_id"><p><a class="reference internal" href="../../components/launch_manager/requirements/requirements.html#comp_req__launch_man__dag_logging_controlif">comp_req__launch_man__dag_logging_controlif</a></p></td>
 <td class="needs_status"><p>valid</p></td>
 <td class="needs_tags"><p>lifecycle<em>; </em>launch_manager</p></td>
 </tr>
-<tr class="need row-odd"><td class="needs_id"><p><a class="reference internal" href="../../components/launch_manager/requirements/requirements.html#comp_req__launch_man__monitoring_processes">comp_req__launch_man__monitoring_processes</a></p></td>
-<td class="needs_status"><p>invalid</p></td>
-<td class="needs_tags"><p>not_planned<em>; </em>lifecycle<em>; </em>launch_manager</p></td>
+<tr class="need row-odd"><td class="needs_id"><p><a class="reference internal" href="../../components/launch_manager/requirements/requirements.html#comp_req__launch_man__process_logging_support">comp_req__launch_man__process_logging_support</a></p></td>
+<td class="needs_status"><p>valid</p></td>
+<td class="needs_tags"><p>lifecycle<em>; </em>launch_manager</p></td>
 </tr>
-<tr class="need row-even"><td class="needs_id"><p><a class="reference internal" href="../../components/launch_manager/requirements/requirements.html#comp_req__launch_man__multi_start_support">comp_req__launch_man__multi_start_support</a></p></td>
+<tr class="need row-even"><td class="needs_id"><p><a class="reference internal" href="../../components/launch_manager/requirements/requirements.html#comp_req__launch_man__monitoring_processes">comp_req__launch_man__monitoring_processes</a></p></td>
+<td class="needs_status"><p>valid</p></td>
+<td class="needs_tags"><p>lifecycle<em>; </em>launch_manager</p></td>
+</tr>
+<tr class="need row-odd"><td class="needs_id"><p><a class="reference internal" href="../../components/launch_manager/requirements/requirements.html#comp_req__launch_man__multi_start_support">comp_req__launch_man__multi_start_support</a></p></td>
 <td class="needs_status"><p>invalid</p></td>
 <td class="needs_tags"><p>unclear<em>; </em>lifecycle<em>; </em>launch_manager</p></td>
 </tr>
-<tr class="need row-odd"><td class="needs_id"><p><a class="reference internal" href="../../components/launch_manager/requirements/requirements.html#comp_req__launch_man__secpol_non_root">comp_req__launch_man__secpol_non_root</a></p></td>
+<tr class="need row-even"><td class="needs_id"><p><a class="reference internal" href="../../components/launch_manager/requirements/requirements.html#comp_req__launch_man__secpol_non_root">comp_req__launch_man__secpol_non_root</a></p></td>
 <td class="needs_status"><p>valid</p></td>
 <td class="needs_tags"><p>lifecycle<em>; </em>launch_manager</p></td>
 </tr>
-<tr class="need row-even"><td class="needs_id"><p><a class="reference internal" href="../../components/launch_manager/requirements/requirements.html#comp_req__launch_man__launch_manager_shutdown">comp_req__launch_man__launch_manager_shutdown</a></p></td>
+<tr class="need row-odd"><td class="needs_id"><p><a class="reference internal" href="../../components/launch_manager/requirements/requirements.html#comp_req__launch_man__launch_manager_shutdown">comp_req__launch_man__launch_manager_shutdown</a></p></td>
 <td class="needs_status"><p>valid</p></td>
 <td class="needs_tags"><p>lifecycle<em>; </em>launch_manager</p></td>
 </tr>
-<tr class="need row-odd"><td class="needs_id"><p><a class="reference internal" href="../../components/launch_manager/requirements/requirements.html#comp_req__launch_man__capability_support">comp_req__launch_man__capability_support</a></p></td>
+<tr class="need row-even"><td class="needs_id"><p><a class="reference internal" href="../../components/launch_manager/requirements/requirements.html#comp_req__launch_man__capability_support">comp_req__launch_man__capability_support</a></p></td>
 <td class="needs_status"><p>valid</p></td>
 <td class="needs_tags"><p>lifecycle<em>; </em>launch_manager</p></td>
 </tr>
-<tr class="need row-even"><td class="needs_id"><p><a class="reference internal" href="../../components/launch_manager/requirements/requirements.html#comp_req__launch_man__detach_parent_process">comp_req__launch_man__detach_parent_process</a></p></td>
-<td class="needs_status"><p>invalid</p></td>
-<td class="needs_tags"><p>not_planned<em>; </em>lifecycle<em>; </em>launch_manager</p></td>
-</tr>
-<tr class="need row-odd"><td class="needs_id"><p><a class="reference internal" href="../../components/launch_manager/requirements/requirements.html#comp_req__launch_man__launch_priority_support">comp_req__launch_man__launch_priority_support</a></p></td>
+<tr class="need row-odd"><td class="needs_id"><p><a class="reference internal" href="../../components/launch_manager/requirements/requirements.html#comp_req__launch_man__detach_parent_process">comp_req__launch_man__detach_parent_process</a></p></td>
 <td class="needs_status"><p>valid</p></td>
 <td class="needs_tags"><p>lifecycle<em>; </em>launch_manager</p></td>
 </tr>
-<tr class="need row-even"><td class="needs_id"><p><a class="reference internal" href="../../components/launch_manager/requirements/requirements.html#comp_req__launch_man__process_state_comm">comp_req__launch_man__process_state_comm</a></p></td>
+<tr class="need row-even"><td class="needs_id"><p><a class="reference internal" href="../../components/launch_manager/requirements/requirements.html#comp_req__launch_man__launch_priority_support">comp_req__launch_man__launch_priority_support</a></p></td>
 <td class="needs_status"><p>valid</p></td>
 <td class="needs_tags"><p>lifecycle<em>; </em>launch_manager</p></td>
 </tr>
-<tr class="need row-odd"><td class="needs_id"><p><a class="reference internal" href="../../components/launch_manager/requirements/requirements.html#comp_req__launch_man__uid_gid_support">comp_req__launch_man__uid_gid_support</a></p></td>
+<tr class="need row-odd"><td class="needs_id"><p><a class="reference internal" href="../../components/launch_manager/requirements/requirements.html#comp_req__launch_man__process_state_comm">comp_req__launch_man__process_state_comm</a></p></td>
 <td class="needs_status"><p>valid</p></td>
 <td class="needs_tags"><p>lifecycle<em>; </em>launch_manager</p></td>
 </tr>
-<tr class="need row-even"><td class="needs_id"><p><a class="reference internal" href="../../components/launch_manager/requirements/requirements.html#comp_req__launch_man__queue_rt_selection">comp_req__launch_man__queue_rt_selection</a></p></td>
+<tr class="need row-even"><td class="needs_id"><p><a class="reference internal" href="../../components/launch_manager/requirements/requirements.html#comp_req__launch_man__uid_gid_support">comp_req__launch_man__uid_gid_support</a></p></td>
+<td class="needs_status"><p>valid</p></td>
+<td class="needs_tags"><p>lifecycle<em>; </em>launch_manager</p></td>
+</tr>
+<tr class="need row-odd"><td class="needs_id"><p><a class="reference internal" href="../../components/launch_manager/requirements/requirements.html#comp_req__launch_man__queue_rt_selection">comp_req__launch_man__queue_rt_selection</a></p></td>
+<td class="needs_status"><p>valid</p></td>
+<td class="needs_tags"><p>lifecycle<em>; </em>launch_manager</p></td>
+</tr>
+<tr class="need row-even"><td class="needs_id"><p><a class="reference internal" href="../../components/launch_manager/requirements/requirements.html#comp_req__launch_man__ra_rt_queue">comp_req__launch_man__ra_rt_queue</a></p></td>
 <td class="needs_status"><p>valid</p></td>
 <td class="needs_tags"><p>lifecycle<em>; </em>launch_manager</p></td>
 </tr>
@@ -1259,14 +1267,14 @@ A summary of the status is also documented in the project’s documentation mana
 <td class="needs_tags"><p>lifecycle<em>; </em>launch_manager</p></td>
 </tr>
 <tr class="need row-even"><td class="needs_id"><p><a class="reference internal" href="../../components/launch_manager/requirements/requirements.html#comp_req__launch_man__ra_comp_fallback">comp_req__launch_man__ra_comp_fallback</a></p></td>
-<td class="needs_status"><p>invalid</p></td>
-<td class="needs_tags"><p>not_planned<em>; </em>lifecycle<em>; </em>launch_manager</p></td>
+<td class="needs_status"><p>valid</p></td>
+<td class="needs_tags"><p>lifecycle<em>; </em>launch_manager</p></td>
 </tr>
 <tr class="need row-odd"><td class="needs_id"><p><a class="reference internal" href="../../components/launch_manager/requirements/requirements.html#comp_req__launch_man__ra_rt_switch_rt">comp_req__launch_man__ra_rt_switch_rt</a></p></td>
 <td class="needs_status"><p>valid</p></td>
 <td class="needs_tags"><p>lifecycle<em>; </em>launch_manager</p></td>
 </tr>
-<tr class="need row-even"><td class="needs_id"><p><a class="reference internal" href="../../components/launch_manager/requirements/requirements.html#comp_req__launch_man__ra_rt_cancel_trans">comp_req__launch_man__ra_rt_cancel_trans</a></p></td>
+<tr class="need row-even"><td class="needs_id"><p><a class="reference internal" href="../../components/launch_manager/requirements/requirements.html#comp_req__launch_man__rt_queue">comp_req__launch_man__rt_queue</a></p></td>
 <td class="needs_status"><p>valid</p></td>
 <td class="needs_tags"><p>lifecycle<em>; </em>launch_manager</p></td>
 </tr>
@@ -1274,9 +1282,9 @@ A summary of the status is also documented in the project’s documentation mana
 <td class="needs_status"><p>valid</p></td>
 <td class="needs_tags"><p>lifecycle<em>; </em>launch_manager</p></td>
 </tr>
-<tr class="need row-even"><td class="needs_id"><p><a class="reference internal" href="../../components/launch_manager/requirements/requirements.html#comp_req__launch_man__report_failed_liveliness">comp_req__launch_man__report_failed_liveliness</a></p></td>
-<td class="needs_status"><p>invalid</p></td>
-<td class="needs_tags"><p>not_planned<em>; </em>lifecycle<em>; </em>launch_manager</p></td>
+<tr class="need row-even"><td class="needs_id"><p><a class="reference internal" href="../../components/launch_manager/requirements/requirements.html#comp_req__launch_man__report_failed_live">comp_req__launch_man__report_failed_live</a></p></td>
+<td class="needs_status"><p>valid</p></td>
+<td class="needs_tags"><p>lifecycle<em>; </em>launch_manager</p></td>
 </tr>
 <tr class="need row-odd"><td class="needs_id"><p><a class="reference internal" href="../../components/launch_manager/requirements/requirements.html#comp_req__launch_man__report_liveliness">comp_req__launch_man__report_liveliness</a></p></td>
 <td class="needs_status"><p>valid</p></td>
@@ -1303,34 +1311,30 @@ A summary of the status is also documented in the project’s documentation mana
 <td class="needs_tags"><p>lifecycle<em>; </em>launch_manager</p></td>
 </tr>
 <tr class="need row-odd"><td class="needs_id"><p><a class="reference internal" href="../../components/launch_manager/requirements/requirements.html#comp_req__launch_man__runtime_config_compat">comp_req__launch_man__runtime_config_compat</a></p></td>
-<td class="needs_status"><p>invalid</p></td>
-<td class="needs_tags"><p>not_planned<em>; </em>lifecycle<em>; </em>launch_manager</p></td>
+<td class="needs_status"><p>valid</p></td>
+<td class="needs_tags"><p>lifecycle<em>; </em>launch_manager</p></td>
 </tr>
 <tr class="need row-even"><td class="needs_id"><p><a class="reference internal" href="../../components/launch_manager/requirements/requirements.html#comp_req__launch_man__scheduling_policy">comp_req__launch_man__scheduling_policy</a></p></td>
 <td class="needs_status"><p>valid</p></td>
 <td class="needs_tags"><p>lifecycle<em>; </em>launch_manager</p></td>
 </tr>
-<tr class="need row-odd"><td class="needs_id"><p><a class="reference internal" href="../../components/launch_manager/requirements/requirements.html#comp_req__launch_man__support_secpol_type">comp_req__launch_man__support_secpol_type</a></p></td>
+<tr class="need row-odd"><td class="needs_id"><p><a class="reference internal" href="../../components/launch_manager/requirements/requirements.html#comp_req__launch_man__shutdown_signal">comp_req__launch_man__shutdown_signal</a></p></td>
 <td class="needs_status"><p>valid</p></td>
 <td class="needs_tags"><p>lifecycle<em>; </em>launch_manager</p></td>
 </tr>
-<tr class="need row-even"><td class="needs_id"><p><a class="reference internal" href="../../components/launch_manager/requirements/requirements.html#comp_req__launch_man__shutdown_signal">comp_req__launch_man__shutdown_signal</a></p></td>
+<tr class="need row-even"><td class="needs_id"><p><a class="reference internal" href="../../components/launch_manager/requirements/requirements.html#comp_req__launch_man__std_handle_redir">comp_req__launch_man__std_handle_redir</a></p></td>
 <td class="needs_status"><p>valid</p></td>
 <td class="needs_tags"><p>lifecycle<em>; </em>launch_manager</p></td>
 </tr>
-<tr class="need row-odd"><td class="needs_id"><p><a class="reference internal" href="../../components/launch_manager/requirements/requirements.html#comp_req__launch_man__std_handle_redir">comp_req__launch_man__std_handle_redir</a></p></td>
+<tr class="need row-odd"><td class="needs_id"><p><a class="reference internal" href="../../components/launch_manager/requirements/requirements.html#comp_req__launch_man__configurable_timeout">comp_req__launch_man__configurable_timeout</a></p></td>
 <td class="needs_status"><p>valid</p></td>
 <td class="needs_tags"><p>lifecycle<em>; </em>launch_manager</p></td>
 </tr>
-<tr class="need row-even"><td class="needs_id"><p><a class="reference internal" href="../../components/launch_manager/requirements/requirements.html#comp_req__launch_man__configurable_timeout">comp_req__launch_man__configurable_timeout</a></p></td>
+<tr class="need row-even"><td class="needs_id"><p><a class="reference internal" href="../../components/launch_manager/requirements/requirements.html#comp_req__launch_man__supplementary_groups">comp_req__launch_man__supplementary_groups</a></p></td>
 <td class="needs_status"><p>valid</p></td>
 <td class="needs_tags"><p>lifecycle<em>; </em>launch_manager</p></td>
 </tr>
-<tr class="need row-odd"><td class="needs_id"><p><a class="reference internal" href="../../components/launch_manager/requirements/requirements.html#comp_req__launch_man__supplementary_groups">comp_req__launch_man__supplementary_groups</a></p></td>
-<td class="needs_status"><p>valid</p></td>
-<td class="needs_tags"><p>lifecycle<em>; </em>launch_manager</p></td>
-</tr>
-<tr class="need row-even"><td class="needs_id"><p><a class="reference internal" href="../../components/launch_manager/requirements/requirements.html#comp_req__launch_man__switch_run_targets">comp_req__launch_man__switch_run_targets</a></p></td>
+<tr class="need row-odd"><td class="needs_id"><p><a class="reference internal" href="../../components/launch_manager/requirements/requirements.html#comp_req__launch_man__switch_run_targets">comp_req__launch_man__switch_run_targets</a></p></td>
 <td class="needs_status"><p>valid</p></td>
 <td class="needs_tags"><p>lifecycle<em>; </em>launch_manager</p></td>
 </tr>
@@ -1411,8 +1415,9 @@ A summary of the status is also documented in the project’s documentation mana
 <p>The following deviations from the module safety plan are present in the module safety package.
 These are deviations from planned processes execution and/or workproduct results,
 safety anomalies in the sense of known bugs in the software are reported in the release notes.</p>
-<p>&lt;Describe here the deviations, whether they have an impact on module’s safety functions,
-how these can be mitigated or argued and if and when a resolution is planned.&gt;</p>
+<p>The module is under development and the safety work products are not yet completed
+(see the work products lists and their status above).
+Deviations remaining at the time of the v1.0 release will be documented here.</p>
 </section>
 </section>
 </section>
