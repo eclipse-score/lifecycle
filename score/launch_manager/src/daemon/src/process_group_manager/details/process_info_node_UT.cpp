@@ -38,7 +38,11 @@ const IdentifierHash kProcessNameHash{kProcessName};
 class MockSafeProcessMapInserter : public SafeProcessMapInserter
 {
   public:
-    MOCK_METHOD(SafeProcessMapReturnType, insertIfNotTerminated, (osal::ProcessID key, IComponent* object), (override));
+    MOCK_METHOD(
+        SafeProcessMapInsertResult,
+        insertIfNotTerminated,
+        (osal::ProcessID key, IComponent* object),
+        (override));
 };
 
 class ProcessInfoNodeFixture : public ::testing::Test
@@ -164,7 +168,8 @@ class ProcessInfoNodeFixture : public ::testing::Test
     {
         EXPECT_CALL(mock_processIf_, startProcess(_, _, _)).WillOnce(Return(osal::OsalReturnType::kSuccess));
         EXPECT_CALL(*process_map_, insertIfNotTerminated(_, _))
-            .WillOnce(Return(score::mw::lifecycle::internal::SafeProcessMapReturnType::kInserted));
+            .WillOnce(Return(
+                SafeProcessMapInsertResult{score::mw::lifecycle::internal::SafeProcessMapReturnType::kInserted}));
     }
 
     /// @brief Sets up requestTermination to synchronously deliver the OS exit notification.
@@ -262,7 +267,8 @@ TEST_F(ProcessInfoNodeStartupTest, MapInsertError_ReturnsFailure)
     auto node = createProcessInfoNode(configuration::ApplicationType::Native);
     EXPECT_CALL(mock_processIf_, startProcess(_, _, _)).WillOnce(Return(osal::OsalReturnType::kSuccess));
     EXPECT_CALL(*process_map_, insertIfNotTerminated(_, _))
-        .WillOnce(Return(score::mw::lifecycle::internal::SafeProcessMapReturnType::kInsertionError));
+        .WillOnce(Return(
+            SafeProcessMapInsertResult{score::mw::lifecycle::internal::SafeProcessMapReturnType::kInsertionError}));
     // The error handler calls terminateProcess(), which sends SIGTERM; simulate the OS ack.
     expectOsAcknowledgesTermination(node.get());
 
@@ -280,15 +286,11 @@ TEST_F(ProcessInfoNodeStartupTest, SelfTerminating_ExitsBeforeMapInsert_ReturnsS
         "treated as a successful startup.");
 
     auto node = createSelfTerminatingProcessInfoNode(configuration::ApplicationType::Native);
-    // Simulate the process exiting before the map insertion happens.
-    EXPECT_CALL(mock_processIf_, startProcess(_, _, _))
-        .WillOnce(DoAll(
-            InvokeWithoutArgs([node = node.get()] {
-                static_cast<void>(node->tryHandleTermination(0));
-            }),
-            Return(osal::OsalReturnType::kSuccess)));
+    // Simulate the process exiting before the map insertion happens: the map returns the stored exit status, and the
+    // node handles the termination itself.
+    EXPECT_CALL(mock_processIf_, startProcess(_, _, _)).WillOnce(Return(osal::OsalReturnType::kSuccess));
     EXPECT_CALL(*process_map_, insertIfNotTerminated(_, _))
-        .WillOnce(Return(score::mw::lifecycle::internal::SafeProcessMapReturnType::kMatched));
+        .WillOnce(Return(SafeProcessMapInsertResult{SafeProcessMapReturnType::kMatched, 0}));
 
     auto result = node->activate(score::cpp::stop_token{});
 
@@ -324,7 +326,7 @@ TEST_F(ProcessInfoNodeStartupTest, TerminatedReadyCondition_StopRequestedDuringS
     EXPECT_CALL(mock_processIf_, startProcess(_, _, _)).WillOnce(Return(osal::OsalReturnType::kSuccess));
     EXPECT_CALL(*process_map_, insertIfNotTerminated(_, _)).WillOnce(InvokeWithoutArgs([this]() {
         stop_source_.request_stop();
-        return score::mw::lifecycle::internal::SafeProcessMapReturnType::kInserted;
+        return SafeProcessMapInsertResult{score::mw::lifecycle::internal::SafeProcessMapReturnType::kInserted};
     }));
     expectOsAcknowledgesTermination(node.get());
 
@@ -404,24 +406,18 @@ TEST_P(ProcessInfoNodeMapMatchedTest, InsertReturnsMatched)
     RecordProperty("Description", GetParam().description_);
 
     auto node = createProcessInfoNode(GetParam().app_type_, 0, GetParam().is_self_terminating_, GetParam().condition_);
-    IComponent::TerminationResult tryHandleTerminationResult{};
     auto status = GetParam().status_to_exit_with_;
 
     EXPECT_CALL(mock_processIf_, startProcess).WillOnce(Return(osal::OsalReturnType::kSuccess));
     // kMatched means the process already terminated, so we should not request termination again
     EXPECT_CALL(mock_processIf_, requestTermination).Times(0);
+    // The map returns the stored exit status, and the node handles the termination itself.
     EXPECT_CALL(*process_map_, insertIfNotTerminated)
-        .WillOnce(DoAll(
-            InvokeWithoutArgs([node = node.get(), &tryHandleTerminationResult, status] {
-                tryHandleTerminationResult = node->tryHandleTermination(status);
-            }),
-            Return(SafeProcessMapReturnType::kMatched)));
+        .WillOnce(Return(SafeProcessMapInsertResult{SafeProcessMapReturnType::kMatched, status}));
 
     auto activation_result_ = node->activate(score::cpp::stop_token{});
 
     EXPECT_EQ(activation_result_, GetParam().expected_activation_result_);
-    EXPECT_EQ(tryHandleTerminationResult, IComponent::TerminationResult::kIgnore)
-        << "An error occurring during startup should never be reported by tryHandleTermination";
     EXPECT_EQ(node->getState(), ProcessState::kTerminated);  // Not kFailed, the posix process did start successfully
 }
 
@@ -555,7 +551,8 @@ TEST_F(ProcessInfoNodeStartupCrashTest, ReportingProcess_CrashesBeforeReady_With
         .WillRepeatedly(Return(osal::OsalReturnType::kSuccess));
     EXPECT_CALL(*process_map_, insertIfNotTerminated(_, _))
         .Times(kTotalAttempts)
-        .WillRepeatedly(Return(score::mw::lifecycle::internal::SafeProcessMapReturnType::kInserted));
+        .WillRepeatedly(
+            Return(SafeProcessMapInsertResult{score::mw::lifecycle::internal::SafeProcessMapReturnType::kInserted}));
     // Simulate the OS handler detecting the crash on every attempt, while the process is still waiting to reach
     // kRunning.
     EXPECT_CALL(mock_processIf_, waitForkRunning(_, _))
@@ -587,7 +584,7 @@ TEST_F(ProcessInfoNodeStartupCrashTest, NonReportingProcess_CrashesBeforeReady_N
             InvokeWithoutArgs([node = node.get()] {
                 static_cast<void>(node->tryHandleTermination(-1));
             }),
-            Return(score::mw::lifecycle::internal::SafeProcessMapReturnType::kInserted)));
+            Return(SafeProcessMapInsertResult{score::mw::lifecycle::internal::SafeProcessMapReturnType::kInserted})));
 
     auto result = node->activate(score::cpp::stop_token{});
 
@@ -615,7 +612,7 @@ TEST_F(ProcessInfoNodeStartupCrashTest, NonReportingProcess_CrashesBeforeReady_W
             InvokeWithoutArgs([node = node.get()] {
                 static_cast<void>(node->tryHandleTermination(-1));
             }),
-            Return(score::mw::lifecycle::internal::SafeProcessMapReturnType::kInserted)));
+            Return(SafeProcessMapInsertResult{score::mw::lifecycle::internal::SafeProcessMapReturnType::kInserted})));
 
     auto result = node->activate(score::cpp::stop_token{});
 
@@ -637,7 +634,8 @@ TEST_F(ProcessInfoNodeStartupCrashTest, TimeoutThenSuccess_WithRestarts)
     EXPECT_CALL(mock_processIf_, startProcess(_, _, _)).Times(2).WillRepeatedly(Return(osal::OsalReturnType::kSuccess));
     EXPECT_CALL(*process_map_, insertIfNotTerminated(_, _))
         .Times(2)
-        .WillRepeatedly(Return(score::mw::lifecycle::internal::SafeProcessMapReturnType::kInserted));
+        .WillRepeatedly(
+            Return(SafeProcessMapInsertResult{score::mw::lifecycle::internal::SafeProcessMapReturnType::kInserted}));
     EXPECT_CALL(mock_processIf_, waitForkRunning(_, _))
         .WillOnce(Return(osal::OsalReturnType::kFail))
         .WillOnce(Return(osal::OsalReturnType::kSuccess));
@@ -686,7 +684,8 @@ TEST_P(
         .WillRepeatedly(Return(osal::OsalReturnType::kSuccess));
     EXPECT_CALL(*process_map_, insertIfNotTerminated(_, _))
         .Times(kExpectedTotalAttempts)
-        .WillRepeatedly(Return(score::mw::lifecycle::internal::SafeProcessMapReturnType::kInserted));
+        .WillRepeatedly(
+            Return(SafeProcessMapInsertResult{score::mw::lifecycle::internal::SafeProcessMapReturnType::kInserted}));
     // Simulate the OS handler detecting the crash on every attempt, while the process is still waiting to reach
     // kRunning.
     EXPECT_CALL(mock_processIf_, waitForkRunning(_, _))
@@ -771,7 +770,7 @@ TEST_F(ProcessInfoNodeUnexpectedTerminationTest, SelfTerminating_TerminatedReady
             termination_future = std::async(std::launch::async, [node]() {
                 return node->tryHandleTermination(0);
             });
-            return score::mw::lifecycle::internal::SafeProcessMapReturnType::kInserted;
+            return SafeProcessMapInsertResult{score::mw::lifecycle::internal::SafeProcessMapReturnType::kInserted};
         }));
 
     // activate() returns kSuccess because kTerminated (the ready condition) is reached within the timeout
@@ -838,7 +837,8 @@ class ProcessInfoNodeSupervisionFailureTest : public ProcessInfoNodeFixture
         EXPECT_CALL(mock_processIf_, startProcess(_, _, _))
             .WillOnce(DoAll(SetArgReferee<0>(kPid), Return(osal::OsalReturnType::kSuccess)));
         EXPECT_CALL(*process_map_, insertIfNotTerminated(_, _))
-            .WillOnce(Return(score::mw::lifecycle::internal::SafeProcessMapReturnType::kInserted));
+            .WillOnce(Return(
+                SafeProcessMapInsertResult{score::mw::lifecycle::internal::SafeProcessMapReturnType::kInserted}));
         EXPECT_CALL(mock_processIf_, waitForkRunning(_, _)).WillOnce(Return(osal::OsalReturnType::kSuccess));
         const auto result = node->activate(score::cpp::stop_token{});
         EXPECT_THAT(result, Eq(IComponent::RequestResult::kSuccess));
