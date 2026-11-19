@@ -26,6 +26,7 @@ bazel build --config=x86_64-linux --config=dwyu //score/...
 
 The build fails for every target with a missing or unused dependency and prints a report.
 Only targets of this repository are checked, external dependencies are skipped.
+The check runs in CI for every pull request (`dwyu` job in `.github/workflows/on-pr.yml`).
 
 ## Configuration
 

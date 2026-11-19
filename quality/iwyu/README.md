@@ -35,6 +35,9 @@ dependencies. IWYU cannot analyze `.rs` files, so the Rust packages are excluded
 list, together with the aliases that point to them (an aspect applied to an alias also runs on its
 `actual` target).
 
+The check runs in CI for every pull request (`iwyu` job in `.github/workflows/on-pr.yml`).
+When adding a Rust package or alias, exclude it there and here.
+
 The check uses the LLVM/clang toolchain, because IWYU does not understand the flags of the GCC
 toolchain. Do not combine `--config=iwyu` with `--config=x86_64-linux`.
 
