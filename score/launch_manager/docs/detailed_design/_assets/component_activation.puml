@@ -27,11 +27,16 @@ queue "Component Event Queue" as EventQueue
 box "Worker thread" #FAF6F0
 participant "IComponentController" as Monitor
 participant "IComponent" as Component
+participant "IReadyCondition" as ReadyCondition
+participant "IStartAction" as StartAction
+participant "IStopAction" as StopAction
+participant "IForceStopAction" as ForceStopAction
 end box
 
 participant "SafeProcessMap" as Map
 participant "Alive Supervision" as Supervision
 participant "Operating System" as OS
+participant "OsHandler" as OsHandler
 
 note over Graph: graph is in state kInTransition
 
@@ -52,69 +57,71 @@ WorkerQueue -> Monitor ++: activation is taken by a free worker
 Monitor -> Component ++: activate
 
 loop one iteration per configured startup attempt
-    Component -> OS ++: start the process
+    Component -> ReadyCondition: prepare
+    Component -> StartAction ++: start
+    StartAction -> OS ++: start the process
+    OS --> StartAction --:
+    StartAction -> Map ++: register the started process PID
+    Map --> StartAction --:
+    opt #Pink the process PID cannot be entered into the map
+        StartAction -> OS: kill the process that was started (SIGKILL)
+    end
+    StartAction --> Component --: process started, or start failed
 
-    alt #Pink the process cannot be started
-        OS --> Component --: start failed
+    opt the process has already exited when it is registered
+        Component -> ReadyCondition: handle termination (exit status)
+    end
+
+    Component -> ReadyCondition ++: wait (stop token, process, ready timeout)
+
+    opt the process exits during the wait
+        OsHandler -> Component: termination of the process
+        Component -> ReadyCondition: handle termination (exit status)
+    end
+    ReadyCondition --> Component --: ready condition fulfilled, failed or ready timeout expired
+
+    alt #Pink the start action failed
         note right of Component
-          Final: a launch failure is not retried.
-          The component is left in its failed state.
+          The process could not be started, or its PID could not
+          be entered into the map. The attempt fails right away;
+          nothing is left running, so there is no cleanup.
         end note
 
-    else #White the process was started
-        OS --> Component --: process started
-        Component -> Map ++: register the started process PID
+    else #F2FAF2 the ready condition is satisfied and the process did not exit unexpectedly
+        opt component is supervised
+            Component -> Supervision ++: start supervising the process
+            Supervision --> Component --: supervision started
+        end
         note right of Component
-          The registration is what lets the OsHandler thread
-          route a later termination of this process back to
-          this component - see Component Deactivation.
+          The component is ready, no further attempt is made.
         end note
 
-        alt #Pink the process pid cannot be entered into the map
-            Map --> Component --: no capacity left
-            Component -> OS: stop the process that was started (SIGTERM, then SIGKILL after timeout)
-            note right of Component
-              Final: a registration failure is not retried.
-            end note
+    else #Pink the ready condition is satisfied, but supervision cannot be started
+        Component -> Supervision ++: start supervising the process
+        Supervision --> Component --: failed
+        note right of Component
+          The attempt fails and goes to the cleanup below, so a
+          supervised process never runs without supervision.
+        end note
 
-        else #FFF8E8 the process has already exited
-            Map --> Component --: the process has already exited
-            Component -> Component : Check ready condition
-            note right of Component
-              The OsHandler thread recorded the exit before this
-              registration arrived; the map resolves the race in
-              either order.
-            end note
+    else #Pink the ready condition is not satisfied
+        note right of Component
+          The ready timeout expired, the ready condition failed,
+          the process exited unexpectedly, or the activation was
+          cancelled. The attempt fails and goes to the cleanup below.
+        end note
+    end
 
-        else #FFF8E8 the ready condition is not reached in time
-            Map --> Component --: process registered
-            Component -> Component: wait for the ready condition\nuntil the ready timeout expires
-            Component -> OS ++: stop the process that was started (SIGTERM, then SIGKILL after timeout)
-            OS --> Component --: process stopped
-            note right of Component
-              A timed out attempt is retried while attempts
-              are left.The last attempt fails the activation.
-              A transition cancelled between two attempts also
-              ends the activation here - see Transition
-              Cancellation / Preemption.
-            end note
-
-        else #F2FAF2 the ready condition is satisfied
-            Map --> Component --: process registered
-            opt ready condition is not "process started"
-                Component -> Component: wait for the ready condition\n(Running report, configured file or own termination)
-                note right of Component
-                  A component whose ready condition is its own
-                  termination waits for the exit of its process.
-                  That exit is observed on the OsHandler thread,
-                  which releases the waiting worker - see Process
-                  Termination.
-                end note
-            end
-            opt component is supervised
-                Component -> Supervision ++: start supervising the process
-                Supervision --> Component --:
-            end
+    opt #FFF8E8 cleanup: the attempt failed after the process was started
+        Component -> StopAction ++: stop
+        StopAction -> OS: request the process to terminate (SIGTERM)
+        StopAction --> Component --:
+        Component -> Component: wait for the termination of the process,\nup to the shutdown timeout
+        opt the shutdown timeout expired
+            Component -> ForceStopAction ++: force stop
+            ForceStopAction -> OS: kill the process (SIGKILL)
+            ForceStopAction --> Component --:
+            Component -> Component: wait for the termination of the process,\nup to kMaxSigKillDelay
         end
     end
 end
@@ -124,7 +131,7 @@ alt the ready condition was satisfied
     Component --> Monitor: ready condition satisfied
     Monitor -> EventQueue: component activated successfully
 else no attempt succeeded
-    Component --> Monitor: activation failed\n(no attempt reached the ready condition)
+    Component --> Monitor: activation failed with the result of the last attempt\n(ready timeout or failure)
     Monitor -> EventQueue: component failed to activate
 end
 deactivate Component

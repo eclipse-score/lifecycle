@@ -30,6 +30,8 @@ participant "IComponentController" as Monitor
 participant "IComponent" as Component
 end box
 
+participant "IReadyCondition" as ReadyCondition
+participant "Alive Supervision" as Supervision
 participant "Operating System" as OS
 
 note over Graph: graph is in state kSuccess:\nthe Run Target is active
@@ -50,44 +52,45 @@ note right of Map
 end note
 Monitor -> Component ++: notify the component of the termination
 
-alt Component is supervised
-  Component -> Supervision ++: stop supervising the process
-  Supervision --> Component --:
-end alt
-
-alt #Pink the exit is not an expected completion
-    Component --> Monitor: unexpected termination
-    Monitor -> EventQueue: component terminated unexpectedly
-    note right of Monitor
-      Of a component that has finished starting, only a self
-      terminating one that exits with status 0 is a completion.
-      Every other exit is an unexpected termination.
-    end note
-
-else #White the component is self terminating and exited with status 0
-    alt #F2FAF2 an activation is waiting for exactly this termination
-        Component --> Monitor: nothing to report
-        note right of Monitor
-          The ready condition of the component is its own
-          termination: the exit releases the waiting worker, and
-          that worker reports the successful activation - see
-          Component Activation.
-        end note
-
-    else #FFF8E8 the component became ready before it exited
-        Component --> Monitor: nothing to report
-        note right of Monitor
-          The expected exit of an already ready component is not
-          an event: the graph keeps the component as activated.
-        end note
-    end
-
-else #FFF8E8 the termination was requested or the component is still starting
+alt #FFF8E8 the component is activating
+    Component -> ReadyCondition: handle termination (exit status)
     Component --> Monitor: nothing to report
     note right of Monitor
-      The worker that is waiting inside the activation or the
-      deactivation is released instead, and that worker reports
-      the outcome - see Component Deactivation.
+      The worker thread that is currently activating the component
+      will handle the termination event.
+    end note
+
+else #FFF8E8 the component is deactivating
+    Component --> Monitor: nothing to report
+    note right of Monitor
+      The worker thread that is currently deactivating the component
+      will handle the termination event.
+    end note
+
+else #F2FAF2 the component is ready and the exit is expected
+    opt component is supervised
+        Component -> Supervision ++: stop supervising the process
+        Supervision --> Component --:
+    end
+    Component --> Monitor: nothing to report
+    note right of Monitor
+      A self-terminating process which exits with 0 has completed.
+      The component stays ready and the graph keeps it as activated.
+    end note
+
+else #Pink the component is ready and the exit is unexpected
+    opt component is supervised
+        Component -> Supervision ++: stop supervising the process
+        Supervision --> Component --:
+    end
+    Component --> Monitor: unexpected termination
+    Monitor -> EventQueue: component terminated unexpectedly
+
+else #White the component is already stopped
+    Component --> Monitor: nothing to report
+    note right of Monitor
+      E.g. a late exit after the process could not be stopped in
+      time. The exit is ignored.
     end note
 end
 
@@ -99,17 +102,6 @@ deactivate OsHandler
 ' --- reaction ----------------------------------------------------------------
 EventQueue -> PGM ++: component event
 PGM -> Graph ++: apply the component event
-note over Graph
-  An unexpected termination always leaves the active Run Target.
-end note
-
-Graph -> Component ++: clean up the terminated component
-note over Graph
-  The clean up is done in place on the main loop thread, not on
-  a worker, so that supervision and process resources of the
-  terminated component are released immediately.
-end note
-Component --> Graph --: clean up done
 
 alt #White the Run Target was active (kSuccess)
     note over Graph: the graph moves to kUndefinedState right away

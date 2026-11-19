@@ -1,0 +1,57 @@
+' *******************************************************************************
+' Copyright (c) 2026 Contributors to the Eclipse Foundation
+'
+' See the NOTICE file(s) distributed with this work for additional
+' information regarding copyright ownership.
+'
+' This program and the accompanying materials are made available under the
+' terms of the Apache License Version 2.0 which is available at
+' https://www.apache.org/licenses/LICENSE-2.0
+'
+' SPDX-License-Identifier: Apache-2.0
+' *******************************************************************************
+
+@startuml component_states
+
+title Component State Machine
+
+state Terminated : no resource is running
+state Starting : waiting for the ready condition
+state Ready : resource has finished its startup
+state Terminating {
+  state GracefulShutdown : waiting up to the shutdown timeout
+  state ForcedShutdown : waiting up to kMaxSigKillDelay
+
+  [*] --> GracefulShutdown
+  GracefulShutdown -[#red]-> ForcedShutdown : <color:red>shutdown timeout expired</color>\n<color:red>/ force_stop_action</color>
+}
+
+[*] -d-> Terminated
+
+Terminated -down-> Starting : activate() / start_action
+Starting --> Ready : ready condition met / kSuccess
+Starting -[#red]-> Terminating : <color:red>activation failed / stop_action</color>
+note on link
+  Activation fails if
+  * the resource terminated unexpectedly during startup
+  * the ready condition timed out
+  * the ready condition failed, e.g. resource terminated or
+    activation got cancelled
+  * supervision could not be activated
+end note
+Terminated -down-> Starting : retry [retries left, not cancelled]\n/ start_action
+
+Ready --> Terminating : deactivate()\n/stop_action
+Ready -up[#red]-> Terminated : <color:red>unexpected termination</color>
+
+Terminating -up-> Terminated : terminated
+ForcedShutdown -up[#red]-> Terminated : <color:red>kMaxSigKillDelay expired / gave up</color>
+
+legend bottom
+  activate() and deactivate() never run at the same time.
+  A failed activation is retried up to activation_retry_attempts times; afterwards activate() fails.
+  A self-terminating resource exiting with 0 is expected and keeps the component Ready.
+  Every failure ends in Terminated, so the component can always be activated again.
+endlegend
+
+@enduml
