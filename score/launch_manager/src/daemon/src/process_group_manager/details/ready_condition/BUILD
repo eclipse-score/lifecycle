@@ -52,6 +52,7 @@ cc_library(
         "//score/launch_manager/src/daemon/src/configuration:component_config",
         "//score/launch_manager/src/daemon/src/osal:ifile_waiter",
         "//score/launch_manager/src/daemon/src/osal:return_types",
+        "@score_baselibs//score/language/futurecpp",
         "@score_baselibs//score/language/safecpp/string_view:zstring_view",
     ],
 )
@@ -79,6 +80,7 @@ cc_library(
         "//score/launch_manager:error",
         "//score/launch_manager/src/daemon/src/osal:return_types",
         "//score/launch_manager/src/daemon/src/process_group_manager:iprocess",
+        "@score_baselibs//score/language/futurecpp",
     ],
 )
 

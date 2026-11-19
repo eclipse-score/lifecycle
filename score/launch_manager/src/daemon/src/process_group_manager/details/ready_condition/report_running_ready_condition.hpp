@@ -34,6 +34,8 @@ class ReportRunningReadyCondition final : public IReadyCondition
     explicit ReportRunningReadyCondition(osal::IProcess& launcher, std::chrono::milliseconds timeout);
 
     /// @brief Wait until the resource represented by the given handle is ready.
+    /// @details A stop request on the token or a reported termination wakes up the wait. It then
+    ///          only succeeds if the process reported kRunning before.
     /// @param stop_token Token which can be used to interrupt the wait.
     /// @param handle The resource to wait on.
     /// @return Whether the wait was successful, or failed with an error.
@@ -41,9 +43,9 @@ class ReportRunningReadyCondition final : public IReadyCondition
 
     /// @brief Notify the ready condition that a POSIX process has terminated.
     /// @param handle The process that terminated.
+    /// @details Wakes up wait() with exactly one post on the IPC channel.
     /// @param status Exit code of the process.
-    /// @return Whether this ready condition accepts the event.
-    bool tryHandleTermination(const Handle& handle, int32_t status) const override;
+    void handleTermination(const Handle& handle, int32_t status) const override;
 
   private:
     /// @brief The process launcher used to wait for the process.

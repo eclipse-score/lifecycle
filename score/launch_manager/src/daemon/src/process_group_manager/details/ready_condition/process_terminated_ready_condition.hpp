@@ -18,6 +18,7 @@
 #include "score/mw/launch_manager/process_group_manager/details/ready_condition/iready_condition.hpp"
 #include "score/mw/launch_manager/process_group_manager/details/ready_condition/termination_waiter.hpp"
 #include "score/result/result.h"
+#include <atomic>
 #include <chrono>
 #include <cstdint>
 
@@ -26,7 +27,8 @@ namespace score::mw::lifecycle::internal
 
 /// @brief A ready condition which waits for a process to terminate successfully.
 /// @details The process is ready once it has terminated with exit status 0. Termination
-///          is reported through tryHandleTermination(), which may happen before or during wait().
+///          is reported through handleTermination(), which may happen before or during wait().
+///          A termination with any other exit status makes wait() return an error.
 class ProcessTerminatedReadyCondition final : public IReadyCondition
 {
   public:
@@ -42,14 +44,16 @@ class ProcessTerminatedReadyCondition final : public IReadyCondition
     /// @details A termination reported after prepare() and before this call is not lost.
     /// @param stop_token Token which can be used to interrupt the wait.
     /// @param handle The process to wait on.
-    /// @return Success if the process terminated within the timeout, an error otherwise.
+    /// @return Success if the process terminated with exit status 0 within the timeout,
+    ///         kGeneralError if it terminated with another exit status or a stop was requested,
+    ///         kTimeout otherwise.
     Result<void> wait(cpp::stop_token stop_token, const Handle& handle) const override;
 
     /// @brief Notify the ready condition that a POSIX process has terminated.
     /// @param handle The process that terminated.
+    /// @details Wakes up wait() for every exit status. wait() then decides on the stored status.
     /// @param status Exit code of the process.
-    /// @return True if the process terminated successfully (status 0), false otherwise.
-    bool tryHandleTermination(const Handle& handle, int32_t status) const override;
+    void handleTermination(const Handle& handle, int32_t status) const override;
 
   private:
     /// @brief The maximum duration to wait for the process to terminate.
@@ -58,6 +62,9 @@ class ProcessTerminatedReadyCondition final : public IReadyCondition
     /// @brief Synchronises the terminating thread with the waiting thread.
     /// @note Mutable because the IReadyCondition API is const. The waiter is thread-safe.
     mutable TerminationWaiter waiter_;
+
+    /// @brief Exit status of the terminated process. Stored before the waiter is woken up.
+    mutable std::atomic<int32_t> status_{0};
 };
 
 }  // namespace score::mw::lifecycle::internal

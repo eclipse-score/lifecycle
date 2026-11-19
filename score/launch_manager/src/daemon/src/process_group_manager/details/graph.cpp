@@ -22,6 +22,7 @@
 #include <variant>
 
 #include "score/mw/launch_manager/common/log.hpp"
+#include "score/mw/launch_manager/process_group_manager/details/component_factory.hpp"
 #include "score/mw/launch_manager/process_group_manager/details/graph.hpp"
 #include "score/mw/launch_manager/process_group_manager/details/process_info_node.hpp"
 #include "score/mw/lifecycle/run_target_activation_source.hpp"
@@ -33,6 +34,14 @@ namespace score::mw::lifecycle::internal
 
 namespace
 {
+
+/// @brief Whether Component is used instead of ProcessInfoNode, selected with --//config:use_component.
+/// @details Both implementations are always compiled, and selected with `if constexpr`.
+#ifdef LC_USE_COMPONENT
+constexpr bool kUseComponent = true;
+#else
+constexpr bool kUseComponent = false;
+#endif
 
 /// @brief Creates a dependency graph from the configuration.
 /// @param config The configuration containing components and Run Targets.
@@ -56,8 +65,31 @@ void CreateDependencyGraph(
         const auto name = component_config.name;
         auto depends_on = std::move(component_config.component_properties.depends_on);
 
-        const auto index = graph.try_emplace(
-            IdentifierHash{name}, std::in_place_type<ProcessInfoNode>, std::move(component_config), process_handling);
+        IdentifierHash index{name};
+        if constexpr (kUseComponent)
+        {
+            // Constructed only here: the process handling pointers may be null in tests which do not use it.
+            const ComponentFactory factory{
+                *process_handling.process_interface_,
+                *process_handling.process_map_,
+                *process_handling.file_waiter_,
+                process_handling.supervision_factory};
+            Result<std::unique_ptr<internal::Component>> component =
+                factory.create(std::make_shared<configuration::ComponentConfig>(std::move(component_config)));
+            SCORE_LANGUAGE_FUTURECPP_ASSERT_MESSAGE(component.has_value(), "Failed to create component");
+            index = graph.try_emplace(
+                IdentifierHash{name},
+                std::in_place_type<std::unique_ptr<internal::Component>>,
+                std::move(component).value());
+        }
+        else
+        {
+            index = graph.try_emplace(
+                IdentifierHash{name},
+                std::in_place_type<ProcessInfoNode>,
+                std::move(component_config),
+                process_handling);
+        }
 
         LM_LOG_DEBUG() << "Creating component node:" << name;
         pending_dependencies.emplace_back(index, std::move(depends_on));
@@ -197,21 +229,17 @@ void Graph::queueReadyNodes()
         LM_LOG_DEBUG() << "Node" << node << "is ready for"
                        << (task_type == ComponentTaskType::kActivate ? std::string_view("activation")
                                                                      : std::string_view("deactivation"));
-        std::visit(
-            [this, task_type](auto& component) {
-                using ComponentT = std::decay_t<decltype(component)>;
-                if constexpr (std::is_same_v<ComponentT, RunTarget>)
-                {
-                    updateRunTargetInPlace(component, task_type);
-                }
-                else
-                {
-                    // Queue ProcessInfoNode for execution on worker thread; completion arrives later
-                    // via a ComponentEvent, draining into nodeExecuted() -> onNodeFinished().
-                    tryQueueNode(ComponentTask{task_type, component, stop_source_.get_token()});
-                }
-            },
-            nodes_[node]);
+        Graph::Component& graph_node = nodes_[node];
+        if (RunTarget* const run_target = std::get_if<RunTarget>(&graph_node))
+        {
+            updateRunTargetInPlace(*run_target, task_type);
+        }
+        else
+        {
+            // Queue processes for execution on worker thread; completion arrives later
+            // via a ComponentEvent, draining into nodeExecuted() -> onNodeFinished().
+            tryQueueNode(ComponentTask{task_type, componentOf(graph_node), stop_source_.get_token()});
+        }
     }
 }
 
@@ -363,9 +391,12 @@ void Graph::handleComponentEvent(const ComponentEvent& event)
 
                 setState(GraphState::kAborting);
 
-                // Need to clean up any leftover resources
-                IComponent& failingComponent = componentOf(nodes_[data.node_identifier]);
-                static_cast<void>(failingComponent.deactivate({}));
+                // Need to clean up any leftover resources. A Component has already cleaned up itself, and a
+                // task for it may still be running, so it must not be deactivated here.
+                if (ProcessInfoNode* const process = std::get_if<ProcessInfoNode>(&nodes_[data.node_identifier]))
+                {
+                    static_cast<void>(process->deactivate({}));
+                }
 
                 if (jobs_in_progress_ == 0)
                 {
@@ -484,6 +515,10 @@ void Graph::forceKillProcesses()
                 // forceTermination already handles errors appropriately, so we can ignore its result.
                 static_cast<void>(process_handling_.process_interface_->forceTermination(pid));
             }
+        }
+        else if (const auto* const process_component = std::get_if<std::unique_ptr<internal::Component>>(&component))
+        {
+            (*process_component)->forceStop();
         }
     }
 }

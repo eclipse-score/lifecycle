@@ -137,3 +137,18 @@ config_setting(
     },
     visibility = ["//visibility:public"],
 )
+
+# Use Component instead of ProcessInfoNode for the components of the process group graph.
+bool_flag(
+    name = "use_component",
+    build_setting_default = False,
+    visibility = ["//visibility:public"],
+)
+
+config_setting(
+    name = "lm_use_component",
+    flag_values = {
+        ":use_component": "True",
+    },
+    visibility = ["//visibility:public"],
+)

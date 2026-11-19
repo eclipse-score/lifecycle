@@ -87,7 +87,7 @@ TEST_F(ProcessTerminatedReadyConditionTest, TerminationBeforeWaitReturnsSuccess)
 
     const ProcessTerminatedReadyCondition ready_condition(0ms);
 
-    EXPECT_TRUE(ready_condition.tryHandleTermination(process_handle_, 0));
+    ready_condition.handleTermination(process_handle_, 0);
     const Result<void> result = ready_condition.wait(cpp::stop_token{}, process_handle_);
 
     EXPECT_TRUE(result.has_value());
@@ -105,28 +105,47 @@ TEST_F(ProcessTerminatedReadyConditionTest, TerminationDuringWaitReturnsSuccess)
     const ProcessTerminatedReadyCondition ready_condition(kNeverExpires);
 
     auto future = waitOnOtherThread(ready_condition, cpp::stop_token{});
-    EXPECT_TRUE(ready_condition.tryHandleTermination(process_handle_, 0));
+    ready_condition.handleTermination(process_handle_, 0);
 
     // Without the termination, the wait would not return in time, so success proves the wakeup.
     EXPECT_TRUE(future.get().has_value());
 }
 
-TEST_F(ProcessTerminatedReadyConditionTest, NonZeroExitStatusIsRejected)
+TEST_F(ProcessTerminatedReadyConditionTest, NonZeroExitStatusBeforeWaitReturnsError)
 {
     RecordProperty("DerivationTechnique", "equivalence-classes");
     RecordProperty(
         "Description",
-        "Given the process terminated with a non-zero exit status. "
-        "When tryHandleTermination is called. "
-        "Then the termination is rejected and wait does not succeed.");
+        "Given the process terminated with a non-zero exit status before wait is called. "
+        "When wait is called with a timeout which never expires. "
+        "Then wait returns kGeneralError without waiting for the timeout.");
 
-    const ProcessTerminatedReadyCondition ready_condition(10ms);
+    const ProcessTerminatedReadyCondition ready_condition(kNeverExpires);
 
-    EXPECT_FALSE(ready_condition.tryHandleTermination(process_handle_, 1));
+    ready_condition.handleTermination(process_handle_, 1);
     const Result<void> result = ready_condition.wait(cpp::stop_token{}, process_handle_);
 
     ASSERT_FALSE(result.has_value());
-    EXPECT_EQ(result.error(), ExecErrc::kTimeout);
+    EXPECT_EQ(result.error(), ExecErrc::kGeneralError);
+}
+
+TEST_F(ProcessTerminatedReadyConditionTest, NonZeroExitStatusDuringWaitReturnsError)
+{
+    RecordProperty("DerivationTechnique", "equivalence-classes");
+    RecordProperty(
+        "Description",
+        "Given wait is blocking on another thread. "
+        "When a termination with a non-zero exit status is reported. "
+        "Then wait is unblocked and returns kGeneralError rather than kTimeout.");
+
+    const ProcessTerminatedReadyCondition ready_condition(kNeverExpires);
+
+    auto future = waitOnOtherThread(ready_condition, cpp::stop_token{});
+    ready_condition.handleTermination(process_handle_, 1);
+
+    const Result<void> result = future.get();
+    ASSERT_FALSE(result.has_value());
+    EXPECT_EQ(result.error(), ExecErrc::kGeneralError);
 }
 
 TEST_F(ProcessTerminatedReadyConditionTest, StoppedTokenReturnsErrorImmediately)
@@ -181,7 +200,7 @@ TEST_F(ProcessTerminatedReadyConditionTest, LateTerminationAfterTimeoutIsDiscard
     EXPECT_FALSE(ready_condition.wait(cpp::stop_token{}, process_handle_).has_value());
 
     // The first process terminates successfully, but too late.
-    EXPECT_TRUE(ready_condition.tryHandleTermination(process_handle_, 0));
+    ready_condition.handleTermination(process_handle_, 0);
 
     // Second activation: the new process has not terminated yet.
     ready_condition.prepare();
@@ -202,7 +221,7 @@ TEST_F(ProcessTerminatedReadyConditionTest, TerminationAfterPrepareIsKept)
     const ProcessTerminatedReadyCondition ready_condition(0ms);
 
     ready_condition.prepare();
-    EXPECT_TRUE(ready_condition.tryHandleTermination(process_handle_, 0));
+    ready_condition.handleTermination(process_handle_, 0);
 
     EXPECT_TRUE(ready_condition.wait(cpp::stop_token{}, process_handle_).has_value());
 }
@@ -216,12 +235,12 @@ TEST_F(ProcessTerminatedReadyConditionTest, WaitWithEmptyHandleAborts)
         "ProcessTerminatedReadyCondition should only be called with a ProcessHandle");
 }
 
-TEST_F(ProcessTerminatedReadyConditionTest, TryHandleTerminationWithEmptyHandleAborts)
+TEST_F(ProcessTerminatedReadyConditionTest, HandleTerminationWithEmptyHandleAborts)
 {
     const ProcessTerminatedReadyCondition ready_condition(0ms);
 
     EXPECT_DEATH(
-        static_cast<void>(ready_condition.tryHandleTermination(EmptyHandle{}, 0)),
+        ready_condition.handleTermination(EmptyHandle{}, 0),
         "ProcessTerminatedReadyCondition should only be called with a ProcessHandle");
 }
 

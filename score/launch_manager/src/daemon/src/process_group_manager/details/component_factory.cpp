@@ -12,12 +12,12 @@
  ********************************************************************************/
 
 #include "score/mw/launch_manager/process_group_manager/details/component_factory.hpp"
-#include "score/mw/launch_manager/common/log.hpp"
 #include "score/mw/launch_manager/process_group_manager/details/component.hpp"
 #include "score/mw/launch_manager/process_group_manager/details/force_stop_action/empty_force_stop_action.hpp"
 #include "score/mw/launch_manager/process_group_manager/details/force_stop_action/process_force_stop_action.hpp"
 #include "score/mw/launch_manager/process_group_manager/details/ready_condition/empty_ready_condition.hpp"
 #include "score/mw/launch_manager/process_group_manager/details/ready_condition/file_ready_condition.hpp"
+#include "score/mw/launch_manager/process_group_manager/details/ready_condition/process_terminated_ready_condition.hpp"
 #include "score/mw/launch_manager/process_group_manager/details/ready_condition/report_running_ready_condition.hpp"
 #include "score/mw/launch_manager/process_group_manager/details/start_action/empty_start_action.hpp"
 #include "score/mw/launch_manager/process_group_manager/details/start_action/process_start_action.hpp"
@@ -33,8 +33,8 @@ namespace
 {
 
 /// @brief Choose the ready condition for a component from its configuration.
-/// @return The ready condition, or an error if the configured ready condition is not supported.
-Result<std::unique_ptr<const IReadyCondition>> createReadyCondition(
+/// @return The ready condition.
+std::unique_ptr<const IReadyCondition> createReadyCondition(
     const configuration::ComponentConfig& config,
     osal::IProcess& launcher,
     const osal::IFileWaiter& file_waiter)
@@ -63,9 +63,9 @@ Result<std::unique_ptr<const IReadyCondition>> createReadyCondition(
             return std::make_unique<const ReportRunningReadyCondition>(launcher, ready_timeout);
 
         case configuration::ProcessState::Terminated:
-            // TODO: Waiting for termination is not available as an IReadyCondition yet.
-            LM_LOG_ERROR() << config.name << ": ready condition 'Terminated' is not supported yet";
-            return MakeUnexpected(ExecErrc::kNotImplemented);
+            // Only the termination is waited for, for every application type. A reporting process
+            // is not waited for to report kRunning.
+            return std::make_unique<const ProcessTerminatedReadyCondition>(ready_timeout);
     }
 
     SCORE_LANGUAGE_FUTURECPP_UNREACHABLE_MESSAGE("All possible cases are covered");
@@ -85,17 +85,12 @@ ComponentFactory::ComponentFactory(
 {
 }
 
-Result<std::unique_ptr<IComponent>> ComponentFactory::create(
+Result<std::unique_ptr<Component>> ComponentFactory::create(
     std::shared_ptr<configuration::ComponentConfig> config) const
 {
     SCORE_LANGUAGE_FUTURECPP_ASSERT_MESSAGE(config != nullptr, "ComponentFactory requires a configuration");
 
-    Result<std::unique_ptr<const IReadyCondition>> ready_condition =
-        createReadyCondition(*config, launcher_, file_waiter_);
-    if (!ready_condition.has_value())
-    {
-        return MakeUnexpected<std::unique_ptr<IComponent>>(ready_condition.error());
-    }
+    std::unique_ptr<const IReadyCondition> ready_condition = createReadyCondition(*config, launcher_, file_waiter_);
 
     // The actions refer to the configuration, which is kept alive by the component they belong to.
     auto start_action = std::make_unique<const ProcessStartAction>(launcher_, process_map_, *config);
@@ -104,7 +99,7 @@ Result<std::unique_ptr<IComponent>> ComponentFactory::create(
         std::move(start_action),
         std::make_unique<const ProcessStopAction>(launcher_),
         std::make_unique<const ProcessForceStopAction>(launcher_),
-        std::move(ready_condition).value(),
+        std::move(ready_condition),
         supervision_factory_,
         std::move(config));
 }

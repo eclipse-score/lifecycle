@@ -60,18 +60,21 @@ TEST_F(EmptyReadyConditionTest, WaitWithProcessHandleSucceeds)
     EXPECT_TRUE(result.has_value());
 }
 
-TEST_F(EmptyReadyConditionTest, DoesNotHandleTermination)
+TEST_F(EmptyReadyConditionTest, TerminationDoesNotAffectWait)
 {
     RecordProperty("DerivationTechnique", "design-analysis");
     RecordProperty(
         "Description",
         "Given an empty ready condition. "
-        "When a process termination is reported to it. "
-        "Then it does not accept the termination.");
+        "When a process termination is reported to it before wait is called. "
+        "Then wait still succeeds immediately.");
 
     const EmptyReadyCondition empty_ready_condition;
 
-    EXPECT_FALSE(empty_ready_condition.tryHandleTermination(ProcessHandle{42, nullptr}, 0));
+    empty_ready_condition.handleTermination(ProcessHandle{42, nullptr}, 1);
+    const Result<void> result = empty_ready_condition.wait(cpp::stop_token{}, ProcessHandle{42, nullptr});
+
+    EXPECT_TRUE(result.has_value());
 }
 
 }  // namespace
