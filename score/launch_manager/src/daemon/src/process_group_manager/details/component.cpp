@@ -12,8 +12,8 @@
  ********************************************************************************/
 
 #include "score/mw/launch_manager/process_group_manager/details/component.hpp"
-#include "score/mw/launch_manager/common/log.hpp"
 #include "score/launch_manager/src/execution_error.h"
+#include "score/mw/launch_manager/common/log.hpp"
 
 namespace score::mw::lifecycle::internal
 {

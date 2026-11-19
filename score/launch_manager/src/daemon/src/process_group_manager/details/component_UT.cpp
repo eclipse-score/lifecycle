@@ -26,9 +26,9 @@
 #include <gmock/gmock.h>
 #include <gtest/gtest.h>
 #include <score/stop_token.hpp>
+#include <array>
 #include <atomic>
 #include <chrono>
-#include <array>
 #include <cstddef>
 #include <future>
 #include <thread>
@@ -1601,7 +1601,9 @@ TEST(ComponentTest, SelfTerminatingExitWhileStartingDoesNotBlockReactivation)
     NiceMock<MockSupervisionFactory> factory;
 
     auto start_action = std::make_unique<MockStartAction>();
-    EXPECT_CALL(*start_action, start(_, _)).Times(2).WillRepeatedly(Return(Result<StartedResource>{StartedResource{mock_handle}}));
+    EXPECT_CALL(*start_action, start(_, _))
+        .Times(2)
+        .WillRepeatedly(Return(Result<StartedResource>{StartedResource{mock_handle}}));
 
     auto stop_action = std::make_unique<MockStopAction>();
     expectStopOfDeadProcess(*stop_action);
@@ -1645,7 +1647,9 @@ TEST(ComponentTest, SelfTerminatingExitWhileReadyDoesNotBlockReactivation)
     NiceMock<MockSupervisionFactory> factory;
 
     auto start_action = std::make_unique<MockStartAction>();
-    EXPECT_CALL(*start_action, start(_, _)).Times(2).WillRepeatedly(Return(Result<StartedResource>{StartedResource{mock_handle}}));
+    EXPECT_CALL(*start_action, start(_, _))
+        .Times(2)
+        .WillRepeatedly(Return(Result<StartedResource>{StartedResource{mock_handle}}));
 
     auto stop_action = std::make_unique<MockStopAction>();
     expectStopOfDeadProcess(*stop_action);
