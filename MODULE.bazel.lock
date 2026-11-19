@@ -111,6 +111,8 @@
     "https://bcr.bazel.build/modules/bazel_features/1.50.0/source.json": "e0ee3debde2789ff56e4452e612d126925ba9ab64d4bde79c67f099d2902df9b",
     "https://bcr.bazel.build/modules/bazel_features/1.9.0/MODULE.bazel": "885151d58d90d8d9c811eb75e3288c11f850e1d6b481a8c9f766adee4712358b",
     "https://bcr.bazel.build/modules/bazel_features/1.9.1/MODULE.bazel": "8f679097876a9b609ad1f60249c49d68bfab783dd9be012faf9d82547b14815a",
+    "https://bcr.bazel.build/modules/bazel_iwyu/0.0.4/MODULE.bazel": "04bf4fb143ab071f84804bec74d8414cac8a112d385778f3a6dbbec017a74f69",
+    "https://bcr.bazel.build/modules/bazel_iwyu/0.0.4/source.json": "ffe1fffef7e3a8e2ab2299a48e72e45a10ea7de1f72d4184ce65f4a54802c085",
     "https://bcr.bazel.build/modules/bazel_jar_jar/0.1.7/MODULE.bazel": "d2736a1dbfd8f72befc532823b5112f2597a28064ce4aac280c65bee7d8830a0",
     "https://bcr.bazel.build/modules/bazel_jar_jar/0.1.7/source.json": "f894f62528821f749b8d57fb8fb737b13f6cfacde422c88019d4c48077ad0d96",
     "https://bcr.bazel.build/modules/bazel_lib/3.0.0-beta.1/MODULE.bazel": "407729e232f611c3270005b016b437005daa7b1505826798ea584169a476e878",
@@ -822,6 +824,7 @@
     "https://raw.githubusercontent.com/eclipse-score/bazel_registry/main/modules/bazel_features/1.50.0/MODULE.bazel": "not found",
     "https://raw.githubusercontent.com/eclipse-score/bazel_registry/main/modules/bazel_features/1.9.0/MODULE.bazel": "not found",
     "https://raw.githubusercontent.com/eclipse-score/bazel_registry/main/modules/bazel_features/1.9.1/MODULE.bazel": "not found",
+    "https://raw.githubusercontent.com/eclipse-score/bazel_registry/main/modules/bazel_iwyu/0.0.4/MODULE.bazel": "not found",
     "https://raw.githubusercontent.com/eclipse-score/bazel_registry/main/modules/bazel_jar_jar/0.1.7/MODULE.bazel": "not found",
     "https://raw.githubusercontent.com/eclipse-score/bazel_registry/main/modules/bazel_lib/3.0.0-beta.1/MODULE.bazel": "not found",
     "https://raw.githubusercontent.com/eclipse-score/bazel_registry/main/modules/bazel_lib/3.0.0-rc.0/MODULE.bazel": "not found",
@@ -1709,6 +1712,42 @@
                 "aspect_rules_lint": "2.5.0",
                 "aspect_tools_telemetry": "0.2.8",
                 "aspect_rules_esbuild": "0.23.0"
+              }
+            }
+          }
+        }
+      }
+    },
+    "@@bazel_iwyu+//:extensions.bzl%iwyu": {
+      "general": {
+        "bzlTransitiveDigest": "qgt6j4EZnQesv4LvV23zluGB+nrCLCU6iZaQJsjpmY8=",
+        "usagesDigest": "YP/W1j9ZLKJPbGE0koTFHa04bP3Rrzr8Ypnrp0cyXEc=",
+        "recordedInputs": [],
+        "generatedRepoSpecs": {
+          "iwyu_prebuilt_pkg": {
+            "repoRuleId": "@@bazel_iwyu+//bazel:prebuilt_pkg.bzl%prebuilt_pkg",
+            "attributes": {
+              "build_file": "@@bazel_iwyu+//bazel/iwyu:BUILD.prebuilt_pkg",
+              "urls": {
+                "linux-aarch64": [
+                  "https://github.com/RealtimeRoboticsGroup/bazel_iwyu/releases/download/iwyu-0.26.0/iwyu-0.26.0-aarch64-linux-gnu.tar.zst"
+                ],
+                "linux-x86_64": [
+                  "https://github.com/RealtimeRoboticsGroup/bazel_iwyu/releases/download/iwyu-0.26.0/iwyu-0.26.0-x86_64-linux-gnu.tar.zst"
+                ],
+                "macos-arm64": [
+                  "https://github.com/RealtimeRoboticsGroup/bazel_iwyu/releases/download/iwyu-0.26.0/iwyu-0.26.0-arm64-apple-darwin.tar.zst"
+                ]
+              },
+              "sha256": {
+                "linux-aarch64": "af683808b64ad75e4abb3df5f4187193f85f663fda5d6e408c0e2c9bdc32a484",
+                "linux-x86_64": "f0360da3d5f88b14d006d17ba71d1ff403aa06427187d6fc74584a7ab52aef63",
+                "macos-arm64": "111f1da7bf5da56b76aa72abee08256828aacb6d5bff899fcf1753cf56f59e73"
+              },
+              "strip_prefix": {
+                "linux-aarch64": "iwyu-0.26.0-aarch64-linux-gnu",
+                "linux-x86_64": "iwyu-0.26.0-x86_64-linux-gnu",
+                "macos-arm64": "iwyu-0.26.0-arm64-apple-darwin"
               }
             }
           }
