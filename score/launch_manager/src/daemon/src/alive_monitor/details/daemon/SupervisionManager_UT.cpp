@@ -463,7 +463,7 @@ TEST_F(SupervisionManagerPerformCyclicTriggersTest, PerformCyclicTriggers_LoopsE
     buffer->initialize();
     ifexm::ObservableEventReader reader(buffer);
 
-    // Construct one worker - this populates aliveInterfaces and aliveSupervisions
+    // Construct one worker - this populates alive_interfaces_ and alive_supervisions_
     bool constructResult = manager.constructWorker(componentId, compConfig, 1000, recoveryClient, reader);
     ASSERT_TRUE(constructResult);
 

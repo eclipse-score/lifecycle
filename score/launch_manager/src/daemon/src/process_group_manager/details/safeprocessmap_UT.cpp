@@ -62,8 +62,8 @@ class SafeProcessMapTest : public ::testing::Test
         RecordProperty("DerivationTechnique", "explorative-testing");
     }
 
-    NiceMock<MockComponentController> controller;
-    SafeProcessMap sut_{kCapacity, controller};
+    NiceMock<MockComponentController> controller_;
+    SafeProcessMap sut_{kCapacity, controller_};
     MockComponent callback_;
 };
 
@@ -74,7 +74,7 @@ TEST_F(SafeProcessMapTest, ConstructWithZeroCapacity)
     RecordProperty("Description", "SafeProcessMap can be constructed with zero capacity.");
 
     // when
-    SafeProcessMap map(0, controller);
+    SafeProcessMap map(0, controller_);
 }
 
 // --- findTerminated ---
@@ -110,7 +110,7 @@ TEST_F(SafeProcessMapTest, FindTerminatedMatchesExistingInsertAndCallsCallback)
     sut_.insertIfNotTerminated(1000, &callback_);
 
     // then
-    EXPECT_CALL(controller, terminated(Ref(callback_), 42));
+    EXPECT_CALL(controller_, terminated(Ref(callback_), 42));
 
     // when
     score::mw::lifecycle::internal::SafeProcessMapReturnType result = sut_.findTerminated(1000, 42);
@@ -141,7 +141,7 @@ TEST_F(SafeProcessMapTest, InsertMatchesExistingFindTerminatedEntry)
     sut_.findTerminated(1000, 42);
 
     // then — the termination handler is not invoked, the caller handles the termination
-    EXPECT_CALL(controller, terminated(_, _)).Times(0);
+    EXPECT_CALL(controller_, terminated(_, _)).Times(0);
 
     // when
     const SafeProcessMapInsertResult result = sut_.insertIfNotTerminated(1000, &callback_);
@@ -181,7 +181,7 @@ TEST_F(SafeProcessMapTest, TerminationHandlerMayAccessMapWhenFindTerminatedMatch
     sut_.insertIfNotTerminated(1000, &callback_);
 
     // then — re-entering the map from the handler must not deadlock
-    EXPECT_CALL(controller, terminated(Ref(callback_), 42)).WillOnce(Invoke([this](IComponent& component, int32_t) {
+    EXPECT_CALL(controller_, terminated(Ref(callback_), 42)).WillOnce(Invoke([this](IComponent& component, int32_t) {
         EXPECT_EQ(
             sut_.insertIfNotTerminated(2000, &component).type,
             score::mw::lifecycle::internal::SafeProcessMapReturnType::kInserted);

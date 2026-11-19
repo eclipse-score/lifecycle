@@ -186,7 +186,7 @@ class Logger
 {
   public:
     Logger(std::string_view f_context, std::string_view f_description)
-        : ctxId_(f_context), ctxDescription_{f_description}
+        : ctx_id_(f_context), ctx_description_{f_description}
     {
     }
 
@@ -199,7 +199,7 @@ class Logger
             std::time_t t = std::time(0);
             std::tm now;
             localtime_r(&t, &now);
-            stream << check_it_ << text_color_ << &now << appId_ << ctxId_ << "FATAL:   [";
+            stream << check_it_ << text_color_ << &now << app_id_ << ctx_id_ << "FATAL:   [";
         }
         return stream;
     }
@@ -213,7 +213,7 @@ class Logger
             std::time_t t = std::time(0);
             std::tm now;
             localtime_r(&t, &now);
-            stream << check_it_ << text_color_ << &now << appId_ << ctxId_ << "ERROR:   [";
+            stream << check_it_ << text_color_ << &now << app_id_ << ctx_id_ << "ERROR:   [";
         }
 
         return stream;
@@ -228,7 +228,7 @@ class Logger
             std::time_t t = std::time(0);
             std::tm now;
             localtime_r(&t, &now);
-            stream << check_it_ << text_color_ << &now << appId_ << ctxId_ << "WARNING: [";
+            stream << check_it_ << text_color_ << &now << app_id_ << ctx_id_ << "WARNING: [";
         }
         return stream;
     }
@@ -242,7 +242,7 @@ class Logger
             std::time_t t = std::time(0);
             std::tm now;
             localtime_r(&t, &now);
-            stream << text_color_ << &now << appId_ << ctxId_ << "INFO:    [";
+            stream << text_color_ << &now << app_id_ << ctx_id_ << "INFO:    [";
         }
         return stream;
     }
@@ -256,7 +256,7 @@ class Logger
             std::time_t t = std::time(0);
             std::tm now;
             localtime_r(&t, &now);
-            stream << text_color_ << &now << appId_ << ctxId_ << "DEBUG:  [";
+            stream << text_color_ << &now << app_id_ << ctx_id_ << "DEBUG:  [";
         }
         return stream;
     }
@@ -270,15 +270,15 @@ class Logger
             std::time_t t = std::time(0);
             std::tm now;
             localtime_r(&t, &now);
-            stream << text_color_ << &now << appId_ << ctxId_ << "VERBOSE: [";
+            stream << text_color_ << &now << app_id_ << ctx_id_ << "VERBOSE: [";
         }
         return stream;
     }
 
   private:
-    const std::string_view appId_{"LCLM"};
-    const std::string_view ctxId_{"####"};
-    const std::string_view ctxDescription_{"####"};
+    const std::string_view app_id_{"LCLM"};
+    const std::string_view ctx_id_{"####"};
+    const std::string_view ctx_description_{"####"};
     const std::string_view text_color_{"\033[0;34m"};
     const std::string_view check_it_{"\033[101;30m !!! -> \033[0m"};
 };

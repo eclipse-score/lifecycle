@@ -80,13 +80,13 @@ class ObservableEventReader final : public IObservableEventReader
     std::shared_ptr<SupervisionBufferType> buffer_;
 
     /// @brief Map for process id and observable event object
-    std::map<IdentifierHash, ObservableEvent*> processStateMap{};
+    std::map<IdentifierHash, ObservableEvent*> process_state_map_{};
 
     /// @brief Flag for pending pushData from previous distribution of observable event changes
-    bool isPushPending{false};
+    bool is_push_pending_{false};
 
     /// @brief Pointer for last changed process for which push update is pending
-    ObservableEvent* lastChangedProcess_p{nullptr};
+    ObservableEvent* last_changed_process_{nullptr};
 };
 
 }  // namespace score::mw::lifecycle::internal::saf::ifexm
