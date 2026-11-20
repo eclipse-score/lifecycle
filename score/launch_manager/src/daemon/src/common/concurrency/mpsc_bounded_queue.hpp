@@ -23,7 +23,7 @@
 #include <utility>
 #include <vector>
 
-#include "concurrency_error_domain.hpp"
+#include "score/mw/launch_manager/common/concurrency/concurrency_error_domain.hpp"
 #include "score/mw/launch_manager/common/concurrency/fixed_size_queue.hpp"
 
 #include <score/assert.hpp>

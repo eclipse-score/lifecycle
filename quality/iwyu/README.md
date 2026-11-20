@@ -21,22 +21,15 @@ IWYU binary, so no local installation is needed.
 ## Usage
 
 ```bash
-bazel build --config=iwyu -- //score/... \
-    -//score/health_monitor:health_monitoring_rust \
-    -//score/health_monitor/src/rust/... \
-    -//score/launch_manager:alive_rust \
-    -//score/launch_manager:lifecycle_rust \
-    -//score/launch_manager/src/alive/src/rust/... \
-    -//score/launch_manager/src/lifecycle_client/src/rust/...
+bazel build --config=iwyu -- $(bazel query 'kind("cc_library|cc_binary", //score/...)')
 ```
 
 bazel_iwyu runs on every target that provides `CcInfo`, which includes Rust libraries with C++
-dependencies. IWYU cannot analyze `.rs` files, so the Rust packages are excluded from the target
+dependencies. IWYU cannot analyze `.rs` files, so in CI the Rust packages are excluded from the target
 list, together with the aliases that point to them (an aspect applied to an alias also runs on its
 `actual` target).
 
 The check runs in CI for every pull request (`iwyu` job in `.github/workflows/on-pr.yml`).
-When adding a Rust package or alias, exclude it there and here.
 
 The check uses the LLVM/clang toolchain, because IWYU does not understand the flags of the GCC
 toolchain. Do not combine `--config=iwyu` with `--config=x86_64-linux`.
@@ -50,5 +43,8 @@ For every source file IWYU writes a report next to the target, for example
   public header, for example `score/result/details/expected/expected.h` to `score/result/result.h`.
   It is passed to IWYU with `--@bazel_iwyu//:iwyu_mappings`, together with the default mappings of
   bazel_iwyu.
-- In the code, use `// IWYU pragma: export` when a header is meant to provide another header to its
-  users, and `// IWYU pragma: no_include` when IWYU suggests an internal header of a dependency.
+
+## Pragmas
+
+For IWYU to fully understand the source code some pragmas are needed to explicitly define some behaviors.
+For more information look at https://github.com/include-what-you-use/include-what-you-use/blob/master/docs/IWYUPragmas.md

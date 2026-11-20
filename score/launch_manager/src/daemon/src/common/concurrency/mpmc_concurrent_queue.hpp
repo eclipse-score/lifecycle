@@ -24,7 +24,7 @@
 #include <type_traits>
 #include <utility>
 
-#include "concurrency_error_domain.hpp"
+#include "score/mw/launch_manager/common/concurrency/concurrency_error_domain.hpp"
 #include "score/mw/launch_manager/common/concurrency/details/helgrind_annotations.hpp"
 #include "score/mw/launch_manager/osal/return_types.hpp"
 #include "score/mw/launch_manager/osal/semaphore.hpp"

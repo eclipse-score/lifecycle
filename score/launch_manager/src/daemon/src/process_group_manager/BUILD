@@ -54,6 +54,7 @@ cc_library(
         "//score/launch_manager/src/daemon/src/common:constants",
         "//score/launch_manager/src/daemon/src/common:identifier_hash",
         "//score/launch_manager/src/daemon/src/common:log",
+        "//score/launch_manager/src/daemon/src/common/concurrency:concurrency_error_domain",
         "//score/launch_manager/src/daemon/src/common/concurrency:mpmc_concurrent_queue",
         "//score/launch_manager/src/daemon/src/common/concurrency:thread_pool",
         "//score/launch_manager/src/daemon/src/configuration:component_config",

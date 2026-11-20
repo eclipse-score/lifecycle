@@ -19,7 +19,7 @@
 #include "score/mw/launch_manager/alive_monitor/details/daemon/SupervisionManager.hpp"
 #include "score/mw/launch_manager/alive_monitor/details/factory/AliveWorkerFactory.hpp"
 #include "score/mw/launch_manager/alive_monitor/details/factory/IAliveWorkerFactory.hpp"
-#include "score/mw/launch_manager/alive_monitor/details/ifexm/supervision_event.hpp"
+#include "score/mw/launch_manager/alive_monitor/details/ifexm/supervision_event_queue.hpp"
 #include "score/mw/launch_manager/alive_monitor/details/timers/Timers_OsClock.hpp"
 
 namespace score::mw::lifecycle::internal::saf::daemon

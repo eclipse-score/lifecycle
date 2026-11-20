@@ -23,9 +23,8 @@
 #include "score/mw/launch_manager/alive_monitor/details/ifexm/ObservableEvent.hpp"
 #include "score/mw/launch_manager/alive_monitor/details/ifexm/supervision_event.hpp"
 #include "score/mw/launch_manager/alive_monitor/details/ifexm/supervision_event_queue.hpp"
-#include "score/mw/launch_manager/alive_monitor/details/timers/Timers_OsClock.hpp"
 #include "score/mw/launch_manager/common/identifier_hash.hpp"
-
+#include "score/result/result.h"
 
 namespace score::mw::lifecycle::internal::saf::ifexm
 {

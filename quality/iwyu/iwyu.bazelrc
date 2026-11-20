@@ -12,14 +12,7 @@
 # *******************************************************************************
 
 # Check that every C++ file includes what it uses (include-what-you-use).
-# Usage (see README.md, the Rust packages have to be excluded):
-#   bazel build --config=iwyu -- //score/... \
-#       -//score/health_monitor:health_monitoring_rust \
-#       -//score/health_monitor/src/rust/... \
-#       -//score/launch_manager:alive_rust \
-#       -//score/launch_manager:lifecycle_rust \
-#       -//score/launch_manager/src/alive/src/rust/... \
-#       -//score/launch_manager/src/lifecycle_client/src/rust/...
+# Usage: see README.md.
 #
 # IWYU is based on clang and does not understand GCC-only flags (e.g. -Wformat-diag, -z noexecstack),
 # so the analysis uses the LLVM/clang toolchain instead of the GCC toolchain of `--config=x86_64-linux`.
