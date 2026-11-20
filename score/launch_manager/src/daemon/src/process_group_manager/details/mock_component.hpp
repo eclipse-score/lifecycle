@@ -27,6 +27,8 @@ class MockComponent : public IComponent
     MOCK_METHOD(TerminationResult, tryHandleTermination, (int32_t status), (override));
     MOCK_METHOD(IdentifierHash, getIdentifier, (), (override, const));
     MOCK_METHOD(bool, active, (), (override, const));
+    MOCK_METHOD(bool, canRecover, (), (override, const));
+    MOCK_METHOD(RequestResult, recover, (score::cpp::stop_token stop_token), (override));
 };
 
 class MockSupervisedComponent : public MockComponent
