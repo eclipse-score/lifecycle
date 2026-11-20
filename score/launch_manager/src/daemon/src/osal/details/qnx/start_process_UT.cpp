@@ -240,15 +240,15 @@ class QnxStartProcessTest : public ::testing::Test
             .WillRepeatedly(Return(0));
     }
 
-    IpcCommsSync* StubComms()
+    /// @brief Provides a non-null comms object. startProcessImpl() only checks for its presence; the shared memory
+    /// block itself is initialized by IpcCommsSync::createCommsObject() before the process is started.
+    void StubComms()
     {
         std::memset(test_buffer_.data(), 0, test_buffer_.size());
         auto* block = reinterpret_cast<IpcCommsSync*>(test_buffer_.data());
-        block->comms_type_ = CommsType::kReporting;
         comms_ = IpcCommsP{block, [](IpcCommsSync*) {
                            }};
         comms_fd_ = kShmFd;
-        return block;
     }
 
     OsalReturnType StartProcess()
@@ -358,26 +358,19 @@ TEST_F(QnxStartProcessTest, workingDirIsOpenedAndClosed)
     EXPECT_EQ(StartProcess(), OsalReturnType::kSuccess);
 }
 
-TEST_F(QnxStartProcessTest, commsFdIsDuplicatedAndPidStoredBeforeContinue)
+TEST_F(QnxStartProcessTest, commsFdIsDuplicatedToSyncFd)
 {
-    RecordProperty(
-        "Description",
-        "Verify that the comms fd is duplicated to sync_fd and that the pid is stored in the shared memory "
-        "block before the held process is continued");
+    RecordProperty("Description", "Verify that the comms fd is duplicated to sync_fd in the new process");
 
-    IpcCommsSync* block = StubComms();
+    StubComms();
 
     EXPECT_CALL(os_.spawn, posix_spawn_file_actions_adddup2(_, kShmFd, IpcCommsSync::sync_fd))
         .WillOnce(Return(OsSuccess()));
     ExpectSpawnSucceeds();
     ExpectHeldProcessConfigured();
-    EXPECT_CALL(os_.signal, Kill(kChildPid, SIGCONT)).WillOnce([block](pid_t, std::int32_t) {
-        EXPECT_EQ(block->pid_, kChildPid);
-        return OsSuccess();
-    });
+    EXPECT_CALL(os_.signal, Kill(kChildPid, SIGCONT)).WillOnce(Return(OsSuccess()));
 
     EXPECT_EQ(StartProcess(), OsalReturnType::kSuccess);
-    EXPECT_EQ(block->pid_, kChildPid);
 }
 
 TEST_F(QnxStartProcessTest, noCommsDoesNotDuplicateFd)
@@ -728,7 +721,7 @@ TEST_P(QnxStartProcessAttributeFailureTest, attributeFailureReturnsFailWithoutSp
 
     if (GetParam().with_comms)
     {
-        static_cast<void>(StubComms());
+        StubComms();
     }
     GetParam().setUp(os_, config_);
     EXPECT_CALL(os_.spawn, posix_spawn).Times(0);

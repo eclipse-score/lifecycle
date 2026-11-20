@@ -553,12 +553,6 @@ OsalReturnType startProcessImpl(
     }
     pid = child_pid;
 
-    // The process is held, so storing the pid cannot race with the check at the client end
-    if (comms)
-    {
-        comms->pid_ = pid;
-    }
-
     if (!configureHeldProcess(os, pid, config))
     {
         // The process exists, so report it as started and let it terminate. This way the termination is reported
