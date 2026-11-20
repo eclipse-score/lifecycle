@@ -33,7 +33,7 @@ def test_same_run_target_in_transition(
     run_test(
         target=target,
         binary_path=str(remote_test_dir / "launch_manager"),
-        args=["-c", str(remote_test_dir / "etc/same_run_target_in_transition.bin")],
+        args=["-c", str(remote_test_dir / "etc/config.bin")],
         cwd=str(remote_test_dir),
     )
 

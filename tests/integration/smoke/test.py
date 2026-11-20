@@ -36,7 +36,7 @@ def test_smoke(target, setup_test, assert_test_results, remote_test_dir):
     run_test(
         target=target,
         binary_path=str(remote_test_dir / "launch_manager"),
-        args=["-c", str(remote_test_dir / "etc/lifecycle_smoketest.bin")],
+        args=["-c", str(remote_test_dir / "etc/config.bin")],
         cwd=str(remote_test_dir),
     )
 

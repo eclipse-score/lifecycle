@@ -37,6 +37,6 @@ def test_lifecycle_lang_support(target, setup_test, remote_test_dir):
     run_test(
         target=target,
         binary_path=str(remote_test_dir / "launch_manager"),
-        args=["-c", str(remote_test_dir / "etc/lifecycle_lang_support.bin")],
+        args=["-c", str(remote_test_dir / "etc/config.bin")],
         cwd=str(remote_test_dir),
     )

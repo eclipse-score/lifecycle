@@ -49,7 +49,7 @@ def test_recovery_action_complex_rep_failure(
     run_test(
         target=target,
         binary_path=str(remote_test_dir / "launch_manager"),
-        args=["-c", str(remote_test_dir / "etc/process_complex_rep_failure.bin")],
+        args=["-c", str(remote_test_dir / "etc/config.bin")],
         cwd=str(remote_test_dir),
     )
 

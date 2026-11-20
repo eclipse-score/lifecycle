@@ -33,7 +33,7 @@ def test_already_active_run_target(
     run_test(
         target=target,
         binary_path=str(remote_test_dir / "launch_manager"),
-        args=["-c", str(remote_test_dir / "etc/already_active_run_target.bin")],
+        args=["-c", str(remote_test_dir / "etc/config.bin")],
         cwd=str(remote_test_dir),
     )
 
