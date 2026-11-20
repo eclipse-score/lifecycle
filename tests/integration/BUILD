@@ -35,6 +35,7 @@ test_suite(
         "//tests/integration/ready_conditions/file_state/not_existing:ready_condition_file_not_exists",
         "//tests/integration/rt_running_when_process_exits",
         "//tests/integration/run_target_requests/already_active_run_target",
+        "//tests/integration/run_target_requests/forced_activation",
         "//tests/integration/run_target_requests/replaced_activation",
         "//tests/integration/run_target_requests/same_run_target_in_transition",
         "//tests/integration/run_target_requests/unknown_run_target",
