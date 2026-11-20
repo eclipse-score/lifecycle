@@ -40,6 +40,7 @@ test_suite(
         "//tests/integration/run_target_requests/already_active_run_target",
         "//tests/integration/run_target_requests/forced_activation",
         "//tests/integration/run_target_requests/replaced_activation",
+        "//tests/integration/run_target_requests/request_during_recovery",
         "//tests/integration/run_target_requests/same_run_target_in_transition",
         "//tests/integration/run_target_requests/unknown_run_target",
         "//tests/integration/sandbox_options/non_root:sandbox_options_non_root",
