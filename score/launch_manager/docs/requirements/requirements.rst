@@ -1172,7 +1172,7 @@ Logging
 =======
 
 .. comp_req:: Logging Component State
-    :id: comp_req__launch_man__process_logging_support
+    :id: comp_req__launch_man__process_log
     :reqtype: Functional
     :security: NO
     :safety: ASIL_B
@@ -1186,7 +1186,7 @@ Logging
     
 
 .. comp_req:: Logging Recovery Action
-    :id: comp_req__launch_man__ra_logging_support
+    :id: comp_req__launch_man__ra_log
     :reqtype: Functional
     :security: NO
     :safety: ASIL_B
@@ -1201,7 +1201,7 @@ Logging
 
 
 .. comp_req:: Logging Watchdog interaction
-    :id: comp_req__launch_man__watchdog_logging_support
+    :id: comp_req__launch_man__watchdog_log
     :reqtype: Functional
     :security: NO
     :safety: ASIL_B

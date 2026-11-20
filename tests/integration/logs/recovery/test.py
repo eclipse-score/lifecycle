@@ -20,7 +20,7 @@ from attribute_plugin import add_test_properties
 
 
 @add_test_properties(
-    partially_verifies=["comp_req__launch_man__ra_logging_support"],
+    partially_verifies=["comp_req__launch_man__ra_log"],
     test_type="requirements-based",
     derivation_technique="requirements-analysis",
 )
