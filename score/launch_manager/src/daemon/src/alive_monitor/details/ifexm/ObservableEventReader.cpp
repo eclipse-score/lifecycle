@@ -103,21 +103,11 @@ score::Result<std::optional<SupervisionEvent>> ObservableEventReader::getNextSup
             score::MakeUnexpected(score::mw::lifecycle::ExecErrc::kCommunicationError)};
     }
 
-    if (buffer_->empty())
-    {
-        return score::Result<std::optional<score::mw::lifecycle::SupervisionEvent>>{std::nullopt};
-    }
-
-    auto res = buffer_->tryDequeue(event);
-    if (res)
+    if (buffer_->tryDequeue(event))
     {
         return score::Result<std::optional<score::mw::lifecycle::SupervisionEvent>>{event};
     }
-    else
-    {
-        return score::Result<std::optional<score::mw::lifecycle::SupervisionEvent>>{
-            score::MakeUnexpected(score::mw::lifecycle::ExecErrc::kGeneralError)};
-    }
+    return score::Result<std::optional<score::mw::lifecycle::SupervisionEvent>>{std::nullopt};
 }
 
 bool ObservableEventReader::pushUpdateTill(

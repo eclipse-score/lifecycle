@@ -14,11 +14,9 @@
 #ifndef SUPERVISION_EVENT_HPP_INCLUDED
 #define SUPERVISION_EVENT_HPP_INCLUDED
 
-#include "score/mw/launch_manager/alive_monitor/details/ipc/ringbuffer.hpp"
 #include "score/mw/launch_manager/common/identifier_hash.hpp"
 #include <cstdint>
 #include <ctime>
-#include <memory>
 
 namespace score::mw::lifecycle
 {
@@ -43,20 +41,6 @@ struct SupervisionEvent
     /// @brief Stores the timestamp based on the system clock when the event occurred.
     timespec systemClockTimestamp;
 };
-
-namespace BufferConstants
-{
-
-/// @brief Ringbuffer max payload size
-constexpr std::size_t BUFFER_MAXPAYLOAD = sizeof(SupervisionEvent);
-/// @brief Ringbuffer queue size
-constexpr std::size_t BUFFER_QUEUE_SIZE = 4096UL;
-
-}  // namespace BufferConstants
-
-using SupervisionBufferType = score::mw::lifecycle::internal::saf::ipc::RingBuffer<
-    static_cast<size_t>(score::mw::lifecycle::BufferConstants::BUFFER_QUEUE_SIZE),
-    static_cast<size_t>(score::mw::lifecycle::BufferConstants::BUFFER_MAXPAYLOAD)>;
 
 }  // namespace score::mw::lifecycle
 

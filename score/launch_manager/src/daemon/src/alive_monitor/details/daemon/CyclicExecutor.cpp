@@ -29,7 +29,6 @@ CyclicExecutor::CyclicExecutor(OsClock& f_osClock, std::size_t supervised_compon
       supervision_manager_{std::make_unique<factory::AliveWorkerFactory>()},
       supervision_state_reader_{buffer_}
 {
-    buffer_->initialize();
     supervision_manager_.reserve(supervised_components);
 }
 
