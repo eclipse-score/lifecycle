@@ -34,7 +34,11 @@ class LogMessage:
 
 
 def _text(value) -> str:
-    return value.decode("ascii", errors="replace") if isinstance(value, bytes) else str(value)
+    return (
+        value.decode("ascii", errors="replace")
+        if isinstance(value, bytes)
+        else str(value)
+    )
 
 
 def parse_dlt_file(path: Path) -> List[LogMessage]:

@@ -51,7 +51,9 @@ def test_component_recovery_log(
 
     logs = parse_dlt_file(test_output_dir / "LM.dlt")
 
-    recovery_pattern = re.compile(r"Problem discovered, activating recovery state:\s*\S+")
+    recovery_pattern = re.compile(
+        r"Problem discovered, activating recovery state:\s*\S+"
+    )
     recoveries = [log for log in logs if recovery_pattern.search(log.message)]
     assert len(recoveries) == 1, (
         f"Expected one recovery log, got {len(recoveries)} in {len(logs)} log messages"

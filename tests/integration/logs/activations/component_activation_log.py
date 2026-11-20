@@ -53,7 +53,9 @@ def test_component_activation_log(
     pid = get_testcase_property(test_output_dir / "logging_process.xml", "pid")
     logs = parse_dlt_file(test_output_dir / "LM.dlt")
 
-    start_pattern = re.compile(r"startProcess for process \(\s*component_logging\s*\) done")
+    start_pattern = re.compile(
+        r"startProcess for process \(\s*component_logging\s*\) done"
+    )
     termination_pattern = re.compile(
         r"Process\s+component_logging\s*\(\s*pid\s*(\d+)\s*\)\s*terminated with status\s*(-?\d+)"
     )
@@ -72,8 +74,8 @@ def test_component_activation_log(
         f"in {len(logs)} log messages"
     )
     assert terminations[0].group(1) == pid, (
-            f"Termination log reports the wrong pid (got: {terminations[0].group(1)}, expected: {pid})"
+        f"Termination log reports the wrong pid (got: {terminations[0].group(1)}, expected: {pid})"
     )
     assert terminations[0].group(2) == "0", (
-            f"Termination log reports the wrong status (got: {terminations[0].group(2)}, expected 0)"
+        f"Termination log reports the wrong status (got: {terminations[0].group(2)}, expected 0)"
     )
