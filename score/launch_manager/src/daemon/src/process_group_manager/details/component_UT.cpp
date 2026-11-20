@@ -32,6 +32,7 @@
 #include <chrono>
 #include <cstddef>
 #include <future>
+#include <optional>
 #include <thread>
 
 namespace score::mw::lifecycle::internal
@@ -125,50 +126,13 @@ auto reportTerminationLater(
 
 const auto kStartsProcess = Return(Result<StartedResource>{StartedResource{mock_handle}});
 
-TEST(ComponentTest, StartSucceeds)
+/// @brief Expects one stop of an already terminated process, which must not be asked to terminate again.
+void expectStopOfDeadProcess(MockStopAction& stop_action)
 {
-    RecordProperty(
-        "Description",
-        "Given an inactive component whose actions and ready condition succeed. "
-        "When it is activated. "
-        "Then activation succeeds.");
-
-    NiceMock<MockSupervisionFactory> factory;
-    Component component(
-        std::make_unique<MockStartAction>(),
-        std::make_unique<MockStopAction>(),
-        std::make_unique<MockForceStopAction>(),
-        std::make_unique<MockReadyCondition>(),
-        factory,
-        std::make_shared<configuration::ComponentConfig>());
-
-    const auto result = component.activate(cpp::stop_token{});
-
-    EXPECT_EQ(result, IComponent::RequestResult::kSuccess);
-}
-
-TEST(ComponentTest, StartActionCalled)
-{
-    RecordProperty(
-        "Description",
-        "Given an inactive component. "
-        "When it is activated. "
-        "Then the start action is called once.");
-
-    NiceMock<MockSupervisionFactory> factory;
-
-    auto start_action = std::make_unique<MockStartAction>();
-    EXPECT_CALL(*start_action, start(_, _)).WillOnce(Return(Result<StartedResource>{StartedResource{mock_handle}}));
-
-    Component component(
-        std::move(start_action),
-        std::make_unique<MockStopAction>(),
-        std::make_unique<MockForceStopAction>(),
-        std::make_unique<MockReadyCondition>(),
-        factory,
-        std::make_shared<configuration::ComponentConfig>());
-
-    static_cast<void>(component.activate(mock_stop_token));
+    EXPECT_CALL(stop_action, stop(_, _)).WillOnce(Invoke([](cpp::stop_token, const Handle& handle) {
+        EXPECT_FALSE(isAlive(handle));
+        return Result<IComponent::RequestResult>{IComponent::RequestResult::kSuccess};
+    }));
 }
 
 TEST(ComponentTest, StopActionCalled)
@@ -182,7 +146,7 @@ TEST(ComponentTest, StopActionCalled)
     NiceMock<MockSupervisionFactory> factory;
 
     auto start_action = std::make_unique<MockStartAction>();
-    ON_CALL(*start_action, start(_, _)).WillByDefault(kStartsProcess);
+    EXPECT_CALL(*start_action, start(_, _)).WillOnce(kStartsProcess);
 
     auto stop_action = std::make_unique<MockStopAction>();
     auto* const stop_action_ptr = stop_action.get();
@@ -215,7 +179,7 @@ TEST(ComponentTest, DeactivateReturnsSuccessWhenStopActionReturnsSuccess)
     NiceMock<MockSupervisionFactory> factory;
 
     auto start_action = std::make_unique<MockStartAction>();
-    ON_CALL(*start_action, start(_, _)).WillByDefault(kStartsProcess);
+    EXPECT_CALL(*start_action, start(_, _)).WillOnce(kStartsProcess);
 
     auto stop_action = std::make_unique<MockStopAction>();
     auto* const stop_action_ptr = stop_action.get();
@@ -238,36 +202,6 @@ TEST(ComponentTest, DeactivateReturnsSuccessWhenStopActionReturnsSuccess)
     EXPECT_FALSE(component.active());
 }
 
-TEST(ComponentTest, ReadyConditionCalled)
-{
-    RecordProperty(
-        "Description",
-        "Given an inactive component. "
-        "When it is activated. "
-        "Then the ready condition is waited for on the handle of the started process.");
-
-    NiceMock<MockSupervisionFactory> factory;
-
-    auto start_action = std::make_unique<MockStartAction>();
-    ON_CALL(*start_action, start(_, _)).WillByDefault(Return(Result<StartedResource>{StartedResource{mock_handle}}));
-
-    auto ready_condition = std::make_unique<MockReadyCondition>();
-    auto* const ready_condition_ptr = ready_condition.get();
-
-    Component component(
-        std::move(start_action),
-        std::make_unique<MockStopAction>(),
-        std::make_unique<MockForceStopAction>(),
-        std::move(ready_condition),
-        factory,
-        std::make_shared<configuration::ComponentConfig>());
-
-    EXPECT_CALL(*ready_condition_ptr, wait(_, _, _))
-        .WillOnce(DoAll(WithArg<1>(Invoke(expect_mock_handle)), Return(Result<void>{})));
-
-    static_cast<void>(component.activate(mock_stop_token));
-}
-
 TEST(ComponentTest, ReadyConditionWaitsWithConfiguredReadyTimeout)
 {
     RecordProperty("TestType", "interface-test");
@@ -281,10 +215,10 @@ TEST(ComponentTest, ReadyConditionWaitsWithConfiguredReadyTimeout)
     NiceMock<MockSupervisionFactory> factory;
 
     auto start_action = std::make_unique<MockStartAction>();
-    ON_CALL(*start_action, start(_, _)).WillByDefault(kStartsProcess);
+    auto* const start_action_ptr = start_action.get();
 
     auto ready_condition = std::make_unique<NiceMock<MockReadyCondition>>();
-    EXPECT_CALL(*ready_condition, wait(_, _, std::chrono::milliseconds{1234})).WillOnce(Return(Result<void>{}));
+    auto* const ready_condition_ptr = ready_condition.get();
 
     auto config = std::make_shared<configuration::ComponentConfig>();
     config->deployment_config.ready_timeout_ms = 1234U;
@@ -296,6 +230,11 @@ TEST(ComponentTest, ReadyConditionWaitsWithConfiguredReadyTimeout)
         std::move(ready_condition),
         factory,
         std::move(config));
+
+    InSequence sequence;
+    EXPECT_CALL(*ready_condition_ptr, prepare());
+    EXPECT_CALL(*start_action_ptr, start(_, _)).WillOnce(Return(Result<StartedResource>{StartedResource{mock_handle}}));
+    EXPECT_CALL(*ready_condition_ptr, wait(_, _, std::chrono::milliseconds{1234})).WillOnce(Return(Result<void>{}));
 
     EXPECT_EQ(component.activate(mock_stop_token), IComponent::RequestResult::kSuccess);
 }
@@ -343,7 +282,7 @@ TEST(ComponentTest, ReadyConditionTimeoutReturnsTimeout)
     NiceMock<MockSupervisionFactory> factory;
 
     auto start_action = std::make_unique<MockStartAction>();
-    ON_CALL(*start_action, start(_, _)).WillByDefault(kStartsProcess);
+    EXPECT_CALL(*start_action, start(_, _)).WillOnce(kStartsProcess);
 
     auto stop_action = std::make_unique<MockStopAction>();
     auto* const stop_action_ptr = stop_action.get();
@@ -376,7 +315,7 @@ TEST(ComponentTest, ReadyConditionErrorReturnsFailure)
     NiceMock<MockSupervisionFactory> factory;
 
     auto start_action = std::make_unique<MockStartAction>();
-    ON_CALL(*start_action, start(_, _)).WillByDefault(kStartsProcess);
+    EXPECT_CALL(*start_action, start(_, _)).WillOnce(kStartsProcess);
 
     auto stop_action = std::make_unique<MockStopAction>();
     auto* const stop_action_ptr = stop_action.get();
@@ -410,7 +349,7 @@ TEST(ComponentTest, TerminationWhileStartingIsReportedToReadyCondition)
     NiceMock<MockSupervisionFactory> factory;
 
     auto start_action = std::make_unique<MockStartAction>();
-    ON_CALL(*start_action, start(_, _)).WillByDefault(kStartsProcess);
+    EXPECT_CALL(*start_action, start(_, _)).WillOnce(kStartsProcess);
 
     auto ready_condition = std::make_unique<MockReadyCondition>();
     auto* const ready_condition_ptr = ready_condition.get();
@@ -448,7 +387,7 @@ TEST(ComponentTest, TerminationWhileReadyIsNotReportedToReadyCondition)
     NiceMock<MockSupervisionFactory> factory;
 
     auto start_action = std::make_unique<MockStartAction>();
-    ON_CALL(*start_action, start(_, _)).WillByDefault(kStartsProcess);
+    EXPECT_CALL(*start_action, start(_, _)).WillOnce(kStartsProcess);
 
     auto ready_condition = std::make_unique<NiceMock<MockReadyCondition>>();
     EXPECT_CALL(*ready_condition, handleTermination(_, _)).Times(0);
@@ -477,7 +416,7 @@ TEST(ComponentTest, UnexpectedTerminationDuringStartupFailsActivation)
     NiceMock<MockSupervisionFactory> factory;
 
     auto start_action = std::make_unique<MockStartAction>();
-    ON_CALL(*start_action, start(_, _)).WillByDefault(kStartsProcess);
+    EXPECT_CALL(*start_action, start(_, _)).WillOnce(kStartsProcess);
 
     auto ready_condition = std::make_unique<NiceMock<MockReadyCondition>>();
     auto* const ready_condition_ptr = ready_condition.get();
@@ -528,6 +467,7 @@ TEST(ComponentTest, StartActionReceivesComponentAndReadyConditionWaitsOnStartedR
         std::make_shared<configuration::ComponentConfig>());
 
     const InSequence sequence;
+    EXPECT_CALL(*ready_condition_ptr, prepare());
     EXPECT_CALL(*start_action_ptr, start(_, Ref(component)))
         .WillOnce(Return(Result<StartedResource>{StartedResource{mock_handle}}));
     EXPECT_CALL(*ready_condition_ptr, wait(_, _, _))
@@ -591,12 +531,16 @@ TEST(ComponentTest, SelfTerminatingAlreadyExitedWithZeroIsIgnored)
     auto start_action = std::make_unique<MockStartAction>();
     EXPECT_CALL(*start_action, start(_, _)).WillOnce(Return(Result<StartedResource>{StartedResource{mock_handle, 0}}));
 
-    auto ready_condition = std::make_unique<MockReadyCondition>();
-    EXPECT_CALL(*ready_condition, wait(_, _, _))
-        .WillOnce(Invoke([](cpp::stop_token token, const Handle&, std::chrono::milliseconds) {
-            EXPECT_FALSE(token.stop_requested());
-            return Result<void>{};
-        }));
+    auto ready_condition = std::make_unique<NiceMock<MockReadyCondition>>();
+    {
+        InSequence sequence;
+        EXPECT_CALL(*ready_condition, handleTermination(_, 0));
+        EXPECT_CALL(*ready_condition, wait(_, _, _))
+            .WillOnce(Invoke([](cpp::stop_token token, const Handle&, std::chrono::milliseconds) {
+                EXPECT_FALSE(token.stop_requested());
+                return Result<void>{};
+            }));
+    }
 
     auto config = std::make_shared<configuration::ComponentConfig>();
     config->component_properties.application_profile.is_self_terminating = true;
@@ -667,53 +611,6 @@ TEST(ComponentTest, TerminationDuringStartWaitsUntilComponentIsStarting)
     EXPECT_FALSE(component.active());
 }
 
-TEST(ComponentTest, StartSetsActive)
-{
-    RecordProperty(
-        "Description",
-        "Given an inactive component whose activation succeeds. "
-        "When it is activated. "
-        "Then the component is active.");
-
-    NiceMock<MockSupervisionFactory> factory;
-
-    Component component(
-        std::make_unique<MockStartAction>(),
-        std::make_unique<MockStopAction>(),
-        std::make_unique<MockForceStopAction>(),
-        std::make_unique<MockReadyCondition>(),
-        factory,
-        std::make_shared<configuration::ComponentConfig>());
-
-    static_cast<void>(component.activate(cpp::stop_token{}));
-
-    EXPECT_TRUE(component.active());
-}
-
-TEST(ComponentTest, StopClearsActive)
-{
-    RecordProperty(
-        "Description",
-        "Given an active component without a running resource. "
-        "When it is deactivated. "
-        "Then the component is not active.");
-
-    NiceMock<MockSupervisionFactory> factory;
-
-    Component component(
-        std::make_unique<MockStartAction>(),
-        std::make_unique<MockStopAction>(),
-        std::make_unique<MockForceStopAction>(),
-        std::make_unique<MockReadyCondition>(),
-        factory,
-        std::make_shared<configuration::ComponentConfig>());
-
-    static_cast<void>(component.activate(cpp::stop_token{}));
-    static_cast<void>(component.deactivate(cpp::stop_token{}));
-
-    EXPECT_FALSE(component.active());
-}
-
 TEST(ComponentTest, DeactivateInTerminatedStateSucceeds)
 {
     RecordProperty(
@@ -747,13 +644,13 @@ TEST(ComponentTest, CannotActivateInReadyState)
     NiceMock<MockSupervisionFactory> factory;
 
     auto start_action = std::make_unique<MockStartAction>();
-    ON_CALL(*start_action, start(_, _)).WillByDefault(Return(Result<StartedResource>{StartedResource{mock_handle}}));
+    EXPECT_CALL(*start_action, start(_, _)).WillOnce(Return(Result<StartedResource>{StartedResource{mock_handle}}));
 
     Component component(
         std::move(start_action),
         std::make_unique<MockStopAction>(),
         std::make_unique<MockForceStopAction>(),
-        std::make_unique<MockReadyCondition>(),
+        std::make_unique<NiceMock<MockReadyCondition>>(),
         factory,
         std::make_shared<configuration::ComponentConfig>());
 
@@ -774,7 +671,7 @@ TEST(ComponentTest, CannotDeactivateWhileActivating)
     NiceMock<MockSupervisionFactory> factory;
 
     auto start_action = std::make_unique<MockStartAction>();
-    ON_CALL(*start_action, start(_, _)).WillByDefault(kStartsProcess);
+    EXPECT_CALL(*start_action, start(_, _)).WillOnce(kStartsProcess);
 
     auto ready_condition = std::make_unique<NiceMock<MockReadyCondition>>();
     auto* const ready_condition_ptr = ready_condition.get();
@@ -811,16 +708,16 @@ TEST(ComponentTest, DeactivateWithEmptyHandleIsInactiveImmediately)
     NiceMock<MockSupervisionFactory> factory;
 
     auto start_action = std::make_unique<MockStartAction>();
-    ON_CALL(*start_action, start(_, _)).WillByDefault(Return(Result<StartedResource>{StartedResource{EmptyHandle{}}}));
+    EXPECT_CALL(*start_action, start(_, _)).WillOnce(Return(Result<StartedResource>{StartedResource{EmptyHandle{}}}));
 
     auto stop_action = std::make_unique<MockStopAction>();
-    ON_CALL(*stop_action, stop(_, _)).WillByDefault(Return(IComponent::RequestResult::kSuccess));
+    EXPECT_CALL(*stop_action, stop(_, _)).WillOnce(Return(IComponent::RequestResult::kSuccess));
 
     Component component(
         std::move(start_action),
         std::move(stop_action),
         std::make_unique<MockForceStopAction>(),
-        std::make_unique<MockReadyCondition>(),
+        std::make_unique<NiceMock<MockReadyCondition>>(),
         factory,
         std::make_shared<configuration::ComponentConfig>());
 
@@ -851,13 +748,13 @@ TEST(ComponentTest, CanActivateAgainAfterDeactivateWithEmptyHandle)
         .WillRepeatedly(Return(Result<StartedResource>{StartedResource{EmptyHandle{}}}));
 
     auto stop_action = std::make_unique<MockStopAction>();
-    ON_CALL(*stop_action, stop(_, _)).WillByDefault(Return(IComponent::RequestResult::kSuccess));
+    EXPECT_CALL(*stop_action, stop(_, _)).WillOnce(Return(IComponent::RequestResult::kSuccess));
 
     Component component(
         std::move(start_action),
         std::move(stop_action),
         std::make_unique<MockForceStopAction>(),
-        std::make_unique<MockReadyCondition>(),
+        std::make_unique<NiceMock<MockReadyCondition>>(),
         factory,
         std::make_shared<configuration::ComponentConfig>());
 
@@ -901,53 +798,11 @@ TEST(ComponentTest, CanActivateAgainAfterSelfTerminatingProcessExitedBeforeTrack
         std::move(start_action),
         std::move(stop_action),
         std::make_unique<MockForceStopAction>(),
-        std::make_unique<MockReadyCondition>(),
+        std::make_unique<NiceMock<MockReadyCondition>>(),
         factory,
         std::move(config));
 
     ASSERT_EQ(component.activate(cpp::stop_token{}), IComponent::RequestResult::kSuccess);
-
-    EXPECT_EQ(component.deactivate(cpp::stop_token{}), IComponent::RequestResult::kSuccess);
-    EXPECT_FALSE(component.active());
-
-    EXPECT_EQ(component.activate(cpp::stop_token{}), IComponent::RequestResult::kSuccess);
-    EXPECT_TRUE(component.active());
-}
-
-TEST(ComponentTest, CanActivateAgainAfterSelfTerminatingProcessExitedWhileReadyAndWasDeactivated)
-{
-    RecordProperty("TestType", "interface-test");
-    RecordProperty("DerivationTechnique", "error-guessing");
-    RecordProperty(
-        "Description",
-        "Given an active self-terminating component whose process exited with status 0 while it was ready. "
-        "When the component is deactivated and activated again. "
-        "Then deactivation makes the component inactive immediately, since the termination was already handled, and "
-        "the second activation succeeds.");
-
-    NiceMock<MockSupervisionFactory> factory;
-
-    auto start_action = std::make_unique<MockStartAction>();
-    EXPECT_CALL(*start_action, start(_, _))
-        .Times(2)
-        .WillRepeatedly(Return(Result<StartedResource>{StartedResource{mock_handle}}));
-
-    auto stop_action = std::make_unique<MockStopAction>();
-    ON_CALL(*stop_action, stop(_, _)).WillByDefault(Return(IComponent::RequestResult::kSuccess));
-
-    auto config = std::make_shared<configuration::ComponentConfig>();
-    config->component_properties.application_profile.is_self_terminating = true;
-
-    Component component(
-        std::move(start_action),
-        std::move(stop_action),
-        std::make_unique<MockForceStopAction>(),
-        std::make_unique<MockReadyCondition>(),
-        factory,
-        std::move(config));
-
-    ASSERT_EQ(component.activate(cpp::stop_token{}), IComponent::RequestResult::kSuccess);
-    ASSERT_EQ(terminateFromOtherThread(component, 0), IComponent::TerminationResult::kIgnore);
 
     EXPECT_EQ(component.deactivate(cpp::stop_token{}), IComponent::RequestResult::kSuccess);
     EXPECT_FALSE(component.active());
@@ -1012,7 +867,7 @@ TEST(ComponentTest, DeactivateForcesStopAfterShutdownTimeout)
     NiceMock<MockSupervisionFactory> factory;
 
     auto start_action = std::make_unique<MockStartAction>();
-    ON_CALL(*start_action, start(_, _)).WillByDefault(kStartsProcess);
+    EXPECT_CALL(*start_action, start(_, _)).WillOnce(kStartsProcess);
 
     auto stop_action = std::make_unique<MockStopAction>();
     EXPECT_CALL(*stop_action, stop(_, _)).WillOnce(Return(IComponent::RequestResult::kSuccess));
@@ -1053,7 +908,7 @@ TEST(ComponentTest, DeactivateFailsWhenProcessDoesNotTerminate)
     EXPECT_CALL(*start_action, start(_, _)).Times(2).WillRepeatedly(kStartsProcess);
 
     auto stop_action = std::make_unique<MockStopAction>();
-    ON_CALL(*stop_action, stop(_, _)).WillByDefault(Return(IComponent::RequestResult::kSuccess));
+    EXPECT_CALL(*stop_action, stop(_, _)).WillOnce(Return(IComponent::RequestResult::kSuccess));
 
     auto force_stop_action = std::make_unique<StrictMock<MockForceStopAction>>();
     EXPECT_CALL(*force_stop_action, forceStop(_, _)).WillOnce(Return(IComponent::RequestResult::kSuccess));
@@ -1086,7 +941,7 @@ TEST(ComponentTest, DeactivateDoesNotStopForcefullyWhenSigtermCannotBeSent)
     NiceMock<MockSupervisionFactory> factory;
 
     auto start_action = std::make_unique<MockStartAction>();
-    ON_CALL(*start_action, start(_, _)).WillByDefault(kStartsProcess);
+    EXPECT_CALL(*start_action, start(_, _)).WillOnce(kStartsProcess);
 
     auto stop_action = std::make_unique<MockStopAction>();
     auto* const stop_action_ptr = stop_action.get();
@@ -1120,7 +975,7 @@ TEST(ComponentTest, DeactivateDoesNotWaitWhenSigkillCannotBeSent)
     NiceMock<MockSupervisionFactory> factory;
 
     auto start_action = std::make_unique<MockStartAction>();
-    ON_CALL(*start_action, start(_, _)).WillByDefault(kStartsProcess);
+    EXPECT_CALL(*start_action, start(_, _)).WillOnce(kStartsProcess);
 
     auto stop_action = std::make_unique<MockStopAction>();
     EXPECT_CALL(*stop_action, stop(_, _)).WillOnce(Return(IComponent::RequestResult::kSuccess));
@@ -1159,10 +1014,10 @@ TEST(ComponentTest, DeactivateWithEmptyHandleSucceedsWhenStopActionFails)
     NiceMock<MockSupervisionFactory> factory;
 
     auto start_action = std::make_unique<MockStartAction>();
-    ON_CALL(*start_action, start(_, _)).WillByDefault(Return(Result<StartedResource>{StartedResource{EmptyHandle{}}}));
+    EXPECT_CALL(*start_action, start(_, _)).WillOnce(Return(Result<StartedResource>{StartedResource{EmptyHandle{}}}));
 
     auto stop_action = std::make_unique<MockStopAction>();
-    ON_CALL(*stop_action, stop(_, _)).WillByDefault(Return(IComponent::RequestResult::kFailure));
+    EXPECT_CALL(*stop_action, stop(_, _)).WillOnce(Return(IComponent::RequestResult::kFailure));
 
     Component component(
         std::move(start_action),
@@ -1219,7 +1074,7 @@ TEST(ComponentTest, DeactivateAfterUnexpectedTerminationSucceeds)
     NiceMock<MockSupervisionFactory> factory;
 
     auto start_action = std::make_unique<MockStartAction>();
-    ON_CALL(*start_action, start(_, _)).WillByDefault(kStartsProcess);
+    EXPECT_CALL(*start_action, start(_, _)).WillOnce(kStartsProcess);
 
     Component component(
         std::move(start_action),
@@ -1241,57 +1096,24 @@ TEST(ComponentTest, SelfTerminatingExitZeroInReadyStateIsIgnored)
         "Description",
         "Given an active self-terminating component. "
         "When its process exits with status 0. "
-        "Then the termination is ignored.");
+        "Then the termination is ignored and the component stays active.");
 
     NiceMock<MockSupervisionFactory> factory;
 
     auto start_action = std::make_unique<MockStartAction>();
-    ON_CALL(*start_action, start(_, _)).WillByDefault(Return(Result<StartedResource>{StartedResource{mock_handle}}));
-
-    auto config = std::make_shared<configuration::ComponentConfig>();
-    config->component_properties.application_profile.is_self_terminating = true;
+    EXPECT_CALL(*start_action, start(_, _)).WillOnce(kStartsProcess);
 
     Component component(
         std::move(start_action),
-        std::make_unique<MockStopAction>(),
-        std::make_unique<MockForceStopAction>(),
-        std::make_unique<MockReadyCondition>(),
+        std::make_unique<StrictMock<MockStopAction>>(),
+        std::make_unique<StrictMock<MockForceStopAction>>(),
+        std::make_unique<NiceMock<MockReadyCondition>>(),
         factory,
-        std::move(config));
+        selfTerminatingConfig());
 
-    static_cast<void>(component.activate(cpp::stop_token{}));
-    const auto result = component.tryHandleTermination(0);
+    ASSERT_EQ(component.activate(cpp::stop_token{}), IComponent::RequestResult::kSuccess);
 
-    EXPECT_EQ(result, IComponent::TerminationResult::kIgnore);
-}
-
-TEST(ComponentTest, SelfTerminatingExitZeroInReadyStateIsActive)
-{
-    RecordProperty(
-        "Description",
-        "Given an active self-terminating component. "
-        "When its process exits with status 0. "
-        "Then the component stays active.");
-
-    NiceMock<MockSupervisionFactory> factory;
-
-    auto start_action = std::make_unique<MockStartAction>();
-    ON_CALL(*start_action, start(_, _)).WillByDefault(Return(Result<StartedResource>{StartedResource{mock_handle}}));
-
-    auto config = std::make_shared<configuration::ComponentConfig>();
-    config->component_properties.application_profile.is_self_terminating = true;
-
-    Component component(
-        std::move(start_action),
-        std::make_unique<MockStopAction>(),
-        std::make_unique<MockForceStopAction>(),
-        std::make_unique<MockReadyCondition>(),
-        factory,
-        std::move(config));
-
-    static_cast<void>(component.activate(cpp::stop_token{}));
-    static_cast<void>(component.tryHandleTermination(0));
-
+    EXPECT_EQ(terminateFromOtherThread(component, 0), IComponent::TerminationResult::kIgnore);
     EXPECT_TRUE(component.active());
 }
 
@@ -1301,57 +1123,24 @@ TEST(ComponentTest, SelfTerminatingExitNonZeroInReadyStateIsFailure)
         "Description",
         "Given an active self-terminating component. "
         "When its process exits with a non-zero status. "
-        "Then the termination is reported as a failure.");
+        "Then the termination is reported as a failure and the component is not active.");
 
     NiceMock<MockSupervisionFactory> factory;
 
     auto start_action = std::make_unique<MockStartAction>();
-    ON_CALL(*start_action, start(_, _)).WillByDefault(Return(Result<StartedResource>{StartedResource{mock_handle}}));
-
-    auto config = std::make_shared<configuration::ComponentConfig>();
-    config->component_properties.application_profile.is_self_terminating = true;
+    EXPECT_CALL(*start_action, start(_, _)).WillOnce(kStartsProcess);
 
     Component component(
         std::move(start_action),
-        std::make_unique<MockStopAction>(),
-        std::make_unique<MockForceStopAction>(),
-        std::make_unique<MockReadyCondition>(),
+        std::make_unique<StrictMock<MockStopAction>>(),
+        std::make_unique<StrictMock<MockForceStopAction>>(),
+        std::make_unique<NiceMock<MockReadyCondition>>(),
         factory,
-        std::move(config));
+        selfTerminatingConfig());
 
-    static_cast<void>(component.activate(cpp::stop_token{}));
-    const auto result = component.tryHandleTermination(1);
+    ASSERT_EQ(component.activate(cpp::stop_token{}), IComponent::RequestResult::kSuccess);
 
-    EXPECT_EQ(result, IComponent::TerminationResult::kFailure);
-}
-
-TEST(ComponentTest, SelfTerminatingExitNonZeroInReadyStateIsNotActive)
-{
-    RecordProperty(
-        "Description",
-        "Given an active self-terminating component. "
-        "When its process exits with a non-zero status. "
-        "Then the component is not active.");
-
-    NiceMock<MockSupervisionFactory> factory;
-
-    auto start_action = std::make_unique<MockStartAction>();
-    ON_CALL(*start_action, start(_, _)).WillByDefault(Return(Result<StartedResource>{StartedResource{mock_handle}}));
-
-    auto config = std::make_shared<configuration::ComponentConfig>();
-    config->component_properties.application_profile.is_self_terminating = true;
-
-    Component component(
-        std::move(start_action),
-        std::make_unique<MockStopAction>(),
-        std::make_unique<MockForceStopAction>(),
-        std::make_unique<MockReadyCondition>(),
-        factory,
-        std::move(config));
-
-    static_cast<void>(component.activate(cpp::stop_token{}));
-    static_cast<void>(component.tryHandleTermination(1));
-
+    EXPECT_EQ(terminateFromOtherThread(component, 1), IComponent::TerminationResult::kFailure);
     EXPECT_FALSE(component.active());
 }
 
@@ -1360,75 +1149,34 @@ TEST(ComponentTest, SelfTerminatingExitZeroInStartingStateIsIgnored)
     RecordProperty(
         "Description",
         "Given a self-terminating component waiting for its ready condition. "
-        "When its process exits with status 0. "
-        "Then the termination is ignored.");
-
-    NiceMock<MockSupervisionFactory> factory;
-
-    auto start_action = std::make_unique<MockStartAction>();
-    ON_CALL(*start_action, start(_, _)).WillByDefault(Return(Result<StartedResource>{StartedResource{mock_handle}}));
-
-    auto ready_condition = std::make_unique<MockReadyCondition>();
-    auto* const ready_condition_ptr = ready_condition.get();
-
-    auto config = std::make_shared<configuration::ComponentConfig>();
-    config->component_properties.application_profile.is_self_terminating = true;
-
-    Component component(
-        std::move(start_action),
-        std::make_unique<MockStopAction>(),
-        std::make_unique<MockForceStopAction>(),
-        std::move(ready_condition),
-        factory,
-        std::move(config));
-
-    IComponent::TerminationResult result;
-    EXPECT_CALL(*ready_condition_ptr, wait(_, _, _))
-        .WillOnce(Invoke([&](cpp::stop_token, const Handle, std::chrono::milliseconds) {
-            result = terminateFromOtherThread(component, 0);
-            return Result<void>{};
-        }));
-
-    static_cast<void>(component.activate(cpp::stop_token{}));
-
-    EXPECT_EQ(result, IComponent::TerminationResult::kIgnore);
-}
-
-TEST(ComponentTest, SelfTerminatingExitZeroInStartingStateIsActive)
-{
-    RecordProperty(
-        "Description",
-        "Given a self-terminating component waiting for its ready condition. "
         "When its process exits with status 0 and the ready condition is met. "
-        "Then the component is active.");
+        "Then the termination is ignored, activation succeeds and the component is active.");
 
     NiceMock<MockSupervisionFactory> factory;
 
     auto start_action = std::make_unique<MockStartAction>();
-    ON_CALL(*start_action, start(_, _)).WillByDefault(Return(Result<StartedResource>{StartedResource{mock_handle}}));
+    EXPECT_CALL(*start_action, start(_, _)).WillOnce(kStartsProcess);
 
-    auto ready_condition = std::make_unique<MockReadyCondition>();
+    auto ready_condition = std::make_unique<NiceMock<MockReadyCondition>>();
     auto* const ready_condition_ptr = ready_condition.get();
-
-    auto config = std::make_shared<configuration::ComponentConfig>();
-    config->component_properties.application_profile.is_self_terminating = true;
 
     Component component(
         std::move(start_action),
-        std::make_unique<MockStopAction>(),
-        std::make_unique<MockForceStopAction>(),
+        std::make_unique<StrictMock<MockStopAction>>(),
+        std::make_unique<StrictMock<MockForceStopAction>>(),
         std::move(ready_condition),
         factory,
-        std::move(config));
+        selfTerminatingConfig());
 
+    std::optional<IComponent::TerminationResult> termination_result;
     EXPECT_CALL(*ready_condition_ptr, wait(_, _, _))
-        .WillOnce(Invoke([&](cpp::stop_token, const Handle, std::chrono::milliseconds) {
-            static_cast<void>(terminateFromOtherThread(component, 0));
+        .WillOnce(Invoke([&](cpp::stop_token, const Handle&, std::chrono::milliseconds) {
+            termination_result = terminateFromOtherThread(component, 0);
             return Result<void>{};
         }));
 
-    static_cast<void>(component.activate(cpp::stop_token{}));
-
+    EXPECT_EQ(component.activate(cpp::stop_token{}), IComponent::RequestResult::kSuccess);
+    EXPECT_EQ(termination_result, IComponent::TerminationResult::kIgnore);
     EXPECT_TRUE(component.active());
 }
 
@@ -1438,70 +1186,37 @@ TEST(ComponentTest, SelfTerminatingExitNonZeroInStartingStateFailsActivation)
         "Description",
         "Given a self-terminating component waiting for its ready condition. "
         "When its process exits with a non-zero status. "
-        "Then the termination is ignored and the activation fails.");
+        "Then the termination is ignored, the activation fails and the component is not active.");
 
     NiceMock<MockSupervisionFactory> factory;
 
     auto start_action = std::make_unique<MockStartAction>();
-    ON_CALL(*start_action, start(_, _)).WillByDefault(kStartsProcess);
+    EXPECT_CALL(*start_action, start(_, _)).WillOnce(kStartsProcess);
 
-    auto ready_condition_mock = std::make_unique<NiceMock<MockReadyCondition>>();
-    auto* const ready_condition_ptr = ready_condition_mock.get();
+    // The failed activation cleans up the process, which has already terminated.
+    auto stop_action = std::make_unique<MockStopAction>();
+    expectStopOfDeadProcess(*stop_action);
+
+    auto ready_condition = std::make_unique<NiceMock<MockReadyCondition>>();
+    auto* const ready_condition_ptr = ready_condition.get();
 
     Component component(
         std::move(start_action),
-        std::make_unique<NiceMock<MockStopAction>>(),
+        std::move(stop_action),
         std::make_unique<StrictMock<MockForceStopAction>>(),
-        std::move(ready_condition_mock),
+        std::move(ready_condition),
         factory,
         selfTerminatingConfig());
 
-    IComponent::TerminationResult result;
+    std::optional<IComponent::TerminationResult> termination_result;
     EXPECT_CALL(*ready_condition_ptr, wait(_, _, _))
-        .WillOnce(Invoke([&](cpp::stop_token, const Handle, std::chrono::milliseconds) {
-            result = terminateFromOtherThread(component, 1);
+        .WillOnce(Invoke([&](cpp::stop_token, const Handle&, std::chrono::milliseconds) {
+            termination_result = terminateFromOtherThread(component, 1);
             return Result<void>{};
         }));
 
     EXPECT_EQ(component.activate(cpp::stop_token{}), IComponent::RequestResult::kFailure);
-    EXPECT_EQ(result, IComponent::TerminationResult::kIgnore);
-}
-
-TEST(ComponentTest, SelfTerminatingExitNonZeroInStartingStateIsNotActive)
-{
-    RecordProperty(
-        "Description",
-        "Given a self-terminating component waiting for its ready condition. "
-        "When its process exits with a non-zero status. "
-        "Then the activation fails and the component is not active.");
-
-    NiceMock<MockSupervisionFactory> factory;
-
-    auto start_action = std::make_unique<MockStartAction>();
-    ON_CALL(*start_action, start(_, _)).WillByDefault(Return(Result<StartedResource>{StartedResource{mock_handle}}));
-
-    auto ready_condition = std::make_unique<MockReadyCondition>();
-    auto* const ready_condition_ptr = ready_condition.get();
-
-    auto config = std::make_shared<configuration::ComponentConfig>();
-    config->component_properties.application_profile.is_self_terminating = true;
-
-    Component component(
-        std::move(start_action),
-        std::make_unique<MockStopAction>(),
-        std::make_unique<MockForceStopAction>(),
-        std::move(ready_condition),
-        factory,
-        std::move(config));
-
-    EXPECT_CALL(*ready_condition_ptr, wait(_, _, _))
-        .WillOnce(Invoke([&](cpp::stop_token, const Handle, std::chrono::milliseconds) {
-            static_cast<void>(terminateFromOtherThread(component, 1));
-            return Result<void>{};
-        }));
-
-    static_cast<void>(component.activate(cpp::stop_token{}));
-
+    EXPECT_EQ(termination_result, IComponent::TerminationResult::kIgnore);
     EXPECT_FALSE(component.active());
 }
 
@@ -1516,7 +1231,7 @@ TEST(ComponentTest, StopTokenInterruptsWaitForReadyCondition)
     NiceMock<MockSupervisionFactory> factory;
 
     auto start_action = std::make_unique<MockStartAction>();
-    ON_CALL(*start_action, start(_, _)).WillByDefault(kStartsProcess);
+    EXPECT_CALL(*start_action, start(_, _)).WillOnce(kStartsProcess);
 
     auto stop_action = std::make_unique<MockStopAction>();
     auto* const stop_action_ptr = stop_action.get();
@@ -1563,7 +1278,7 @@ TEST(ComponentTest, ReadyConditionMetDespiteStopRequestActivatesComponent)
     NiceMock<MockSupervisionFactory> factory;
 
     auto start_action = std::make_unique<MockStartAction>();
-    ON_CALL(*start_action, start(_, _)).WillByDefault(kStartsProcess);
+    EXPECT_CALL(*start_action, start(_, _)).WillOnce(kStartsProcess);
 
     auto ready_condition = std::make_unique<NiceMock<MockReadyCondition>>();
     EXPECT_CALL(*ready_condition, wait(_, _, _)).WillOnce(Return(Result<void>{}));
@@ -1594,7 +1309,7 @@ TEST(ComponentTest, StoppedTokenDoesNotInterruptDeactivation)
     NiceMock<MockSupervisionFactory> factory;
 
     auto start_action = std::make_unique<MockStartAction>();
-    ON_CALL(*start_action, start(_, _)).WillByDefault(kStartsProcess);
+    EXPECT_CALL(*start_action, start(_, _)).WillOnce(kStartsProcess);
 
     auto stop_action = std::make_unique<MockStopAction>();
     auto* const stop_action_ptr = stop_action.get();
@@ -1674,7 +1389,7 @@ TEST(ComponentTest, FailedActivationForcesStopAfterShutdownTimeout)
     NiceMock<MockSupervisionFactory> factory;
 
     auto start_action = std::make_unique<MockStartAction>();
-    ON_CALL(*start_action, start(_, _)).WillByDefault(kStartsProcess);
+    EXPECT_CALL(*start_action, start(_, _)).WillOnce(kStartsProcess);
 
     auto stop_action = std::make_unique<MockStopAction>();
     EXPECT_CALL(*stop_action, stop(_, _)).WillOnce(Return(IComponent::RequestResult::kSuccess));
@@ -1747,7 +1462,7 @@ TEST(ComponentTest, FailedActivationDoesNotWaitForeverForForcedStop)
     NiceMock<MockSupervisionFactory> factory;
 
     auto start_action = std::make_unique<MockStartAction>();
-    ON_CALL(*start_action, start(_, _)).WillByDefault(kStartsProcess);
+    EXPECT_CALL(*start_action, start(_, _)).WillOnce(kStartsProcess);
 
     auto stop_action = std::make_unique<MockStopAction>();
     EXPECT_CALL(*stop_action, stop(_, _)).WillOnce(Return(IComponent::RequestResult::kSuccess));
@@ -2133,7 +1848,7 @@ TEST(ComponentTest, SupervisionActivatedWhenReady)
     NiceMock<MockSupervisionFactory> factory;
 
     auto start_action = std::make_unique<MockStartAction>();
-    ON_CALL(*start_action, start(_, _)).WillByDefault(Return(Result<StartedResource>{StartedResource{mock_handle}}));
+    EXPECT_CALL(*start_action, start(_, _)).WillOnce(Return(Result<StartedResource>{StartedResource{mock_handle}}));
 
     auto config = std::make_shared<configuration::ComponentConfig>();
     config->component_properties.application_profile.application_type =
@@ -2150,7 +1865,7 @@ TEST(ComponentTest, SupervisionActivatedWhenReady)
         std::move(start_action),
         std::make_unique<MockStopAction>(),
         std::make_unique<MockForceStopAction>(),
-        std::make_unique<MockReadyCondition>(),
+        std::make_unique<NiceMock<MockReadyCondition>>(),
         factory,
         std::move(config));
 
@@ -2170,7 +1885,7 @@ TEST(ComponentTest, SupervisionActivationFailureStopsProcess)
     NiceMock<MockSupervisionFactory> factory;
 
     auto start_action = std::make_unique<MockStartAction>();
-    ON_CALL(*start_action, start(_, _)).WillByDefault(kStartsProcess);
+    EXPECT_CALL(*start_action, start(_, _)).WillOnce(kStartsProcess);
 
     auto stop_action = std::make_unique<MockStopAction>();
     auto* const stop_action_ptr = stop_action.get();
@@ -2208,8 +1923,8 @@ TEST(ComponentTest, SupervisionNotActivatedWhenStartFails)
     NiceMock<MockSupervisionFactory> factory;
 
     auto start_action = std::make_unique<MockStartAction>();
-    ON_CALL(*start_action, start(_, _))
-        .WillByDefault(Return(Result<StartedResource>{MakeUnexpected(ExecErrc::kGeneralError)}));
+    EXPECT_CALL(*start_action, start(_, _))
+        .WillOnce(Return(Result<StartedResource>{MakeUnexpected(ExecErrc::kGeneralError)}));
 
     auto config = std::make_shared<configuration::ComponentConfig>();
     config->component_properties.application_profile.application_type =
@@ -2226,7 +1941,7 @@ TEST(ComponentTest, SupervisionNotActivatedWhenStartFails)
         std::move(start_action),
         std::make_unique<MockStopAction>(),
         std::make_unique<MockForceStopAction>(),
-        std::make_unique<MockReadyCondition>(),
+        std::make_unique<NiceMock<MockReadyCondition>>(),
         factory,
         std::move(config));
 
@@ -2246,7 +1961,7 @@ TEST(ComponentTest, SupervisionDeactivatedImmediatelyOnTermination)
     NiceMock<MockSupervisionFactory> factory;
 
     auto start_action = std::make_unique<MockStartAction>();
-    ON_CALL(*start_action, start(_, _)).WillByDefault(Return(Result<StartedResource>{StartedResource{mock_handle}}));
+    EXPECT_CALL(*start_action, start(_, _)).WillOnce(Return(Result<StartedResource>{StartedResource{mock_handle}}));
 
     auto config = std::make_shared<configuration::ComponentConfig>();
     config->component_properties.application_profile.application_type =
@@ -2267,7 +1982,7 @@ TEST(ComponentTest, SupervisionDeactivatedImmediatelyOnTermination)
         std::move(start_action),
         std::make_unique<MockStopAction>(),
         std::make_unique<MockForceStopAction>(),
-        std::make_unique<MockReadyCondition>(),
+        std::make_unique<NiceMock<MockReadyCondition>>(),
         factory,
         std::move(config));
 
@@ -2288,7 +2003,7 @@ TEST(ComponentTest, SupervisionDeactivatedBeforeStopAction)
     NiceMock<MockSupervisionFactory> factory;
 
     auto start_action = std::make_unique<MockStartAction>();
-    ON_CALL(*start_action, start(_, _)).WillByDefault(kStartsProcess);
+    EXPECT_CALL(*start_action, start(_, _)).WillOnce(kStartsProcess);
 
     auto stop_action = std::make_unique<MockStopAction>();
     auto* const stop_action_ptr = stop_action.get();
@@ -2328,7 +2043,7 @@ TEST(ComponentTest, SupervisionDeactivationFailureIsIgnoredOnDeactivate)
     NiceMock<MockSupervisionFactory> factory;
 
     auto start_action = std::make_unique<MockStartAction>();
-    ON_CALL(*start_action, start(_, _)).WillByDefault(kStartsProcess);
+    EXPECT_CALL(*start_action, start(_, _)).WillOnce(kStartsProcess);
 
     auto stop_action = std::make_unique<MockStopAction>();
     auto* const stop_action_ptr = stop_action.get();
@@ -2402,7 +2117,7 @@ TEST(ComponentTest, SupervisionFailureWhileReadyStopsProcessForcefully)
     NiceMock<MockSupervisionFactory> factory;
 
     auto start_action = std::make_unique<MockStartAction>();
-    ON_CALL(*start_action, start(_, _)).WillByDefault(kStartsProcess);
+    EXPECT_CALL(*start_action, start(_, _)).WillOnce(kStartsProcess);
 
     auto force_stop_action = std::make_unique<StrictMock<MockForceStopAction>>();
     EXPECT_CALL(*force_stop_action, forceStop(_, _))
@@ -2435,7 +2150,7 @@ TEST(ComponentTest, SupervisionFailureFromBeforeActivationIsIgnored)
     NiceMock<MockSupervisionFactory> factory;
 
     auto start_action = std::make_unique<MockStartAction>();
-    ON_CALL(*start_action, start(_, _)).WillByDefault(kStartsProcess);
+    EXPECT_CALL(*start_action, start(_, _)).WillOnce(kStartsProcess);
 
     auto handle = std::make_unique<NiceMock<MockAliveSupervisionHandle>>();
     ON_CALL(*handle, activateSupervision(_)).WillByDefault(Return(true));
@@ -2464,7 +2179,7 @@ TEST(ComponentTest, SupervisionFailureWhileNotReadyIsIgnored)
     NiceMock<MockSupervisionFactory> factory;
 
     auto start_action = std::make_unique<MockStartAction>();
-    ON_CALL(*start_action, start(_, _)).WillByDefault(kStartsProcess);
+    EXPECT_CALL(*start_action, start(_, _)).WillOnce(kStartsProcess);
 
     auto ready_condition = std::make_unique<NiceMock<MockReadyCondition>>();
     auto* const ready_condition_ptr = ready_condition.get();
@@ -2501,7 +2216,7 @@ TEST(ComponentTest, SupervisionFailureAfterTerminationIsIgnored)
     NiceMock<MockSupervisionFactory> factory;
 
     auto start_action = std::make_unique<MockStartAction>();
-    ON_CALL(*start_action, start(_, _)).WillByDefault(kStartsProcess);
+    EXPECT_CALL(*start_action, start(_, _)).WillOnce(kStartsProcess);
 
     auto handle = std::make_unique<NiceMock<MockAliveSupervisionHandle>>();
     ON_CALL(*handle, activateSupervision(_)).WillByDefault(Return(true));
@@ -2537,7 +2252,7 @@ TEST(ComponentTest, ForceStopStopsRunningProcess)
     NiceMock<MockSupervisionFactory> factory;
 
     auto start_action = std::make_unique<MockStartAction>();
-    ON_CALL(*start_action, start(_, _)).WillByDefault(kStartsProcess);
+    EXPECT_CALL(*start_action, start(_, _)).WillOnce(kStartsProcess);
 
     auto force_stop_action = std::make_unique<StrictMock<MockForceStopAction>>();
     EXPECT_CALL(*force_stop_action, forceStop(_, _))
@@ -2566,7 +2281,7 @@ TEST(ComponentTest, ForceStopStopsStartingProcess)
     NiceMock<MockSupervisionFactory> factory;
 
     auto start_action = std::make_unique<MockStartAction>();
-    ON_CALL(*start_action, start(_, _)).WillByDefault(kStartsProcess);
+    EXPECT_CALL(*start_action, start(_, _)).WillOnce(kStartsProcess);
 
     auto force_stop_action = std::make_unique<StrictMock<MockForceStopAction>>();
     EXPECT_CALL(*force_stop_action, forceStop(_, _)).WillOnce(Return(IComponent::RequestResult::kSuccess));
@@ -2602,7 +2317,7 @@ TEST(ComponentTest, ForceStopDoesNothingWithoutRunningProcess)
     NiceMock<MockSupervisionFactory> factory;
 
     auto start_action = std::make_unique<MockStartAction>();
-    ON_CALL(*start_action, start(_, _)).WillByDefault(Return(Result<StartedResource>{StartedResource{EmptyHandle{}}}));
+    EXPECT_CALL(*start_action, start(_, _)).WillOnce(Return(Result<StartedResource>{StartedResource{EmptyHandle{}}}));
 
     Component component(
         std::move(start_action),
@@ -2618,13 +2333,33 @@ TEST(ComponentTest, ForceStopDoesNothingWithoutRunningProcess)
     component.forceStop();
 }
 
-TEST(ComponentTest, ProcessTerminatedReadyConditionSucceedsOnExitZero)
+/// @brief One case of a component with a ProcessTerminatedReadyCondition whose process exits during activation.
+struct ProcessTerminatedCase
 {
+    /// @brief Name of the test case.
+    const char* name;
+    bool is_self_terminating;
+    int32_t exit_status;
+    IComponent::RequestResult expected_activation;
+};
+
+class ComponentProcessTerminatedReadyConditionTest : public TestWithParam<ProcessTerminatedCase>
+{
+};
+
+TEST_P(ComponentProcessTerminatedReadyConditionTest, TerminationDuringActivationDecidesActivation)
+{
+    RecordProperty("TestType", "interface-test");
+    RecordProperty("DerivationTechnique", "equivalence-classes");
     RecordProperty(
         "Description",
-        "Given a self-terminating component with a ProcessTerminatedReadyCondition. "
-        "When the process exits with status 0 during activation. "
-        "Then the termination is ignored and activation succeeds.");
+        "Given a component with a ProcessTerminatedReadyCondition. "
+        "When its process exits during activation. "
+        "Then the termination is ignored, so that only the activation reports the outcome, and activation only "
+        "succeeds for a self-terminating component exiting with status 0. A failed activation returns kFailure "
+        "rather than kTimeout, which shows that the wait ended because of the termination.");
+
+    const ProcessTerminatedCase& param = GetParam();
 
     NiceMock<MockSupervisionFactory> factory;
 
@@ -2637,110 +2372,39 @@ TEST(ComponentTest, ProcessTerminatedReadyConditionSucceedsOnExitZero)
         return Result<StartedResource>{StartedResource{mock_handle}};
     }));
 
-    Component component(
-        std::move(start_action),
-        std::make_unique<MockStopAction>(),
-        std::make_unique<MockForceStopAction>(),
-        std::make_unique<ProcessTerminatedReadyCondition>(),
-        factory,
-        selfTerminatingConfig());
+    auto config = configWithShutdownTimeout(kNeverExpires);
+    config->component_properties.application_profile.is_self_terminating = param.is_self_terminating;
 
-    auto activation = std::async(std::launch::async, [&component] {
-        return component.activate(cpp::stop_token{});
-    });
-
-    started_future.wait();
-    const IComponent::TerminationResult termination_result = terminateFromOtherThread(component, 0);
-
-    EXPECT_EQ(activation.get(), IComponent::RequestResult::kSuccess);
-    EXPECT_EQ(termination_result, IComponent::TerminationResult::kIgnore);
-}
-
-TEST(ComponentTest, ProcessTerminatedReadyConditionFailsOnNonZeroExit)
-{
-    RecordProperty(
-        "Description",
-        "Given a self-terminating component with a ProcessTerminatedReadyCondition. "
-        "When the process exits with a non-zero status during activation. "
-        "Then the termination is ignored and activation fails without waiting for the timeout. "
-        "kFailure rather than kTimeout shows that the wait ended because of the termination.");
-
-    NiceMock<MockSupervisionFactory> factory;
-
-    std::promise<void> started;
-    auto started_future = started.get_future();
-
-    auto start_action = std::make_unique<MockStartAction>();
-    EXPECT_CALL(*start_action, start(_, _)).WillOnce(Invoke([&started](cpp::stop_token, IComponent&) {
-        started.set_value();
-        return Result<StartedResource>{StartedResource{mock_handle}};
-    }));
-
+    // Only a failed activation stops the process, which has already terminated then.
     Component component(
         std::move(start_action),
         std::make_unique<NiceMock<MockStopAction>>(),
         std::make_unique<StrictMock<MockForceStopAction>>(),
         std::make_unique<ProcessTerminatedReadyCondition>(),
         factory,
-        selfTerminatingConfig());
+        std::move(config));
 
     auto activation = std::async(std::launch::async, [&component] {
         return component.activate(cpp::stop_token{});
     });
 
     started_future.wait();
-    const IComponent::TerminationResult termination_result = terminateFromOtherThread(component, 1);
+    const IComponent::TerminationResult termination_result = terminateFromOtherThread(component, param.exit_status);
 
-    EXPECT_EQ(activation.get(), IComponent::RequestResult::kFailure);
+    EXPECT_EQ(activation.get(), param.expected_activation);
     EXPECT_EQ(termination_result, IComponent::TerminationResult::kIgnore);
 }
 
-TEST(ComponentTest, ProcessTerminatedReadyConditionFailsWhenNotSelfTerminating)
-{
-    RecordProperty(
-        "Description",
-        "Given a component with a ProcessTerminatedReadyCondition which is not self-terminating. "
-        "When the process exits with status 0 during activation. "
-        "Then the ready condition is met, but the termination is unexpected and activation fails.");
-
-    NiceMock<MockSupervisionFactory> factory;
-
-    std::promise<void> started;
-    auto started_future = started.get_future();
-
-    auto start_action = std::make_unique<MockStartAction>();
-    EXPECT_CALL(*start_action, start(_, _)).WillOnce(Invoke([&started](cpp::stop_token, IComponent&) {
-        started.set_value();
-        return Result<StartedResource>{StartedResource{mock_handle}};
-    }));
-
-    Component component(
-        std::move(start_action),
-        std::make_unique<NiceMock<MockStopAction>>(),
-        std::make_unique<StrictMock<MockForceStopAction>>(),
-        std::make_unique<ProcessTerminatedReadyCondition>(),
-        factory,
-        configWithShutdownTimeout(kNeverExpires));
-
-    auto activation = std::async(std::launch::async, [&component] {
-        return component.activate(cpp::stop_token{});
+INSTANTIATE_TEST_SUITE_P(
+    ComponentTest,
+    ComponentProcessTerminatedReadyConditionTest,
+    Values(
+        ProcessTerminatedCase{"SucceedsOnExitZero", true, 0, IComponent::RequestResult::kSuccess},
+        ProcessTerminatedCase{"FailsOnNonZeroExit", true, 1, IComponent::RequestResult::kFailure},
+        ProcessTerminatedCase{"FailsWhenNotSelfTerminating", false, 0, IComponent::RequestResult::kFailure}),
+    [](const TestParamInfo<ProcessTerminatedCase>& info) {
+        return std::string{info.param.name};
     });
-
-    started_future.wait();
-    const IComponent::TerminationResult termination_result = terminateFromOtherThread(component, 0);
-
-    EXPECT_EQ(activation.get(), IComponent::RequestResult::kFailure);
-    EXPECT_EQ(termination_result, IComponent::TerminationResult::kIgnore);
-}
-
-/// @brief Expects one stop of an already terminated process, which must not be asked to terminate again.
-void expectStopOfDeadProcess(MockStopAction& stop_action)
-{
-    EXPECT_CALL(stop_action, stop(_, _)).WillOnce(Invoke([](cpp::stop_token, const Handle& handle) {
-        EXPECT_FALSE(isAlive(handle));
-        return Result<IComponent::RequestResult>{IComponent::RequestResult::kSuccess};
-    }));
-}
 
 TEST(ComponentTest, SelfTerminatingExitWhileStartingDoesNotBlockReactivation)
 {
@@ -2760,7 +2424,7 @@ TEST(ComponentTest, SelfTerminatingExitWhileStartingDoesNotBlockReactivation)
     auto stop_action = std::make_unique<MockStopAction>();
     expectStopOfDeadProcess(*stop_action);
 
-    auto ready_condition = std::make_unique<MockReadyCondition>();
+    auto ready_condition = std::make_unique<NiceMock<MockReadyCondition>>();
     auto* const ready_condition_ptr = ready_condition.get();
 
     auto config = std::make_shared<configuration::ComponentConfig>();
@@ -2806,8 +2470,8 @@ TEST(ComponentTest, SelfTerminatingExitWhileReadyDoesNotBlockReactivation)
     auto stop_action = std::make_unique<MockStopAction>();
     expectStopOfDeadProcess(*stop_action);
 
-    auto ready_condition = std::make_unique<MockReadyCondition>();
-    ON_CALL(*ready_condition, wait(_, _, _)).WillByDefault(Return(Result<void>{}));
+    auto ready_condition = std::make_unique<NiceMock<MockReadyCondition>>();
+    EXPECT_CALL(*ready_condition, wait(_, _, _)).Times(2).WillRepeatedly(Return(Result<void>{}));
 
     auto config = std::make_shared<configuration::ComponentConfig>();
     config->component_properties.application_profile.is_self_terminating = true;
