@@ -128,10 +128,10 @@ IComponent::RequestResult Component::tryActivate(cpp::stop_token stop_token)
     // The state is deliberately not locked while waiting for the ready condition: the wait may take
     // up to the ready timeout, and terminations must be reported to the ready condition meanwhile.
     // Some ready conditions can only be woken up by a termination.
-    const Result<void> ready = ready_condition_->wait(
+    const Result<void> ready_condition_result = ready_condition_->wait(
         stop_token, handle.value(), std::chrono::milliseconds{config_->deployment_config.ready_timeout_ms});
 
-    return completeActivation(ready);
+    return completeActivation(ready_condition_result);
 }
 
 std::optional<Handle> Component::beginActivation(cpp::stop_token stop_token)
@@ -150,20 +150,22 @@ std::optional<Handle> Component::beginActivation(cpp::stop_token stop_token)
     // Anything left over from a previous activation is dropped.
     ready_condition_->prepare();
 
+    // The component is starting from here on. The handle is only known once the resource is started.
+    state_ = StartingState{Handle{}, false};
+
     // The resource is started while the state is locked, so that a termination reported right after
     // it is tracked finds StartingState.
     const Result<StartedResource> start_result = start_action_->start(stop_token, *this);
     if (!start_result.has_value())
     {
+        // Nothing is left running, see IStartAction::start().
+        state_ = TerminatedState{};
         return std::nullopt;
     }
     const StartedResource& started = start_result.value();
-
     state_ = StartingState{started.handle, false};
 
-    // If the resource terminated before it could be tracked, its termination is not reported
-    // later, so it is handled here, while the state is still locked. During startup it is always
-    // ignored: the ready condition and completeActivation() decide about the activation.
+    // The resource may have terminated directly after startup, in which case its termination is handled immediately.
     if (started.exit_status.has_value())
     {
         static_cast<void>(tryHandleTerminationInternally(started.exit_status.value()));
@@ -172,7 +174,7 @@ std::optional<Handle> Component::beginActivation(cpp::stop_token stop_token)
     return started.handle;
 }
 
-IComponent::RequestResult Component::completeActivation(const Result<void>& ready)
+IComponent::RequestResult Component::completeActivation(const Result<void>& ready_condition_result)
 {
     const std::lock_guard<std::mutex> lock{state_mutex_};
 
@@ -186,9 +188,9 @@ IComponent::RequestResult Component::completeActivation(const Result<void>& read
         return RequestResult::kFailure;
     }
 
-    if (!ready.has_value())
+    if (!ready_condition_result.has_value())
     {
-        if (ready.error() == ExecErrc::kTimeout)
+        if (ready_condition_result.error() == ExecErrc::kTimeout)
         {
             LM_LOG_WARN() << config_->name << ": ready condition was not met within the ready timeout";
             return RequestResult::kTimeout;
@@ -222,12 +224,15 @@ bool Component::stopAfterFailedActivation()
         starting != nullptr, "Component must still be starting after a failed activation");
 
     const Handle handle = starting->handle_;
+    // Stopping cannot be interrupted, so no stop token is passed on.
     return stopAndWait(lock, handle);
 }
 
 bool Component::stopAndWait(std::unique_lock<std::mutex>& lock, const Handle& handle)
 {
-    // Stopping cannot be interrupted, so no stop token is passed on.
+    // This code has to run while holding state_mutex_ so that `waitUntilTerminated` is invoked
+    // before a termination can be reported.
+
     state_ = TerminatingState{handle};
     const Result<RequestResult> stopped = stop_action_->stop(cpp::stop_token{}, handle);
 

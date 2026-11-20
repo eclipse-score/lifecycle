@@ -34,10 +34,21 @@ namespace score::mw::lifecycle::internal
 {
 
 /// @brief Manages and tracks the state of a resource.
-/// @details activate() and deactivate() never run at the same time. The graph guarantees this, and the
-///          component asserts it. Terminations of the resource, supervision failures and forced stops
-///          can be reported concurrently to both.
-///          Every failure ends in the inactive state, so the component can always be activated again.
+///
+/// @par Assumptions
+/// - activate() and deactivate() never run at the same time. The graph guarantees this, and the
+///   component asserts it.
+///
+/// @par Guarantees
+/// The implementation shall ensure the following properties:
+/// - A component configured with supervision must never run without being supervised
+///   (e.g. in case supervision setup fails).
+/// - In case of any failure (e.g. during activation), the component must not leave the resource
+///   running in an unmanaged state (e.g. the component is in state Terminated, but the resource
+///   is still running).
+/// - Every failure shall leave the component in Terminated state so that it can be restarted.
+/// - Any waiting (e.g. waiting for ready condition or shutdown timeout) must never occur while
+///   holding state_mutex_.
 class Component final : public IComponent
 {
   public:
@@ -62,6 +73,7 @@ class Component final : public IComponent
     ///          times, each with the full ready timeout. Retrying ends early if the stop token was stopped
     ///          meanwhile, or if the resource could not be cleaned up, since another attempt could then
     ///          start a second instance of it. The component is inactive after a failed activation.
+    /// @note This method is invoked from a dedicated worker thread only and is allowed to do blocking wait.
     /// @pre deactivate() is not running.
     /// @param stop_token Token which can be used to interrupt the wait for the ready condition.
     ///                   It does not interrupt stopping the resource after a failed activation.
@@ -71,26 +83,31 @@ class Component final : public IComponent
     /// @brief Stop the resource and set the component to inactive.
     /// @details Waits for the termination of the resource. If it does not terminate within the shutdown
     ///          timeout, it is stopped forcefully. The component is inactive afterwards in any case.
+    /// @note This method is invoked from a dedicated worker thread only and is allowed to do blocking wait.
     /// @pre activate() is not running.
     /// @param stop_token Ignored: stopping the resource cannot be interrupted.
     /// @return kSuccess if the resource is gone, kFailure if it could not be cleaned up.
     RequestResult deactivate(cpp::stop_token stop_token) override;
 
-    /// @brief Notify the component that a POSIX process has terminated.
+    /// @brief Notify the component that its resource has terminated.
     /// @details A termination during startup is reported to the ready condition and always ignored here;
     ///          activate() reports the outcome of the activation instead.
     /// @param status Exit code of the process.
-    /// @return Whether the termination is ignored or means the component failed.
+    /// @note This method is invoked from the central OS Handler thread and must not block.
+    /// @return kIgnore if the termination is expected or handled by an ongoing activation/deactivation task,
+    ///         kFailure if the termination is unexpected and not handled by an ongoing activation/deactivation task.
     TerminationResult tryHandleTermination(int32_t status) override;
 
     /// @brief Notify the component that its alive supervision has failed.
     /// @details Stops the resource forcefully if the component is ready and the failure belongs to the
     ///          current supervision. The termination is then reported as unexpected.
+    /// @note This method is invoked from the main thread and must not block.
     /// @param failure_timestamp Monotonic timestamp of the supervision failure.
     void handleSupervisionFailure(std::chrono::nanoseconds failure_timestamp) override;
 
     /// @brief Forcefully stop the resource, if it is running.
     /// @details Does not wait for the termination.
+    /// @note This method is invoked from the main thread and must not block.
     void forceStop();
 
     /// @brief Return the name of the component.
@@ -177,9 +194,9 @@ class Component final : public IComponent
     /// @brief Last phase of the activation, after the wait for the ready condition: change the state
     ///        from StartingState to ReadyState, unless the activation failed.
     /// @details Locks the state. The stop token is not checked here, it only interrupts the wait.
-    /// @param ready The result of the wait for the ready condition.
+    /// @param ready_condition_result The result of the wait for the ready condition.
     /// @return Whether the component activation succeeded, timed out or failed.
-    [[nodiscard]] RequestResult completeActivation(const Result<void>& ready);
+    [[nodiscard]] RequestResult completeActivation(const Result<void>& ready_condition_result);
 
     /// @brief Stop the resource after a failed activation and wait for its termination.
     /// @details Locks the state. Does nothing if no resource was started.
