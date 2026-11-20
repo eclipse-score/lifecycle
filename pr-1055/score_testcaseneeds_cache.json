@@ -28,6 +28,20 @@
     "FullyVerifies": null
   },
   {
+    "name": "test_lazy_check",
+    "file": "tests/integration/lazy_check/lazy_check.py",
+    "line": "21",
+    "result": "passed",
+    "repo_name": "local_repo",
+    "hash": "",
+    "url": "",
+    "TestType": "requirements-based",
+    "DerivationTechnique": "requirements-analysis",
+    "result_text": "",
+    "PartiallyVerifies": null,
+    "FullyVerifies": "comp_req__launch_man__lazy_check"
+  },
+  {
     "name": "test_same_run_target_in_transition",
     "file": "tests/integration/run_target_requests/same_run_target_in_transition/same_run_target_in_transition.py",
     "line": "19",
@@ -81,7 +95,7 @@
     "DerivationTechnique": "requirements-analysis",
     "result_text": "",
     "PartiallyVerifies": null,
-    "FullyVerifies": "comp_req__launch_man__ra_rt_queue"
+    "FullyVerifies": "comp_req__launch_man__ra_rt_queue, comp_req__launch_man__cancel_rt_force, comp_req__launch_man__rt_queue"
   },
   {
     "name": "test_replaced_activation",
@@ -13982,7 +13996,7 @@
     "TestType": "requirements-based",
     "DerivationTechnique": "requirements-analysis",
     "result_text": "",
-    "PartiallyVerifies": "comp_req__launch_man__consistent_dependencies",
+    "PartiallyVerifies": "comp_req__launch_man__comp_dep_ver_cmp_time",
     "FullyVerifies": null
   },
   {
@@ -13996,7 +14010,7 @@
     "TestType": "requirements-based",
     "DerivationTechnique": "requirements-analysis",
     "result_text": "",
-    "PartiallyVerifies": "comp_req__launch_man__consistent_dependencies",
+    "PartiallyVerifies": "comp_req__launch_man__comp_dep_ver_cmp_time",
     "FullyVerifies": null
   },
   {
@@ -14010,7 +14024,7 @@
     "TestType": "requirements-based",
     "DerivationTechnique": "requirements-analysis",
     "result_text": "",
-    "PartiallyVerifies": "comp_req__launch_man__consistent_dependencies",
+    "PartiallyVerifies": "comp_req__launch_man__comp_dep_ver_cmp_time",
     "FullyVerifies": null
   },
   {
@@ -14038,7 +14052,7 @@
     "TestType": "requirements-based",
     "DerivationTechnique": "requirements-analysis",
     "result_text": "",
-    "PartiallyVerifies": "comp_req__launch_man__consistent_dependencies",
+    "PartiallyVerifies": "comp_req__launch_man__comp_dep_ver_cmp_time",
     "FullyVerifies": null
   },
   {
@@ -14052,7 +14066,7 @@
     "TestType": "requirements-based",
     "DerivationTechnique": "requirements-analysis",
     "result_text": "",
-    "PartiallyVerifies": "comp_req__launch_man__consistent_dependencies",
+    "PartiallyVerifies": "comp_req__launch_man__comp_dep_ver_cmp_time",
     "FullyVerifies": null
   },
   {
@@ -14066,7 +14080,7 @@
     "TestType": "requirements-based",
     "DerivationTechnique": "requirements-analysis",
     "result_text": "",
-    "PartiallyVerifies": "comp_req__launch_man__consistent_dependencies",
+    "PartiallyVerifies": "comp_req__launch_man__comp_dep_ver_cmp_time",
     "FullyVerifies": null
   },
   {
@@ -14206,7 +14220,7 @@
     "TestType": "requirements-based",
     "DerivationTechnique": "requirements-analysis",
     "result_text": "",
-    "PartiallyVerifies": "comp_req__launch_man__consistent_dependencies",
+    "PartiallyVerifies": "comp_req__launch_man__comp_dep_ver_cmp_time",
     "FullyVerifies": null
   },
   {
