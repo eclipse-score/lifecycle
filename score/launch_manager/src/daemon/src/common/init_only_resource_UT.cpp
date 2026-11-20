@@ -12,6 +12,7 @@
  ********************************************************************************/
 #include <gtest/gtest.h>
 
+#include <memory_resource>
 #include <new>
 
 #include "score/mw/launch_manager/common/init_only_resource.hpp"
@@ -40,6 +41,17 @@ TEST(InitOnlyResourceTest, AllocationFailsAfterLock)
     InitOnlyResource resource_;
 
     resource_.lock();
+
+    EXPECT_THROW(static_cast<void>(resource_.allocate(64, alignof(std::max_align_t))), std::bad_alloc);
+}
+
+TEST(InitOnlyResourceTest, AllocationFailsIfResourceFails)
+{
+    RecordProperty("TestType", "interface-test");
+    RecordProperty("DerivationTechnique", "explorative-testing");
+    RecordProperty("Description", "Allocation fails before lock when the given resource fails.");
+
+    InitOnlyResource resource_{std::pmr::null_memory_resource()};
 
     EXPECT_THROW(static_cast<void>(resource_.allocate(64, alignof(std::max_align_t))), std::bad_alloc);
 }
