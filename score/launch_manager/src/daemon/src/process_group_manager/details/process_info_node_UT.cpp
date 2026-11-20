@@ -837,13 +837,14 @@ class ProcessInfoNodeRecoveryTest : public ProcessInfoNodeFixture
     /// @brief Expects every start attempt to launch the process, which then crashes before reaching kRunning.
     void expectCrashBeforeReadyOnEveryAttempt(ProcessInfoNode* node, std::uint32_t attempts)
     {
-        EXPECT_CALL(mock_processIf_, startProcess(_, _, _))
+        EXPECT_CALL(mock_process_if_, startProcess(_, _, _))
             .Times(attempts)
             .WillRepeatedly(Return(osal::OsalReturnType::kSuccess));
         EXPECT_CALL(*process_map_, insertIfNotTerminated(_, _))
             .Times(attempts)
-            .WillRepeatedly(Return(score::mw::lifecycle::internal::SafeProcessMapReturnType::kInserted));
-        EXPECT_CALL(mock_processIf_, waitForkRunning(_, _))
+            .WillRepeatedly(Return(
+                SafeProcessMapInsertResult{score::mw::lifecycle::internal::SafeProcessMapReturnType::kInserted}));
+        EXPECT_CALL(mock_process_if_, waitForkRunning(_, _))
             .Times(attempts)
             .WillRepeatedly(DoAll(
                 InvokeWithoutArgs([node] {
@@ -888,7 +889,7 @@ TEST_F(ProcessInfoNodeRecoveryTest, Recover_WithoutRestartAction_FailsWithoutSta
 
     recovery_action_ = configuration::SwitchRunTargetAction{"fallback"};
     auto node = createProcessInfoNode();
-    EXPECT_CALL(mock_processIf_, startProcess(_, _, _)).Times(0);
+    EXPECT_CALL(mock_process_if_, startProcess(_, _, _)).Times(0);
 
     auto result = node->recover(score::cpp::stop_token{});
 
@@ -906,11 +907,16 @@ TEST_F(ProcessInfoNodeRecoveryTest, Recover_AfterCrashAndDeactivate_RestartsProc
     expectActivationReport(2);
     recovery_action_ = configuration::RestartAction{};
     auto node = createProcessInfoNode(configuration::ApplicationType::ReportingAndSupervised);
-    EXPECT_CALL(mock_processIf_, startProcess(_, _, _)).Times(2).WillRepeatedly(Return(osal::OsalReturnType::kSuccess));
+    EXPECT_CALL(mock_process_if_, startProcess(_, _, _))
+        .Times(2)
+        .WillRepeatedly(Return(osal::OsalReturnType::kSuccess));
     EXPECT_CALL(*process_map_, insertIfNotTerminated(_, _))
         .Times(2)
-        .WillRepeatedly(Return(score::mw::lifecycle::internal::SafeProcessMapReturnType::kInserted));
-    EXPECT_CALL(mock_processIf_, waitForkRunning(_, _)).Times(2).WillRepeatedly(Return(osal::OsalReturnType::kSuccess));
+        .WillRepeatedly(
+            Return(SafeProcessMapInsertResult{score::mw::lifecycle::internal::SafeProcessMapReturnType::kInserted}));
+    EXPECT_CALL(mock_process_if_, waitForkRunning(_, _))
+        .Times(2)
+        .WillRepeatedly(Return(osal::OsalReturnType::kSuccess));
 
     ASSERT_THAT(node->activate(score::cpp::stop_token{}), Eq(IComponent::RequestResult::kSuccess));
     ASSERT_THAT(node->tryHandleTermination(-1), Eq(IComponent::TerminationResult::kFailure));
