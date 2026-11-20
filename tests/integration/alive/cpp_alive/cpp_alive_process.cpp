@@ -33,6 +33,13 @@ struct Reports
     static constexpr type default_value = -1;  // negative: unlimited
 };
 
+struct PeriodMs
+{
+    static constexpr std::string_view name = "--period_ms";
+    using type = int;
+    static constexpr type default_value = 50;
+};
+
 volatile std::sig_atomic_t exit_requested{0};
 
 void sigterm_handler(int signal)
@@ -45,9 +52,11 @@ void sigterm_handler(int signal)
 /// @brief Reports running, then reports alive every 50ms.
 ///        optional argument "--reports=<n>": only the first <n> alive
 ///        notifications are reported.
+///        optional argument "--period_ms=<ms>": time between two alive
+///        notifications (default 50).
 int main(int argc, char** argv)
 {
-    auto [remaining_reports] = ParseArgs<Reports>(argc, argv);
+    auto [remaining_reports, period_ms] = ParseArgs<Reports, PeriodMs>(argc, argv);
 
     if (std::signal(SIGTERM, sigterm_handler) == SIG_ERR)
     {
@@ -68,7 +77,7 @@ int main(int argc, char** argv)
                 --remaining_reports;
             }
         }
-        std::this_thread::sleep_for(std::chrono::milliseconds(50));
+        std::this_thread::sleep_for(std::chrono::milliseconds(period_ms));
     }
     return EXIT_SUCCESS;
 }

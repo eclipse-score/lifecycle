@@ -23,23 +23,62 @@
 #include <score/mw/lifecycle/ilm_control.hpp>
 #include <score/mw/lifecycle/report_running.h>
 
-// Given a correct configuration with:
-//   - An initial Run Target "Startup" containing "control_client_test_driver"
-//   - Run Targets "cpp_failure" and "rust_failure", which contain a C++ / Rust component that stops reporting alive
-//     after a few notifications
-//   - A Run Target "success", which contains a C++ and a Rust component that keep reporting alive
-//   - A fallback Run Target that touches the fallback file
+/// @file
+/// @warning this control client requires the following RTs:
+///   - An initial Run Target "Startup" containing "control_client_test_driver"
+///   - Run Target "too_few", which contains a component that stops reporting alive after a few notifications
+///   - Run Target "too_many", which contains a component that reports alive more often than allowed
+///   - Run Target "success", which contains a component that reports alive within the allowed range
+///   - A fallback Run Target that touches the fallback file
 
 using namespace score::mw::lifecycle;
 using namespace std::chrono_literals;
 
 namespace
 {
-/// Time during which a healthy alive supervision must not trigger the fallback Run Target (many evaluation cycles).
+/// @brief Time to wait untill we're confident it's working.
 constexpr auto kNoFallbackObservationTime = 1500ms;
+
+/// @brief Activates a Run Target that shall error, and verifies that fallback
+///        is reached.
+/// @param client  The client.
+/// @param run_target_name  The run target to switch to.
+void ExpectFallback(ILmControl& client, std::string_view run_target_name)
+{
+    const RunTargetName run_target{run_target_name};
+    const std::string name{run_target_name};
+
+    TEST_STEP("Activate Run Target " + name)
+    {
+        const auto result = client.activate_run_target(run_target, true);
+        EXPECT_TRUE(result.has_value()) << result.error().Message();
+    }
+
+    pop_event([run_target, name](RunTargetActivationSource source, RunTargetName target) {
+        TEST_STEP("Callback for Run Target " + name)
+        {
+            EXPECT_EQ(source, RunTargetActivationSource::kStateManagerRequest);
+            EXPECT_EQ(target, run_target);
+        }
+    });
+
+    pop_event([](RunTargetActivationSource source, RunTargetName target) {
+        TEST_STEP("Callback for fallback Run Target")
+        {
+            EXPECT_EQ(source, RunTargetActivationSource::kRecoveryAction);
+            EXPECT_EQ(target, "fallback_run_target");
+        }
+    });
+
+    TEST_STEP("Verify fallback Run Target was activated")
+    {
+        EXPECT_TRUE(wait_for_file(fallback_file)) << "Fallback Run Target should have been activated";
+        std::filesystem::remove(fallback_file);
+    }
+}
 }  // namespace
 
-TEST(AliveFailure, ControlClientTestDriver)
+TEST(AliveSupervision, ControlClientTestDriver)
 {
     ASSERT_TRUE(check_clean({fallback_file}));
 
@@ -76,43 +115,8 @@ TEST(AliveFailure, ControlClientTestDriver)
         }
     });
 
-    // Activates a Run Target containing a component that stops reporting alive and verifies the fallback
-    // Run Target is activated as a consequence.
-    const auto expect_fallback = [&client](std::string_view run_target_name) {
-        const RunTargetName run_target{run_target_name};
-        const std::string name{run_target_name};
-
-        TEST_STEP("Activate Run Target " + name)
-        {
-            const auto result = client->activate_run_target(run_target, true);
-            EXPECT_TRUE(result.has_value()) << result.error().Message();
-        }
-
-        pop_event([run_target, name](RunTargetActivationSource source, RunTargetName target) {
-            TEST_STEP("Callback for Run Target " + name)
-            {
-                EXPECT_EQ(source, RunTargetActivationSource::kStateManagerRequest);
-                EXPECT_EQ(target, run_target);
-            }
-        });
-
-        pop_event([](RunTargetActivationSource source, RunTargetName target) {
-            TEST_STEP("Callback for fallback Run Target")
-            {
-                EXPECT_EQ(source, RunTargetActivationSource::kRecoveryAction);
-                EXPECT_EQ(target, "fallback_run_target");
-            }
-        });
-
-        TEST_STEP("Verify fallback Run Target was activated")
-        {
-            EXPECT_TRUE(wait_for_file(fallback_file)) << "Fallback Run Target should have been activated";
-            std::filesystem::remove(fallback_file);
-        }
-    };
-
-    expect_fallback("cpp_failure");
-    expect_fallback("rust_failure");
+    ExpectFallback(*client, "too_few");
+    ExpectFallback(*client, "too_many");
 
     TEST_STEP("Activate Run Target success")
     {

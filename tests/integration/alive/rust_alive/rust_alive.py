@@ -25,26 +25,27 @@ from attribute_plugin import add_test_properties
     test_type="requirements-based",
     derivation_technique="error-guessing",
 )
-def test_alive_failure(target, setup_test, assert_test_results, remote_test_dir):
+def test_rust_alive(target, setup_test, assert_test_results, remote_test_dir):
     """
-    Objective: Verifies that a missing alive notification is detected for both
-    a C++ and a Rust application.
+    Objective: Verifies that an alive supervision failure is detected for a
+    Rust application, and that correct reporting is not flagged.
 
-    1: A C++ component reports alive 5 times and then stops reporting, while
-       staying alive.
+    1: A Rust component reports alive 5 times and then stops reporting, while
+       staying alive (too few notifications).
        Expected Behaviour: Alive supervision fails, the fallback
        Run Target is activated.
-    2: The same with a Rust component.
+    2: A Rust component reports alive much more often than max_indications allows
+       (too many notifications).
        Expected Behaviour: Alive supervision fails, the fallback Run Target is
        activated again.
-    3: A C++ and a Rust component keep reporting alive.
+    3: A Rust component keeps reporting alive within min/max_indications.
        Expected Behaviour: The fallback Run Target is not activated.
     """
 
     run_test(
         target=target,
         binary_path=str(remote_test_dir / "launch_manager"),
-        args=["-c", str(remote_test_dir / "etc/alive_failure.bin")],
+        args=["-c", str(remote_test_dir / "etc/rust_alive.bin")],
         cwd=str(remote_test_dir),
     )
 

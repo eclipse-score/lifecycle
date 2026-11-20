@@ -2,7 +2,7 @@
     "schema_version": 2,
     "defaults": {
         "deployment_config": {
-            "bin_dir": "/tmp/tests/alive_success",
+            "bin_dir": "/tmp/tests/rust_alive",
             "ready_timeout_ms": 1000,
             "shutdown_timeout_ms": 1000,
             "recovery_action": {
@@ -25,10 +25,10 @@
                 "application_type": "Reporting_And_Supervised",
                 "is_self_terminating": false,
                 "alive_supervision": {
-                    "reporting_cycle_ms": 100,
+                    "reporting_cycle_ms": 200,
                     "failed_cycles_tolerance": 0,
-                    "min_indications": 1,
-                    "max_indications": 4
+                    "min_indications": 2,
+                    "max_indications": 8
                 }
             },
             "ready_condition": {
@@ -37,12 +37,39 @@
         }
     },
     "components": {
-        "cpp_component": {
+        "control_client_test_driver": {
             "component_properties": {
-                "binary_name": "cpp_alive_process"
+                "binary_name": "control_client_test_driver",
+                "application_profile": {
+                    "application_type": "State_Manager",
+                    "alive_supervision": {
+                        "min_indications": 0
+                    }
+                }
+            },
+            "deployment_config": {
+                "environmental_variables": {
+                    "PROCESSIDENTIFIER": "control_client_test_driver"
+                }
             }
         },
-        "rust_component": {
+        "too_few_component": {
+            "component_properties": {
+                "binary_name": "rust_alive_process",
+                "process_arguments": [
+                    "--reports=5"
+                ]
+            }
+        },
+        "too_many_component": {
+            "component_properties": {
+                "binary_name": "rust_alive_process",
+                "process_arguments": [
+                    "--period_ms=5"
+                ]
+            }
+        },
+        "success_component": {
             "component_properties": {
                 "binary_name": "rust_alive_process"
             }
@@ -51,28 +78,9 @@
             "component_properties": {
                 "binary_name": "verification_process",
                 "process_arguments": [
-                    "delay_ms=1500",
-                    "test_end"
+                    "fallback_run_target"
                 ],
-                "depends_on": [
-                    "cpp_component",
-                    "rust_component"
-                ],
-                "application_profile": {
-                    "application_type": "Native",
-                    "is_self_terminating": true
-                },
-                "ready_condition": {
-                    "process_state": "Terminated"
-                }
-            },
-            "deployment_config": {
-                "ready_timeout_ms": 5000
-            }
-        },
-        "fail_test_component": {
-            "component_properties": {
-                "binary_name": "fail_test",
+                "depends_on": [],
                 "application_profile": {
                     "application_type": "Native",
                     "is_self_terminating": true
@@ -86,10 +94,29 @@
     "run_targets": {
         "Startup": {
             "depends_on": [
-                "cpp_component",
-                "rust_component",
-                "verification_component"
+                "control_client_test_driver"
             ]
+        },
+        "too_few": {
+            "depends_on": [
+                "control_client_test_driver",
+                "too_few_component"
+            ]
+        },
+        "too_many": {
+            "depends_on": [
+                "control_client_test_driver",
+                "too_many_component"
+            ]
+        },
+        "success": {
+            "depends_on": [
+                "control_client_test_driver",
+                "success_component"
+            ]
+        },
+        "Off": {
+            "depends_on": []
         }
     },
     "initial_run_target": "Startup",
@@ -98,7 +125,8 @@
     },
     "fallback_run_target": {
         "depends_on": [
-            "fail_test_component"
+            "control_client_test_driver",
+            "verification_component"
         ]
     }
 }

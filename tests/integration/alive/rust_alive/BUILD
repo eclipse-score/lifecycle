@@ -9,18 +9,30 @@
 # https://www.apache.org/licenses/LICENSE-2.0
 #
 # SPDX-License-Identifier: Apache-2.0
-# *******************************************************************************
+load("@rules_rust//rust:defs.bzl", "rust_binary")
 load("//tests/utils/bazel:integration.bzl", "integration_test")
 
+rust_binary(
+    name = "rust_alive_process",
+    srcs = ["rust_alive_process.rs"],
+    target_compatible_with = [
+        "@score_cpp_policies//sanitizers/constraints:no_tsan",
+        "@score_cpp_policies//sanitizers/constraints:no_asan",
+    ],
+    deps = [
+        "//score/launch_manager:alive_rust",
+        "//score/launch_manager:lifecycle_rust",
+    ],
+)
+
 integration_test(
-    name = "alive_success",
-    srcs = ["alive_success.py"],
+    name = "rust_alive",
+    srcs = ["rust_alive.py"],
     binaries = [
-        "//tests/integration/alive:cpp_alive_process",
-        "//tests/integration/alive:rust_alive_process",
+        ":rust_alive_process",
         "//score/launch_manager",
-        "//tests/utils/test_helper:fail_test",
+        "//tests/integration/alive:control_client_test_driver",
         "//tests/utils/test_helper:verification_process",
     ],
-    config = ":alive_success.json",
+    config = ":rust_alive.json",
 )

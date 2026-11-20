@@ -9,31 +9,17 @@
 # https://www.apache.org/licenses/LICENSE-2.0
 #
 # SPDX-License-Identifier: Apache-2.0
-# *******************************************************************************
 load("@rules_cc//cc:cc_binary.bzl", "cc_binary")
-load("@rules_rust//rust:defs.bzl", "rust_binary")
 
 package(default_visibility = ["//tests/integration/alive:__subpackages__"])
 
 cc_binary(
-    name = "cpp_alive_process",
-    srcs = ["cpp_alive_process.cpp"],
+    name = "control_client_test_driver",
+    srcs = ["control_client_test_driver.cpp"],
     deps = [
-        "//score/launch_manager:alive_cc",
+        "//score/launch_manager:control_cc",
         "//score/launch_manager:lifecycle_cc",
-        "//tests/utils/test_helper:arg_parser",
-    ],
-)
-
-rust_binary(
-    name = "rust_alive_process",
-    srcs = ["rust_alive_process.rs"],
-    target_compatible_with = [
-        "@score_cpp_policies//sanitizers/constraints:no_tsan",
-        "@score_cpp_policies//sanitizers/constraints:no_asan",
-    ],
-    deps = [
-        "//score/launch_manager:alive_rust",
-        "//score/launch_manager:lifecycle_rust",
+        "//tests/utils/test_helper",
+        "@googletest//:gtest_main",
     ],
 )

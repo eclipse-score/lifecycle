@@ -9,30 +9,27 @@
 # https://www.apache.org/licenses/LICENSE-2.0
 #
 # SPDX-License-Identifier: Apache-2.0
-# *******************************************************************************
 load("@rules_cc//cc:cc_binary.bzl", "cc_binary")
 load("//tests/utils/bazel:integration.bzl", "integration_test")
 
 cc_binary(
-    name = "control_client_test_driver",
-    srcs = ["control_client_test_driver.cpp"],
+    name = "cpp_alive_process",
+    srcs = ["cpp_alive_process.cpp"],
     deps = [
-        "//score/launch_manager:control_cc",
+        "//score/launch_manager:alive_cc",
         "//score/launch_manager:lifecycle_cc",
-        "//tests/utils/test_helper",
-        "@googletest//:gtest_main",
+        "//tests/utils/test_helper:arg_parser",
     ],
 )
 
 integration_test(
-    name = "alive_failure",
-    srcs = ["alive_failure.py"],
+    name = "cpp_alive",
+    srcs = ["cpp_alive.py"],
     binaries = [
-        ":control_client_test_driver",
-        "//tests/integration/alive:cpp_alive_process",
-        "//tests/integration/alive:rust_alive_process",
+        ":cpp_alive_process",
         "//score/launch_manager",
+        "//tests/integration/alive:control_client_test_driver",
         "//tests/utils/test_helper:verification_process",
     ],
-    config = ":alive_failure.json",
+    config = ":cpp_alive.json",
 )
