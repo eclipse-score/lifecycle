@@ -17,6 +17,7 @@
 #include "score/mw/launch_manager/alive_monitor/isupervision_factory.hpp"
 #include "score/mw/launch_manager/configuration/component_config.hpp"
 #include "score/mw/launch_manager/osal/ifile_waiter.hpp"
+#include "score/mw/launch_manager/process_group_manager/details/component.hpp"
 #include "score/mw/launch_manager/process_group_manager/details/icomponent.hpp"
 #include "score/mw/launch_manager/process_group_manager/details/safe_process_map.hpp"
 #include "score/mw/launch_manager/process_group_manager/iprocess.hpp"
@@ -33,10 +34,14 @@ namespace score::mw::lifecycle::internal
 ///          are registered in the process map, so that their termination is reported to their
 ///          component.
 ///          The ready condition is chosen from the configured ready condition:
-///          - \c FileState: FileReadyCondition.
+///          - \c FileState for a \c Native application: FileReadyCondition.
+///          - \c FileState for any other application type: SequenceReadyCondition, which first waits
+///            for kRunning (ReportRunningReadyCondition) and then for the file (FileReadyCondition).
+///            Both share the ready timeout.
 ///          - \c Running for a \c Native application: EmptyReadyCondition.
 ///          - \c Running for any other application type: ReportRunningReadyCondition.
-///          - \c Terminated: not supported yet, an error is returned.
+///          - \c Terminated: ProcessTerminatedReadyCondition, for every application type. A
+///            reporting process is not waited for to report kRunning.
 ///
 ///          Run Targets are created with createRunTarget(), using only empty actions.
 ///
@@ -62,9 +67,10 @@ class ComponentFactory final
     /// @param config Configuration of the component; must not be null. The returned component
     ///               shares ownership of it. If the component is supervised, the alive supervision
     ///               connection is added to its environment variables.
-    /// @return The new, inactive component, or an error if its configuration is not supported:
-    ///         - \c ExecErrc::kNotImplemented if the ready condition is \c ProcessState::Terminated.
-    [[nodiscard]] Result<std::unique_ptr<IComponent>> create(
+    /// @return The new, inactive component. Every supported configuration currently succeeds; the
+    ///         Result leaves room for configurations which cannot be supported.
+    ///         The concrete type is returned, because the graph needs Component::forceStop().
+    [[nodiscard]] Result<std::unique_ptr<Component>> create(
         std::shared_ptr<configuration::ComponentConfig> config) const;
 
     /// @brief Create a component for a Run Target.

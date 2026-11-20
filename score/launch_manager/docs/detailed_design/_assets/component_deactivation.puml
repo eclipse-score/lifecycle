@@ -27,6 +27,8 @@ queue "Component Event Queue" as EventQueue
 box "Worker thread" #FAF6F0
 participant "IComponentController" as Monitor
 participant "IComponent" as Component
+participant "IStopAction" as StopAction
+participant "IForceStopAction" as ForceStopAction
 end box
 
 participant "Alive Supervision" as Supervision
@@ -56,50 +58,85 @@ deactivate Graph
 WorkerQueue -> Monitor ++: deactivation is taken by a free worker
 Monitor -> Component ++: deactivate
 
+opt #F2FAF2 the component is already stopped
+    note right of Component
+      E.g. its process terminated unexpectedly before. The
+      deactivation succeeds right away; nothing below happens.
+    end note
+end
+
 opt component is supervised
     Component -> Supervision ++: stop supervising the process
     Supervision --> Component --:
     note right of Component
       Supervision is stopped before the process is asked to
       terminate, so the shutdown is not reported as a
-      supervision failure.
+      supervision failure. A failure to stop it is ignored.
     end note
 end
 
-alt component has a running process
+Component -> StopAction ++: stop
+opt the process is still running
+    StopAction -> OS: request the process to terminate (SIGTERM)
+end
+StopAction --> Component --: stop requested, or failed
+Component -> Component: wait for the process to exit,\nup to the shutdown timeout
 
-  Component -> OS: Send SIGTERM signal
-  Component -> Component: wait for the process to exit\nuntil the shutdown timeout expires
+alt #F2FAF2 the process has already exited
+    note right of Component
+      E.g. a self-terminating process which exited with 0.
+      Nothing is waited for, the deactivation succeeds.
+    end note
 
-  alt #F2FAF2 the process exits within the shutdown timeout
-      OS -> OsHandler ++: child process has terminated
-      OsHandler -> Map ++: look up the component for the process id
-      Map --> Component: the process has exited
-      deactivate Map
-      deactivate OsHandler
+else #F2FAF2 the process exits within the shutdown timeout
+    OS -> OsHandler ++: child process has terminated
+    OsHandler -> Map ++: look up the component for the process id
+    Map --> Component: the process has exited
+    deactivate Map
+    deactivate OsHandler
+    note right of Component
+      The deactivation succeeds.
+    end note
 
-  else #Pink the shutdown timeout expires
-      Component -> OS: Send SIGKILL signal
-      OS -> OsHandler ++: child process has terminated
-      OsHandler -> Map ++: look up the component for the process id
-      Map --> Component: the process has exited
-      deactivate Map
-      deactivate OsHandler
-  end
+else #Pink the stop request cannot be sent
+    note right of Component
+      No termination will be reported, so nothing is waited
+      for and no forced stop is tried. The deactivation fails.
+    end note
 
-else component has no running process
-  note over Component
-  This may be the case for self-terminating processes.
-  In this case there is nothing further todo.
-  end note
-end alt
+else #Pink the shutdown timeout expires
+    note right of Component
+      The process is stopped forcefully below.
+    end note
+end
+
+opt #FFF8E8 forced stop: the shutdown timeout expired
+    Component -> ForceStopAction ++: force stop
+    ForceStopAction -> OS: kill the process (SIGKILL)
+    ForceStopAction --> Component --:
+    Component -> Component: wait for the process to exit,\nup to kMaxSigKillDelay
+    OS -> OsHandler ++: child process has terminated
+    OsHandler -> Map ++: look up the component for the process id
+    Map --> Component: the process has exited
+    deactivate Map
+    deactivate OsHandler
+    note right of Component
+      If SIGKILL cannot be sent or the process does not exit
+      within kMaxSigKillDelay, the deactivation fails. A late
+      termination is ignored.
+    end note
+end
 
 ' --- result ------------------------------------------------------------------
-Component --> Monitor: deactivation complete
-note over Monitor
-  A deactivation has no failure outcome: the component
-  escalates until the process is gone.
-end note
+alt the process is gone
+    Component --> Monitor: deactivation succeeded
+else the process could not be stopped
+    Component --> Monitor: deactivation failed
+    note right of Monitor
+      The graph does not handle a failed deactivation yet,
+      so it is reported as complete as well.
+    end note
+end
 Monitor -> EventQueue: component deactivated
 deactivate Component
 deactivate Monitor

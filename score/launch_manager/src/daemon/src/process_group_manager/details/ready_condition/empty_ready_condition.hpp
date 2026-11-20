@@ -30,8 +30,10 @@ class EmptyReadyCondition final : public IReadyCondition
     /// @brief Does not wait and returns success.
     /// @param stop_token Token which can be used to interrupt the wait.
     /// @param handle The resource to wait on.
+    /// @param timeout The maximum duration to wait, which is not needed.
     /// @return Always successful.
-    Result<void> wait(cpp::stop_token stop_token, const Handle& handle) const override;
+    Result<void> wait(cpp::stop_token stop_token, const Handle& handle, std::chrono::milliseconds timeout)
+        const override;
 };
 
 }  // namespace score::mw::lifecycle::internal

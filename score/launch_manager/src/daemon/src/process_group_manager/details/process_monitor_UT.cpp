@@ -98,3 +98,21 @@ TEST_F(ProcessMonitorTest, ActivationFailed)
     // When
     process_monitor_.doWork(ComponentTask{ComponentTaskType::kActivate, mock_component_, stop_source_.get_token()});
 }
+
+TEST_F(ProcessMonitorTest, FailedDeactivationIsReportedAsComplete)
+{
+    RecordProperty(
+        "Description",
+        "Verify that a failed deactivation is still reported as complete, so that the graph's job accounting "
+        "finishes");
+
+    // Given a task that will fail to deactivate
+    // Then
+    EXPECT_CALL(mock_component_, deactivate).WillOnce(Return(IComponent::RequestResult::kFailure));
+    EXPECT_CALL(
+        mock_queue_,
+        push(VariantWith<DeactivationComplete>(Field(&DeactivationComplete::node_identifier, kDefaultIdentifier))))
+        .Times(1);
+    // When
+    process_monitor_.doWork(ComponentTask{ComponentTaskType::kDeactivate, mock_component_, stop_source_.get_token()});
+}

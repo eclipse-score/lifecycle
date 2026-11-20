@@ -28,6 +28,7 @@
 #include "score/mw/launch_manager/common/identifier_hash.hpp"
 #include "score/mw/launch_manager/configuration/config.hpp"
 #include "score/mw/launch_manager/osal/semaphore.hpp"
+#include "score/mw/launch_manager/process_group_manager/details/component.hpp"
 #include "score/mw/launch_manager/process_group_manager/details/component_event.hpp"
 #include "score/mw/launch_manager/process_group_manager/details/component_of.hpp"
 #include "score/mw/launch_manager/process_group_manager/details/component_task.hpp"
@@ -135,7 +136,10 @@ class Graph final
 {
   public:
     /// @brief All currently supported component implementations.
-    using Component = std::variant<ProcessInfoNode, RunTarget>;
+    /// @details A Component cannot be moved, so it is held by pointer. Which of ProcessInfoNode and
+    ///          Component is used for processes is selected with the Bazel flag --//config:use_component.
+    ///          Inside Graph, the class must be named internal::Component, because this alias hides it.
+    using Component = std::variant<ProcessInfoNode, std::unique_ptr<internal::Component>, RunTarget>;
 
     static constexpr std::string_view off_state_name{"Off"};
     static constexpr std::string_view recovery_state_name{"fallback_run_target"};
@@ -267,7 +271,7 @@ class Graph final
     void tryQueueNode(ComponentTask task);
 
     /// @brief Every node that is ready to execute is either executed in place (RunTarget) or queued for execution
-    /// (ProcessInfoNode).
+    /// (ProcessInfoNode, Component).
     void queueReadyNodes();
 
     /// @brief Executes a RunTarget's activation/deactivation in place

@@ -52,6 +52,7 @@ cc_library(
         "//score/launch_manager/src/daemon/src/configuration:component_config",
         "//score/launch_manager/src/daemon/src/osal:ifile_waiter",
         "//score/launch_manager/src/daemon/src/osal:return_types",
+        "@score_baselibs//score/language/futurecpp",
         "@score_baselibs//score/language/safecpp/string_view:zstring_view",
     ],
 )
@@ -79,6 +80,7 @@ cc_library(
         "//score/launch_manager:error",
         "//score/launch_manager/src/daemon/src/osal:return_types",
         "//score/launch_manager/src/daemon/src/process_group_manager:iprocess",
+        "@score_baselibs//score/language/futurecpp",
     ],
 )
 
@@ -153,6 +155,31 @@ lm_cc_test(
     srcs = ["process_terminated_ready_condition_UT.cpp"],
     deps = [
         ":process_terminated_ready_condition",
+        "//score/launch_manager:error",
+        "@googletest//:gtest_main",
+    ],
+)
+
+cc_library(
+    name = "sequence_ready_condition",
+    srcs = ["sequence_ready_condition.cpp"],
+    hdrs = ["sequence_ready_condition.hpp"],
+    include_prefix = "score/mw/launch_manager/process_group_manager/details/ready_condition",
+    strip_include_prefix = "/score/launch_manager/src/daemon/src/process_group_manager/details/ready_condition",
+    visibility = ["//score/launch_manager/src/daemon/src/process_group_manager:__subpackages__"],
+    deps = [
+        ":iready_condition",
+        "//score/launch_manager:error",
+        "@score_baselibs//score/language/futurecpp",
+    ],
+)
+
+lm_cc_test(
+    name = "sequence_ready_condition_UT",
+    srcs = ["sequence_ready_condition_UT.cpp"],
+    deps = [
+        ":mock_ready_condition",
+        ":sequence_ready_condition",
         "//score/launch_manager:error",
         "@googletest//:gtest_main",
     ],

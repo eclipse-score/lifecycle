@@ -14,16 +14,19 @@
 #include "score/mw/launch_manager/process_group_manager/details/ready_condition/report_running_ready_condition.hpp"
 #include "score/mw/launch_manager/osal/return_types.hpp"
 #include "score/mw/lifecycle/execution_error.h"
+#include <score/stop_token.hpp>
 
 namespace score::mw::lifecycle::internal
 {
 
-ReportRunningReadyCondition::ReportRunningReadyCondition(osal::IProcess& launcher, std::chrono::milliseconds timeout)
-    : launcher_(launcher), timeout_(timeout)
+ReportRunningReadyCondition::ReportRunningReadyCondition(osal::IProcess& launcher) : launcher_(launcher)
 {
 }
 
-Result<void> ReportRunningReadyCondition::wait(cpp::stop_token /*stop_token*/, const Handle& handle) const
+Result<void> ReportRunningReadyCondition::wait(
+    cpp::stop_token stop_token,
+    const Handle& handle,
+    std::chrono::milliseconds timeout) const
 {
     const ProcessHandle* const process = std::get_if<ProcessHandle>(&handle);
     SCORE_LANGUAGE_FUTURECPP_ASSERT_MESSAGE(
@@ -32,9 +35,16 @@ Result<void> ReportRunningReadyCondition::wait(cpp::stop_token /*stop_token*/, c
         process->sync != nullptr,
         "ReportRunningReadyCondition should only be called with a ProcessHandle containing IPCCommsSync");
 
+    // A stop request wakes up the waiting thread with a post, like a termination does. The callback
+    // captures the shared pointer by value, so the shared memory stays alive while it runs. If the
+    // token is already stopped, the callback runs immediately.
+    const cpp::stop_callback wake_on_stop{stop_token, [sync = process->sync] {
+                                              static_cast<void>(sync->send_sync_.post());
+                                          }};
+
     // waitForkRunning only succeeds if the process itself reported kRunning, not if it was woken up by
-    // tryHandleTermination.
-    const osal::OsalReturnType result = launcher_.waitForkRunning(process->sync, timeout_);
+    // handleTermination or a stop request.
+    const osal::OsalReturnType result = launcher_.waitForkRunning(process->sync, timeout);
 
     if (result == osal::OsalReturnType::kSuccess)
     {
@@ -49,7 +59,7 @@ Result<void> ReportRunningReadyCondition::wait(cpp::stop_token /*stop_token*/, c
     return MakeUnexpected(ExecErrc::kGeneralError);
 }
 
-bool ReportRunningReadyCondition::tryHandleTermination(const Handle& handle, int32_t /*status*/) const
+void ReportRunningReadyCondition::handleTermination(const Handle& handle, int32_t /*status*/) const
 {
     const ProcessHandle* const process = std::get_if<ProcessHandle>(&handle);
     SCORE_LANGUAGE_FUTURECPP_ASSERT_MESSAGE(
@@ -64,8 +74,6 @@ bool ReportRunningReadyCondition::tryHandleTermination(const Handle& handle, int
     // https://github.com/eclipse-score/lifecycle/blob/876c5df184ee0008017334303c12f1c2ee75e42e/score/launch_manager/src/daemon/src/process_group_manager/details/process_info_node.cpp#L171
     // Should errors be handled here?
     static_cast<void>(process->sync->send_sync_.post());
-
-    return true;
 }
 
 }  // namespace score::mw::lifecycle::internal

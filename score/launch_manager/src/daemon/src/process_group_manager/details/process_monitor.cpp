@@ -72,6 +72,14 @@ void ProcessMonitor::doWork(ComponentTask&& task)
                 }
                 break;
             case ComponentTaskType::kDeactivate:
+                // TODO: Report a dedicated failure event once the graph can handle it. Until then, the
+                //       deactivation is reported as complete, so that the graph's job accounting finishes.
+                LM_LOG_ERROR() << "Deactivation of component" << node_identifier
+                               << "failed, the resource may still be running";
+                if (!event_queue_.push(DeactivationComplete{node_identifier}))
+                {
+                    LM_LOG_ERROR() << "Failed to send deactivation complete event to event queue!";
+                }
                 break;
         }
     };

@@ -13,6 +13,7 @@
 
 #include "score/mw/launch_manager/process_group_manager/details/component.hpp"
 #include "score/launch_manager/src/execution_error.h"
+#include "score/mw/launch_manager/common/constants.hpp"
 #include "score/mw/launch_manager/common/log.hpp"
 
 namespace score::mw::lifecycle::internal
@@ -48,7 +49,7 @@ std::unique_ptr<IAliveSupervisionHandle> constructSupervision(
     }
 
     SCORE_LANGUAGE_FUTURECPP_ASSERT_DBG_MESSAGE(
-        app_profile.alive_supervision.has_value(), "Supervised component did not have alive supervision config");
+        config.component_properties.application_profile.alive_supervision.has_value(), "Supervised component did not have alive supervision config");
 
     LM_LOG_DEBUG() << "Setting up alive supervision for" << config.name;
     std::unique_ptr<IAliveSupervisionHandle> handle = supervision_factory.constructSupervision(
@@ -87,37 +88,53 @@ Component::Component(
 
 IComponent::RequestResult Component::activate(cpp::stop_token stop_token)
 {
-    cpp::stop_source stop_activation{};
+    const std::uint32_t attempts = 1U + config_->deployment_config.activation_retry_attempts;
 
-    const std::optional<Handle> handle = beginActivation(stop_token, stop_activation);
+    RequestResult result{RequestResult::kFailure};
+    for (std::uint32_t attempt = 1U; attempt <= attempts; ++attempt)
+    {
+        LM_LOG_DEBUG() << config_->name << ": starting activation attempt" << attempt << "of" << attempts;
+        result = tryActivate(stop_token);
+        if (result == RequestResult::kSuccess)
+        {
+            return result;
+        }
+
+        // A failed attempt must not leave anything running. If the resource may still be running, another
+        // attempt could start a second instance of it.
+        if (!stopAfterFailedActivation())
+        {
+            return result;
+        }
+
+        if (stop_token.stop_requested())
+        {
+            LM_LOG_DEBUG() << config_->name << ": activation was cancelled, not retrying";
+            return result;
+        }
+    }
+
+    return result;
+}
+
+IComponent::RequestResult Component::tryActivate(cpp::stop_token stop_token)
+{
+    const std::optional<Handle> handle = beginActivation(stop_token);
     if (!handle.has_value())
     {
         return RequestResult::kFailure;
     }
 
-    const cpp::stop_callback forward_stop{stop_token, [&stop_activation] {
-                                              // This can fail if stop is requested from both places.
-                                              static_cast<void>(stop_activation.request_stop());
-                                          }};
-
     // The state is deliberately not locked while waiting for the ready condition: the wait may take
-    // up to the ready timeout, and `deactivate` or `tryHandleTermination` must be able to interrupt
-    // it in the meantime. Some ready conditions can only be woken up by `tryHandleTermination`.
-    const Result<void> ready = ready_condition_->wait(stop_activation.get_token(), handle.value());
-    if (!ready.has_value())
-    {
-        if (ready.error() == ExecErrc::kTimeout)
-        {
-            LM_LOG_WARN() << config_->name << ": ready condition was not met within the ready timeout";
-            return RequestResult::kTimeout;
-        }
-        return RequestResult::kFailure;
-    }
+    // up to the ready timeout, and terminations must be reported to the ready condition meanwhile.
+    // Some ready conditions can only be woken up by a termination.
+    const Result<void> ready_condition_result = ready_condition_->wait(
+        stop_token, handle.value(), std::chrono::milliseconds{config_->deployment_config.ready_timeout_ms});
 
-    return completeActivation(stop_activation);
+    return completeActivation(ready_condition_result);
 }
 
-std::optional<Handle> Component::beginActivation(cpp::stop_token stop_token, const cpp::stop_source& stop_activation)
+std::optional<Handle> Component::beginActivation(cpp::stop_token stop_token)
 {
     const std::lock_guard<std::mutex> lock{state_mutex_};
 
@@ -126,111 +143,169 @@ std::optional<Handle> Component::beginActivation(cpp::stop_token stop_token, con
 
     if (isSupervised(config_->component_properties.application_profile.application_type) && !supervision_handle_)
     {
-        LM_LOG_ERROR() << config_->name << ": alive supervision is not set up";
-        state_ = FaultState{};
+        LM_LOG_ERROR() << config_->name << ": alive supervision could not set up, aborting activation";
         return std::nullopt;
     }
 
     // Anything left over from a previous activation is dropped.
     ready_condition_->prepare();
 
+    // The component is starting from here on. The handle is only known once the resource is started.
+    state_ = StartingState{Handle{}, false};
+
+    // The resource is started while the state is locked, so that a termination reported right after
+    // it is tracked finds StartingState.
     const Result<StartedResource> start_result = start_action_->start(stop_token, *this);
     if (!start_result.has_value())
     {
-        state_ = FaultState{};
+        // Nothing is left running, see IStartAction::start().
+        state_ = TerminatedState{};
         return std::nullopt;
     }
     const StartedResource& started = start_result.value();
+    state_ = StartingState{started.handle, false};
 
-    state_ = StartingState{started.handle, stop_activation};
-
-    // If the resource terminated before it could be tracked, its termination is not reported
-    // later, so it is handled here, while the state is still locked.
-    if (started.exit_status.has_value() &&
-        (tryHandleTerminationInternally(started.exit_status.value()) == TerminationResult::kFailure))
+    // The resource may have terminated directly after startup, in which case its termination is handled immediately.
+    if (started.exit_status.has_value())
     {
-        return std::nullopt;
+        static_cast<void>(tryHandleTerminationInternally(started.exit_status.value()));
     }
 
     return started.handle;
 }
 
-IComponent::RequestResult Component::completeActivation(const cpp::stop_source& stop_activation)
+IComponent::RequestResult Component::completeActivation(const Result<void>& ready_condition_result)
 {
     const std::lock_guard<std::mutex> lock{state_mutex_};
 
-    // If `deactivate` or `tryHandleTermination` was called during the wait then
-    // activation fails.
-    if (stop_activation.stop_requested())
+    // Only a termination can run concurrently to the activation, and it keeps StartingState.
+    const StartingState* const starting = std::get_if<StartingState>(&state_);
+    SCORE_LANGUAGE_FUTURECPP_ASSERT_MESSAGE(starting != nullptr, "Component must still be starting");
+
+    if (starting->terminated_unexpectedly_)
+    {
+        LM_LOG_WARN() << config_->name << ": terminated unexpectedly during startup";
+        return RequestResult::kFailure;
+    }
+
+    if (!ready_condition_result.has_value())
+    {
+        if (ready_condition_result.error() == ExecErrc::kTimeout)
+        {
+            LM_LOG_WARN() << config_->name << ": ready condition was not met within the ready timeout";
+            return RequestResult::kTimeout;
+        }
+        return RequestResult::kFailure;
+    }
+
+    const std::optional<std::chrono::nanoseconds> supervision_start = activateSupervision();
+    if (!supervision_start.has_value())
     {
         return RequestResult::kFailure;
     }
 
-    // The state could change while it was not locked, so we have to check.
-    if (const StartingState* const starting = std::get_if<StartingState>(&state_))
-    {
-        if (activateSupervision())
-        {
-            state_ = ReadyState{starting->handle_};
-            return RequestResult::kSuccess;
-        }
-        else
-        {
-            state_ = FaultState{starting->handle_};
-            return RequestResult::kFailure;
-        }
-    }
-
-    SCORE_LANGUAGE_FUTURECPP_UNREACHABLE_MESSAGE("If stop was not requested, then state must still be StartingState");
+    const Handle handle = starting->handle_;
+    state_ = ReadyState{handle, supervision_start.value()};
+    return RequestResult::kSuccess;
 }
 
-IComponent::RequestResult Component::deactivate(cpp::stop_token stop_token)
+bool Component::stopAfterFailedActivation()
 {
-    const std::lock_guard<std::mutex> lock{state_mutex_};
+    std::unique_lock<std::mutex> lock{state_mutex_};
 
-    StartingState* const starting = std::get_if<StartingState>(&state_);
-    const ReadyState* const ready = std::get_if<ReadyState>(&state_);
+    // Nothing was started.
+    if (std::holds_alternative<TerminatedState>(state_))
+    {
+        return true;
+    }
+
+    const StartingState* const starting = std::get_if<StartingState>(&state_);
     SCORE_LANGUAGE_FUTURECPP_ASSERT_MESSAGE(
-        (starting != nullptr) || (ready != nullptr), "Cannot deactivate component in a non-running state");
-    const Handle& handle = (starting != nullptr) ? starting->handle_ : ready->handle_;
+        starting != nullptr, "Component must still be starting after a failed activation");
 
-    if (!deactivateSupervision())
-    {
-        state_ = FaultState{handle};
-        return RequestResult::kFailure;
-    }
+    const Handle handle = starting->handle_;
+    // Stopping cannot be interrupted, so no stop token is passed on.
+    return stopAndWait(lock, handle);
+}
 
-    // If the component is still waiting for ready conditions, cancel that.
-    if (starting != nullptr)
-    {
-        static_cast<void>(starting->stop_activation_.request_stop());
-    }
+bool Component::stopAndWait(std::unique_lock<std::mutex>& lock, const Handle& handle)
+{
+    // This code has to run while holding state_mutex_ so that `waitUntilTerminated` is invoked
+    // before a termination can be reported.
 
-    const Result<RequestResult> result = stop_action_->stop(stop_token, handle);
-    if (!result.has_value() || result.value() != RequestResult::kSuccess)
-    {
-        state_ = FaultState{handle};
-        return RequestResult::kFailure;
-    }
+    state_ = TerminatingState{handle};
+    const Result<RequestResult> stopped = stop_action_->stop(cpp::stop_token{}, handle);
 
-    // Without a resource, or if its termination was already handled (e.g. a self-terminating
-    // process which exited successfully), no termination will be reported anymore, so the
-    // component is inactive immediately.
+    // Without a resource, or if its termination was already handled, no termination will be reported
+    // anymore, so there is nothing to wait for.
     if (!isAlive(handle))
     {
         state_ = TerminatedState{};
+        return true;
+    }
+
+    // If no stop request reached the resource, no termination can be waited for, and a forced stop is
+    // not tried either.
+    if (!stopped.has_value() || (stopped.value() != RequestResult::kSuccess))
+    {
+        LM_LOG_ERROR() << config_->name << ": failed to request the resource to stop";
+        state_ = TerminatedState{};
+        return false;
+    }
+
+    if (waitUntilTerminated(lock, std::chrono::milliseconds{config_->deployment_config.shutdown_timeout_ms}))
+    {
+        return true;
+    }
+
+    LM_LOG_WARN() << config_->name << ": did not terminate within the shutdown timeout, stopping it forcefully";
+    const Result<RequestResult> forced = force_stop_action_->forceStop(cpp::stop_token{}, handle);
+    if (forced.has_value() && (forced.value() == RequestResult::kSuccess) &&
+        waitUntilTerminated(lock, kMaxSigKillDelay))
+    {
+        return true;
+    }
+
+    LM_LOG_ERROR() << config_->name << ": failed to stop the resource forcefully";
+    state_ = TerminatedState{};
+    return false;
+}
+
+bool Component::waitUntilTerminated(std::unique_lock<std::mutex>& lock, std::chrono::milliseconds timeout)
+{
+    return termination_handled_.wait_for(lock, timeout, [this] {
+        return !std::holds_alternative<TerminatingState>(state_);
+    });
+}
+
+IComponent::RequestResult Component::deactivate(cpp::stop_token /*stop_token*/)
+{
+    std::unique_lock<std::mutex> lock{state_mutex_};
+
+    if (std::holds_alternative<TerminatedState>(state_))
+    {
         return RequestResult::kSuccess;
     }
 
-    // `tryHandleTermination` tells us when the termination is done.
-    state_ = TerminatingState{handle};
-    return RequestResult::kSuccess;
+    const ReadyState* const ready = std::get_if<ReadyState>(&state_);
+    SCORE_LANGUAGE_FUTURECPP_ASSERT_MESSAGE(
+        ready != nullptr, "Cannot deactivate component while it is activating or deactivating");
+    const Handle handle = ready->handle_;
+
+    // A failure to deactivate supervision must not prevent stopping the resource.
+    static_cast<void>(deactivateSupervision());
+
+    return stopAndWait(lock, handle) ? RequestResult::kSuccess : RequestResult::kFailure;
 }
 
 IComponent::TerminationResult Component::tryHandleTermination(int32_t status)
 {
     const std::lock_guard<std::mutex> lock{state_mutex_};
-    return tryHandleTerminationInternally(status);
+    const TerminationResult result = tryHandleTerminationInternally(status);
+    // Notified while still locked: once stopAndWait() sees the termination, the component may be
+    // destroyed, so this thread must not touch it after releasing the lock.
+    termination_handled_.notify_all();
+    return result;
 }
 
 IComponent::TerminationResult Component::tryHandleTerminationInternally(int32_t status)
@@ -243,41 +318,99 @@ IComponent::TerminationResult Component::tryHandleTerminationInternally(int32_t 
         return TerminationResult::kIgnore;
     }
 
+    // The component already gave up on the resource, e.g. after a failed cleanup.
+    if (std::holds_alternative<TerminatedState>(state_))
+    {
+        LM_LOG_DEBUG() << config_->name << ": ignoring termination of a resource which is no longer tracked";
+        return TerminationResult::kIgnore;
+    }
+
     StartingState* const starting = std::get_if<StartingState>(&state_);
     ReadyState* const ready = std::get_if<ReadyState>(&state_);
     SCORE_LANGUAGE_FUTURECPP_ASSERT_MESSAGE(
-        (starting != nullptr) || (ready != nullptr), "Cannot handle termination in a non-running state");
+        (starting != nullptr) || (ready != nullptr), "Cannot handle termination in this state");
     Handle& handle = (starting != nullptr) ? starting->handle_ : ready->handle_;
 
     // Invalidate the resource to prevent acting on something which is already gone.
     invalidate(handle);
 
-    if (ready != nullptr && !deactivateSupervision())
-    {
-        state_ = FaultState{handle};
-        return TerminationResult::kFailure;
-    }
-
-    // Certain ready conditions can accept terminations.
-    if (starting != nullptr && ready_condition_->tryHandleTermination(handle, status))
-    {
-        return TerminationResult::kIgnore;
-    }
-
-    if (config_->component_properties.application_profile.is_self_terminating && status == 0)
-    {
-        return TerminationResult::kIgnore;
-    }
-
-    // If none of the above cases apply, then termination is unexpected.
     if (starting != nullptr)
     {
-        // Interrupt the worker thread waiting in activate().
-        static_cast<void>(starting->stop_activation_.request_stop());
+        // The ready condition decides whether its wait succeeds, the component decides whether the
+        // termination is expected. activate() reports the outcome, so there is only one event.
+        ready_condition_->handleTermination(handle, status);
+        starting->terminated_unexpectedly_ = !isExpectedTermination(status);
+        return TerminationResult::kIgnore;
     }
 
-    state_ = FaultState{};
+    // A failure to deactivate supervision does not change the outcome: the resource is gone anyway.
+    static_cast<void>(deactivateSupervision());
+
+    if (isExpectedTermination(status))
+    {
+        return TerminationResult::kIgnore;
+    }
+
+    state_ = TerminatedState{};
     return TerminationResult::kFailure;
+}
+
+bool Component::isExpectedTermination(int32_t status) const
+{
+    return config_->component_properties.application_profile.is_self_terminating && (status == 0);
+}
+
+void Component::handleSupervisionFailure(std::chrono::nanoseconds failure_timestamp)
+{
+    const std::lock_guard<std::mutex> lock{state_mutex_};
+
+    SCORE_LANGUAGE_FUTURECPP_ASSERT_DBG_MESSAGE(
+        supervision_handle_ != nullptr, "Non supervised component received a supervision failure event");
+
+    const ReadyState* const ready = std::get_if<ReadyState>(&state_);
+    if (ready == nullptr)
+    {
+        // The component is not ready, it may be deactivated or currently activating or deactivating.
+        return;
+    }
+
+    if (ready->supervision_start_ >= failure_timestamp)
+    {
+        // The supervision failure is from a previous activation.
+        return;
+    }
+
+    if (!isAlive(ready->handle_))
+    {
+        return;
+    }
+
+    LM_LOG_WARN() << "Alive supervision failed for component" << config_->name << ", stopping it forcefully";
+    static_cast<void>(force_stop_action_->forceStop(cpp::stop_token{}, ready->handle_));
+}
+
+void Component::forceStop()
+{
+    const std::lock_guard<std::mutex> lock{state_mutex_};
+
+    const Handle* handle = nullptr;
+    if (const StartingState* const starting = std::get_if<StartingState>(&state_))
+    {
+        handle = &starting->handle_;
+    }
+    else if (const ReadyState* const ready = std::get_if<ReadyState>(&state_))
+    {
+        handle = &ready->handle_;
+    }
+    else if (const TerminatingState* const terminating = std::get_if<TerminatingState>(&state_))
+    {
+        handle = &terminating->handle_;
+    }
+
+    if ((handle != nullptr) && isAlive(*handle))
+    {
+        static_cast<void>(force_stop_action_->forceStop(cpp::stop_token{}, *handle));
+    }
 }
 
 IdentifierHash Component::getIdentifier() const
@@ -291,11 +424,11 @@ bool Component::active() const
     return std::holds_alternative<ReadyState>(state_);
 }
 
-bool Component::activateSupervision() const
+std::optional<std::chrono::nanoseconds> Component::activateSupervision() const
 {
     if (!supervision_handle_)
     {
-        return true;
+        return std::chrono::nanoseconds{0};
     }
 
     timespec timestamp{};
@@ -303,16 +436,16 @@ bool Component::activateSupervision() const
     if (clock_gettime(CLOCK_MONOTONIC, &timestamp) != 0)
     {
         LM_LOG_ERROR() << config_->name << ": failed to get timestamp to activate supervision:" << errno_message(errno);
-        return false;
+        return std::nullopt;
     }
 
     if (!supervision_handle_->activateSupervision(timestamp))
     {
         LM_LOG_ERROR() << config_->name << ": failed to activate supervision";
-        return false;
+        return std::nullopt;
     }
 
-    return true;
+    return std::chrono::seconds{timestamp.tv_sec} + std::chrono::nanoseconds{timestamp.tv_nsec};
 }
 
 bool Component::deactivateSupervision() const

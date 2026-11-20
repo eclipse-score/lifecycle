@@ -80,6 +80,22 @@ The component deactivation sequence is executed synchronously on a worker thread
 .. uml:: _assets/component_deactivation.puml
    :align: center
 
+
+Component State Machine
+~~~~~~~~~~~~~~~~~~~~~~~
+
+A component manages one resource, currently only a POSIX process, and is always in one of four states:
+
+* **Terminated**: no resource is running. This is the initial state and the state every failure ends in,
+  so a component can always be activated again.
+* **Starting**: the resource has been started and the component waits for its ready condition.
+* **Ready**: the resource has finished its startup and, if configured, is supervised.
+* **Terminating**: the resource has been asked to stop and the component waits for its termination,
+  first gracefully up to the shutdown timeout, then forcefully terminating it.
+
+.. uml:: _assets/component_states.puml
+   :align: center
+
 Process Termination
 ~~~~~~~~~~~~~~~~~~~
 
