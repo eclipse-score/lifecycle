@@ -204,6 +204,7 @@ void ProcessInfoNode::unblockSync()
 
 IComponent::TerminationResult ProcessInfoNode::tryHandleTermination(int32_t process_status)
 {
+    // req-id: comp_req__launch_man__process_log
     LM_LOG_DEBUG() << "Process" << identifier_ << "( pid" << pid_.load() << ") terminated with status"
                    << process_status;
     pid_ = 0;
@@ -338,6 +339,7 @@ IComponent::RequestResult ProcessInfoNode::startProcess(score::cpp::stop_token s
         sync_.reset();
     }
     const std::chrono::time_point finished_time = std::chrono::steady_clock::now();
+    // req-id: comp_req__launch_man__process_log
     LM_LOG_DEBUG() << "startProcess for process (" << config_.name << ") done, took"
                    << std::chrono::round<std::chrono::milliseconds>(finished_time - initial_time);
 

@@ -25,6 +25,8 @@ test_suite(
         "//tests/integration/lifecycle_lang_support",
         "//tests/integration/lm_shutdown_during_rt_switch",
         "//tests/integration/lm_shutdown_during_switch_to_off",
+        "//tests/integration/logs/activations:component_activation_log",
+        "//tests/integration/logs/recovery:component_recovery_log",
         "//tests/integration/parallel_launch",
         "//tests/integration/process_complex_rep_failure",
         "//tests/integration/process_crash_monitoring",
