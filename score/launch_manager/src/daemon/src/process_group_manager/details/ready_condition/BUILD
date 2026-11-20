@@ -111,3 +111,49 @@ lm_cc_test(
         "@googletest//:gtest_main",
     ],
 )
+
+cc_library(
+    name = "termination_waiter",
+    srcs = ["termination_waiter.cpp"],
+    hdrs = ["termination_waiter.hpp"],
+    include_prefix = "score/mw/launch_manager/process_group_manager/details/ready_condition",
+    strip_include_prefix = "/score/launch_manager/src/daemon/src/process_group_manager/details/ready_condition",
+    visibility = ["//score/launch_manager/src/daemon/src/process_group_manager:__subpackages__"],
+    deps = [
+        "@score_baselibs//score/concurrency/future",
+    ],
+)
+
+lm_cc_test(
+    name = "termination_waiter_UT",
+    srcs = ["termination_waiter_UT.cpp"],
+    deps = [
+        ":termination_waiter",
+        "@googletest//:gtest_main",
+    ],
+)
+
+cc_library(
+    name = "process_terminated_ready_condition",
+    srcs = ["process_terminated_ready_condition.cpp"],
+    hdrs = ["process_terminated_ready_condition.hpp"],
+    include_prefix = "score/mw/launch_manager/process_group_manager/details/ready_condition",
+    strip_include_prefix = "/score/launch_manager/src/daemon/src/process_group_manager/details/ready_condition",
+    visibility = ["//score/launch_manager/src/daemon/src/process_group_manager:__subpackages__"],
+    deps = [
+        ":iready_condition",
+        ":termination_waiter",
+        "//score/launch_manager:error",
+        "@score_baselibs//score/language/futurecpp",
+    ],
+)
+
+lm_cc_test(
+    name = "process_terminated_ready_condition_UT",
+    srcs = ["process_terminated_ready_condition_UT.cpp"],
+    deps = [
+        ":process_terminated_ready_condition",
+        "//score/launch_manager:error",
+        "@googletest//:gtest_main",
+    ],
+)

@@ -119,21 +119,21 @@ class SupervisionManager
     void evaluateSupervisions(const std::chrono::nanoseconds f_syncTimestamp);
 
     /// Vector of Process states
-    std::vector<ifexm::ObservableEvent> processStates;
+    std::vector<ifexm::ObservableEvent> process_states_;
 
     /// Vector of Alive Interface IPCs
-    std::vector<ifappl::CheckpointIpcServer> aliveIfIpcs;
+    std::vector<ifappl::CheckpointIpcServer> alive_if_ipcs_;
 
     /// Vector of Alive Interfaces
-    std::vector<ifappl::MonitorIfDaemon> aliveInterfaces;
+    std::vector<ifappl::MonitorIfDaemon> alive_interfaces_;
 
     /// Vector of Alive Supervisions
-    std::vector<supervision::Alive> aliveSupervisions;
+    std::vector<supervision::Alive> alive_supervisions_;
 
-    std::unique_ptr<factory::IAliveWorkerFactory> flatCfgFactory;
+    std::unique_ptr<factory::IAliveWorkerFactory> flat_cfg_factory_;
 
     /// @brief The number of alive supervisions we expect to successfully construct
-    std::size_t capacity{0};
+    std::size_t capacity_{0};
 };
 
 }  // namespace daemon

@@ -208,11 +208,11 @@ class WatchdogImpl : public IWatchdogIf
     static bool validateTimeoutWithCycleTime(std::int64_t f_cycleTimeInNs, const DeviceConfig& f_config_r) noexcept;
 
     /// @brief Keeps track of the state of the configured watchdog device, if any.
-    std::optional<WatchdogDevice> watchdogDevice_;
+    std::optional<WatchdogDevice> watchdog_device_;
     /// @brief The internal state of this class
     ELibState state_;
     /// @brief Interface used to issue ioctl calls on watchdog device files.
-    DeviceIf& deviceIf_;
+    DeviceIf& device_if_;
     /// @brief Interface used to open watchdog device files.
     score::os::Fcntl& fcntl_;
     /// @brief Interface used to close watchdog device files.

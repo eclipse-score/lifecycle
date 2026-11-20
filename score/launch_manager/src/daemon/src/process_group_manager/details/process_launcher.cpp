@@ -103,7 +103,6 @@ void handleComms(score::mw::lifecycle::internal::osal::ChildProcessConfig& param
     }
 
     param.fd = dup2(param.fd, param.shared_block->sync_fd);
-    param.shared_block->pid_ = getpid();  // Store pid for check at client end
 
     // Flag FD_CLOEXEC is cleared to ensure that sync_fd remains open after the execve call.
     if (-1 == fcntl(IpcCommsSync::sync_fd, F_SETFD, 0))
@@ -490,9 +489,18 @@ OsalReturnType ProcessLauncher::waitForkRunning(IpcCommsP sync, std::chrono::mil
     if (result != OsalReturnType::kSuccess)
     {
         LM_LOG_ERROR() << "Semaphore timedWait failed: Did not receive kRunning within the specified timeout.";
+        return result;
     }
 
-    return result;
+    // The semaphore is also posted when the process terminates, so only the reported_running_ flag tells whether the
+    // process actually reported kRunning.
+    if (!sync->hasReportedRunning())
+    {
+        LM_LOG_ERROR() << "Process terminated without reporting kRunning.";
+        return OsalReturnType::kFail;
+    }
+
+    return OsalReturnType::kSuccess;
 }
 
 }  // namespace score::mw::lifecycle::internal::osal
