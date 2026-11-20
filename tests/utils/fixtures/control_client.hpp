@@ -23,35 +23,32 @@
 class ControlClientFixture : public ::testing::Test
 {
   protected:
-    void InitializeClient()
+    score::Result<std::unique_ptr<score::mw::lifecycle::ILmControl>> InitializeClient()
     {
         using namespace score::mw::lifecycle;
+        std::unique_ptr<score::mw::lifecycle::ILmControl> client;
 
-        TEST_STEP("Create client")
+        auto client_result = ILmControl::Create("StateManager/LaunchManager/Instance");
+        if (!client_result.has_value())
         {
-            auto client_result = ILmControl::Create("StateManager/LaunchManager/Instance");
-            ASSERT_TRUE(client_result.has_value()) << client_result.error().Message();
-            client = std::move(client_result).value();
+            return score::MakeUnexpected<std::unique_ptr<score::mw::lifecycle::ILmControl>>(client_result.error());
+        }
+        client = std::move(client_result).value();
+
+        const auto register_result = client->register_run_target_activation_callback(push_event);
+        if (!register_result.has_value())
+        {
+            return score::MakeUnexpected<std::unique_ptr<score::mw::lifecycle::ILmControl>>(register_result.error());
         }
 
-        TEST_STEP("Register callback")
+        auto connection_result = client->wait_for_connection();
+        if (!connection_result.has_value())
         {
-            const auto result = client->register_run_target_activation_callback(push_event);
-            ASSERT_TRUE(result.has_value());
+            return score::MakeUnexpected<std::unique_ptr<score::mw::lifecycle::ILmControl>>(connection_result.error());
         }
 
-        TEST_STEP("Wait for client connection")
-        {
-            ASSERT_TRUE(client->wait_for_connection().has_value());
-        }
-
-        TEST_STEP("Report running")
-        {
-            report_running();
-        }
+        return client;
     }
-
-    std::unique_ptr<score::mw::lifecycle::ILmControl> client;
 };
 
 #endif  // TESTS_UTILS_FIXTURES_CONTROL_CLIENT_HPP

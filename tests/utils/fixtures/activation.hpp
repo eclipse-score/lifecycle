@@ -35,21 +35,21 @@ class ActivationFixture : public ControlClientFixture
             });
     }
 
-    void FillActivationQueue() const
+    void FillActivationQueue(score::mw::lifecycle::ILmControl& client) const
     {
         for (int i = 0; i < static_cast<int>(score::mw::lifecycle::internal::kPendingActivationQueueCapacity); ++i)
         {
             const score::mw::lifecycle::RunTargetName run_target{(i % 2 == 0) ? "run_target_a" : "run_target_b"};
-            const auto result = client->activate_run_target(run_target, false);
+            const auto result = client.activate_run_target(run_target, false);
             ASSERT_TRUE(result.has_value()) << "Request " << i << ": " << result.error().Message();
         }
     }
 
-    void BlockRunTargetActivation() const
+    void BlockRunTargetActivation(score::mw::lifecycle::ILmControl& client) const
     {
-        const auto result = client->activate_run_target("run_target_gated", true);
+        const auto result = client.activate_run_target("run_target_gated", true);
         ASSERT_TRUE(result.has_value()) << result.error().Message();
-        ASSERT_TRUE(wait_for_activation_in_progress(*client));
+        ASSERT_TRUE(wait_for_activation_in_progress(client));
         ASSERT_TRUE(wait_for_file(gatedStartedPath("gated")));
     }
 

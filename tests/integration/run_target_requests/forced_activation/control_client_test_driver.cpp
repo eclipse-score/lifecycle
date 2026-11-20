@@ -27,7 +27,19 @@ TEST_F(
 {
     ASSERT_TRUE(check_clean({gatedStartedPath("gated"), gatedReleasePath("gated")}));
 
-    InitializeClient();
+    std::unique_ptr<ILmControl> client;
+
+    TEST_STEP("Initialize client")
+    {
+        auto maybe_client = InitializeClient();
+        ASSERT_TRUE(maybe_client.has_value());
+        client = std::move(maybe_client).value();
+    }
+
+    TEST_STEP("Report running")
+    {
+        report_running();
+    }
 
     TEST_STEP("Wait for the initial run target to start")
     {
@@ -36,12 +48,12 @@ TEST_F(
 
     TEST_STEP("Block run target activation by starting gated process")
     {
-        BlockRunTargetActivation();
+        BlockRunTargetActivation(*client);
     }
 
     TEST_STEP("Fill the run target activation request queue")
     {
-        FillActivationQueue();
+        FillActivationQueue(*client);
     }
 
     TEST_STEP("Forced request for Startup clears the queue")
@@ -62,11 +74,7 @@ TEST_F(
 
     TEST_STEP("Check that discarded queue entries are not activated afterwards")
     {
-        expect_no_events(
-            [](RunTargetActivationSource, RunTargetName target) {
-                ADD_FAILURE() << "Received activation request " << target;
-            },
-            std::chrono::milliseconds(1000));
+        expect_no_events(std::chrono::milliseconds(1000));
     }
 }
 

@@ -80,9 +80,6 @@ void pop_event(
 
 /// @brief Call to wait for the given timeout. In that time we expect to see no events
 ///   If an event is received, we fail the test.
-/// @param callback Called if an event is received
 /// @param timeout The timeout in milliseconds to monitor for events
-void expect_no_events(
-    std::function<void(RunTargetActivationSource source, RunTargetName target)> callback,
-    const std::chrono::milliseconds timeout);
+void expect_no_events(const std::chrono::milliseconds timeout);
 #endif  // TESTS_UTILS_TEST_HELPER_HPP

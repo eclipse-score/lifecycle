@@ -96,7 +96,19 @@
                     "PROCESSIDENTIFIER": "gated"
                 }
             }
-        }
+        },
+        "fail_test_component": {
+            "component_properties": {
+                "binary_name": "fail_test",
+                "application_profile": {
+                    "application_type": "Native",
+                    "is_self_terminating": true
+                },
+                "ready_condition": {
+                    "process_state": "Terminated"
+                }
+            }
+      }
     },
     "run_targets": {
         "Startup": {
@@ -157,7 +169,7 @@
     },
     "fallback_run_target": {
         "depends_on": [
-            "control_daemon"
+            "fail_test_component"
         ]
     }
 }

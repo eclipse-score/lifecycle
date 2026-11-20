@@ -33,6 +33,7 @@ cc_library(
     visibility = ["//tests/integration:__subpackages__"],
     deps = [
         ":control_client",
+        "//score/launch_manager/src/daemon/src/common:constants",
         "//tests/utils/test_helper",
         "//tests/utils/test_helper:gated_process_helper",
     ],

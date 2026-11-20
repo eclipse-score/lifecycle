@@ -32,6 +32,7 @@ integration_test(
         "//tests/utils/test_helper:reporting_process",
         "//tests/utils/test_helper:gated_process",
         "//score/launch_manager",
+        "//tests/utils/test_helper:fail_test",
     ],
     config = ":config.json",
 )
