@@ -12,7 +12,14 @@
  ********************************************************************************/
 
 #include "score/mw/lifecycle/ilm_control.hpp"
+
 #include "score/mw/lifecycle/details/lm_control_impl.hpp"
+#include "score/mw/lifecycle/execution_error.h"
+
+// CreateLmControl<>() is instantiated here, so IWYU attributes the internals it uses to this file.
+// IWYU pragma: no_include "score/language/safecpp/scoped_function/details/allocator_aware_type_erasure_pointer.h"
+// IWYU pragma: no_include "score/language/safecpp/scoped_function/details/type_erasure_pointer.h"
+// IWYU pragma: no_include "score/mw/com/impl/com_error.h"
 
 namespace score::mw::lifecycle
 {

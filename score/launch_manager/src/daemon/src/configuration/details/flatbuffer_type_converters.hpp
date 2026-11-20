@@ -13,15 +13,8 @@
 #ifndef FLATBUFFER_TYPE_CONVERTERS_HPP
 #define FLATBUFFER_TYPE_CONVERTERS_HPP
 
-#include "score/mw/launch_manager/configuration/config.hpp"
-#include "score/mw/launch_manager/configuration/config_loader.hpp"
-
-#include "score/launch_manager/src/daemon/src/configuration/details/lm_flatcfg_generated.h"
-
-#include "score/mw/launch_manager/common/log.hpp"
-
 #include <score/expected.hpp>
-
+#include <sys/types.h>
 #include <cstdint>
 #include <limits>
 #include <optional>
@@ -29,6 +22,18 @@
 #include <string_view>
 #include <type_traits>
 #include <vector>
+
+#include "flatbuffers/base.h"
+#include "flatbuffers/string.h"
+#include "flatbuffers/vector.h"
+#include "score/launch_manager/src/daemon/src/configuration/details/lm_flatcfg_generated.h"
+#include "score/mw/launch_manager/common/log.hpp"
+#include "score/mw/launch_manager/configuration/component_config.hpp"
+#include "score/mw/launch_manager/configuration/config.hpp"
+#include "score/mw/launch_manager/configuration/config_loader.hpp"
+#include "score/mw/launch_manager/configuration/environment_config.hpp"
+#include "score/mw/launch_manager/configuration/recovery_action_config.hpp"
+#include "score/mw/launch_manager/configuration/watchdog_config.hpp"
 
 namespace score::mw::lifecycle::internal::configuration
 {

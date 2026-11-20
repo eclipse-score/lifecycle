@@ -54,6 +54,11 @@ import %workspace%/quality/sanitizer/sanitizer.bazelrc
 # CodeQL / MISRA static analysis configuration. See //quality/static_analysis.
 import %workspace%/quality/static_analysis/static_analysis.bazelrc
 
+# Bazel dependency check (depend_on_what_you_use). See //quality/dwyu.
+import %workspace%/quality/dwyu/dwyu.bazelrc
+
+# Include check (include-what-you-use). See //quality/iwyu.
+import %workspace%/quality/iwyu/iwyu.bazelrc
 
 # Common Lifecycle Toolchain flags for build (do not use it in case of system toolchains!)
 build:stub --@score_baselibs//score/mw/log/flags:KRemote_Logging=False

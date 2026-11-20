@@ -13,12 +13,13 @@
 #ifndef SCORE_HM_DEADLINE_DEADLINE_MONITOR_H
 #define SCORE_HM_DEADLINE_DEADLINE_MONITOR_H
 
-#include "score/mw/health/common.h"
-#include "score/mw/health/tag.h"
 #include <score/expected.hpp>
 #include <functional>
 #include <optional>
 #include <utility>
+
+#include "score/mw/health/common.h"
+#include "score/mw/health/tag.h"
 
 namespace score::mw::health
 {
@@ -30,8 +31,6 @@ class HealthMonitorBuilder;
 namespace score::mw::health::deadline
 {
 
-// Forward declaration
-class DeadlineMonitor;
 class DeadlineHandle;
 class Deadline;
 

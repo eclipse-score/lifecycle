@@ -18,6 +18,7 @@
 #include "score/mw/launch_manager/process_group_manager/details/ready_condition/iready_condition.hpp"
 #include "score/mw/launch_manager/process_group_manager/iprocess.hpp"
 #include "score/result/result.h"
+#include <stdint.h>
 #include <chrono>
 
 namespace score::mw::lifecycle::internal

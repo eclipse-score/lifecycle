@@ -12,6 +12,9 @@
  ********************************************************************************/
 #include "score/mw/health/heartbeat_monitor.h"
 
+#include <score/assert.hpp>
+#include <stdint.h>
+
 namespace
 {
 extern "C" {

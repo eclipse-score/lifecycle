@@ -42,11 +42,7 @@ cc_library(
     strip_include_prefix = "/score/launch_manager/src/lifecycle_client/src",
     tags = ["FUSA"],
     visibility = ["//score/launch_manager:__subpackages__"],
-    deps = [
-        "@score_baselibs//score/mw/log",
-        "@score_baselibs//score/os:stdlib",
-        "@score_baselibs//score/os/utils:signal",
-    ],
+    deps = ["@score_baselibs//score/mw/log"],
 )
 
 cc_library(
@@ -64,6 +60,7 @@ cc_library(
     visibility = ["//score/launch_manager:__subpackages__"],
     deps = [
         ":applicationcontext",
+        "@score_baselibs//score/language/futurecpp",
     ],
 )
 
@@ -84,6 +81,7 @@ cc_library(
     deps = [
         ":applicationcontext",
         "@score_baselibs//score/language/futurecpp",
+        "@score_baselibs//score/os/utils:signal",
     ],
 )
 
@@ -102,10 +100,13 @@ cc_library(
     tags = ["FUSA"],
     visibility = ["//score/launch_manager:__subpackages__"],
     deps = [
-        ":application",
+        ":applicationcontext",
         ":report_running",
         "@score_baselibs//score/language/futurecpp",
         "@score_baselibs//score/mw/log",
+        "@score_baselibs//score/mw/log:frontend",
+        "@score_baselibs//score/mw/log:log_stream",
+        "@score_baselibs//score/os:errno",
         "@score_baselibs//score/os:stdlib",
         "@score_baselibs//score/os/utils:signal",
         "@score_baselibs//score/os/utils:thread",
@@ -129,9 +130,8 @@ cc_library(
     tags = ["FUSA"],
     visibility = ["//score/launch_manager:__subpackages__"],
     deps = [
-        ":report_running",
+        "@score_baselibs//score/language/futurecpp",
         "@score_baselibs//score/mw/log",
-        "@score_baselibs//score/os:stdlib",
         "@score_baselibs//score/os/utils:signal",
     ],
 )
@@ -186,10 +186,7 @@ cc_library(
     include_prefix = "score/mw/lifecycle",
     strip_include_prefix = "/score/launch_manager/src/lifecycle_client/src",
     visibility = ["//score/launch_manager:__subpackages__"],
-    deps = [
-        "@googletest//:gtest",
-        "@score_baselibs//score/os/utils:signal",
-    ],
+    deps = ["@googletest//:gtest"],
 )
 
 cc_library(
@@ -207,8 +204,11 @@ cc_library(
     strip_include_prefix = "/score/launch_manager/src/lifecycle_client/src",
     visibility = ["//score/launch_manager:__subpackages__"],
     deps = [
+        ":applicationcontext",
         ":lifecyclemanager",
         "@googletest//:gtest",
+        "@score_baselibs//score/language/futurecpp",
+        "@score_baselibs//score/os/utils:signal",
     ],
 )
 
@@ -226,12 +226,16 @@ cc_library(
     features = COMPILER_WARNING_FEATURES,
     include_prefix = "score/mw/lifecycle",
     strip_include_prefix = "/score/launch_manager/src/lifecycle_client/src",
+    # Mock bundle for users of the lifecycle client (see //score/launch_manager:mock_lifecycle_cc). It provides
+    # deps that only its users include, for example signal_mock.
+    tags = ["dwyu:skip"],
     visibility = ["//score/launch_manager:__subpackages__"],
     deps = [
-        ":lifecyclemanager",
+        ":applicationcontext",
         ":mock_application_context",
         ":mock_mw_lifecycle_manager",
         "@googletest//:gtest",
+        "@score_baselibs//score/language/futurecpp",
         "@score_baselibs//score/os/utils:signal",
         "@score_baselibs//score/os/utils/mocklib:signal_mock",
     ],
@@ -325,10 +329,13 @@ cc_library(
     include_prefix = "score/mw/lifecycle",
     strip_include_prefix = "/score/launch_manager/src/lifecycle_client/src",
     deps = [
-        ":application",
+        ":applicationcontext",
         ":report_running_test_lib",
         "@score_baselibs//score/language/futurecpp",
         "@score_baselibs//score/mw/log",
+        "@score_baselibs//score/mw/log:frontend",
+        "@score_baselibs//score/mw/log:log_stream",
+        "@score_baselibs//score/os:errno",
         "@score_baselibs//score/os:stdlib",
         "@score_baselibs//score/os/utils:signal",
         "@score_baselibs//score/os/utils:thread",
