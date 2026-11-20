@@ -17,7 +17,10 @@ from attribute_plugin import add_test_properties
 
 
 @add_test_properties(
-    fully_verifies=["comp_req__launch_man__ra_rt_queue"],
+    fully_verifies=[
+        "comp_req__launch_man__ra_rt_queue",
+        "comp_req__launch_man__cancel_rt_force",
+    ],
     test_type="requirements-based",
     derivation_technique="requirements-analysis",
 )
@@ -25,16 +28,21 @@ def test_request_during_recovery(
     target, setup_test, assert_test_results, remote_test_dir
 ):
     """
-    Objective: Verifies that a non-forced activation request is added to the queue
-    if it is received during a recovery action, and the queued activation is switched
-    to after the recovery action is complete.
+    Objective: Verifies behavior of activation requests during a recovery action.
 
-    Expected Behaviour:
+    Test Case 1 - Non-forced request during recovery (comp_req__launch_man__ra_rt_queue):
     - A component fails, triggering a recovery action to switch to fallback_run_target.
     - During the recovery action (while activation is in progress), a non-forced request
       for another run target is sent.
     - The request is queued (not rejected).
     - After the recovery action completes, the queued run target is activated.
+
+    Test Case 2 - Forced request during recovery (comp_req__launch_man__cancel_rt_force):
+    - A component fails, triggering a recovery action to switch to fallback_run_target.
+    - During the recovery action (while activation is in progress), a forced request
+      for another run target is sent.
+    - The recovery action is cancelled.
+    - The forced run target is activated instead of the fallback run target.
     """
 
     run_test(
