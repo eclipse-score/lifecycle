@@ -283,6 +283,20 @@ SwitchRunTargetAction convertRequiredSwitchRunTargetAction(const fb::SwitchRunTa
     return convertSwitchRunTargetAction(sa).value();
 }
 
+std::optional<RecoveryAction> convertRecoveryAction(const fb::DeploymentConfig* dc)
+{
+    switch (dc->recovery_action_type())
+    {
+        case fb::RecoveryAction::SwitchRunTargetAction:
+            return RecoveryAction{convertRequiredSwitchRunTargetAction(dc->recovery_action_as_SwitchRunTargetAction())};
+        case fb::RecoveryAction::RestartAction:
+            return RecoveryAction{RestartAction{}};
+        case fb::RecoveryAction::NONE:
+        default:
+            return std::nullopt;
+    }
+}
+
 score::cpp::expected<ComponentAliveSupervision, IConfigLoader::Error> convertComponentAliveSupervision(
     const fb::ComponentAliveSupervision* fb_cas)
 {
@@ -521,7 +535,7 @@ score::cpp::expected<DeploymentConfig, IConfigLoader::Error> convertDeploymentCo
         result.working_dir = fb_dc->working_dir()->str();
         result.activation_retry_attempts = *activation_retry_attempts;
         result.activation_retry_delay_ms = *activation_retry_delay_ms;
-        result.recovery_action = convertSwitchRunTargetAction(fb_dc->recovery_action());
+        result.recovery_action = convertRecoveryAction(fb_dc);
         auto sandbox = convertSandbox(fb_dc->sandbox());
         if (!sandbox.has_value())
         {

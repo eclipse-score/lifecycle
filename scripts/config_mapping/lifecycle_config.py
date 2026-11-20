@@ -434,13 +434,14 @@ def gen_config(output_dir, config, input_filename):
             ]
 
         if "recovery_action" in depl_cfg:
+            # Only switch_run_target is configurable for components for now,
+            # restart is intentionally not passed on to the flatbuffer.
             ra = depl_cfg["recovery_action"]
             if "switch_run_target" in ra:
+                deployment["recovery_action_type"] = "SwitchRunTargetAction"
                 deployment["recovery_action"] = {
                     "run_target": ra["switch_run_target"]["run_target"]
                 }
-            else:
-                deployment["recovery_action"] = ra
 
         component["deployment_config"] = deployment
         out["components"].append(component)

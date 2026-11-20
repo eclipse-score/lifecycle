@@ -64,6 +64,7 @@
                         "value": ""
                     }
                 ],
+                "recovery_action_type": "SwitchRunTargetAction",
                 "recovery_action": {
                     "run_target": "Off"
                 }
@@ -135,6 +136,7 @@
                         "value": ""
                     }
                 ],
+                "recovery_action_type": "SwitchRunTargetAction",
                 "recovery_action": {
                     "run_target": "Off"
                 }
@@ -210,6 +212,7 @@
                         "value": ""
                     }
                 ],
+                "recovery_action_type": "SwitchRunTargetAction",
                 "recovery_action": {
                     "run_target": "Off"
                 }
@@ -288,6 +291,7 @@
                         "value": ""
                     }
                 ],
+                "recovery_action_type": "SwitchRunTargetAction",
                 "recovery_action": {
                     "run_target": "Off"
                 }
@@ -365,6 +369,7 @@
                         "value": ""
                     }
                 ],
+                "recovery_action_type": "SwitchRunTargetAction",
                 "recovery_action": {
                     "run_target": "Off"
                 }

@@ -96,6 +96,19 @@ table SwitchRunTargetAction {
   run_target:string (required);
 }
 
+// Recovery action that restarts the component. Uses the activation_retry_attempts and
+// activation_retry_delay_ms of the DeploymentConfig, so it has no parameters of its own.
+table RestartAction {
+}
+
+// Recovery action for a component.
+union RecoveryAction {
+  // Switch to a specified Run Target.
+  SwitchRunTargetAction,
+  // Restart the component.
+  RestartAction
+}
+
 // A key-value pair representing an environment variable.
 table EnvironmentalVariable {
   key:string (required);
@@ -162,7 +175,7 @@ table DeploymentConfig {
   // Delay in milliseconds before each activation retry. Currently not evaluated.
   activation_retry_delay_ms:uint32 = null; // required
   // Recovery action when the component malfunctions after reaching ready state.
-  recovery_action:SwitchRunTargetAction; // optional
+  recovery_action:RecoveryAction; // optional
   sandbox:Sandbox (required); // required
 }
 

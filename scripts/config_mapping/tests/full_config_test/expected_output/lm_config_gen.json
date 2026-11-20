@@ -85,6 +85,7 @@
                         "value": "a_value"
                     }
                 ],
+                "recovery_action_type": "SwitchRunTargetAction",
                 "recovery_action": {
                     "run_target": "fallback_run_target"
                 }
@@ -156,6 +157,7 @@
                         "value": "value123"
                     }
                 ],
+                "recovery_action_type": "SwitchRunTargetAction",
                 "recovery_action": {
                     "run_target": "fallback_run_target"
                 }
@@ -228,6 +230,7 @@
                         "value": "value123"
                     }
                 ],
+                "recovery_action_type": "SwitchRunTargetAction",
                 "recovery_action": {
                     "run_target": "fallback_run_target"
                 }
@@ -300,6 +303,7 @@
                         "value": "value123"
                     }
                 ],
+                "recovery_action_type": "SwitchRunTargetAction",
                 "recovery_action": {
                     "run_target": "fallback_run_target"
                 }
