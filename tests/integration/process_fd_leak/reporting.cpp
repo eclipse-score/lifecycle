@@ -16,6 +16,7 @@
 
 #include "common.hpp"
 #include "get_fds.hpp"
+#include "score/mw/launch_manager/osal/ipc_comms.hpp"
 #include "tests/utils/test_helper/test_helper.hpp"
 #include "tests/utils/test_helper/test_runner.hpp"
 #include <score/mw/lifecycle/report_running.h>
@@ -28,7 +29,7 @@ TEST(ReportingProcessFDs, FindOpenFDs)
     TEST_STEP("Before Running")
     {
         auto open_fds = get_fds();
-        EXPECT_TRUE(filter_fd(open_fds, std::regex("/memfd:/lm_running_report_ipc")));
+        EXPECT_TRUE(filter_fd(open_fds, score::mw::lifecycle::internal::osal::IpcCommsSync::sync_fd));
         std::ostringstream oss;
         oss << open_fds;
         EXPECT_TRUE(open_fds.empty()) << "Found open files!\n" << oss.str();
