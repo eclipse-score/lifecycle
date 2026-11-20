@@ -210,9 +210,6 @@ class Graph final
     /// @return True if the graph is currently transitioning to the Off state.
     bool isTransitioningToOff() const;
 
-    /// @return True if the graph is currently recovering.
-    bool isRecovering() const;
-
     /// @return The current graph state.
     GraphState getState() const;
 

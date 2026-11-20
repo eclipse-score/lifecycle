@@ -395,9 +395,6 @@ void ProcessGroupManager::processGroupHandler(Graph& pg)
 
             LM_LOG_WARN() << "Problem discovered, activating recovery state:" << Graph::recovery_state_name;
 
-            // All pending activations are cancelled before a recovery action runs.
-            clearQueuedActivations("failed transition");
-
             // no point checking errors here...
             // nobody requested this transition, so there is nowhere to communicate an error
             // if we failed and there is no external request, we will try again next time
@@ -472,10 +469,6 @@ void ProcessGroupManager::handleSetRequestedRunTarget(SetRequestedRunTarget* eve
     {
         // Reject before this can reach Graph::startTransition() with no matching node (#541).
         response = score::MakeUnexpected(ExecErrc::kRunTargetDoesntExist);
-    }
-    else if (graph_->isRecovering())
-    {
-        response = score::MakeUnexpected(ExecErrc::kRecoveryInProgress);
     }
     else if (!event->forced && isActivationBusy())
     {
