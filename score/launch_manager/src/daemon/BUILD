@@ -61,6 +61,9 @@ cc_binary(
     ] + select({
         "//config:lm_use_cout_log": [],
         # Enables logMode kRemote: DLT through the datarouter.
-        "//conditions:default": ["@score_logging//score/mw/log/backend:remote", "@score_logging//score/mw/log/backend:file"],
+        "//conditions:default": [
+            "@score_logging//score/mw/log/backend:file",
+            "@score_logging//score/mw/log/backend:remote",
+        ],
     }),
 )

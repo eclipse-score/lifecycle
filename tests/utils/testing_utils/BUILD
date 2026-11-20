@@ -33,7 +33,7 @@ py_library(
     ],
     deps = [
         "@score_itf//score/itf/core/process",
-        "@score_itf//score/itf/plugins/dlt",
         "@score_itf//score/itf/core/target",
+        "@score_itf//score/itf/plugins/dlt",
     ],
 )

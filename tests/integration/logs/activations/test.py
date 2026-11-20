@@ -72,8 +72,8 @@ def test_component_activation_log(
         f"in {len(logs)} log messages"
     )
     assert terminations[0].group(1) == pid, (
-            f"Termination log reports the wrong pid (got: {terminations[0].group(1)}, expected: {pid})"
+        f"Termination log reports the wrong pid (got: {terminations[0].group(1)}, expected: {pid})"
     )
     assert terminations[0].group(2) == "0", (
-            f"Termination log reports the wrong status (got: {terminations[0].group(2)}, expected 0)"
+        f"Termination log reports the wrong status (got: {terminations[0].group(2)}, expected 0)"
     )
