@@ -819,7 +819,7 @@ class GraphComponentRecoveryTest : public GraphTest
                           .setComponents(std::move(procs))
                           .setRunTargets(std::move(rts))
                           .setInitialRunTarget("Startup")
-                          .setFallbackRunTarget(std::move(fallback))
+                          .setFallbackRunTarget(std::move(fallback_))
                           .build();
 
         graph_config_ = config.takeGraph();
@@ -849,7 +849,8 @@ class GraphComponentRecoveryTest : public GraphTest
     {
         EXPECT_CALL(process_interface_, startProcess)
             .WillOnce(DoAll(SetArgReferee<0>(osal::ProcessID{101}), Return(osal::OsalReturnType::kSuccess)));
-        EXPECT_CALL(*mock_process_map, insertIfNotTerminated).WillOnce(Return(SafeProcessMapReturnType::kInserted));
+        EXPECT_CALL(*mock_process_map_, insertIfNotTerminated)
+            .WillOnce(Return(SafeProcessMapInsertResult{SafeProcessMapReturnType::kInserted}));
         ASSERT_EQ(job.component.get().recover(job.stop_token), IComponent::RequestResult::kSuccess);
         graph_->handleComponentEvent(ComponentRecoverySuccessful{job.component.get().getIdentifier()});
     }
