@@ -1,0 +1,242 @@
+{
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "title": "Health Monitor Configuration",
+    "description": "Configuration of one health monitor instance. At least one monitor is required.",
+    "type": "object",
+    "required": [
+        "schemaVersion"
+    ],
+    "additionalProperties": false,
+    "properties": {
+        "schemaVersion": {
+            "type": "integer",
+            "title": "Schema Version",
+            "description": "Version of this configuration schema.",
+            "minimum": 1,
+            "maximum": 1
+        },
+        "supervisorApiCycleMs": {
+            "type": "integer",
+            "title": "Supervisor API Cycle",
+            "description": "Time in milliseconds between two alive notifications to the supervisor.\nIt must be an integer multiple of internalProcessingCycleMs.",
+            "default": 500,
+            "minimum": 1
+        },
+        "internalProcessingCycleMs": {
+            "type": "integer",
+            "title": "Internal Processing Cycle",
+            "description": "Time in milliseconds between two checks of all monitors.",
+            "default": 100,
+            "minimum": 1
+        },
+        "threadParameters": {
+            "type": "object",
+            "title": "Thread Parameters",
+            "description": "Scheduling, CPU affinity and stack size of the worker thread.",
+            "additionalProperties": false,
+            "properties": {
+                "schedulerParameters": {
+                    "type": "object",
+                    "title": "Scheduler Parameters",
+                    "description": "Scheduling policy and priority. If not set, the worker inherits the scheduling of the thread that starts the health monitor.",
+                    "required": [
+                        "policy",
+                        "priority"
+                    ],
+                    "additionalProperties": false,
+                    "properties": {
+                        "policy": {
+                            "type": "string",
+                            "title": "Policy",
+                            "description": "Scheduling policy.",
+                            "enum": [
+                                "OTHER",
+                                "FIFO",
+                                "ROUND_ROBIN"
+                            ]
+                        },
+                        "priority": {
+                            "type": "integer",
+                            "title": "Priority",
+                            "description": "Priority within the range the operating system accepts for the policy."
+                        }
+                    }
+                },
+                "affinity": {
+                    "type": "array",
+                    "title": "Affinity",
+                    "description": "CPU indices the worker can run on, each below the CPU count. If empty or not set, the worker can run on any CPU.",
+                    "items": {
+                        "type": "integer"
+                    }
+                },
+                "stackSize": {
+                    "type": "integer",
+                    "title": "Stack Size",
+                    "description": "Stack size in bytes, not below the minimum of the operating system.",
+                    "minimum": 0
+                }
+            }
+        },
+        "deadlineMonitors": {
+            "type": "array",
+            "title": "Deadline Monitors",
+            "description": "Deadline monitors.",
+            "items": {
+                "type": "object",
+                "title": "Deadline Monitor",
+                "description": "A deadline monitor and its deadlines.",
+                "required": [
+                    "tag",
+                    "deadlines"
+                ],
+                "additionalProperties": false,
+                "properties": {
+                    "tag": {
+                        "type": "string",
+                        "title": "Monitor Tag",
+                        "description": "Name of the monitor, unique across all monitor kinds."
+                    },
+                    "deadlines": {
+                        "type": "array",
+                        "title": "Deadlines",
+                        "description": "Deadlines of the monitor.",
+                        "items": {
+                            "type": "object",
+                            "title": "Deadline",
+                            "description": "A deadline that must stop within its range after it starts.",
+                            "required": [
+                                "tag",
+                                "range"
+                            ],
+                            "additionalProperties": false,
+                            "properties": {
+                                "tag": {
+                                    "type": "string",
+                                    "title": "Deadline Tag",
+                                    "description": "Name of the deadline, unique within its deadline monitor."
+                                },
+                                "range": {
+                                    "$ref": "#/$defs/timeRange",
+                                    "title": "Deadline Range",
+                                    "description": "Allowed time between the start and the stop of the deadline."
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "heartbeatMonitors": {
+            "type": "array",
+            "title": "Heartbeat Monitors",
+            "description": "Heartbeat monitors.",
+            "items": {
+                "type": "object",
+                "title": "Heartbeat Monitor",
+                "description": "A heartbeat monitor.",
+                "required": [
+                    "tag",
+                    "range"
+                ],
+                "additionalProperties": false,
+                "properties": {
+                    "tag": {
+                        "type": "string",
+                        "title": "Monitor Tag",
+                        "description": "Name of the monitor, unique across all monitor kinds."
+                    },
+                    "range": {
+                        "$ref": "#/$defs/timeRange",
+                        "title": "Heartbeat Range",
+                        "description": "Allowed time between two heartbeats. minMs must exceed half the internal processing cycle."
+                    }
+                }
+            }
+        },
+        "logicMonitors": {
+            "type": "array",
+            "title": "Logic Monitors",
+            "description": "Logic monitors.",
+            "items": {
+                "type": "object",
+                "title": "Logic Monitor",
+                "description": "A logic monitor and its state graph.",
+                "required": [
+                    "tag",
+                    "initialState",
+                    "states"
+                ],
+                "additionalProperties": false,
+                "properties": {
+                    "tag": {
+                        "type": "string",
+                        "title": "Monitor Tag",
+                        "description": "Name of the monitor, unique across all monitor kinds."
+                    },
+                    "initialState": {
+                        "type": "string",
+                        "title": "Initial State",
+                        "description": "Tag of the state before the first transition. It must be a state of the monitor."
+                    },
+                    "states": {
+                        "type": "array",
+                        "title": "States",
+                        "description": "States of the graph. At least one state is required.",
+                        "items": {
+                            "type": "object",
+                            "title": "State",
+                            "description": "A state of a logic monitor and the states it can move to.",
+                            "required": [
+                                "tag",
+                                "allowedStates"
+                            ],
+                            "additionalProperties": false,
+                            "properties": {
+                                "tag": {
+                                    "type": "string",
+                                    "title": "State Tag",
+                                    "description": "Name of the state, unique within its logic monitor."
+                                },
+                                "allowedStates": {
+                                    "type": "array",
+                                    "title": "Allowed States",
+                                    "description": "Tags of the states this state can move to. Each must be a state of the monitor.\nA state can move to itself only if this list contains it.",
+                                    "items": {
+                                        "type": "string"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    },
+    "$defs": {
+        "timeRange": {
+            "type": "object",
+            "title": "Time Range",
+            "description": "Closed interval [minMs, maxMs] of whole milliseconds. minMs must not exceed maxMs.",
+            "required": [
+                "minMs",
+                "maxMs"
+            ],
+            "additionalProperties": false,
+            "properties": {
+                "minMs": {
+                    "type": "integer",
+                    "title": "Minimum",
+                    "description": "Lower bound in milliseconds.",
+                    "minimum": 0
+                },
+                "maxMs": {
+                    "type": "integer",
+                    "title": "Maximum",
+                    "description": "Upper bound in milliseconds.",
+                    "minimum": 0
+                }
+            }
+        }
+    }
+}
