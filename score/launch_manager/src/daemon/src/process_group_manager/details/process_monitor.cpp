@@ -36,6 +36,9 @@ void ProcessMonitor::doWork(ComponentTask&& task)
             case ComponentTaskType::kDeactivate:
                 return component.deactivate(task.stop_token);
                 break;
+            case ComponentTaskType::kRecover:
+                return component.recover(task.stop_token);
+                break;
         }
         SCORE_LANGUAGE_FUTURECPP_UNREACHABLE();
     };
@@ -51,6 +54,9 @@ void ProcessMonitor::doWork(ComponentTask&& task)
                 break;
             case ComponentTaskType::kDeactivate:
                 push_res = event_queue_.push(DeactivationComplete{node_identifier});
+                break;
+            case ComponentTaskType::kRecover:
+                push_res = event_queue_.push(ComponentRecoverySuccessful{node_identifier});
                 break;
         }
 
@@ -72,6 +78,20 @@ void ProcessMonitor::doWork(ComponentTask&& task)
                 }
                 break;
             case ComponentTaskType::kDeactivate:
+                break;
+            case ComponentTaskType::kRecover:
+                // A recovery that failed because it was cancelled is not a recovery failure.
+                if (task.stop_token.stop_requested())
+                {
+                    if (!event_queue_.push(JobSkipped{node_identifier}))
+                    {
+                        LM_LOG_ERROR() << "Failed to send job skipped event to event queue!";
+                    }
+                }
+                else if (!event_queue_.push(ComponentRecoveryFailed{node_identifier, error}))
+                {
+                    LM_LOG_ERROR() << "Failed to send recovery failed event to event queue!";
+                }
                 break;
         }
     };
