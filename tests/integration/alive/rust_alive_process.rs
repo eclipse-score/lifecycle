@@ -49,11 +49,11 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
 
     while !STOP.load(Ordering::Relaxed) {
         match remaining_reports.as_mut() {
-            Some(0) => {}
+            Some(0) => {},
             Some(n) => {
                 alive.report_alive();
                 *n -= 1;
-            }
+            },
             None => alive.report_alive(),
         }
         std::thread::sleep(std::time::Duration::from_millis(50));
