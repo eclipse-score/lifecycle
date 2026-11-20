@@ -19,7 +19,7 @@ kSuccess : the requested Run Target is active
 kInTransition : Run Target transition is in progress
 kAborting : Wait for ongoing jobs to finish after\na failure or transition cancellation
 kUndefinedState : No ongoing jobs, graph is in\nan undefined but consistent state
-state kComponentRecovery
+state kComponentRecovery #Red
 kComponentRecovery : At least one Component-local\nRecovery action is being executed
 
 [*] --> kSuccess : construction
@@ -28,7 +28,7 @@ kSuccess --> kSuccess : RT transition request [requested RT already active]
 
 ' --- starting a transition ---------------------------------------------------
 kSuccess --> kInTransition : RT transition request [requested RT not active]
-kUndefinedState --> kInTransition : RT transition request\n(always fallback_run_target if there is no pending request)
+kUndefinedState --> kInTransition : Forced RT transition request\n(otherwise always fallback_run_target if there is no pending request)
 
 ' --- running a transition ----------------------------------------------------
 kInTransition --> kInTransition : job finished\n[transition has work left]
@@ -54,7 +54,7 @@ kComponentRecovery --> kComponentRecovery : RT transition request [requested RT 
 kComponentRecovery --> kSuccess: component RA succeeded\n[last job]
 kComponentRecovery --> kComponentRecovery : component RA succeeded\n[jobs still running]
 kComponentRecovery --> kComponentRecovery : unexpected termination\n[component RA configured]
-kComponentRecovery --> kAborting : RT transition request\n[requested RT not active]\n\nshutdown
+kComponentRecovery --> kAborting : Forced RT transition request\n[requested RT not active]\n\nshutdown
 kComponentRecovery --> kAborting : unexpected termination\n[no component RA configured]
 kComponentRecovery --> kAborting : component RA failed [not the last job]
 kComponentRecovery --> kUndefinedState : component RA failed [last job]
