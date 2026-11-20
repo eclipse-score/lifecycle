@@ -13968,7 +13968,7 @@
     "TestType": "requirements-based",
     "DerivationTechnique": "requirements-analysis",
     "result_text": "",
-    "PartiallyVerifies": "comp_req__launch_man__consistent_dependencies",
+    "PartiallyVerifies": "comp_req__launch_man__comp_dep_ver_cmp_time",
     "FullyVerifies": null
   },
   {
@@ -13982,7 +13982,7 @@
     "TestType": "requirements-based",
     "DerivationTechnique": "requirements-analysis",
     "result_text": "",
-    "PartiallyVerifies": "comp_req__launch_man__consistent_dependencies",
+    "PartiallyVerifies": "comp_req__launch_man__comp_dep_ver_cmp_time",
     "FullyVerifies": null
   },
   {
@@ -13996,7 +13996,7 @@
     "TestType": "requirements-based",
     "DerivationTechnique": "requirements-analysis",
     "result_text": "",
-    "PartiallyVerifies": "comp_req__launch_man__consistent_dependencies",
+    "PartiallyVerifies": "comp_req__launch_man__comp_dep_ver_cmp_time",
     "FullyVerifies": null
   },
   {
@@ -14024,7 +14024,7 @@
     "TestType": "requirements-based",
     "DerivationTechnique": "requirements-analysis",
     "result_text": "",
-    "PartiallyVerifies": "comp_req__launch_man__consistent_dependencies",
+    "PartiallyVerifies": "comp_req__launch_man__comp_dep_ver_cmp_time",
     "FullyVerifies": null
   },
   {
@@ -14038,7 +14038,7 @@
     "TestType": "requirements-based",
     "DerivationTechnique": "requirements-analysis",
     "result_text": "",
-    "PartiallyVerifies": "comp_req__launch_man__consistent_dependencies",
+    "PartiallyVerifies": "comp_req__launch_man__comp_dep_ver_cmp_time",
     "FullyVerifies": null
   },
   {
@@ -14052,7 +14052,7 @@
     "TestType": "requirements-based",
     "DerivationTechnique": "requirements-analysis",
     "result_text": "",
-    "PartiallyVerifies": "comp_req__launch_man__consistent_dependencies",
+    "PartiallyVerifies": "comp_req__launch_man__comp_dep_ver_cmp_time",
     "FullyVerifies": null
   },
   {
@@ -14192,7 +14192,7 @@
     "TestType": "requirements-based",
     "DerivationTechnique": "requirements-analysis",
     "result_text": "",
-    "PartiallyVerifies": "comp_req__launch_man__consistent_dependencies",
+    "PartiallyVerifies": "comp_req__launch_man__comp_dep_ver_cmp_time",
     "FullyVerifies": null
   },
   {

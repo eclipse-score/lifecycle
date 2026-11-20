@@ -1189,7 +1189,7 @@
         }
       },
       {
-        "need": "comp_req__launch_man__consistent_dependencies",
+        "need": "comp_req__launch_man__comp_dep_ver_cmp_time",
         "links": {
           "CodeLinks": [],
           "TestLinks": [
@@ -1197,7 +1197,7 @@
               "name": "test_cyclic_dependencies_direct_component_cycle",
               "file": "scripts/config_mapping/unit_tests.py",
               "line": 543,
-              "need": "comp_req__launch_man__consistent_dependencies",
+              "need": "comp_req__launch_man__comp_dep_ver_cmp_time",
               "verify_type": "partially",
               "result": "passed",
               "result_text": ""
@@ -1206,7 +1206,7 @@
               "name": "test_cyclic_dependencies_indirect_component_cycle",
               "file": "scripts/config_mapping/unit_tests.py",
               "line": 565,
-              "need": "comp_req__launch_man__consistent_dependencies",
+              "need": "comp_req__launch_man__comp_dep_ver_cmp_time",
               "verify_type": "partially",
               "result": "passed",
               "result_text": ""
@@ -1215,7 +1215,7 @@
               "name": "test_cyclic_dependencies_run_target_cycle",
               "file": "scripts/config_mapping/unit_tests.py",
               "line": 588,
-              "need": "comp_req__launch_man__consistent_dependencies",
+              "need": "comp_req__launch_man__comp_dep_ver_cmp_time",
               "verify_type": "partially",
               "result": "passed",
               "result_text": ""
@@ -1224,7 +1224,7 @@
               "name": "test_cyclic_dependencies_component_depends_on_nonexistent",
               "file": "scripts/config_mapping/unit_tests.py",
               "line": 623,
-              "need": "comp_req__launch_man__consistent_dependencies",
+              "need": "comp_req__launch_man__comp_dep_ver_cmp_time",
               "verify_type": "partially",
               "result": "passed",
               "result_text": ""
@@ -1233,7 +1233,7 @@
               "name": "test_cyclic_dependencies_run_target_depends_on_unknown",
               "file": "scripts/config_mapping/unit_tests.py",
               "line": 642,
-              "need": "comp_req__launch_man__consistent_dependencies",
+              "need": "comp_req__launch_man__comp_dep_ver_cmp_time",
               "verify_type": "partially",
               "result": "passed",
               "result_text": ""
@@ -1242,7 +1242,7 @@
               "name": "test_cyclic_dependencies_self_referencing_component",
               "file": "scripts/config_mapping/unit_tests.py",
               "line": 661,
-              "need": "comp_req__launch_man__consistent_dependencies",
+              "need": "comp_req__launch_man__comp_dep_ver_cmp_time",
               "verify_type": "partially",
               "result": "passed",
               "result_text": ""
@@ -1251,7 +1251,7 @@
               "name": "test_custom_validations_cyclic_deps_fails",
               "file": "scripts/config_mapping/unit_tests.py",
               "line": 780,
-              "need": "comp_req__launch_man__consistent_dependencies",
+              "need": "comp_req__launch_man__comp_dep_ver_cmp_time",
               "verify_type": "partially",
               "result": "passed",
               "result_text": ""
