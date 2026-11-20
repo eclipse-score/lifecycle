@@ -393,7 +393,7 @@ void ProcessGroupManager::processGroupHandler(Graph& pg)
             //
             // we will try to perform recovery action
 
-            // req-id: comp_req__launch_man__ra_logging_support
+            // req-id: comp_req__launch_man__ra_log
             LM_LOG_WARN() << "Problem discovered, activating recovery state:" << Graph::recovery_state_name;
 
             // All pending activations are cancelled before a recovery action runs.
