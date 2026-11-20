@@ -19,9 +19,9 @@ cc_binary(
     name = "cpp_alive_process",
     srcs = ["cpp_alive_process.cpp"],
     deps = [
-        "//tests/utils/test_helper:arg_parser",
         "//score/launch_manager:alive_cc",
         "//score/launch_manager:lifecycle_cc",
+        "//tests/utils/test_helper:arg_parser",
     ],
 )
 
