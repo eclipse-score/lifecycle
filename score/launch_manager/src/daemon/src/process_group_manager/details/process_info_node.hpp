@@ -169,6 +169,22 @@ class ProcessInfoNode final : public IComponent
     /// @brief Sends SIGKILL repeatedly until the process exits or the stop token is triggered.
     void handleForcedTermination(const score::cpp::stop_token& stop_token);
 
+    /// @brief Writes "Name: <name> , PID: <pid>" to a log stream, so that all logs identify the process in the same
+    /// way. The rest of the message is streamed to the returned stream.
+    template <typename Stream>
+    Stream& logId(Stream&& stream, osal::ProcessID pid) const
+    {
+        return stream << "Name:" << identifier_ << ", PID:" << pid;
+    }
+
+    /// @copydoc logId(Stream&&, osal::ProcessID) const
+    /// @details Uses the current PID of the process.
+    template <typename Stream>
+    Stream& logId(Stream&& stream) const
+    {
+        return logId(stream, pid_.load());
+    }
+
     /// @brief True if termination is requested
     std::atomic_bool termination_requested_{false};
 
