@@ -170,8 +170,6 @@ table DeploymentConfig {
 table RunTarget {
   // Unique Run Target identifier.
   name:string (required);
-  // Human-readable description of the Run Target.
-  description:string; // optional
   // Names of components and Run Targets that must be activated with this Run Target.
   depends_on:[string]; // optional
   // Time limit in milliseconds for the Run Target transition.
@@ -184,8 +182,6 @@ table RunTarget {
 table Component {
   // Unique component identifier.
   name:string (required); // required
-  // Human-readable description of the component's purpose.
-  description:string; // optional
   component_properties:ComponentProperties (required); // required
   deployment_config:DeploymentConfig (required); // required
 }
@@ -211,8 +207,6 @@ table Watchdog {
 // Fallback Run Target activated when all recovery attempts are exhausted.
 // Does not include a recovery_action.
 table FallbackRunTarget {
-  // Human-readable description of the fallback Run Target.
-  description:string; // optional
   // Names of components and Run Targets that must be activated.
   depends_on:[string]; // optional
   // Time limit in milliseconds for the Run Target transition.
