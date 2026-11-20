@@ -20,10 +20,10 @@ from attribute_plugin import add_test_properties
 @add_test_properties(
     fully_verifies=[
         "comp_req__launch_man__dep_based_startup_order",
+        "comp_req__launch_man__stop_process_dependents",
     ],
     partially_verifies=[
         "feat_req__lifecycle__launch_support",
-        "comp_req__launch_man__stop_process_dependents",
         "feat_req__lifecycle__termination_dependency",
     ],
     test_type="requirements-based",

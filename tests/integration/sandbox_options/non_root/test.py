@@ -52,6 +52,7 @@ def hand_test_dir_to_non_root_user(target, setup_test, remote_test_dir):
         "comp_req__launch_man__scheduling_policy",
         "comp_req__launch_man__supplementary_groups",
         "comp_req__launch_man__process_rlimit_support",
+        "comp_req__launch_man__secpol_non_root"
     ],
     test_type="requirements-based",
     derivation_technique="requirements-analysis",
