@@ -26,6 +26,8 @@ namespace score::mw::lifecycle::internal
 class InitOnlyResource final : public std::pmr::memory_resource
 {
   public:
+    explicit InitOnlyResource(std::pmr::memory_resource* resource = std::pmr::new_delete_resource()) noexcept;
+
     /// @brief Disallow any further allocations.
     void lock() noexcept;
 
@@ -34,6 +36,7 @@ class InitOnlyResource final : public std::pmr::memory_resource
     void do_deallocate(void* p, std::size_t bytes, std::size_t alignment) override;
     bool do_is_equal(const std::pmr::memory_resource& other) const noexcept override;
 
+    std::pmr::memory_resource* resource_;
     bool locked_ = false;
 };
 
