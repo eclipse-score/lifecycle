@@ -12,6 +12,7 @@
  ********************************************************************************/
 
 #include "score/mw/launch_manager/process_group_manager/details/component.hpp"
+#include "score/launch_manager/src/execution_error.h"
 #include "score/mw/launch_manager/common/log.hpp"
 
 namespace score::mw::lifecycle::internal
@@ -35,15 +36,6 @@ bool isSupervised(const ApplicationType& application_type) noexcept
     }
 
     SCORE_LANGUAGE_FUTURECPP_UNREACHABLE_MESSAGE("All possible cases are covered");
-}
-
-/// @brief Whether the termination of the resource referred to by @p handle will still be reported.
-/// @details This is not the case without a resource (EmptyHandle), or if the termination of the
-///          process was already handled and its handle was invalidated.
-bool isTerminationPending(const Handle& handle) noexcept
-{
-    const ProcessHandle* const process = std::get_if<ProcessHandle>(&handle);
-    return (process != nullptr) && (process->pid != -1);
 }
 
 std::unique_ptr<IAliveSupervisionHandle> constructSupervision(
@@ -111,8 +103,14 @@ IComponent::RequestResult Component::activate(cpp::stop_token stop_token)
     // The state is deliberately not locked while waiting for the ready condition: the wait may take
     // up to the ready timeout, and `deactivate` or `tryHandleTermination` must be able to interrupt
     // it in the meantime. Some ready conditions can only be woken up by `tryHandleTermination`.
-    if (!ready_condition_->wait(stop_activation.get_token(), handle.value()).has_value())
+    const Result<void> ready = ready_condition_->wait(stop_activation.get_token(), handle.value());
+    if (!ready.has_value())
     {
+        if (ready.error() == ExecErrc::kTimeout)
+        {
+            LM_LOG_WARN() << config_->name << ": ready condition was not met within the ready timeout";
+            return RequestResult::kTimeout;
+        }
         return RequestResult::kFailure;
     }
 
@@ -132,6 +130,9 @@ std::optional<Handle> Component::beginActivation(cpp::stop_token stop_token, con
         state_ = FaultState{};
         return std::nullopt;
     }
+
+    // Anything left over from a previous activation is dropped.
+    ready_condition_->prepare();
 
     const Result<StartedResource> start_result = start_action_->start(stop_token, *this);
     if (!start_result.has_value())
@@ -215,7 +216,7 @@ IComponent::RequestResult Component::deactivate(cpp::stop_token stop_token)
     // Without a resource, or if its termination was already handled (e.g. a self-terminating
     // process which exited successfully), no termination will be reported anymore, so the
     // component is inactive immediately.
-    if (!isTerminationPending(handle))
+    if (!isAlive(handle))
     {
         state_ = TerminatedState{};
         return RequestResult::kSuccess;

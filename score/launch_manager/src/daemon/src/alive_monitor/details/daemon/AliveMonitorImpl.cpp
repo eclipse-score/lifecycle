@@ -26,7 +26,7 @@ AliveMonitorImpl::AliveMonitorImpl(
     SptrIRecoveryClient recovery_client,
     AliveSupervisionConfig config,
     const std::size_t supervised_components)
-    : m_recovery_client(recovery_client), config_(config), supervised_components_(supervised_components)
+    : recovery_client_(recovery_client), config_(config), supervised_components_(supervised_components)
 {
 }
 
@@ -34,14 +34,14 @@ bool AliveMonitorImpl::init() noexcept
 {
     try
     {
-        m_osClock.startMeasurement();
+        os_clock_.startMeasurement();
 
-        m_daemon = std::make_unique<CyclicExecutor>(m_osClock, supervised_components_);
-        EInitCode initResult = m_daemon->init(m_recovery_client, config_);
+        daemon_ = std::make_unique<CyclicExecutor>(os_clock_, supervised_components_);
+        EInitCode initResult = daemon_->init(recovery_client_, config_);
 
         if (initResult == EInitCode::kNoError)
         {
-            const long ms{m_osClock.endMeasurement()};
+            const long ms{os_clock_.endMeasurement()};
             LM_LOG_DEBUG() << "AliveMonitor: Initialization took" << ms << "ms";
             return true;
         }
@@ -82,13 +82,13 @@ void AliveMonitorImpl::stopMonitoring() noexcept
 bool AliveMonitorImpl::threadFn(std::atomic_bool& cancel_thread) noexcept
 {
     SCORE_LANGUAGE_FUTURECPP_PRECONDITION_PRD_MESSAGE(
-        m_daemon != nullptr, "HealthMonitor: Instance is not initialized!");
-    return m_daemon->startCyclicExec(cancel_thread);
+        daemon_ != nullptr, "HealthMonitor: Instance is not initialized!");
+    return daemon_->startCyclicExec(cancel_thread);
 }
 
 ISupervisionFactory& AliveMonitorImpl::getSupervisionFactory() const noexcept
 {
-    return *m_daemon;
+    return *daemon_;
 }
 
 }  // namespace score::mw::lifecycle::internal::saf::daemon

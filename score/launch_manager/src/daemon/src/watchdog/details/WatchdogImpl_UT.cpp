@@ -171,29 +171,29 @@ class WatchdogImplTest : public ::testing::Test
     /// @brief Creates a new WatchdogImpl with mocked OS interfaces injected.
     std::unique_ptr<WatchdogImpl> makeWatchdog()
     {
-        return std::make_unique<WatchdogImpl>(deviceIfMock_, *fcntlMock_, *unistdMock_);
+        return std::make_unique<WatchdogImpl>(device_if_mock_, *fcntl_mock_, *unistd_mock_);
     }
 
     /// @brief Creates a WatchdogImpl_FireWatchdogMock with mocked OS interfaces injected.
     std::unique_ptr<WatchdogImpl_FireWatchdogMock> makeWatchdogFireMock()
     {
-        return std::make_unique<WatchdogImpl_FireWatchdogMock>(deviceIfMock_, *fcntlMock_, *unistdMock_);
+        return std::make_unique<WatchdogImpl_FireWatchdogMock>(device_if_mock_, *fcntl_mock_, *unistd_mock_);
     }
 
     /// @brief Programs the mocks so that enabling the device for `cfg` goes through the full enable
     /// sequence (open -> GETTIMEOUT -> GETTIMELEFT -> SETTIMEOUT -> SETOPTIONS) and succeeds.
     void expectFullEnable(const WatchdogConfig& cfg, std::int32_t fd = 1)
     {
-        EXPECT_CALL(*fcntlMock_, open(StrEq(cfg.device_file_path), _)).WillOnce(Return(OpenOk(fd)));
+        EXPECT_CALL(*fcntl_mock_, open(StrEq(cfg.device_file_path), _)).WillOnce(Return(OpenOk(fd)));
         // Report a current timeout of 0, which never matches the configured device timeout, so that the
         // enable sequence always goes through GETTIMELEFT + SETTIMEOUT.
-        EXPECT_CALL(deviceIfMock_, ioctl(fd, static_cast<DeviceIf::IoctlRequestType>(WDIOC_GETTIMEOUT), _))
+        EXPECT_CALL(device_if_mock_, ioctl(fd, static_cast<DeviceIf::IoctlRequestType>(WDIOC_GETTIMEOUT), _))
             .WillOnce(SetOutParam(0));
-        EXPECT_CALL(deviceIfMock_, ioctl(fd, static_cast<DeviceIf::IoctlRequestType>(WDIOC_GETTIMELEFT), _))
+        EXPECT_CALL(device_if_mock_, ioctl(fd, static_cast<DeviceIf::IoctlRequestType>(WDIOC_GETTIMELEFT), _))
             .WillOnce(Return(kIoctlOk));
-        EXPECT_CALL(deviceIfMock_, ioctl(fd, static_cast<DeviceIf::IoctlRequestType>(WDIOC_SETTIMEOUT), _))
+        EXPECT_CALL(device_if_mock_, ioctl(fd, static_cast<DeviceIf::IoctlRequestType>(WDIOC_SETTIMEOUT), _))
             .WillOnce(Return(kIoctlOk));
-        EXPECT_CALL(deviceIfMock_, ioctl(fd, static_cast<DeviceIf::IoctlRequestType>(WDIOC_SETOPTIONS), _))
+        EXPECT_CALL(device_if_mock_, ioctl(fd, static_cast<DeviceIf::IoctlRequestType>(WDIOC_SETOPTIONS), _))
             .WillOnce(Return(kIoctlOk));
     }
 
@@ -203,7 +203,7 @@ class WatchdogImplTest : public ::testing::Test
     {
         // An ioctl step succeeds before the failure, fails at it, and is never called after it.
         auto ioctlStep = [&](EnableStep step, DeviceIf::IoctlRequestType request, auto successAction) {
-            auto& call = EXPECT_CALL(deviceIfMock_, ioctl(fd, request, _));
+            auto& call = EXPECT_CALL(device_if_mock_, ioctl(fd, request, _));
             if (stepPosition(step) < stepPosition(failingStep))
             {
                 call.WillOnce(successAction);
@@ -218,7 +218,7 @@ class WatchdogImplTest : public ::testing::Test
             }
         };
 
-        EXPECT_CALL(*fcntlMock_, open(StrEq(cfg.device_file_path), _))
+        EXPECT_CALL(*fcntl_mock_, open(StrEq(cfg.device_file_path), _))
             .WillOnce(Return(failingStep == EnableStep::kOpen ? OpenErr() : OpenOk(fd)));
 
         ioctlStep(EnableStep::kGetTimeout, static_cast<DeviceIf::IoctlRequestType>(WDIOC_GETTIMEOUT), SetOutParam(0));
@@ -233,16 +233,16 @@ class WatchdogImplTest : public ::testing::Test
     {
         if (cfg.require_magic_close)
         {
-            EXPECT_CALL(*unistdMock_, write(fd, _, _)).WillOnce(Return(WriteOk(2)));
+            EXPECT_CALL(*unistd_mock_, write(fd, _, _)).WillOnce(Return(WriteOk(2)));
         }
-        EXPECT_CALL(deviceIfMock_, ioctl(fd, static_cast<DeviceIf::IoctlRequestType>(WDIOC_SETOPTIONS), _))
+        EXPECT_CALL(device_if_mock_, ioctl(fd, static_cast<DeviceIf::IoctlRequestType>(WDIOC_SETOPTIONS), _))
             .WillOnce(Return(kIoctlOk));
-        EXPECT_CALL(*unistdMock_, close(fd)).WillOnce(Return(CloseOk()));
+        EXPECT_CALL(*unistd_mock_, close(fd)).WillOnce(Return(CloseOk()));
     }
 
-    score::os::MockGuard<score::os::FcntlMock> fcntlMock_;
-    MockDeviceIf deviceIfMock_;
-    score::os::MockGuard<score::os::UnistdMock> unistdMock_;
+    score::os::MockGuard<score::os::FcntlMock> fcntl_mock_;
+    MockDeviceIf device_if_mock_;
+    score::os::MockGuard<score::os::UnistdMock> unistd_mock_;
 };
 
 // ═══════════════════════════════════════════════════════════
@@ -416,12 +416,12 @@ TEST_F(WatchdogImplTest, WdgEnable_DoesNotSetConfiguredTimeoutValue_WhenTimeoutA
     const std::int32_t currentTimeoutRaw{static_cast<std::int32_t>(cfg.max_timeout_ms)};
 #endif
 
-    EXPECT_CALL(*fcntlMock_, open(StrEq(cfg.device_file_path), _)).WillOnce(Return(OpenOk(1)));
-    EXPECT_CALL(deviceIfMock_, ioctl(1, static_cast<DeviceIf::IoctlRequestType>(WDIOC_GETTIMEOUT), _))
+    EXPECT_CALL(*fcntl_mock_, open(StrEq(cfg.device_file_path), _)).WillOnce(Return(OpenOk(1)));
+    EXPECT_CALL(device_if_mock_, ioctl(1, static_cast<DeviceIf::IoctlRequestType>(WDIOC_GETTIMEOUT), _))
         .WillOnce(SetOutParam(currentTimeoutRaw));
-    EXPECT_CALL(deviceIfMock_, ioctl(1, static_cast<DeviceIf::IoctlRequestType>(WDIOC_GETTIMELEFT), _)).Times(0);
-    EXPECT_CALL(deviceIfMock_, ioctl(1, static_cast<DeviceIf::IoctlRequestType>(WDIOC_SETTIMEOUT), _)).Times(0);
-    EXPECT_CALL(deviceIfMock_, ioctl(1, static_cast<DeviceIf::IoctlRequestType>(WDIOC_SETOPTIONS), _))
+    EXPECT_CALL(device_if_mock_, ioctl(1, static_cast<DeviceIf::IoctlRequestType>(WDIOC_GETTIMELEFT), _)).Times(0);
+    EXPECT_CALL(device_if_mock_, ioctl(1, static_cast<DeviceIf::IoctlRequestType>(WDIOC_SETTIMEOUT), _)).Times(0);
+    EXPECT_CALL(device_if_mock_, ioctl(1, static_cast<DeviceIf::IoctlRequestType>(WDIOC_SETOPTIONS), _))
         .WillOnce(Return(kIoctlOk));
 
     EXPECT_TRUE(wdg->enable());
@@ -488,15 +488,15 @@ TEST_F(WatchdogImplTest, WdgEnable_FailsIfTimeoutValueIsAltered)
     auto wdg = makeWatchdog();
     ASSERT_TRUE(wdg->init(std::move(cfg), kDefaultCycleTimeNs));
 
-    EXPECT_CALL(*fcntlMock_, open(StrEq(cfg.device_file_path), _)).WillOnce(Return(OpenOk(1)));
-    EXPECT_CALL(deviceIfMock_, ioctl(1, static_cast<DeviceIf::IoctlRequestType>(WDIOC_GETTIMEOUT), _))
+    EXPECT_CALL(*fcntl_mock_, open(StrEq(cfg.device_file_path), _)).WillOnce(Return(OpenOk(1)));
+    EXPECT_CALL(device_if_mock_, ioctl(1, static_cast<DeviceIf::IoctlRequestType>(WDIOC_GETTIMEOUT), _))
         .WillOnce(SetOutParam(0));
-    EXPECT_CALL(deviceIfMock_, ioctl(1, static_cast<DeviceIf::IoctlRequestType>(WDIOC_GETTIMELEFT), _))
+    EXPECT_CALL(device_if_mock_, ioctl(1, static_cast<DeviceIf::IoctlRequestType>(WDIOC_GETTIMELEFT), _))
         .WillOnce(Return(kIoctlOk));
     // Device alters the requested timeout to a value that doesn't match what was requested.
-    EXPECT_CALL(deviceIfMock_, ioctl(1, static_cast<DeviceIf::IoctlRequestType>(WDIOC_SETTIMEOUT), _))
+    EXPECT_CALL(device_if_mock_, ioctl(1, static_cast<DeviceIf::IoctlRequestType>(WDIOC_SETTIMEOUT), _))
         .WillOnce(AlterOutParamBy(1));
-    EXPECT_CALL(deviceIfMock_, ioctl(1, static_cast<DeviceIf::IoctlRequestType>(WDIOC_SETOPTIONS), _)).Times(0);
+    EXPECT_CALL(device_if_mock_, ioctl(1, static_cast<DeviceIf::IoctlRequestType>(WDIOC_SETOPTIONS), _)).Times(0);
 
     EXPECT_FALSE(wdg->enable());
 }
@@ -513,7 +513,7 @@ TEST_F(WatchdogImplTest, WdgServiceWatchdog_NotInActivatedState)
     auto wdg = makeWatchdog();
     ASSERT_TRUE(wdg->init(std::move(cfg), kDefaultCycleTimeNs));
 
-    EXPECT_CALL(deviceIfMock_, ioctl).Times(0);
+    EXPECT_CALL(device_if_mock_, ioctl).Times(0);
     wdg->serviceWatchdog();
 }
 
@@ -524,7 +524,7 @@ TEST_F(WatchdogImplTest, WdgServiceWatchdog_NoDevice)
     auto wdg = makeWatchdog();
     ASSERT_TRUE(wdg->enable());
 
-    EXPECT_CALL(deviceIfMock_, ioctl).Times(0);
+    EXPECT_CALL(device_if_mock_, ioctl).Times(0);
     wdg->serviceWatchdog();
 }
 
@@ -539,7 +539,7 @@ TEST_F(WatchdogImplTest, WdgServiceWatchdog_WithConfiguredDevice)
     ASSERT_TRUE(wdg->init(std::move(cfg), kDefaultCycleTimeNs));
     ASSERT_TRUE(wdg->enable());
 
-    EXPECT_CALL(deviceIfMock_, ioctl(1, static_cast<DeviceIf::IoctlRequestType>(WDIOC_KEEPALIVE), nullptr))
+    EXPECT_CALL(device_if_mock_, ioctl(1, static_cast<DeviceIf::IoctlRequestType>(WDIOC_KEEPALIVE), nullptr))
         .Times(1)
         .WillOnce(Return(kIoctlOk));
     wdg->serviceWatchdog();
@@ -560,7 +560,7 @@ TEST_F(WatchdogImplTest, WdgFireWatchdogReaction_FailsIfNotInActivatedState)
     auto wdg = makeWatchdogFireMock();
     ASSERT_TRUE(wdg->init(std::move(cfg), kDefaultCycleTimeNs));
 
-    EXPECT_CALL(deviceIfMock_, ioctl(_, static_cast<DeviceIf::IoctlRequestType>(WDIOC_SETTIMEOUT), _)).Times(0);
+    EXPECT_CALL(device_if_mock_, ioctl(_, static_cast<DeviceIf::IoctlRequestType>(WDIOC_SETTIMEOUT), _)).Times(0);
     EXPECT_CALL(*wdg, waitForever).Times(0);
     wdg->fireWatchdogReaction();
 }
@@ -582,10 +582,10 @@ TEST_F(WatchdogImplTest, WdgFireWatchdogReaction_WithConfiguredDevice)
     // The activated watchdog never returns; verify the reaction in a child process.
     EXPECT_EXIT(
         {
-            EXPECT_CALL(deviceIfMock_, ioctl(1, static_cast<DeviceIf::IoctlRequestType>(WDIOC_SETTIMEOUT), _))
+            EXPECT_CALL(device_if_mock_, ioctl(1, static_cast<DeviceIf::IoctlRequestType>(WDIOC_SETTIMEOUT), _))
                 .WillOnce(Return(kIoctlOk));
             EXPECT_CALL(*wdg, waitForever).WillOnce([this]() noexcept {
-                const bool expectations_met = ::testing::Mock::VerifyAndClearExpectations(&deviceIfMock_);
+                const bool expectations_met = ::testing::Mock::VerifyAndClearExpectations(&device_if_mock_);
                 std::_Exit(expectations_met && !::testing::Test::HasFailure() ? EXIT_SUCCESS : EXIT_FAILURE);
             });
             wdg->fireWatchdogReaction();
@@ -606,9 +606,9 @@ TEST_F(WatchdogImplTest, WdgDisable_FailsIfNotInActivatedState)
     auto wdg = makeWatchdog();
     ASSERT_TRUE(wdg->init(std::move(cfg), kDefaultCycleTimeNs));
 
-    EXPECT_CALL(deviceIfMock_, ioctl).Times(0);
-    EXPECT_CALL(*unistdMock_, close).Times(0);
-    EXPECT_CALL(*unistdMock_, write).Times(0);
+    EXPECT_CALL(device_if_mock_, ioctl).Times(0);
+    EXPECT_CALL(*unistd_mock_, close).Times(0);
+    EXPECT_CALL(*unistd_mock_, write).Times(0);
 
     wdg->disable();
 }
@@ -659,9 +659,9 @@ TEST_F(WatchdogImplTest, WdgDisable_IgnoresDevicesThatCannotBeDisabled)
     ASSERT_TRUE(wdg->init(std::move(cfg), kDefaultCycleTimeNs));
     ASSERT_TRUE(wdg->enable());
 
-    EXPECT_CALL(deviceIfMock_, ioctl).Times(0);
-    EXPECT_CALL(*unistdMock_, write).Times(0);
-    EXPECT_CALL(*unistdMock_, close).Times(0);
+    EXPECT_CALL(device_if_mock_, ioctl).Times(0);
+    EXPECT_CALL(*unistd_mock_, write).Times(0);
+    EXPECT_CALL(*unistd_mock_, close).Times(0);
 
     wdg->disable();
 }

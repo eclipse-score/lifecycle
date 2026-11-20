@@ -20,13 +20,13 @@ namespace score::mw::lifecycle::internal::saf::ifappl
 {
 
 MonitorIfDaemon::MonitorIfDaemon(CheckpointIpcServer& f_ipcServer_r, const char* f_interfaceName_p)
-    : Observer<ifexm::ObservableEvent>(), k_interfaceName(f_interfaceName_p), ipcserver_r(f_ipcServer_r)
+    : Observer<ifexm::ObservableEvent>(), interface_name_(f_interfaceName_p), ipcserver_(f_ipcServer_r)
 {
 }
 
 IdentifierHash MonitorIfDaemon::getIdentifier() const noexcept(true)
 {
-    return k_interfaceName;
+    return interface_name_;
 }
 
 void MonitorIfDaemon::updateData(const ifexm::ObservableEvent& f_observable_r) noexcept(true)
@@ -34,32 +34,32 @@ void MonitorIfDaemon::updateData(const ifexm::ObservableEvent& f_observable_r) n
     switch (f_observable_r.event.eventType)
     {
         case score::mw::lifecycle::SupervisionEventType::kActivation:
-            if (isDeactivateRequest)
+            if (is_deactivate_request_)
             {
-                isProcessRestarted = true;
+                is_process_restarted_ = true;
             }
-            isActivateRequest = true;
-            isDeactivateRequest = false;
+            is_activate_request_ = true;
+            is_deactivate_request_ = false;
             break;
         case score::mw::lifecycle::SupervisionEventType::kDeactivation:
-            isDeactivateRequest = true;
+            is_deactivate_request_ = true;
             break;
     }
 }
 
 void MonitorIfDaemon::checkForNewData(const std::chrono::nanoseconds f_syncTimestamp) noexcept(true)
 {
-    if ((isActivateRequest == true) && (status == EInternalState::kInactive))
+    if ((is_activate_request_ == true) && (status_ == EInternalState::kInactive))
     {
         // Process was activated in the last cycle
-        status = EInternalState::kActive;
+        status_ = EInternalState::kActive;
     }
 
-    switch (status)
+    switch (status_)
     {
         case EInternalState::kActive:
         {
-            if (ipcserver_r.hasOverflow())
+            if (ipcserver_.hasOverflow())
             {
                 handleOverflow();
                 break;
@@ -72,22 +72,22 @@ void MonitorIfDaemon::checkForNewData(const std::chrono::nanoseconds f_syncTimes
                 break;
             }
 
-            if (isDeactivateRequest)
+            if (is_deactivate_request_)
             {
                 // Process got deactivated in the last cycle
-                status = EInternalState::kInactive;
-                isActivateRequest = false;
-                isDeactivateRequest = false;
+                status_ = EInternalState::kInactive;
+                is_activate_request_ = false;
+                is_deactivate_request_ = false;
             }
             break;
         }
         case EInternalState::kInactiveOverflow:
         {
-            if (isProcessRestarted)
+            if (is_process_restarted_)
             {
                 // Notify observers again about the overflow, when the process got restarted.
                 // Shared memory is still broken, even after restart of the process.
-                isProcessRestarted = false;
+                is_process_restarted_ = false;
                 pushOverflowInfoToObservers();
             }
             break;
@@ -106,9 +106,9 @@ void MonitorIfDaemon::checkForNewData(const std::chrono::nanoseconds f_syncTimes
 void MonitorIfDaemon::handleOverflow()
 {
     LM_LOG_WARN() << "MonitorInterface: Potential data loss of checkpoint ring buffer occurred."
-                  << "Instance:" << k_interfaceName;
+                  << "Instance:" << interface_name_;
     pushOverflowInfoToObservers();
-    status = EInternalState::kInactiveOverflow;
+    status_ = EInternalState::kInactiveOverflow;
 }
 
 bool MonitorIfDaemon::readIpcUntil(const std::chrono::nanoseconds f_syncTimestamp)
@@ -123,7 +123,7 @@ bool MonitorIfDaemon::readIpcUntil(const std::chrono::nanoseconds f_syncTimestam
     do
     {
         isRepeated = false;
-        result = ipcserver_r.peek(elem_p);
+        result = ipcserver_.peek(elem_p);
 
         // the ipc server guarantees that if the result is kOk the element is
         // valid.
@@ -134,7 +134,7 @@ bool MonitorIfDaemon::readIpcUntil(const std::chrono::nanoseconds f_syncTimestam
             pushResultToObservers(checkpoint);
             ++amountOfReceivedCheckpoints;
             elem_p = nullptr;
-            if (ipcserver_r.pop())
+            if (ipcserver_.pop())
             {
                 isRepeated = true;
             }
@@ -166,7 +166,7 @@ bool MonitorIfDaemon::readIpcUntil(const std::chrono::nanoseconds f_syncTimestam
     if (amountOfReceivedCheckpoints > 0U)
     {
         // LM_LOG_DEBUG() << "MonitorInterface: Amount of checkpoints in buffer:"
-        //                << amountOfReceivedCheckpoints << "Instance" << k_interfaceName;
+        //                << amountOfReceivedCheckpoints << "Instance" << interface_name_;
     }
 
     return success;
