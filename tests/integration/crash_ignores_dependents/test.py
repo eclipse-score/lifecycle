@@ -19,26 +19,27 @@ from attribute_plugin import add_test_properties
 @add_test_properties(
     fully_verifies=[],
     partially_verifies=[
-        # Health monitoring requirements not yet ready
+        "feat_req__lifecycle__monitor_processes",
+        "comp_req__launch_man__failure_detect",
     ],
-    test_type="requirements-based",
-    derivation_technique="requirements-analysis",
+    test_type="interface-test",
+    derivation_technique="design-analysis",
 )
-def test_complex_monitoring(target, setup_test, assert_test_results, remote_test_dir):
+def test_crash_ignores_dependents(
+    target, setup_test, assert_test_results, remote_test_dir
+):
     """
-    Objective: Verifies that the launch manager correctly handles recovery actions triggered by a heartbeat monitor failure.
+    Objective: Verifies that the launch manager does not restart a process if a process it depends on crashes.
 
-    Process registers a heartbeat monitor, sends heartbeats within the configured time range for 1 second, then stops sending heartbeats.
-    Expected Behaviour: Health monitor detects the missed heartbeats and triggers a recovery action, activating the fallback Run Target.
+    A process crashes after Run Target activation completes and proceeds normally the second time it is launched.
+    Expected Behaviour: The process that depends on it is not interrupted or restarted.
     """
 
     run_test(
         target=target,
         binary_path=str(remote_test_dir / "launch_manager"),
-        args=["-c", str(remote_test_dir / "etc/complex_monitoring.bin")],
+        args=["-c", str(remote_test_dir / "etc/config.bin")],
         cwd=str(remote_test_dir),
     )
 
-    assert_test_results(
-        {"component_complex_monitoring.xml", "control_client_test_driver.xml"}
-    )
+    assert_test_results({"test_process.xml", "process_crashing_once.xml"})

@@ -79,7 +79,7 @@ def test_sandbox_options_non_root(
         run_as=RunAs(
             uid=NON_ROOT_ID, gid=NON_ROOT_ID, capabilities=LAUNCH_MANAGER_CAPS
         ),
-        args=["-c", str(remote_test_dir / "etc/sandbox_options_non_root.bin")],
+        args=["-c", str(remote_test_dir / "etc/config.bin")],
         cwd=str(remote_test_dir),
     )
 
@@ -117,6 +117,6 @@ def test_bad_sandbox_options_non_root(target, setup_test, remote_test_dir):
             capabilities=[cap for cap in LAUNCH_MANAGER_CAPS if cap != "setuid"],
         ),
         expect_failure=True,
-        args=["-c", str(remote_test_dir / "etc/sandbox_options_non_root.bin")],
+        args=["-c", str(remote_test_dir / "etc/config.bin")],
         cwd=str(remote_test_dir),
     )

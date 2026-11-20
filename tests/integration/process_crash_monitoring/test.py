@@ -17,47 +17,34 @@ from attribute_plugin import add_test_properties
 
 
 @add_test_properties(
+    fully_verifies=[],
     partially_verifies=[
-        "feat_req__lifecycle__launch_support",
-        "feat_req__lifecycle__conditional_startup",
         "feat_req__lifecycle__monitor_processes",
         "feat_req__lifecycle__recovery_action_support",
-        "comp_req__launch_man__process_launch_args",
-        "comp_req__launch_man__failure_detect",
-    ],
-    fully_verifies=[
         "comp_req__launch_man__ra_comp_switch_rt",
-        "comp_req__launch_man__rc_lifecycle",
-        "comp_req__launch_man__rc_os_state",
-        "comp_req__launch_man__rt_comp_dep",
+        "comp_req__launch_man__failure_detect",
     ],
     test_type="requirements-based",
     derivation_technique="requirements-analysis",
 )
-def test_recovery_action_simple_rep_failure(
+def test_process_crash_monitoring(
     target, setup_test, assert_test_results, remote_test_dir
 ):
     """
-    Objective: Verifies that recovery action is executed when the reporting of
-    running via report_running() API (named "simple reporting" in the
-    following) is not happening in time and vice versa.
+    Objective: Verifies that the launch manager correctly detects an abnormal
+    process termination at runtime and executes a recovery action.
 
-    Case 1: Using simple reporting, the process does report running in time
-    (500ms below boundary) Expected Behaviour: Reporting running is successful,
-    recovery action is not executed.
-
-    Case 2: Using simple reporting, the process does not report running in time (500ms above boundary)
-    Expected Behaviour: Reporting running is not successful, recovery action is executed.
-    The recovery action switches to the fallback Run Target, the activation of the fallback Run Target is verified in the test.
+    A process reports running successfully and then crashes after Run Target activation completes.
+    Expected Behaviour: Launch manager detects the crash and activates the fallback Run Target.
     """
 
     run_test(
         target=target,
         binary_path=str(remote_test_dir / "launch_manager"),
-        args=["-c", str(remote_test_dir / "etc/process_simple_rep_failure.bin")],
+        args=["-c", str(remote_test_dir / "etc/config.bin")],
         cwd=str(remote_test_dir),
     )
 
     assert_test_results(
-        {"control_client_test_driver.xml", "process_simple_reporting.xml"}
+        {"control_client_test_driver.xml", "process_crashing_on_runtime.xml"}
     )

@@ -27,32 +27,30 @@ from attribute_plugin import add_test_properties
 )
 def test_lm_shutdown(target, setup_test, assert_test_results, remote_test_dir):
     """
-    Objective: Verifies that the Launch Manager exits after performing a shutdown
-    (stopping all processes it owns) when a SIGTERM arrives while an explicit switch
-    to the "Off" Run Target is already in progress.
+    Objective: Verifies that the Launch Manager exits after performing a
+    shutdown (stopping all processes it owns) when requested via SIGTERM, and
+    that this shutdown takes priority over an in-progress run-target switch
+    (the switch is cancelled).
 
-    The control client activates run_target_a and then explicitly requests a switch
-    to the "Off" Run Target. component_a (part of run_target_a) stalls while it is
-    being terminated during that switch, keeping the switch to Off in progress. That
-    window is signalled by the file `component_a_terminating`, at which point the
-    launch manager is sent a SIGTERM.
+    The control client activates run_target_a and then requests a switch to
+    run_target_c. component_a (only part of run_target_a) stalls while it is being
+    terminated during the switch, keeping the switch in progress. That window is
+    signalled by the file `component_a_terminating`, at which point the launch
+    manager is sent a SIGTERM.
 
-    Expected Behaviour: The launch manager lets the in-progress switch to Off
-    continue, stops all the processes it owns, and exits cleanly. It honours
-    each component's shutdown_timeout_ms, so component_a - which stalls for
-    less than its shutdown_timeout_ms - exits gracefully (producing its XML
-    result) rather than being force-terminated.
+    Expected Behaviour: The launch manager cancels the pending switch - so
+    component_c (only part of run_target_c) is never started - stops all the
+    processes it owns, and exits cleanly.
     """
 
     run_test(
         target=target,
         binary_path=str(remote_test_dir / "launch_manager"),
-        args=["-c", str(remote_test_dir / "etc/lm_shutdown_during_switch_to_off.bin")],
+        args=["-c", str(remote_test_dir / "etc/config.bin")],
         cwd=str(remote_test_dir),
     )
 
-    # Both processes are stopped gracefully as part of the switch to Off and produce
-    # their XML results: the control client is terminated when the switch to Off
-    # begins, and component_a exits within its shutdown_timeout_ms (which the launch
-    # manager honours) instead of being force-terminated.
+    # component_c never runs (the pending switch was cancelled), so it produces no XML
+    # result; component_a and the control client shut down gracefully. The control
+    # client additionally asserts that run_target_c was never activated.
     assert_test_results({"control_client_test_driver.xml", "component_a.xml"})

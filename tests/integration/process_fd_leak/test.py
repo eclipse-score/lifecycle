@@ -17,37 +17,26 @@ from attribute_plugin import add_test_properties
 
 
 @add_test_properties(
-    fully_verifies=[
-        "comp_req__launch_man__launch_parallel",
-    ],
+    fully_verifies=[],
     partially_verifies=[
-        "feat_req__lifecycle__launch_support",
+        "feat_req__lifecycle__conditional_startup",
+        "comp_req__launch_man__rc_lifecycle",
+        "comp_req__launch_man__rc_os_state",
     ],
-    test_type="requirements-based",
-    derivation_technique="requirements-analysis",
+    test_type="interface-test",
+    derivation_technique="error-guessing",
 )
-def test_parallel_launch(target, setup_test, assert_test_results, remote_test_dir):
-    """
-    Objective: Verifies that the launch manager launches independent processes in parallel.
-
-    One Run Target depends on three independent components. Each component records a
-    timestamp before sleeping and one after reporting running. If launched in parallel,
-    all components start before any of them finishes sleeping and reports running.
-    Expected Behaviour: The latest start timestamp precedes the earliest running timestamp.
-    """
+def test_process_fd_leak(target, setup_test, assert_test_results, remote_test_dir):
+    """Tests the inherited file descriptors from LCM for Native, Reporting and
+    State_Manager application types."""
 
     run_test(
         target=target,
         binary_path=str(remote_test_dir / "launch_manager"),
-        args=["-c", str(remote_test_dir / "etc/parallel_launch.bin")],
+        args=["-c", str(remote_test_dir / "etc/config.bin")],
         cwd=str(remote_test_dir),
     )
 
     assert_test_results(
-        {
-            "component_parallel_launch_a.xml",
-            "component_parallel_launch_b.xml",
-            "component_parallel_launch_c.xml",
-            "control_client_test_driver.xml",
-        }
+        {"native.xml", "control_client_test_driver.xml", "reporting.xml"}
     )

@@ -45,12 +45,12 @@ cc_binary(
 integration_test(
     name = "lm_shutdown_during_rt_switch",
     timeout = "short",
-    srcs = ["lm_shutdown_during_rt_switch.py"],
+    srcs = ["test.py"],
     binaries = [
         "//tests/utils/test_helper:process_hanging_on_sigterm",
         ":component_c",
         ":control_client_test_driver",
         "//score/launch_manager",
     ],
-    config = ":lm_shutdown_during_rt_switch.json",
+    config = ":config.json",
 )

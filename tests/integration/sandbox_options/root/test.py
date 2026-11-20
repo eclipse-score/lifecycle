@@ -55,12 +55,12 @@ def test_sandbox_options(target, setup_test, assert_test_results, remote_test_di
     run_test(
         target=target,
         binary_path=str(remote_test_dir / "launch_manager"),
-        args=["-c", str(remote_test_dir / "etc/sandbox_options.bin")],
+        args=["-c", str(remote_test_dir / "etc/config.bin")],
         cwd=str(remote_test_dir),
     )
 
     # sandbox_options_process_a is configured with a custom working directory ("working_dir": "/tmp"
-    # in sandbox_options.in.json), so its XML result file is written there rather than into
+    # in config.in.json), so its XML result file is written there rather than into
     # remote_test_dir. sandbox_options_process_b has no working directory configured and therefore
     # writes into remote_test_dir. Search all relevant directories.
     assert_test_results(

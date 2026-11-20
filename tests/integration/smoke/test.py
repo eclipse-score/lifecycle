@@ -17,24 +17,27 @@ from attribute_plugin import add_test_properties
 
 
 @add_test_properties(
-    partially_verifies=[],
+    partially_verifies=[
+        "feat_req__lifecycle__run_target_support",
+        "comp_req__launch_man__start_named_run_target",
+        "comp_req__launch_man__switch_run_targets",
+    ],
     test_type="interface-test",
     derivation_technique="explorative-testing",
 )
-def test_same_run_target_in_transition(
-    target, setup_test, assert_test_results, remote_test_dir
-):
+def test_smoke(target, setup_test, assert_test_results, remote_test_dir):
     """
-    Objective: Verifies that repeating a request for the Run Target that is being activated is rejected.
+    Objective: Verifies the basic end-to-end lifecycle flow of the launch manager, including process startup, Run Target transitions, and execution state reporting.
 
-    Expected Behaviour: The repeated request is rejected with kInTransitionToSameState and the original activation still completes.
+    The launch manager starts with an initial Run Target. The control daemon activates the "Running" Run Target (starting the managed process), then transitions back to "Startup".
+    Expected Behaviour: All Run Target transitions complete successfully and all processes report running.
     """
 
     run_test(
         target=target,
         binary_path=str(remote_test_dir / "launch_manager"),
-        args=["-c", str(remote_test_dir / "etc/same_run_target_in_transition.bin")],
+        args=["-c", str(remote_test_dir / "etc/config.bin")],
         cwd=str(remote_test_dir),
     )
 
-    assert_test_results({"control_client_test_driver.xml", "gated.xml"})
+    assert_test_results({"control_client_test_driver.xml", "gtest_process.xml"})
