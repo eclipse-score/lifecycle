@@ -825,6 +825,77 @@ TEST_F(ConverterTest, ConvertSandboxMissingSchedulingPriorityReturnsError)
     EXPECT_THAT(result.error(), Eq(IConfigLoader::Error::InvalidFormat));
 }
 
+struct SchedulingPriorityClampTestParam
+{
+    fb::SchedulingPolicy fb_policy;
+    int32_t posix_policy;
+    int32_t configured_priority;
+    bool expect_max;  ///< true: expect the maximum of the policy, false: expect the minimum
+    const char* name;
+};
+
+class ConvertSandboxSchedulingPriorityClampTest : public ::testing::TestWithParam<SchedulingPriorityClampTestParam>
+{
+};
+
+TEST_P(ConvertSandboxSchedulingPriorityClampTest, PriorityOutOfRangeIsClamped)
+{
+    RecordProperty(
+        "Description", "A scheduling priority outside the range of the policy is clamped to the nearest valid value.");
+    const auto& param = GetParam();
+    ::flatbuffers::FlatBufferBuilder fbb;
+    auto sandbox = fb::CreateSandbox(
+        fbb,
+        0 /*uid*/,
+        0 /*gid*/,
+        0 /*supplementary_group_ids*/,
+        0 /*security_policy*/,
+        param.fb_policy,
+        param.configured_priority);
+    fbb.Finish(sandbox);
+    const auto* ptr = ::flatbuffers::GetRoot<fb::Sandbox>(fbb.GetBufferPointer());
+
+    auto result = convertSandbox(ptr);
+    ASSERT_THAT(result.has_value(), IsTrue());
+    const int32_t expected =
+        param.expect_max ? sched_get_priority_max(param.posix_policy) : sched_get_priority_min(param.posix_policy);
+    EXPECT_THAT(result->scheduling_priority, Eq(expected));
+}
+
+INSTANTIATE_TEST_SUITE_P(
+    ConverterTest,
+    ConvertSandboxSchedulingPriorityClampTest,
+    ::testing::Values(
+        SchedulingPriorityClampTestParam{fb::SchedulingPolicy::FIFO, SCHED_FIFO, 1000, true, "FifoAboveMax"},
+        SchedulingPriorityClampTestParam{fb::SchedulingPolicy::FIFO, SCHED_FIFO, -10, false, "FifoBelowMin"},
+        SchedulingPriorityClampTestParam{fb::SchedulingPolicy::RR, SCHED_RR, 1000, true, "RrAboveMax"},
+        SchedulingPriorityClampTestParam{fb::SchedulingPolicy::OTHER, SCHED_OTHER, 1000, true, "OtherAboveMax"},
+        SchedulingPriorityClampTestParam{fb::SchedulingPolicy::OTHER, SCHED_OTHER, -10, false, "OtherBelowMin"}),
+    [](const ::testing::TestParamInfo<SchedulingPriorityClampTestParam>& info) {
+        return std::string{info.param.name};
+    });
+
+TEST_F(ConverterTest, ConvertSandboxSchedulingPriorityInRangeIsKept)
+{
+    RecordProperty("Description", "A scheduling priority inside the range of the policy is not changed.");
+    ::flatbuffers::FlatBufferBuilder fbb;
+    const int32_t priority = sched_get_priority_min(SCHED_FIFO) + 1;
+    auto sandbox = fb::CreateSandbox(
+        fbb,
+        0 /*uid*/,
+        0 /*gid*/,
+        0 /*supplementary_group_ids*/,
+        0 /*security_policy*/,
+        fb::SchedulingPolicy::FIFO,
+        priority);
+    fbb.Finish(sandbox);
+    const auto* ptr = ::flatbuffers::GetRoot<fb::Sandbox>(fbb.GetBufferPointer());
+
+    auto result = convertSandbox(ptr);
+    ASSERT_THAT(result.has_value(), IsTrue());
+    EXPECT_THAT(result->scheduling_priority, Eq(priority));
+}
+
 TEST_F(ConverterTest, ConvertSandboxUidOutOfRangeReturnsError)
 {
     RecordProperty("Description", "Sandbox uid exceeding uid_t range returns InvalidFormat.");

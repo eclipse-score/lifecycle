@@ -301,31 +301,10 @@ OsalReturnType ProcessLauncher::setSchedulingAndSecurity(const configuration::Sa
         static_cast<void>(signal_safe_log_errno(errno, "setpgid() failed"));
         retval = OsalReturnType::kFail;
     }
-    // Set scheduling policy with sched_setscheduler
+    // Set scheduling policy with sched_setscheduler.
+    // The priority was clamped to the valid range of the policy when the configuration was loaded.
     sched_param sch_param{};
-
     sch_param.sched_priority = config.scheduling_priority;
-
-    if (sch_param.sched_priority < sched_get_priority_min(config.scheduling_policy))
-    {
-        static_cast<void>(signal_safe_log(
-            "Scheduling priority ",
-            sch_param.sched_priority,
-            " is below minimum for policy ",
-            config.scheduling_policy,
-            ", setting to minimum"));
-        sch_param.sched_priority = sched_get_priority_min(config.scheduling_policy);
-    }
-    else if (sch_param.sched_priority > sched_get_priority_max(config.scheduling_policy))
-    {
-        static_cast<void>(signal_safe_log(
-            "Scheduling priority ",
-            sch_param.sched_priority,
-            " is above maximum for policy ",
-            config.scheduling_policy,
-            ", setting to maximum"));
-        sch_param.sched_priority = sched_get_priority_max(config.scheduling_policy);
-    }
 
     if (-1 == sched_setscheduler(0, config.scheduling_policy, &sch_param))
     {
