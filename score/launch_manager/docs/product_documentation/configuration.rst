@@ -125,15 +125,10 @@ recovery_action (object)
 **Properties:**
 
 restart (object, optional)
-    Description: Defines a recovery action that restarts the POSIX process associated with this component. This option is reserved: it is currently not referenced by any property.
-
-restart.number_of_attempts (integer, optional)
-    Description: Specifies the maximum number of restart attempts before the **Launch Manager** concludes that recovery cannot succeed for the component.
-    Constraint: Must be between 0 and 255 inclusive.
-
-restart.delay_before_restart_ms (integer, optional)
-    Description: Specifies the delay duration, in milliseconds, that the **Launch Manager** waits before initiating a restart attempt.
-    Constraint: Must be 0 or greater.
+    Description: Defines a recovery action that restarts the POSIX process associated with this component.
+    Only the failed component is restarted: components depending on it keep running and the active **Run Target** stays active.
+    The restart has no parameters of its own and must be an empty object (``"restart": {}``). The number of start attempts is taken from the component's ``deployment_config.activation_retry_attempts`` (up to ``activation_retry_attempts + 1`` starts per recovery), and the delay between attempts from ``deployment_config.activation_retry_delay_ms``. If no start attempt reaches the **Ready State**, the **Launch Manager** switches to the ``fallback_run_target``.
+    Only supported for components (``deployment_config.recovery_action``), not for **Run Targets**.
 
 switch_run_target (object, optional)
     Description: Defines a recovery action that switches to a different **Run Target**. This can be a new **Run Target** or the current one to retry its activation.
@@ -282,18 +277,22 @@ working_dir (string, optional)
     Description: Specifies the directory to be used as the working directory for the component during execution. If not defined, the binary's directory (``bin_dir``) is used as the working directory by default.
 
 activation_retry_attempts (integer, optional)
-    Description: Specifies the number of additional attempts the **Launch Manager** makes to activate the component when it fails to reach its **Ready State** during a **Run Target** transition. A value of 0 means the component is started once and a failure is treated as a **Run Target** transition failure.
+    Description: Specifies the number of additional attempts the **Launch Manager** makes to activate the component when it fails to reach its **Ready State**. 
+    A value of 0 means the component is started once and a failure to start fails the component activation.
+    The retry attempts are applied for component activation during **Run Target** transition and in case of a configured ``restart`` recovery action.
+    Component activation failure during a **Run Target** transition leads to transition failure.
+    Component activation failure as part of a ``restart`` recovery action, fails the recovery action.
     Constraint: Must be between 0 and 255 inclusive.
     Default: 0
 
 activation_retry_delay_ms (integer, optional)
-    Description: Specifies the delay duration, in milliseconds, that the **Launch Manager** waits before each activation retry. This value is currently not evaluated by the **Launch Manager**.
+    Description: Specifies the delay duration, in milliseconds, that the **Launch Manager** waits before each activation retry, including the start attempts of a ``restart`` recovery action. This value is currently not evaluated by the **Launch Manager**.
     Constraint: Must be between 0 and 4294967295 inclusive.
     Default: 0
 
 recovery_action (object, optional)
-    Description: Specifies the recovery action to execute when the component malfunctions after successfully reaching its **Ready State**. This action is limited to ``switch_run_target`` operations.
-    Reference: This property refers to the ``recovery_action`` reusable type defined in this schema, specifically enforcing the ``switch_run_target`` option.
+    Description: Specifies the recovery action to execute when the component malfunctions after successfully reaching its **Ready State**. Either ``restart`` to restart only this component, or ``switch_run_target`` to switch to another **Run Target**.
+    Reference: This property refers to the ``recovery_action`` reusable type defined in this schema.
 
 sandbox (object, optional)
     Description: Defines the sandbox configuration parameters that isolate and constrain the component's runtime execution, enhancing system security and stability.

@@ -87,10 +87,7 @@ def test_preprocessing_basic():
                     "config_default4": "config_default_value4"
                 },
                 "recovery_action": {
-                    "restart": {
-                        "number_of_attempts": 1,
-                        "delay_before_restart_ms": 500
-                    }
+                    "restart": {}
                 }
             },
             "component_properties": {
@@ -193,37 +190,29 @@ def test_preprocessing_non_merging_dicts():
         "schema_version": 2,
         "defaults": {
             "deployment_config": {
-                "recovery_action": {
-                    "restart": {
-                        "number_of_attempts": 200,
-                        "delay_before_restart_ms": 888,
-                    }
-                },
+                "recovery_action": {"restart": {}},
             }
         },
         "components": {
             "c1": {
                 "component_properties": {},
                 "deployment_config": {
-                    "recovery_action": {"restart": {"number_of_attempts": 5}},
+                    "recovery_action": {
+                        "switch_run_target": {"run_target": "fallback_run_target"}
+                    },
                 },
-            }
+            },
+            "c2": {"component_properties": {}, "deployment_config": {}},
         },
     }
     result = preprocess_defaults(score_defaults, config)
-    # recovery_action should NOT contain delay_before_restart_ms -- user replaced it entirely
-    assert (
-        "delay_before_restart_ms"
-        not in result["components"]["c1"]["deployment_config"]["recovery_action"][
-            "restart"
-        ]
-    )
-    assert (
-        result["components"]["c1"]["deployment_config"]["recovery_action"]["restart"][
-            "number_of_attempts"
-        ]
-        == 5
-    )
+    assert result["components"]["c1"]["deployment_config"]["recovery_action"] == {
+        "switch_run_target": {"run_target": "fallback_run_target"}
+    }
+    # The config default restart replaces the score default switch_run_target
+    assert result["components"]["c2"]["deployment_config"]["recovery_action"] == {
+        "restart": {}
+    }
 
 
 def test_preprocessing_overrides_lists():
@@ -1368,6 +1357,97 @@ def test_gen_config_recovery_action_switch_run_target(tmp_path):
 
     rt_map = {rt["name"]: rt for rt in output["run_targets"]}
     assert rt_map["Startup"]["recovery_action"]["run_target"] == "fallback_rt"
+
+
+def _gen_component_recovery_action(tmp_path, recovery_action):
+    config = {
+        "schema_version": 2,
+        "components": {
+            "c1": {
+                "component_properties": {
+                    "application_profile": {"application_type": "REPORTING"}
+                },
+                "deployment_config": {
+                    "ready_timeout_ms": 1000,
+                    "shutdown_timeout_ms": 2000,
+                    "bin_dir": "/opt",
+                    "sandbox": {"uid": 1000, "gid": 1000},
+                    "recovery_action": recovery_action,
+                },
+            }
+        },
+        "run_targets": {"Startup": {}},
+        "initial_run_target": "Startup",
+        "fallback_run_target": {},
+        "alive_supervision": {},
+        "watchdog": {},
+    }
+    gen_config(str(tmp_path), config, "test.json")
+    with open(tmp_path / "test_gen.json") as f:
+        return json.load(f)["components"][0]["deployment_config"]
+
+
+def test_gen_config_component_recovery_action_restart(tmp_path):
+    """A component restart recovery action is mapped to an empty RestartAction."""
+    depl = _gen_component_recovery_action(tmp_path, {"restart": {}})
+    assert depl["recovery_action_type"] == "RestartAction"
+    assert depl["recovery_action"] == {}
+
+
+def test_gen_config_component_recovery_action_switch_run_target(tmp_path):
+    """A component switch_run_target recovery action is mapped to a SwitchRunTargetAction."""
+    depl = _gen_component_recovery_action(
+        tmp_path, {"switch_run_target": {"run_target": "fallback_run_target"}}
+    )
+    assert depl["recovery_action_type"] == "SwitchRunTargetAction"
+    assert depl["recovery_action"] == {"run_target": "fallback_run_target"}
+
+
+def test_gen_config_component_recovery_action_unknown_rejected(tmp_path):
+    """An unknown component recovery action is rejected instead of silently dropped."""
+    with pytest.raises(ValueError, match="unsupported recovery_action"):
+        _gen_component_recovery_action(tmp_path, {"unknown": {}})
+
+
+def _config_with_component_recovery_action(recovery_action):
+    config = _config_with_rlimits({})
+    config["components"]["app1"]["deployment_config"]["recovery_action"] = (
+        recovery_action
+    )
+    return config
+
+
+def test_schema_accepts_component_restart(schema_file):
+    schema = load_json_file(schema_file)
+    config = _config_with_component_recovery_action({"restart": {}})
+    assert schema_validation(config, schema) is True
+
+
+@pytest.mark.parametrize(
+    "restart",
+    [{"number_of_attempts": 1}, {"delay_before_restart_ms": 0}],
+    ids=["number_of_attempts", "delay_before_restart_ms"],
+)
+def test_schema_rejects_component_restart_parameters(schema_file, restart):
+    """restart has no parameters of its own; it uses the activation_retry_* settings."""
+    schema = load_json_file(schema_file)
+    config = _config_with_component_recovery_action({"restart": restart})
+    assert schema_validation(config, schema) is False
+
+
+def test_schema_rejects_component_restart_and_switch_run_target(schema_file):
+    schema = load_json_file(schema_file)
+    config = _config_with_component_recovery_action(
+        {"restart": {}, "switch_run_target": {"run_target": "fallback_run_target"}}
+    )
+    assert schema_validation(config, schema) is False
+
+
+def test_schema_rejects_run_target_restart(schema_file):
+    schema = load_json_file(schema_file)
+    config = _config_with_component_recovery_action({"restart": {}})
+    config["run_targets"]["Startup"] = {"recovery_action": {"restart": {}}}
+    assert schema_validation(config, schema) is False
 
 
 def test_gen_config_scheduling_policy_mapping(tmp_path):

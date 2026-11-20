@@ -128,7 +128,6 @@ void ProcessMonitor::terminated(IComponent& component, int32_t status)
             push_res = event_queue_.push(UnexpectedTermination{component.getIdentifier()});
             break;
         case IComponent::TerminationResult::kIgnore:
-            LM_LOG_DEBUG() << "Termination of component" << component.getIdentifier() << "is expected";
             break;
     }
 

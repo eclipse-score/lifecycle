@@ -68,7 +68,7 @@ ProcessInfoNode::ProcessInfoNode(configuration::ComponentConfig&& config, Proces
       identifier_(config_.name),
       termination_waiter_(std::make_unique<TerminationWaiter>())
 {
-    start_retries_ = config_.deployment_config.activation_retry_attempts;
+    total_start_attempts_ = config_.deployment_config.activation_retry_attempts + 1;
 
     const configuration::ApplicationProfile& app_profile = config_.component_properties.application_profile;
 
@@ -271,14 +271,15 @@ bool ProcessInfoNode::isSupervised() const
 
 IComponent::RequestResult ProcessInfoNode::startProcess(score::cpp::stop_token stop_token)
 {
-    LM_LOG_DEBUG() << "Starting process (" << identifier_ << ") from executable"
-                   << config_.deployment_config.process_command.executablePath();
-
     std::optional<RequestResult> error;
     const std::chrono::time_point initial_time = std::chrono::steady_clock::now();
 
-    for (std::uint16_t attempts = 0U; attempts <= start_retries_; attempts++)
+    for (std::uint16_t attempt = 1U; attempt <= total_start_attempts_; attempt++)
     {
+        LM_LOG_DEBUG() << "Starting process" << identifier_ << "from executable"
+                       << config_.deployment_config.process_command.executablePath() << "; attempt" << attempt << "/"
+                       << total_start_attempts_;
+
         // setState(kIdle) will fail if the state is:
         // - Starting: this would mean we did not set state to kFailed on failure or exit when we successfully launched
         SCORE_LANGUAGE_FUTURECPP_ASSERT_DBG_MESSAGE(getState() != ProcessState::kStarting, "Process state is invalid");
