@@ -542,7 +542,7 @@ def test_cyclic_dependencies_no_cycle():
 
 @add_test_properties(
     partially_verifies=[
-        "comp_req__launch_man__consistent_dependencies",
+        "comp_req__launch_man__comp_dep_ver_cmp_time",
     ],
     test_type="requirements-based",
     derivation_technique="requirements-analysis",
@@ -564,7 +564,7 @@ def test_cyclic_dependencies_direct_component_cycle():
 
 @add_test_properties(
     partially_verifies=[
-        "comp_req__launch_man__consistent_dependencies",
+        "comp_req__launch_man__comp_dep_ver_cmp_time",
     ],
     test_type="requirements-based",
     derivation_technique="requirements-analysis",
@@ -587,7 +587,7 @@ def test_cyclic_dependencies_indirect_component_cycle():
 
 @add_test_properties(
     partially_verifies=[
-        "comp_req__launch_man__consistent_dependencies",
+        "comp_req__launch_man__comp_dep_ver_cmp_time",
     ],
     test_type="requirements-based",
     derivation_technique="requirements-analysis",
@@ -622,7 +622,7 @@ def test_cyclic_dependencies_diamond_no_false_positive():
 
 @add_test_properties(
     partially_verifies=[
-        "comp_req__launch_man__consistent_dependencies",
+        "comp_req__launch_man__comp_dep_ver_cmp_time",
     ],
     test_type="requirements-based",
     derivation_technique="requirements-analysis",
@@ -641,7 +641,7 @@ def test_cyclic_dependencies_component_depends_on_nonexistent():
 
 @add_test_properties(
     partially_verifies=[
-        "comp_req__launch_man__consistent_dependencies",
+        "comp_req__launch_man__comp_dep_ver_cmp_time",
     ],
     test_type="requirements-based",
     derivation_technique="requirements-analysis",
@@ -660,7 +660,7 @@ def test_cyclic_dependencies_run_target_depends_on_unknown():
 
 @add_test_properties(
     partially_verifies=[
-        "comp_req__launch_man__consistent_dependencies",
+        "comp_req__launch_man__comp_dep_ver_cmp_time",
     ],
     test_type="requirements-based",
     derivation_technique="requirements-analysis",
@@ -779,7 +779,7 @@ def test_custom_validations_ready_condition_both_states(full_valid_config):
 
 @add_test_properties(
     partially_verifies=[
-        "comp_req__launch_man__consistent_dependencies",
+        "comp_req__launch_man__comp_dep_ver_cmp_time",
     ],
     test_type="requirements-based",
     derivation_technique="requirements-analysis",
