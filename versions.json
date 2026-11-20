@@ -150,5 +150,9 @@
   {
     "version": "pr-1054",
     "url": "https://eclipse-score.github.io/lifecycle/pr-1054/"
+  },
+  {
+    "version": "pr-1057",
+    "url": "https://eclipse-score.github.io/lifecycle/pr-1057/"
   }
 ]
