@@ -14,6 +14,8 @@
 test_suite(
     name = "integration",
     tests = [
+        "//tests/integration/alive/cpp_alive:cpp_alive",
+        "//tests/integration/alive/rust_alive:rust_alive",
         "//tests/integration/complex_monitoring",
         "//tests/integration/component_order",
         "//tests/integration/crash_ignores_dependents",
