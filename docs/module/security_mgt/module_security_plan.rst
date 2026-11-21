@@ -106,7 +106,7 @@ Security Plan
           - :need:`gd_temp__module_security_manual`
           - <automated>
           - <Link to issue>
-          - <Link to WP>
+          - :need:`doc__lifecycle_security_manual`
           - <automated>
 
         * - :need:`wp__verification_module_ver_report`
