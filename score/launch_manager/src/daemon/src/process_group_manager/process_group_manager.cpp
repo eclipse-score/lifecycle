@@ -306,6 +306,8 @@ void ProcessGroupManager::allProcessGroupsOff()
         return !has_state();
     };
 
+    const auto overall_off_transition_timeout = graph_->getOffStateTransitionTimeout() + kMaxSigKillDelay;
+
     clearQueuedActivations("shutdown");
 
     // First, check if we're already transitioning to Off - if so, no need to cancel
@@ -321,7 +323,21 @@ void ProcessGroupManager::allProcessGroupsOff()
         }
 
         LM_LOG_DEBUG() << "Start transitioning to Off Run Target";
-        (void)graph_->startTransitionToOffState();
+
+        // Retry until the graph leaves kAborting, otherwise the Off transition would be skipped.
+        const auto off_start_deadline = std::chrono::steady_clock::now() + overall_off_transition_timeout;
+        while (!graph_->startTransitionToOffState())
+        {
+            if (std::chrono::steady_clock::now() >= off_start_deadline)
+            {
+                LM_LOG_ERROR() << "NOTE: Transition to Off Run Target could not be started";
+                thread_pool_->stop();
+                graph_->forceKillProcesses();
+                thread_pool_.reset();
+                return;
+            }
+            static_cast<void>(waitForStateCompletion(GraphState::kAborting, 10));
+        }
     }
     else
     {
@@ -330,7 +346,6 @@ void ProcessGroupManager::allProcessGroupsOff()
 
     LM_LOG_DEBUG() << "Wait for transition completion";
 
-    const auto overall_off_transition_timeout = graph_->getOffStateTransitionTimeout() + kMaxSigKillDelay;
     if (!waitForStateCompletion(
             GraphState::kInTransition, static_cast<int32_t>(overall_off_transition_timeout.count())))
     {
