@@ -9,6 +9,8 @@
 # https://www.apache.org/licenses/LICENSE-2.0
 #
 # SPDX-License-Identifier: Apache-2.0
+# *******************************************************************************
+
 load("@rules_cc//cc:cc_binary.bzl", "cc_binary")
 
 package(default_visibility = ["//tests/integration/alive:__subpackages__"])

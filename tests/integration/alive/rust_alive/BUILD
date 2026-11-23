@@ -9,6 +9,8 @@
 # https://www.apache.org/licenses/LICENSE-2.0
 #
 # SPDX-License-Identifier: Apache-2.0
+# *******************************************************************************
+
 load("@rules_rust//rust:defs.bzl", "rust_binary")
 load("//tests/utils/bazel:integration.bzl", "integration_test")
 
