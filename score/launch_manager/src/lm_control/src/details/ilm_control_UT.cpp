@@ -69,21 +69,42 @@ class FakeLmControl final : public ILmControl
         return RunTargetName{kValidSpecifier};
     }
 
+    bool is_connected() const noexcept override
+    {
+        return is_connected_val;
+    }
+
+    score::Result<void> register_connection_status_callback(ConnectionStatusCallback callback) override
+    {
+        if (!callback)
+        {
+            return score::MakeUnexpected(ExecErrc::kInvalidArguments);
+        }
+        connection_status_callback = std::move(callback);
+        return {};
+    }
+
     static void reset() noexcept
     {
         next_init_error.reset();
         init_call_count = 0U;
         last_instance_specifier.clear();
+        is_connected_val = true;
+        connection_status_callback = nullptr;
     }
 
     static std::optional<ExecErrc> next_init_error;
     static std::size_t init_call_count;
     static std::string last_instance_specifier;
+    static bool is_connected_val;
+    static ConnectionStatusCallback connection_status_callback;
 };
 
 std::optional<ExecErrc> FakeLmControl::next_init_error{};
 std::size_t FakeLmControl::init_call_count{0U};
 std::string FakeLmControl::last_instance_specifier{};
+bool FakeLmControl::is_connected_val{true};
+ILmControl::ConnectionStatusCallback FakeLmControl::connection_status_callback{};
 
 class ILmControlUT : public ::testing::Test
 {
@@ -140,6 +161,30 @@ TEST_F(ILmControlUT, ReturnsInitErrorForInvalidSpecifier)
 
     ASSERT_FALSE(result.has_value());
     EXPECT_EQ(result.error(), ExecErrc::kInvalidArguments);
+}
+
+TEST_F(ILmControlUT, ForwardsIsConnectedAndConnectionStatusCallback)
+{
+    RecordProperty(
+        "Description",
+        "ILmControl interface correctly forwards is_connected() and register_connection_status_callback().");
+
+    auto result = internal::CreateLmControl<FakeLmControl>(kValidSpecifier);
+    ASSERT_TRUE(result.has_value());
+    auto& instance = *result.value();
+
+    EXPECT_TRUE(instance.is_connected());
+    FakeLmControl::is_connected_val = false;
+    EXPECT_FALSE(instance.is_connected());
+
+    const auto reg_result = instance.register_connection_status_callback([](bool) {
+    });
+    EXPECT_TRUE(reg_result.has_value());
+    EXPECT_NE(FakeLmControl::connection_status_callback, nullptr);
+
+    const auto err_result = instance.register_connection_status_callback({});
+    EXPECT_FALSE(err_result.has_value());
+    EXPECT_EQ(err_result.error(), ExecErrc::kInvalidArguments);
 }
 
 }  // namespace

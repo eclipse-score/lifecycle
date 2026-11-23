@@ -71,6 +71,13 @@ class ILmControl
     using ActivationCallback =
         std::function<void(RunTargetActivationSource activationSource, RunTargetName activatedRunTarget)>;
 
+    /// @brief Callback fired when the connection status to the Launch Manager changes.
+    ///
+    /// @note The callback must not throw exceptions.
+    ///
+    /// @param[in] connected true if connected, false if disconnected / Launch Manager terminated.
+    using ConnectionStatusCallback = std::function<void(bool connected)>;
+
     /// @brief Factory method - create a ILmControl instance.
     ///
     /// @warning **Work in progress  API shape not yet finalised.**
@@ -183,6 +190,26 @@ class ILmControl
     /// @error kCommunicationError   Connection with Launch Manager could not be established
     ///                              and information about active Run Target cannot be retrieved.
     virtual score::Result<RunTargetName> get_active_run_target() = 0;
+
+    /// @brief Checks whether the client is currently connected to the Launch Manager.
+    ///
+    /// @returns true if connected, false otherwise.
+    virtual bool is_connected() const noexcept = 0;
+
+    /// @brief Register a callback invoked whenever the connection to the Launch Manager is established or lost.
+    ///
+    /// Only a single subscriber is supported. The expected usage is
+    /// register-once during setup, leaving the callback in place until
+    /// the ILmControl instance is destroyed. Re-registration is
+    /// supported defensively: a second call overrides the previous
+    /// setting. There is no un-register path; empty callbacks are rejected.
+    ///
+    /// @param[in] callback The callback to invoke when connection status changes.
+    ///
+    /// @returns void on success.
+    ///
+    /// @error kInvalidArguments The callback is empty.
+    virtual score::Result<void> register_connection_status_callback(ConnectionStatusCallback callback) = 0;
 
   protected:
     ILmControl() = default;
