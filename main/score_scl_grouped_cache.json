@@ -574,6 +574,26 @@
     }
   },
   {
+    "need": "comp_req__launch_man__force_rt_selection",
+    "links": {
+      "CodeLinks": [],
+      "TestLinks": [
+        {
+          "name": "test_forced_selection",
+          "file": "tests/integration/run_target_requests/forced_activation/test.py",
+          "line": 19,
+          "need": "comp_req__launch_man__force_rt_selection",
+          "verify_type": "fully",
+          "result": "passed",
+          "result_text": "",
+          "repo_name": "local_repo",
+          "hash": "",
+          "url": ""
+        }
+      ]
+    }
+  },
+  {
     "need": "feat_req__lifecycle__launch_support",
     "links": {
       "CodeLinks": [],

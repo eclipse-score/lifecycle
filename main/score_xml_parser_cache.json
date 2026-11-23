@@ -156,6 +156,18 @@
     "url": ""
   },
   {
+    "name": "test_forced_selection",
+    "file": "tests/integration/run_target_requests/forced_activation/test.py",
+    "line": 19,
+    "need": "comp_req__launch_man__force_rt_selection",
+    "verify_type": "fully",
+    "result": "passed",
+    "result_text": "",
+    "repo_name": "local_repo",
+    "hash": "",
+    "url": ""
+  },
+  {
     "name": "test_process_launch_args",
     "file": "tests/integration/process_launch_args/process_launch_args.py",
     "line": 19,

@@ -84,6 +84,20 @@
     "FullyVerifies": null
   },
   {
+    "name": "test_forced_selection",
+    "file": "tests/integration/run_target_requests/forced_activation/test.py",
+    "line": "19",
+    "result": "passed",
+    "repo_name": "local_repo",
+    "hash": "",
+    "url": "",
+    "TestType": "interface-test",
+    "DerivationTechnique": "requirements-analysis",
+    "result_text": "",
+    "PartiallyVerifies": null,
+    "FullyVerifies": "comp_req__launch_man__force_rt_selection"
+  },
+  {
     "name": "test_replaced_activation",
     "file": "tests/integration/run_target_requests/replaced_activation/replaced_activation.py",
     "line": "19",
