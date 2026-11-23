@@ -84,6 +84,20 @@
     "FullyVerifies": null
   },
   {
+    "name": "test_forced_selection",
+    "file": "tests/integration/run_target_requests/forced_activation/test.py",
+    "line": "19",
+    "result": "passed",
+    "repo_name": "local_repo",
+    "hash": "",
+    "url": "",
+    "TestType": "interface-test",
+    "DerivationTechnique": "requirements-analysis",
+    "result_text": "",
+    "PartiallyVerifies": null,
+    "FullyVerifies": "comp_req__launch_man__force_rt_selection"
+  },
+  {
     "name": "test_replaced_activation",
     "file": "tests/integration/run_target_requests/replaced_activation/replaced_activation.py",
     "line": "19",
@@ -166,6 +180,20 @@
     "result_text": "",
     "PartiallyVerifies": "feat_req__lifecycle__termination_dependency, comp_req__launch_man__launcher_exit_shutdown",
     "FullyVerifies": null
+  },
+  {
+    "name": "test_lazy_check",
+    "file": "tests/integration/lazy_check/lazy_check.py",
+    "line": "21",
+    "result": "passed",
+    "repo_name": "local_repo",
+    "hash": "",
+    "url": "",
+    "TestType": "requirements-based",
+    "DerivationTechnique": "requirements-analysis",
+    "result_text": "",
+    "PartiallyVerifies": null,
+    "FullyVerifies": "comp_req__launch_man__lazy_check"
   },
   {
     "name": "test_process_fd_leak",
@@ -1004,7 +1032,7 @@
     "TestType": "requirements-based",
     "DerivationTechnique": "requirements-analysis",
     "result_text": "",
-    "PartiallyVerifies": "comp_req__launch_man__consistent_dependencies",
+    "PartiallyVerifies": "comp_req__launch_man__comp_dep_ver_cmp_time",
     "FullyVerifies": null
   },
   {
@@ -1018,7 +1046,7 @@
     "TestType": "requirements-based",
     "DerivationTechnique": "requirements-analysis",
     "result_text": "",
-    "PartiallyVerifies": "comp_req__launch_man__consistent_dependencies",
+    "PartiallyVerifies": "comp_req__launch_man__comp_dep_ver_cmp_time",
     "FullyVerifies": null
   },
   {
@@ -1032,7 +1060,7 @@
     "TestType": "requirements-based",
     "DerivationTechnique": "requirements-analysis",
     "result_text": "",
-    "PartiallyVerifies": "comp_req__launch_man__consistent_dependencies",
+    "PartiallyVerifies": "comp_req__launch_man__comp_dep_ver_cmp_time",
     "FullyVerifies": null
   },
   {
@@ -1060,7 +1088,7 @@
     "TestType": "requirements-based",
     "DerivationTechnique": "requirements-analysis",
     "result_text": "",
-    "PartiallyVerifies": "comp_req__launch_man__consistent_dependencies",
+    "PartiallyVerifies": "comp_req__launch_man__comp_dep_ver_cmp_time",
     "FullyVerifies": null
   },
   {
@@ -1074,7 +1102,7 @@
     "TestType": "requirements-based",
     "DerivationTechnique": "requirements-analysis",
     "result_text": "",
-    "PartiallyVerifies": "comp_req__launch_man__consistent_dependencies",
+    "PartiallyVerifies": "comp_req__launch_man__comp_dep_ver_cmp_time",
     "FullyVerifies": null
   },
   {
@@ -1088,7 +1116,7 @@
     "TestType": "requirements-based",
     "DerivationTechnique": "requirements-analysis",
     "result_text": "",
-    "PartiallyVerifies": "comp_req__launch_man__consistent_dependencies",
+    "PartiallyVerifies": "comp_req__launch_man__comp_dep_ver_cmp_time",
     "FullyVerifies": null
   },
   {
@@ -1228,7 +1256,7 @@
     "TestType": "requirements-based",
     "DerivationTechnique": "requirements-analysis",
     "result_text": "",
-    "PartiallyVerifies": "comp_req__launch_man__consistent_dependencies",
+    "PartiallyVerifies": "comp_req__launch_man__comp_dep_ver_cmp_time",
     "FullyVerifies": null
   },
   {
@@ -2172,7 +2200,7 @@
   {
     "name": "ExecErrorDomainTest__AllKnownCodesReturnNonEmptyMessage",
     "file": "score/launch_manager/src/exec_error_domain_UT.cpp",
-    "line": "64",
+    "line": "63",
     "result": "passed",
     "repo_name": "local_repo",
     "hash": "",
@@ -2186,7 +2214,7 @@
   {
     "name": "ExecErrorDomainTest__AllKnownCodesHaveDistinctMessages",
     "file": "score/launch_manager/src/exec_error_domain_UT.cpp",
-    "line": "75",
+    "line": "74",
     "result": "passed",
     "repo_name": "local_repo",
     "hash": "",
@@ -2200,7 +2228,7 @@
   {
     "name": "ExecErrorDomainTest__UnknownCodeReturnsNonEmptyMessage",
     "file": "score/launch_manager/src/exec_error_domain_UT.cpp",
-    "line": "88",
+    "line": "87",
     "result": "passed",
     "repo_name": "local_repo",
     "hash": "",
@@ -4522,6 +4550,76 @@
     "FullyVerifies": null
   },
   {
+    "name": "SupervisionEventQueue_UT__OverflowFlag_NotSetWithoutOverflow",
+    "file": "score/launch_manager/src/daemon/src/alive_monitor/details/ifexm/supervision_event_queue_ut.cpp",
+    "line": "51",
+    "result": "passed",
+    "repo_name": "local_repo",
+    "hash": "",
+    "url": "",
+    "TestType": "unit-test",
+    "DerivationTechnique": "equivalence-classes",
+    "result_text": "",
+    "PartiallyVerifies": null,
+    "FullyVerifies": null
+  },
+  {
+    "name": "SupervisionEventQueue_UT__OverflowFlag_SetWhenFull_AndNewestEventDropped",
+    "file": "score/launch_manager/src/daemon/src/alive_monitor/details/ifexm/supervision_event_queue_ut.cpp",
+    "line": "68",
+    "result": "passed",
+    "repo_name": "local_repo",
+    "hash": "",
+    "url": "",
+    "TestType": "unit-test",
+    "DerivationTechnique": "boundary-values",
+    "result_text": "",
+    "PartiallyVerifies": null,
+    "FullyVerifies": null
+  },
+  {
+    "name": "SupervisionEventQueue_UT__OverflowFlag_IsSticky_AndResettable",
+    "file": "score/launch_manager/src/daemon/src/alive_monitor/details/ifexm/supervision_event_queue_ut.cpp",
+    "line": "87",
+    "result": "passed",
+    "repo_name": "local_repo",
+    "hash": "",
+    "url": "",
+    "TestType": "unit-test",
+    "DerivationTechnique": "equivalence-classes",
+    "result_text": "",
+    "PartiallyVerifies": null,
+    "FullyVerifies": null
+  },
+  {
+    "name": "SupervisionEventQueue_UT__DefaultCapacity_IsBufferQueueSize",
+    "file": "score/launch_manager/src/daemon/src/alive_monitor/details/ifexm/supervision_event_queue_ut.cpp",
+    "line": "108",
+    "result": "passed",
+    "repo_name": "local_repo",
+    "hash": "",
+    "url": "",
+    "TestType": "unit-test",
+    "DerivationTechnique": "boundary-values",
+    "result_text": "",
+    "PartiallyVerifies": null,
+    "FullyVerifies": null
+  },
+  {
+    "name": "SupervisionEventQueue_UT__OverflowFlag_ConcurrentReset_NoLostSet",
+    "file": "score/launch_manager/src/daemon/src/alive_monitor/details/ifexm/supervision_event_queue_ut.cpp",
+    "line": "125",
+    "result": "passed",
+    "repo_name": "local_repo",
+    "hash": "",
+    "url": "",
+    "TestType": "unit-test",
+    "DerivationTechnique": "boundary-values",
+    "result_text": "",
+    "PartiallyVerifies": null,
+    "FullyVerifies": null
+  },
+  {
     "name": "SupervisionControlClient_UT__SupervisionControlClient_QueueOneEvent_Succeeds",
     "file": "score/launch_manager/src/daemon/src/alive_monitor/details/ifexm/supervision_control_client_ut.cpp",
     "line": "42",
@@ -4530,7 +4628,35 @@
     "hash": "",
     "url": "",
     "TestType": "interface-test",
-    "DerivationTechnique": "explorative-testing ",
+    "DerivationTechnique": "equivalence-classes",
+    "result_text": "",
+    "PartiallyVerifies": null,
+    "FullyVerifies": null
+  },
+  {
+    "name": "SupervisionControlClient_UT__SupervisionControlClient_QueueDeactivation_Succeeds",
+    "file": "score/launch_manager/src/daemon/src/alive_monitor/details/ifexm/supervision_control_client_ut.cpp",
+    "line": "67",
+    "result": "passed",
+    "repo_name": "local_repo",
+    "hash": "",
+    "url": "",
+    "TestType": "interface-test",
+    "DerivationTechnique": "equivalence-classes",
+    "result_text": "",
+    "PartiallyVerifies": null,
+    "FullyVerifies": null
+  },
+  {
+    "name": "SupervisionControlClient_UT__SupervisionControlClient_GetConnectionId_IsNotEmpty",
+    "file": "score/launch_manager/src/daemon/src/alive_monitor/details/ifexm/supervision_control_client_ut.cpp",
+    "line": "83",
+    "result": "passed",
+    "repo_name": "local_repo",
+    "hash": "",
+    "url": "",
+    "TestType": "interface-test",
+    "DerivationTechnique": "equivalence-classes",
     "result_text": "",
     "PartiallyVerifies": null,
     "FullyVerifies": null
@@ -4538,13 +4664,13 @@
   {
     "name": "SupervisionControlClient_UT__SupervisionControlClient_QueueMaxNumberOfEvents_Succeeds",
     "file": "score/launch_manager/src/daemon/src/alive_monitor/details/ifexm/supervision_control_client_ut.cpp",
-    "line": "66",
+    "line": "90",
     "result": "passed",
     "repo_name": "local_repo",
     "hash": "",
     "url": "",
     "TestType": "interface-test",
-    "DerivationTechnique": "explorative-testing ",
+    "DerivationTechnique": "boundary-values",
     "result_text": "",
     "PartiallyVerifies": null,
     "FullyVerifies": null
@@ -4552,13 +4678,125 @@
   {
     "name": "SupervisionControlClient_UT__SupervisionControlClient_QueueOneEventTooMany_Fails",
     "file": "score/launch_manager/src/daemon/src/alive_monitor/details/ifexm/supervision_control_client_ut.cpp",
-    "line": "94",
+    "line": "119",
     "result": "passed",
     "repo_name": "local_repo",
     "hash": "",
     "url": "",
     "TestType": "interface-test",
-    "DerivationTechnique": "explorative-testing ",
+    "DerivationTechnique": "boundary-values",
+    "result_text": "",
+    "PartiallyVerifies": null,
+    "FullyVerifies": null
+  },
+  {
+    "name": "ObservableEventReader_UT__DistributeChanges_EmptyQueue_SucceedsWithoutUpdates",
+    "file": "score/launch_manager/src/daemon/src/alive_monitor/details/ifexm/observable_event_reader_ut.cpp",
+    "line": "91",
+    "result": "passed",
+    "repo_name": "local_repo",
+    "hash": "",
+    "url": "",
+    "TestType": "interface-test",
+    "DerivationTechnique": "boundary-values",
+    "result_text": "",
+    "PartiallyVerifies": null,
+    "FullyVerifies": null
+  },
+  {
+    "name": "ObservableEventReader_UT__DistributeChanges_QueuedEvents_DeliveredInOrder",
+    "file": "score/launch_manager/src/daemon/src/alive_monitor/details/ifexm/observable_event_reader_ut.cpp",
+    "line": "99",
+    "result": "passed",
+    "repo_name": "local_repo",
+    "hash": "",
+    "url": "",
+    "TestType": "interface-test",
+    "DerivationTechnique": "equivalence-classes",
+    "result_text": "",
+    "PartiallyVerifies": null,
+    "FullyVerifies": null
+  },
+  {
+    "name": "ObservableEventReader_UT__RegisterObservableEvent_DuplicateId_ReturnsFalse",
+    "file": "score/launch_manager/src/daemon/src/alive_monitor/details/ifexm/observable_event_reader_ut.cpp",
+    "line": "117",
+    "result": "passed",
+    "repo_name": "local_repo",
+    "hash": "",
+    "url": "",
+    "TestType": "interface-test",
+    "DerivationTechnique": "equivalence-classes",
+    "result_text": "",
+    "PartiallyVerifies": null,
+    "FullyVerifies": null
+  },
+  {
+    "name": "ObservableEventReader_UT__DeregisterObservableEvent_RegisteredId_StopsDelivery",
+    "file": "score/launch_manager/src/daemon/src/alive_monitor/details/ifexm/observable_event_reader_ut.cpp",
+    "line": "125",
+    "result": "passed",
+    "repo_name": "local_repo",
+    "hash": "",
+    "url": "",
+    "TestType": "interface-test",
+    "DerivationTechnique": "equivalence-classes",
+    "result_text": "",
+    "PartiallyVerifies": null,
+    "FullyVerifies": null
+  },
+  {
+    "name": "ObservableEventReader_UT__DeregisterObservableEvent_UnknownId_IsNoOp",
+    "file": "score/launch_manager/src/daemon/src/alive_monitor/details/ifexm/observable_event_reader_ut.cpp",
+    "line": "138",
+    "result": "passed",
+    "repo_name": "local_repo",
+    "hash": "",
+    "url": "",
+    "TestType": "interface-test",
+    "DerivationTechnique": "equivalence-classes",
+    "result_text": "",
+    "PartiallyVerifies": null,
+    "FullyVerifies": null
+  },
+  {
+    "name": "ObservableEventReader_UT__DistributeChanges_EventAfterSyncTimestamp_DeliveredInNextCycle",
+    "file": "score/launch_manager/src/daemon/src/alive_monitor/details/ifexm/observable_event_reader_ut.cpp",
+    "line": "150",
+    "result": "passed",
+    "repo_name": "local_repo",
+    "hash": "",
+    "url": "",
+    "TestType": "interface-test",
+    "DerivationTechnique": "boundary-values",
+    "result_text": "",
+    "PartiallyVerifies": null,
+    "FullyVerifies": null
+  },
+  {
+    "name": "ObservableEventReader_UT__DistributeChanges_EventAfterSyncTimestamp_LaterEventsStayQueued",
+    "file": "score/launch_manager/src/daemon/src/alive_monitor/details/ifexm/observable_event_reader_ut.cpp",
+    "line": "166",
+    "result": "passed",
+    "repo_name": "local_repo",
+    "hash": "",
+    "url": "",
+    "TestType": "interface-test",
+    "DerivationTechnique": "boundary-values",
+    "result_text": "",
+    "PartiallyVerifies": null,
+    "FullyVerifies": null
+  },
+  {
+    "name": "ObservableEventReader_UT__DistributeChanges_Overflow_ReturnsFalse_AndStaysFailedUntilReset",
+    "file": "score/launch_manager/src/daemon/src/alive_monitor/details/ifexm/observable_event_reader_ut.cpp",
+    "line": "186",
+    "result": "passed",
+    "repo_name": "local_repo",
+    "hash": "",
+    "url": "",
+    "TestType": "interface-test",
+    "DerivationTechnique": "boundary-values",
     "result_text": "",
     "PartiallyVerifies": null,
     "FullyVerifies": null
@@ -5098,7 +5336,7 @@
   {
     "name": "SupervisionManagerConstructWorkerTest__ConstructWorker_WithObservableEventFailure_ReturnsFalse",
     "file": "score/launch_manager/src/daemon/src/alive_monitor/details/daemon/SupervisionManager_UT.cpp",
-    "line": "245",
+    "line": "244",
     "result": "passed",
     "repo_name": "local_repo",
     "hash": "",
@@ -5112,7 +5350,7 @@
   {
     "name": "SupervisionManagerConstructWorkerTest__ConstructWorker_WithAliveIfIpcFailure_ReturnsFalse",
     "file": "score/launch_manager/src/daemon/src/alive_monitor/details/daemon/SupervisionManager_UT.cpp",
-    "line": "268",
+    "line": "266",
     "result": "passed",
     "repo_name": "local_repo",
     "hash": "",
@@ -5126,7 +5364,7 @@
   {
     "name": "SupervisionManagerConstructWorkerTest__ConstructWorker_WithAliveIfFailure_ReturnsFalse",
     "file": "score/launch_manager/src/daemon/src/alive_monitor/details/daemon/SupervisionManager_UT.cpp",
-    "line": "293",
+    "line": "290",
     "result": "passed",
     "repo_name": "local_repo",
     "hash": "",
@@ -5140,7 +5378,7 @@
   {
     "name": "SupervisionManagerConstructWorkerTest__ConstructWorker_WithAliveSupervisionFailure_ReturnsFalse",
     "file": "score/launch_manager/src/daemon/src/alive_monitor/details/daemon/SupervisionManager_UT.cpp",
-    "line": "319",
+    "line": "315",
     "result": "passed",
     "repo_name": "local_repo",
     "hash": "",
@@ -5154,7 +5392,7 @@
   {
     "name": "SupervisionManagerEvaluateSupervisionsTest__EvaluateSupervisions_WithNoSupervisions_DoesNotCrash",
     "file": "score/launch_manager/src/daemon/src/alive_monitor/details/daemon/SupervisionManager_UT.cpp",
-    "line": "350",
+    "line": "345",
     "result": "passed",
     "repo_name": "local_repo",
     "hash": "",
@@ -5168,7 +5406,7 @@
   {
     "name": "SupervisionManagerPerformCyclicTriggersTest__PerformCyclicTriggers_WithNoSupervisions_DoesNotCrash",
     "file": "score/launch_manager/src/daemon/src/alive_monitor/details/daemon/SupervisionManager_UT.cpp",
-    "line": "366",
+    "line": "361",
     "result": "passed",
     "repo_name": "local_repo",
     "hash": "",
@@ -5182,7 +5420,7 @@
   {
     "name": "SupervisionManagerPerformCyclicTriggersTest__PerformCyclicTriggers_WithSupervisions_ExecutesEvaluation",
     "file": "score/launch_manager/src/daemon/src/alive_monitor/details/daemon/SupervisionManager_UT.cpp",
-    "line": "379",
+    "line": "374",
     "result": "passed",
     "repo_name": "local_repo",
     "hash": "",
@@ -5196,7 +5434,7 @@
   {
     "name": "SupervisionManagerPerformCyclicTriggersTest__ConstructWorker_MultipleWorkers_AllSucceed",
     "file": "score/launch_manager/src/daemon/src/alive_monitor/details/daemon/SupervisionManager_UT.cpp",
-    "line": "393",
+    "line": "388",
     "result": "passed",
     "repo_name": "local_repo",
     "hash": "",
@@ -5210,7 +5448,7 @@
   {
     "name": "SupervisionManagerPerformCyclicTriggersTest__PerformCyclicTriggers_LoopsExecuteForNonEmptySupervisions",
     "file": "score/launch_manager/src/daemon/src/alive_monitor/details/daemon/SupervisionManager_UT.cpp",
-    "line": "436",
+    "line": "430",
     "result": "passed",
     "repo_name": "local_repo",
     "hash": "",
@@ -5224,7 +5462,7 @@
   {
     "name": "SupervisionManagerPerformCyclicTriggersTest__HasAnyRecoveryEnqueueFailed_WithFailedRecovery_ReturnsTrue",
     "file": "score/launch_manager/src/daemon/src/alive_monitor/details/daemon/SupervisionManager_UT.cpp",
-    "line": "478",
+    "line": "471",
     "result": "passed",
     "repo_name": "local_repo",
     "hash": "",
