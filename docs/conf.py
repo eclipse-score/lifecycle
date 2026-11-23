@@ -30,3 +30,7 @@ required_in_id = ["lifecycle"]
 score_metrics_include_external_needs = True
 score_metrics_requirement_types = "feat_req,comp_req,aou_req"
 score_metrics_external_feature_ids = ["feat__lifecycle"]
+
+# Make the link check more tolerant of slow or flaky external servers
+linkcheck_timeout = 120
+linkcheck_retries = 3

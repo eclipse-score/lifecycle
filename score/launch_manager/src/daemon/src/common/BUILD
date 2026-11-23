@@ -110,6 +110,7 @@ cc_library(
     visibility = [
         "//score:__subpackages__",
         "//src:__subpackages__",
+        "//tests/utils/fixtures:__subpackages__",
     ],
 )
 
