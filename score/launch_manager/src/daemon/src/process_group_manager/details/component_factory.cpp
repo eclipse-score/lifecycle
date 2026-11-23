@@ -75,9 +75,13 @@ Result<std::unique_ptr<const IReadyCondition>> createReadyCondition(
 
 ComponentFactory::ComponentFactory(
     osal::IProcess& launcher,
+    SafeProcessMapInserter& process_map,
     const osal::IFileWaiter& file_waiter,
     ISupervisionFactory& supervision_factory)
-    : launcher_(launcher), file_waiter_(file_waiter), supervision_factory_(supervision_factory)
+    : launcher_(launcher),
+      process_map_(process_map),
+      file_waiter_(file_waiter),
+      supervision_factory_(supervision_factory)
 {
 }
 
@@ -94,7 +98,7 @@ Result<std::unique_ptr<IComponent>> ComponentFactory::create(
     }
 
     // The actions refer to the configuration, which is kept alive by the component they belong to.
-    auto start_action = std::make_unique<const ProcessStartAction>(launcher_, *config);
+    auto start_action = std::make_unique<const ProcessStartAction>(launcher_, process_map_, *config);
 
     return std::make_unique<Component>(
         std::move(start_action),

@@ -67,7 +67,7 @@ TEST(FileReadyConditionTest, WaitFailsReturnsError)
     EXPECT_EQ(result.error(), ExecErrc::kGeneralError);
 }
 
-TEST(FileReadyConditionTest, WaitTimesOutReturnsError)
+TEST(FileReadyConditionTest, WaitTimesOutReturnsTimeout)
 {
     NiceMock<osal::MockIFileWaiter> file_waiter;
     const FileReadyCondition file_ready_condition(
@@ -78,7 +78,7 @@ TEST(FileReadyConditionTest, WaitTimesOutReturnsError)
     const Result<void> result = file_ready_condition.wait(cpp::stop_token{}, EmptyHandle{});
 
     EXPECT_FALSE(result.has_value());
-    EXPECT_EQ(result.error(), ExecErrc::kGeneralError);
+    EXPECT_EQ(result.error(), ExecErrc::kTimeout);
 }
 
 TEST(FileReadyConditionTest, WaitAcceptsVariousHandles)

@@ -42,8 +42,8 @@ constexpr std::array<ExecErrc, 17> kAllKnownCodes{{
     ExecErrc::kRequestQueueIsFull,
     ExecErrc::kRunTargetDoesntExist,
     ExecErrc::kNotImplemented,
+    ExecErrc::kTimeout,
     ExecErrc::kShuttingDown,
-    ExecErrc::kRecoveryInProgress,
 }};
 
 }  // namespace

@@ -16,15 +16,19 @@
 #include <dirent.h>
 #include <fcntl.h>
 #include <unistd.h>
+#include <climits>
 #include <cstdint>
 #include <cstring>
 #include <iostream>
 #include <ostream>
-#include <regex>
 #include <sstream>
 #include <string>
 #include <string_view>
 #include <vector>
+
+#ifdef __QNXNTO__
+#include <sys/iomgr.h>
+#endif
 
 #ifndef GET_FDS_HPP_
 #define GET_FDS_HPP_
@@ -38,21 +42,18 @@ inline std::ostream& operator<<(std::ostream& outstream, const std::vector<std::
     return outstream;
 }
 
-/// @brief Given the list of FDs and their paths, removes entries whose path
-///        matches the regex.
+/// @brief Given the list of FDs and their paths, removes entries whose FD
+///        matches the given number.
 /// @return AssertionSuccess if at least one entry matched and was removed,
 ///         AssertionFailure (with the full FD list) if nothing matched.
-inline testing::AssertionResult filter_fd(
-    std::vector<std::pair<std::uint32_t, std::string>>& data,
-    std::regex&& path_regex)
+inline testing::AssertionResult filter_fd(std::vector<std::pair<std::uint32_t, std::string>>& data, int fd_number)
 {
-    std::smatch m;
     bool found{false};
 
     auto it = data.begin();
     while (it != data.end())
     {
-        if (std::regex_search(it->second, m, path_regex))
+        if (it->first == static_cast<std::uint32_t>(fd_number))
         {
             found = true;
             it = data.erase(it);
@@ -67,7 +68,7 @@ inline testing::AssertionResult filter_fd(
     {
         std::ostringstream oss;
         oss << data;
-        return testing::AssertionFailure() << "Regex did not match any open FD path. Open FDs:\n" << oss.str();
+        return testing::AssertionFailure() << "FD " << fd_number << " is not open. Open FDs:\n" << oss.str();
     }
     return testing::AssertionSuccess();
 }
@@ -80,46 +81,27 @@ inline std::vector<std::pair<std::uint32_t, std::string>> get_fds()
 #ifdef __QNXNTO__
     std::vector<std::pair<std::uint32_t, std::string>> out_vector{};
 
-    char proc_as_path[] = "/proc/self/as";
-    int proc_fd = ::open(proc_as_path, O_RDONLY | O_NONBLOCK);
-    if (proc_fd == -1)
-    {
-        return out_vector;
-    }
-
-    procfs_info proc_info{};
-    if (::devctl(proc_fd, DCMD_PROC_INFO, &proc_info, sizeof(proc_info), nullptr) != EOK)
-    {
-        ::close(proc_fd);
-        return out_vector;
-    }
-
-    constexpr std::size_t path_buf_size = sizeof(procfs_fdinfo) + PATH_MAX;
-    alignas(procfs_fdinfo) char buf[path_buf_size];
-
-    for (int fd_number = 0; fd_number < proc_info.num_fds; ++fd_number)
+    const long max_fd = ::sysconf(_SC_OPEN_MAX);
+    for (int fd_number = 0; fd_number < max_fd; ++fd_number)
     {
         // skip irrelevant FDs
-        if (fd_number == STDIN_FILENO || fd_number == STDOUT_FILENO || fd_number == STDERR_FILENO ||
-            fd_number == proc_fd)
+        if (fd_number == STDIN_FILENO || fd_number == STDOUT_FILENO || fd_number == STDERR_FILENO)
         {
             continue;
         }
 
-        std::memset(buf, 0, path_buf_size);
-        procfs_fdinfo* info = reinterpret_cast<procfs_fdinfo*>(buf);
-        info->fd = fd_number;
-
-        if (::devctl(proc_fd, DCMD_PROC_FDINFO, info, path_buf_size, nullptr) != EOK)
+        // skip FDs which are not open
+        if (::fcntl(fd_number, F_GETFD) == -1)
         {
             continue;
         }
 
         auto& emplace_it = out_vector.emplace_back(static_cast<std::uint32_t>(fd_number), std::string{});
 
-        if (info->path[0] != '\0')
+        char path[PATH_MAX + 1]{};
+        if (::iofdinfo(fd_number, 0, nullptr, path, PATH_MAX) != -1 && path[0] != '\0')
         {
-            emplace_it.second = info->path;
+            emplace_it.second = path;
         }
         else
         {
@@ -127,7 +109,6 @@ inline std::vector<std::pair<std::uint32_t, std::string>> get_fds()
         }
     }
 
-    ::close(proc_fd);
     return out_vector;
 #else
     constexpr std::string_view fd_dir_path{"/proc/self/fd"};

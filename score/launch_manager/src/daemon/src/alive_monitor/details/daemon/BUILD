@@ -48,6 +48,7 @@ cc_library(
         "//score/launch_manager/src/daemon/src/alive_monitor/details/factory:alive_worker_factory",
         "//score/launch_manager/src/daemon/src/alive_monitor/details/ifappl:monitor_if_daemon",
         "//score/launch_manager/src/daemon/src/alive_monitor/details/ifexm:observable_event_reader",
+        "//score/launch_manager/src/daemon/src/alive_monitor/details/ifexm:supervision_event_queue",
         "//score/launch_manager/src/daemon/src/alive_monitor/details/supervision:alive",
         "//score/launch_manager/src/daemon/src/alive_monitor/details/timers:cycle_time_validator",
         "//score/launch_manager/src/daemon/src/alive_monitor/details/timers:cycle_timer",
@@ -104,6 +105,7 @@ lm_cc_test(
     deps = [
         ":sw_cluster_handler",
         "//score/launch_manager/src/daemon/src/alive_monitor/details/factory:alive_worker_factory",
+        "//score/launch_manager/src/daemon/src/alive_monitor/details/ifexm:supervision_event_queue",
         "@googletest//:gtest_main",
     ],
 )

@@ -11,8 +11,8 @@
  * SPDX-License-Identifier: Apache-2.0
  ********************************************************************************/
 
-#ifndef _INCLUDED_TERMINATION_WAITER_
-#define _INCLUDED_TERMINATION_WAITER_
+#ifndef SCORE_LCM_TERMINATION_WAITER_HPP_INCLUDED
+#define SCORE_LCM_TERMINATION_WAITER_HPP_INCLUDED
 
 #include "score/concurrency/condition_variable.h"
 #include <condition_variable>
@@ -78,4 +78,4 @@ class TerminationWaiter
 
 }  // namespace score::mw::lifecycle::internal
 
-#endif  // _INCLUDED_TERMINATION_WAITER_
+#endif  // SCORE_LCM_TERMINATION_WAITER_HPP_INCLUDED

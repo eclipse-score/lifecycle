@@ -65,11 +65,11 @@ class AliveMonitorImpl : public IAliveMonitor
     bool threadFn(std::atomic_bool& cancel_thread) noexcept;
 
     /// @brief Client to send recovery requests to.
-    SptrIRecoveryClient m_recovery_client{nullptr};
+    SptrIRecoveryClient recovery_client_{nullptr};
     /// @brief Daemon responsible for alive supervisions.
-    UptrCyclicExecutor m_daemon{nullptr};
+    UptrCyclicExecutor daemon_{nullptr};
     /// @brief Interface used to retrieve time.
-    OsClock m_osClock{};
+    OsClock os_clock_{};
     /// @brief Parameters for alive supervision.
     AliveSupervisionConfig config_;
     /// @brief Thread in which the alive monitor shall run.
