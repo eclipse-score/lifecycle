@@ -553,7 +553,7 @@ html[data-theme="dark"] .score-testcase-result--disabled {
   }
 }
 </style>
-<div class="need_container docutils container" id="SNCB-5927d0ee">
+<div class="need_container docutils container" id="SNCB-7ca68c5f">
 <div class="pst-scrollable-table-container"><table class="need needs_grid_complex needs_layout_score needs_style_none needs_type_document table" id="doc__launch_manager_requirements">
 <tbody>
 <tr class="head row-odd"><td class="head_left" colspan="2"><div class="needs_head_left line-block">
@@ -606,11 +606,11 @@ html[data-theme="dark"] .score-testcase-result--disabled {
 <p>TODO all requirements that are not under the Process heading shall
 be reworded to speak in terms of components.</p>
 </div>
-<div class="need_container docutils container" id="SNCB-b9fc8a51">
-<div class="pst-scrollable-table-container"><table class="need needs_grid_complex needs_layout_score needs_style_none needs_type_comp_req table" id="comp_req__launch_man__consistent_dependencies">
+<div class="need_container docutils container" id="SNCB-0b6733e5">
+<div class="pst-scrollable-table-container"><table class="need needs_grid_complex needs_layout_score needs_style_none needs_type_comp_req table" id="comp_req__launch_man__comp_dep_ver_cmp_time">
 <tbody>
 <tr class="head row-odd"><td class="head_left" colspan="2"><div class="needs_head_left line-block">
-<div class="line"><span><span class="needs_title"><span class="needs_data">Invalid dependency</span></span></span></div>
+<div class="line"><span><span class="needs_title"><span class="needs_data">Verification of configuration validity on compile time</span></span></span></div>
 </div>
 </td>
 <td class="head_center" colspan="2"><div class="needs_head line-block">
@@ -627,20 +627,66 @@ be reworded to speak in terms of components.</p>
 <tr class="meta row-even"><td class="meta" colspan="3"><div class="needs_meta_left line-block">
 <div class="line"><span><span><div class="line"><span class="needs_tags"><span class="needs_label">tags: </span><span class="needs_data_container"><span class="needs_data">lifecycle</span><span class="needs_spacer">, </span><span class="needs_data">launch_manager</span></span></span></div>
 <div class="line"><span class="needs_reqtype"><span class="needs_label">reqtype: </span><span class="needs_data">Functional</span></span></div>
-<div class="line"><span class="needs_testlink"><span class="needs_label">testlink: </span><span class="needs_data"><a class="reference external" href="https://github.com/eclipse-score/lifecycle/blob/fb19b397dc1268301b7efac1bf721879617209e2/scripts/config_mapping/unit_tests.py#L543">test_cyclic_dependencies_direct_component_cycle<span class="score-testcase-result score-testcase-result--passed"> (passed)</span></a><em>; </em><a class="reference external" href="https://github.com/eclipse-score/lifecycle/blob/fb19b397dc1268301b7efac1bf721879617209e2/scripts/config_mapping/unit_tests.py#L565">test_cyclic_dependencies_indirect_component_cycle<span class="score-testcase-result score-testcase-result--passed"> (passed)</span></a><em>; </em><a class="reference external" href="https://github.com/eclipse-score/lifecycle/blob/fb19b397dc1268301b7efac1bf721879617209e2/scripts/config_mapping/unit_tests.py#L588">test_cyclic_dependencies_run_target_cycle<span class="score-testcase-result score-testcase-result--passed"> (passed)</span></a><em>; </em><a class="reference external" href="https://github.com/eclipse-score/lifecycle/blob/fb19b397dc1268301b7efac1bf721879617209e2/scripts/config_mapping/unit_tests.py#L623">test_cyclic_dependencies_component_depends_on_nonexistent<span class="score-testcase-result score-testcase-result--passed"> (passed)</span></a><em>; </em><a class="reference external" href="https://github.com/eclipse-score/lifecycle/blob/fb19b397dc1268301b7efac1bf721879617209e2/scripts/config_mapping/unit_tests.py#L642">test_cyclic_dependencies_run_target_depends_on_unknown<span class="score-testcase-result score-testcase-result--passed"> (passed)</span></a><em>; </em><a class="reference external" href="https://github.com/eclipse-score/lifecycle/blob/fb19b397dc1268301b7efac1bf721879617209e2/scripts/config_mapping/unit_tests.py#L661">test_cyclic_dependencies_self_referencing_component<span class="score-testcase-result score-testcase-result--passed"> (passed)</span></a><em>; </em><a class="reference external" href="https://github.com/eclipse-score/lifecycle/blob/fb19b397dc1268301b7efac1bf721879617209e2/scripts/config_mapping/unit_tests.py#L780">test_custom_validations_cyclic_deps_fails<span class="score-testcase-result score-testcase-result--passed"> (passed)</span></a></span></span></div>
+<div class="line"><span class="needs_testlink"><span class="needs_label">testlink: </span><span class="needs_data"><a class="reference external" href="https://github.com/eclipse-score/lifecycle/blob/a64c4acf9f58ce2268f337d393e2276d443dc949/scripts/config_mapping/unit_tests.py#L543">test_cyclic_dependencies_direct_component_cycle<span class="score-testcase-result score-testcase-result--passed"> (passed)</span></a><em>; </em><a class="reference external" href="https://github.com/eclipse-score/lifecycle/blob/a64c4acf9f58ce2268f337d393e2276d443dc949/scripts/config_mapping/unit_tests.py#L565">test_cyclic_dependencies_indirect_component_cycle<span class="score-testcase-result score-testcase-result--passed"> (passed)</span></a><em>; </em><a class="reference external" href="https://github.com/eclipse-score/lifecycle/blob/a64c4acf9f58ce2268f337d393e2276d443dc949/scripts/config_mapping/unit_tests.py#L588">test_cyclic_dependencies_run_target_cycle<span class="score-testcase-result score-testcase-result--passed"> (passed)</span></a><em>; </em><a class="reference external" href="https://github.com/eclipse-score/lifecycle/blob/a64c4acf9f58ce2268f337d393e2276d443dc949/scripts/config_mapping/unit_tests.py#L623">test_cyclic_dependencies_component_depends_on_nonexistent<span class="score-testcase-result score-testcase-result--passed"> (passed)</span></a><em>; </em><a class="reference external" href="https://github.com/eclipse-score/lifecycle/blob/a64c4acf9f58ce2268f337d393e2276d443dc949/scripts/config_mapping/unit_tests.py#L642">test_cyclic_dependencies_run_target_depends_on_unknown<span class="score-testcase-result score-testcase-result--passed"> (passed)</span></a><em>; </em><a class="reference external" href="https://github.com/eclipse-score/lifecycle/blob/a64c4acf9f58ce2268f337d393e2276d443dc949/scripts/config_mapping/unit_tests.py#L661">test_cyclic_dependencies_self_referencing_component<span class="score-testcase-result score-testcase-result--passed"> (passed)</span></a><em>; </em><a class="reference external" href="https://github.com/eclipse-score/lifecycle/blob/a64c4acf9f58ce2268f337d393e2276d443dc949/scripts/config_mapping/unit_tests.py#L780">test_custom_validations_cyclic_deps_fails<span class="score-testcase-result score-testcase-result--passed"> (passed)</span></a></span></span></div>
 <div class="line"><span class="needs_version"><span class="needs_label">version: </span>1</span></div>
 </span></span></div>
-<div class="line"><span><div class="line">derived from: <span class="derived_from"><span><a class="external_link reference external" href="https://eclipse-score.github.io/score/main/features/lifecycle/requirements/index.html#feat_req__lifecycle__process_ordering">feat_req__lifecycle__process_ordering</a></span></span></div>
-<div class="line">satisfied by: <span class="satisfied_by"><span><a class="reference internal" href="../architecture/component_architecture.html#comp__lifecycle_launch_manager" title="comp_req__launch_man__consistent_dependencies">comp__lifecycle_launch_manager</a></span></span></div>
+<div class="line"><span><div class="line">derived from: <span class="derived_from"><span><a class="external_link reference external" href="https://eclipse-score.github.io/score/main/features/lifecycle/requirements/index.html#feat_req__lifecycle__config_file_verification">feat_req__lifecycle__config_file_verification</a></span></span></div>
+<div class="line">satisfied by: <span class="satisfied_by"><span><a class="reference internal" href="../architecture/component_architecture.html#comp__lifecycle_launch_manager" title="comp_req__launch_man__comp_dep_ver_cmp_time">comp__lifecycle_launch_manager</a></span></span></div>
 </span></div>
 </div>
 </td>
 <td class="meta" colspan="3"></td>
 </tr>
-<tr class="content row-odd"><td class="content" colspan="6"><p>The <a class="reference internal" href="../../../features/lifecycle/glossary.html#term-Launch-Manager"><span class="xref std std-term">Launch Manager</span></a> shall reject an inconsistent definition of a set of executables’ dependencies.</p></td>
+<tr class="content row-odd"><td class="content" colspan="6"><p>The <a class="reference internal" href="../../../features/lifecycle/glossary.html#term-Launch-Manager"><span class="xref std std-term">Launch Manager</span></a> shall fail the build if given <a class="reference internal" href="../../../features/lifecycle/glossary_detailed.html#term-Invalid-Configuration"><span class="xref std std-term">invalid configuration</span></a> during compile time.</p></td>
 </tr>
 <tr class="footer row-even"><td class="footer_left" colspan="2"><div class="needs_footer_left line-block">
-<div class="line"><span><span class="needs-id"><a class="reference internal" href="#comp_req__launch_man__consistent_dependencies" title="comp_req__launch_man__consistent_dependencies">comp_req__launch_man__consistent_dependencies</a></span></span></div>
+<div class="line"><span><span class="needs-id"><a class="reference internal" href="#comp_req__launch_man__comp_dep_ver_cmp_time" title="comp_req__launch_man__comp_dep_ver_cmp_time">comp_req__launch_man__comp_dep_ver_cmp_time</a></span></span></div>
+</div>
+</td>
+<td class="footer" colspan="2"><div class="needs_footer line-block">
+<div class="line"><span><span class="needs_type_name"><span class="needs_data">Component Requirement</span></span></span></div>
+</div>
+</td>
+<td class="footer_right" colspan="2"></td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<div class="need_container docutils container" id="SNCB-b71be269">
+<div class="pst-scrollable-table-container"><table class="need needs_grid_complex needs_layout_score needs_style_none needs_type_comp_req table" id="comp_req__launch_man__comp_dep_ver_run_time">
+<tbody>
+<tr class="head row-odd"><td class="head_left" colspan="2"><div class="needs_head_left line-block">
+<div class="line"><span><span class="needs_title"><span class="needs_data">Verification of configuration validity on run time</span></span></span></div>
+</div>
+</td>
+<td class="head_center" colspan="2"><div class="needs_head line-block">
+<div class="line"><span><span class="needs_status"><span class="needs_label">status: </span><span class="needs_data">valid</span></span></span></div>
+<div class="line"><span><span class="needs_security"><span class="needs_label">security: </span><span class="needs_data">NO</span></span></span></div>
+<div class="line"><span><span class="needs_safety"><span class="needs_label">safety: </span><span class="needs_data">ASIL_B</span></span></span></div>
+</div>
+</td>
+<td class="head_right" colspan="2"><div class="needs_head_right line-block">
+<div class="line"><span><span class="needs needs_collapse" id="target__show__meta"><span class="needs collapsed"><svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-arrow-down-circle"><circle cx="12" cy="12" r="10"></circle><polyline points="8 12 12 16 16 12"></polyline><line x1="12" y1="8" x2="12" y2="16"></line></svg></span><span class="needs visible collapse_is_hidden"><svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-arrow-right-circle"><circle cx="12" cy="12" r="10"></circle><polyline points="12 16 16 12 12 8"></polyline><line x1="8" y1="12" x2="16" y2="12"></line></svg></span></span></span></div>
+</div>
+</td>
+</tr>
+<tr class="meta row-even"><td class="meta" colspan="3"><div class="needs_meta_left line-block">
+<div class="line"><span><span><div class="line"><span class="needs_tags"><span class="needs_label">tags: </span><span class="needs_data_container"><span class="needs_data">lifecycle</span><span class="needs_spacer">, </span><span class="needs_data">launch_manager</span></span></span></div>
+<div class="line"><span class="needs_reqtype"><span class="needs_label">reqtype: </span><span class="needs_data">Functional</span></span></div>
+<div class="line"><span class="needs_version"><span class="needs_label">version: </span>1</span></div>
+</span></span></div>
+<div class="line"><span><div class="line">derived from: <span class="derived_from"><span><a class="external_link reference external" href="https://eclipse-score.github.io/score/main/features/lifecycle/requirements/index.html#feat_req__lifecycle__config_file_verification">feat_req__lifecycle__config_file_verification</a></span></span></div>
+<div class="line">satisfied by: <span class="satisfied_by"><span><a class="reference internal" href="../architecture/component_architecture.html#comp__lifecycle_launch_manager" title="comp_req__launch_man__comp_dep_ver_run_time">comp__lifecycle_launch_manager</a></span></span></div>
+</span></div>
+</div>
+</td>
+<td class="meta" colspan="3"></td>
+</tr>
+<tr class="content row-odd"><td class="content" colspan="6"><p>The <a class="reference internal" href="../../../features/lifecycle/glossary.html#term-Launch-Manager"><span class="xref std std-term">Launch Manager</span></a> shall exit with an error result if given an <a class="reference internal" href="../../../features/lifecycle/glossary_detailed.html#term-Invalid-Configuration"><span class="xref std std-term">invalid configuration</span></a> at startup.</p></td>
+</tr>
+<tr class="footer row-even"><td class="footer_left" colspan="2"><div class="needs_footer_left line-block">
+<div class="line"><span><span class="needs-id"><a class="reference internal" href="#comp_req__launch_man__comp_dep_ver_run_time" title="comp_req__launch_man__comp_dep_ver_run_time">comp_req__launch_man__comp_dep_ver_run_time</a></span></span></div>
 </div>
 </td>
 <td class="footer" colspan="2"><div class="needs_footer line-block">
@@ -655,7 +701,7 @@ be reworded to speak in terms of components.</p>
 </div>
 <section id="activating-components">
 <h3>Activating Components<a class="headerlink" href="#activating-components" title="Link to this heading">#</a></h3>
-<div class="need_container docutils container" id="SNCB-84eafae5">
+<div class="need_container docutils container" id="SNCB-c57f2289">
 <div class="pst-scrollable-table-container"><table class="need needs_grid_complex needs_layout_score needs_style_none needs_type_comp_req table" id="comp_req__launch_man__comp_activate_tout">
 <tbody>
 <tr class="head row-odd"><td class="head_left" colspan="2"><div class="needs_head_left line-block">
@@ -706,7 +752,7 @@ within the configured timeout in <code class="docutils literal notranslate"><spa
 </section>
 <section id="deactivating-components">
 <h3>Deactivating Components<a class="headerlink" href="#deactivating-components" title="Link to this heading">#</a></h3>
-<div class="need_container docutils container" id="SNCB-67d11c2e">
+<div class="need_container docutils container" id="SNCB-692be59c">
 <div class="pst-scrollable-table-container"><table class="need needs_grid_complex needs_layout_score needs_style_none needs_type_comp_req table" id="comp_req__launch_man__fast_shutdown_support">
 <tbody>
 <tr class="head row-odd"><td class="head_left" colspan="2"><div class="needs_head_left line-block">
@@ -762,7 +808,7 @@ so it shuts down the launch manager in an ordinary manner, but ignores the child
 </table>
 </div>
 </div>
-<div class="need_container docutils container" id="SNCB-5789b06e">
+<div class="need_container docutils container" id="SNCB-1d8caab8">
 <div class="pst-scrollable-table-container"><table class="need needs_grid_complex needs_layout_score needs_style_none needs_type_comp_req table" id="comp_req__launch_man__launch_manager_shutdown">
 <tbody>
 <tr class="head row-odd"><td class="head_left" colspan="2"><div class="needs_head_left line-block">
@@ -783,7 +829,7 @@ so it shuts down the launch manager in an ordinary manner, but ignores the child
 <tr class="meta row-even"><td class="meta" colspan="3"><div class="needs_meta_left line-block">
 <div class="line"><span><span><div class="line"><span class="needs_tags"><span class="needs_label">tags: </span><span class="needs_data_container"><span class="needs_data">lifecycle</span><span class="needs_spacer">, </span><span class="needs_data">launch_manager</span></span></span></div>
 <div class="line"><span class="needs_reqtype"><span class="needs_label">reqtype: </span><span class="needs_data">Functional</span></span></div>
-<div class="line"><span class="needs_testlink"><span class="needs_label">testlink: </span><span class="needs_data"><a class="reference external" href="https://github.com/eclipse-score/lifecycle/blob/fb19b397dc1268301b7efac1bf721879617209e2/tests/integration/switch_run_target/switch_run_target.py#L19">test_switch_run_target<span class="score-testcase-result score-testcase-result--passed"> (passed)</span></a></span></span></div>
+<div class="line"><span class="needs_testlink"><span class="needs_label">testlink: </span><span class="needs_data"><a class="reference external" href="https://github.com/eclipse-score/lifecycle/blob/a64c4acf9f58ce2268f337d393e2276d443dc949/tests/integration/switch_run_target/switch_run_target.py#L19">test_switch_run_target<span class="score-testcase-result score-testcase-result--passed"> (passed)</span></a></span></span></div>
 <div class="line"><span class="needs_version"><span class="needs_label">version: </span>1</span></div>
 </span></span></div>
 <div class="line"><span><div class="line">derived from: <span class="derived_from"><span><a class="external_link reference external" href="https://eclipse-score.github.io/score/main/features/lifecycle/requirements/index.html#feat_req__lifecycle__termination_dependency">feat_req__lifecycle__termination_dependency</a></span></span></div>
@@ -810,7 +856,7 @@ processes in the dependency order.</p></td>
 </table>
 </div>
 </div>
-<div class="need_container docutils container" id="SNCB-58066867">
+<div class="need_container docutils container" id="SNCB-534cb803">
 <div class="pst-scrollable-table-container"><table class="need needs_grid_complex needs_layout_score needs_style_none needs_type_comp_req table" id="comp_req__launch_man__launcher_exit_shutdown">
 <tbody>
 <tr class="head row-odd"><td class="head_left" colspan="2"><div class="needs_head_left line-block">
@@ -831,7 +877,7 @@ processes in the dependency order.</p></td>
 <tr class="meta row-even"><td class="meta" colspan="3"><div class="needs_meta_left line-block">
 <div class="line"><span><span><div class="line"><span class="needs_tags"><span class="needs_label">tags: </span><span class="needs_data_container"><span class="needs_data">lifecycle</span><span class="needs_spacer">, </span><span class="needs_data">launch_manager</span></span></span></div>
 <div class="line"><span class="needs_reqtype"><span class="needs_label">reqtype: </span><span class="needs_data">Functional</span></span></div>
-<div class="line"><span class="needs_testlink"><span class="needs_label">testlink: </span><span class="needs_data"><a class="reference external" href="https://github.com/eclipse-score/lifecycle/blob/fb19b397dc1268301b7efac1bf721879617209e2/tests/integration/lm_shutdown_during_rt_switch/lm_shutdown_during_rt_switch.py#L19">test_lm_shutdown<span class="score-testcase-result score-testcase-result--passed"> (passed)</span></a><em>; </em><a class="reference external" href="https://github.com/eclipse-score/lifecycle/blob/fb19b397dc1268301b7efac1bf721879617209e2/tests/integration/lm_shutdown_during_switch_to_off/lm_shutdown_during_switch_to_off.py#L19">test_lm_shutdown<span class="score-testcase-result score-testcase-result--passed"> (passed)</span></a></span></span></div>
+<div class="line"><span class="needs_testlink"><span class="needs_label">testlink: </span><span class="needs_data"><a class="reference external" href="https://github.com/eclipse-score/lifecycle/blob/a64c4acf9f58ce2268f337d393e2276d443dc949/tests/integration/lm_shutdown_during_rt_switch/lm_shutdown_during_rt_switch.py#L19">test_lm_shutdown<span class="score-testcase-result score-testcase-result--passed"> (passed)</span></a><em>; </em><a class="reference external" href="https://github.com/eclipse-score/lifecycle/blob/a64c4acf9f58ce2268f337d393e2276d443dc949/tests/integration/lm_shutdown_during_switch_to_off/lm_shutdown_during_switch_to_off.py#L19">test_lm_shutdown<span class="score-testcase-result score-testcase-result--passed"> (passed)</span></a></span></span></div>
 <div class="line"><span class="needs_version"><span class="needs_label">version: </span>1</span></div>
 </span></span></div>
 <div class="line"><span><div class="line">derived from: <span class="derived_from"><span><a class="external_link reference external" href="https://eclipse-score.github.io/score/main/features/lifecycle/requirements/index.html#feat_req__lifecycle__termination_dependency">feat_req__lifecycle__termination_dependency</a></span></span></div>
@@ -858,7 +904,7 @@ stopping all the <a class="reference internal" href="../../../features/lifecycle
 </table>
 </div>
 </div>
-<div class="need_container docutils container" id="SNCB-1e24ae7f">
+<div class="need_container docutils container" id="SNCB-508de527">
 <div class="pst-scrollable-table-container"><table class="need needs_grid_complex needs_layout_score needs_style_none needs_type_comp_req table" id="comp_req__launch_man__drop_supervsion">
 <tbody>
 <tr class="head row-odd"><td class="head_left" colspan="2"><div class="needs_head_left line-block">
@@ -912,7 +958,7 @@ continue their execution without interruption.</p>
 </table>
 </div>
 </div>
-<div class="need_container docutils container" id="SNCB-10431ece">
+<div class="need_container docutils container" id="SNCB-fcffcc51">
 <div class="pst-scrollable-table-container"><table class="need needs_grid_complex needs_layout_score needs_style_none needs_type_comp_req table" id="comp_req__launch_man__stop_order_spec">
 <tbody>
 <tr class="head row-odd"><td class="head_left" colspan="2"><div class="needs_head_left line-block">
@@ -958,7 +1004,7 @@ continue their execution without interruption.</p>
 </table>
 </div>
 </div>
-<div class="need_container docutils container" id="SNCB-fd20051c">
+<div class="need_container docutils container" id="SNCB-7680e3ff">
 <div class="pst-scrollable-table-container"><table class="need needs_grid_complex needs_layout_score needs_style_none needs_type_comp_req table" id="comp_req__launch_man__stop_process_dependents">
 <tbody>
 <tr class="head row-odd"><td class="head_left" colspan="2"><div class="needs_head_left line-block">
@@ -979,7 +1025,7 @@ continue their execution without interruption.</p>
 <tr class="meta row-even"><td class="meta" colspan="3"><div class="needs_meta_left line-block">
 <div class="line"><span><span><div class="line"><span class="needs_tags"><span class="needs_label">tags: </span><span class="needs_data_container"><span class="needs_data">lifecycle</span><span class="needs_spacer">, </span><span class="needs_data">launch_manager</span></span></span></div>
 <div class="line"><span class="needs_reqtype"><span class="needs_label">reqtype: </span><span class="needs_data">Functional</span></span></div>
-<div class="line"><span class="needs_testlink"><span class="needs_label">testlink: </span><span class="needs_data"><a class="reference external" href="https://github.com/eclipse-score/lifecycle/blob/fb19b397dc1268301b7efac1bf721879617209e2/tests/integration/component_order/component_order.py#L20">test_component_order<span class="score-testcase-result score-testcase-result--passed"> (passed)</span></a></span></span></div>
+<div class="line"><span class="needs_testlink"><span class="needs_label">testlink: </span><span class="needs_data"><a class="reference external" href="https://github.com/eclipse-score/lifecycle/blob/a64c4acf9f58ce2268f337d393e2276d443dc949/tests/integration/component_order/component_order.py#L20">test_component_order<span class="score-testcase-result score-testcase-result--passed"> (passed)</span></a></span></span></div>
 <div class="line"><span class="needs_version"><span class="needs_label">version: </span>1</span></div>
 </span></span></div>
 <div class="line"><span><div class="line">derived from: <span class="derived_from"><span><a class="external_link reference external" href="https://eclipse-score.github.io/score/main/features/lifecycle/requirements/index.html#feat_req__lifecycle__termination_dependency">feat_req__lifecycle__termination_dependency</a></span></span></div>
@@ -1008,7 +1054,7 @@ continue their execution without interruption.</p>
 </section>
 <section id="conditional-launching">
 <h3>Conditional Launching<a class="headerlink" href="#conditional-launching" title="Link to this heading">#</a></h3>
-<div class="need_container docutils container" id="SNCB-7c218a66">
+<div class="need_container docutils container" id="SNCB-683896ce">
 <div class="pst-scrollable-table-container"><table class="need needs_grid_complex needs_layout_score needs_style_none needs_type_comp_req table" id="comp_req__launch_man__conf_of_comp_ready_cond">
 <tbody>
 <tr class="head row-odd"><td class="head_left" colspan="2"><div class="needs_head_left line-block">
@@ -1029,7 +1075,7 @@ continue their execution without interruption.</p>
 <tr class="meta row-even"><td class="meta" colspan="3"><div class="needs_meta_left line-block">
 <div class="line"><span><span><div class="line"><span class="needs_tags"><span class="needs_label">tags: </span><span class="needs_data_container"><span class="needs_data">lifecycle</span><span class="needs_spacer">, </span><span class="needs_data">launch_manager</span></span></span></div>
 <div class="line"><span class="needs_reqtype"><span class="needs_label">reqtype: </span><span class="needs_data">Functional</span></span></div>
-<div class="line"><span class="needs_testlink"><span class="needs_label">testlink: </span><span class="needs_data"><a class="reference external" href="https://github.com/eclipse-score/lifecycle/blob/fb19b397dc1268301b7efac1bf721879617209e2/tests/integration/ready_conditions/process_state/kterminated/kterminated.py#L19">test_ready_condition_process_state<span class="score-testcase-result score-testcase-result--passed"> (passed)</span></a></span></span></div>
+<div class="line"><span class="needs_testlink"><span class="needs_label">testlink: </span><span class="needs_data"><a class="reference external" href="https://github.com/eclipse-score/lifecycle/blob/a64c4acf9f58ce2268f337d393e2276d443dc949/tests/integration/ready_conditions/process_state/kterminated/kterminated.py#L19">test_ready_condition_process_state<span class="score-testcase-result score-testcase-result--passed"> (passed)</span></a></span></span></div>
 <div class="line"><span class="needs_version"><span class="needs_label">version: </span>1</span></div>
 </span></span></div>
 <div class="line"><span><div class="line">derived from: <span class="derived_from"><span><a class="external_link reference external" href="https://eclipse-score.github.io/score/main/features/lifecycle/requirements/index.html#feat_req__lifecycle__conditional_startup">feat_req__lifecycle__conditional_startup</a></span></span></div>
@@ -1057,7 +1103,7 @@ shall be met before the component is considered to have reached its
 </table>
 </div>
 </div>
-<div class="need_container docutils container" id="SNCB-df66f7f0">
+<div class="need_container docutils container" id="SNCB-b747a88c">
 <div class="pst-scrollable-table-container"><table class="need needs_grid_complex needs_layout_score needs_style_none needs_type_comp_req table" id="comp_req__launch_man__dep_based_startup_order">
 <tbody>
 <tr class="head row-odd"><td class="head_left" colspan="2"><div class="needs_head_left line-block">
@@ -1078,8 +1124,8 @@ shall be met before the component is considered to have reached its
 <tr class="meta row-even"><td class="meta" colspan="3"><div class="needs_meta_left line-block">
 <div class="line"><span><span><div class="line"><span class="needs_tags"><span class="needs_label">tags: </span><span class="needs_data_container"><span class="needs_data">lifecycle</span><span class="needs_spacer">, </span><span class="needs_data">launch_manager</span></span></span></div>
 <div class="line"><span class="needs_reqtype"><span class="needs_label">reqtype: </span><span class="needs_data">Functional</span></span></div>
-<div class="line"><span class="needs_source_code_link"><span class="needs_label">source_code_link: </span><span class="needs_data"><a class="reference external" href="https://github.com/eclipse-score/lifecycle/blob/fb19b397dc1268301b7efac1bf721879617209e2/score/launch_manager/src/daemon/src/process_group_manager/details/transition.hpp#L255">score/launch_manager/src/daemon/src/process_group_manager/details/transition.hpp:255</a></span></span></div>
-<div class="line"><span class="needs_testlink"><span class="needs_label">testlink: </span><span class="needs_data"><a class="reference external" href="https://github.com/eclipse-score/lifecycle/blob/fb19b397dc1268301b7efac1bf721879617209e2/tests/integration/component_order/component_order.py#L20">test_component_order<span class="score-testcase-result score-testcase-result--passed"> (passed)</span></a></span></span></div>
+<div class="line"><span class="needs_source_code_link"><span class="needs_label">source_code_link: </span><span class="needs_data"><a class="reference external" href="https://github.com/eclipse-score/lifecycle/blob/a64c4acf9f58ce2268f337d393e2276d443dc949/score/launch_manager/src/daemon/src/process_group_manager/details/transition.hpp#L255">score/launch_manager/src/daemon/src/process_group_manager/details/transition.hpp:255</a></span></span></div>
+<div class="line"><span class="needs_testlink"><span class="needs_label">testlink: </span><span class="needs_data"><a class="reference external" href="https://github.com/eclipse-score/lifecycle/blob/a64c4acf9f58ce2268f337d393e2276d443dc949/tests/integration/component_order/component_order.py#L20">test_component_order<span class="score-testcase-result score-testcase-result--passed"> (passed)</span></a></span></span></div>
 <div class="line"><span class="needs_version"><span class="needs_label">version: </span>1</span></div>
 </span></span></div>
 <div class="line"><span><div class="line">derived from: <span class="derived_from"><span><a class="external_link reference external" href="https://eclipse-score.github.io/score/main/features/lifecycle/requirements/index.html#feat_req__lifecycle__conditional_startup">feat_req__lifecycle__conditional_startup</a></span></span></div>
@@ -1108,7 +1154,7 @@ shall be met before the component is considered to have reached its
 </div>
 <section id="ready-conditions">
 <h4>Ready Conditions<a class="headerlink" href="#ready-conditions" title="Link to this heading">#</a></h4>
-<div class="need_container docutils container" id="SNCB-b00d2fc6">
+<div class="need_container docutils container" id="SNCB-aa4bbf32">
 <div class="pst-scrollable-table-container"><table class="need needs_grid_complex needs_layout_score needs_style_none needs_type_comp_req table" id="comp_req__launch_man__rc_os_state">
 <tbody>
 <tr class="head row-odd"><td class="head_left" colspan="2"><div class="needs_head_left line-block">
@@ -1129,7 +1175,7 @@ shall be met before the component is considered to have reached its
 <tr class="meta row-even"><td class="meta" colspan="3"><div class="needs_meta_left line-block">
 <div class="line"><span><span><div class="line"><span class="needs_tags"><span class="needs_label">tags: </span><span class="needs_data_container"><span class="needs_data">lifecycle</span><span class="needs_spacer">, </span><span class="needs_data">launch_manager</span></span></span></div>
 <div class="line"><span class="needs_reqtype"><span class="needs_label">reqtype: </span><span class="needs_data">Functional</span></span></div>
-<div class="line"><span class="needs_testlink"><span class="needs_label">testlink: </span><span class="needs_data"><a class="reference external" href="https://github.com/eclipse-score/lifecycle/blob/fb19b397dc1268301b7efac1bf721879617209e2/tests/integration/sandbox_options/root/sandbox_options.py#L26">test_sandbox_options<span class="score-testcase-result score-testcase-result--passed"> (passed)</span></a><em>; </em><a class="reference external" href="https://github.com/eclipse-score/lifecycle/blob/fb19b397dc1268301b7efac1bf721879617209e2/tests/integration/process_simple_rep_failure/process_simple_rep_failure.py#L19">test_recovery_action_simple_rep_failure<span class="score-testcase-result score-testcase-result--passed"> (passed)</span></a><em>; </em><a class="reference external" href="https://github.com/eclipse-score/lifecycle/blob/fb19b397dc1268301b7efac1bf721879617209e2/tests/integration/process_fd_leak/process_fd_leak.py#L19">test_process_fd_leak<span class="score-testcase-result score-testcase-result--passed"> (passed)</span></a></span></span></div>
+<div class="line"><span class="needs_testlink"><span class="needs_label">testlink: </span><span class="needs_data"><a class="reference external" href="https://github.com/eclipse-score/lifecycle/blob/a64c4acf9f58ce2268f337d393e2276d443dc949/tests/integration/process_fd_leak/process_fd_leak.py#L19">test_process_fd_leak<span class="score-testcase-result score-testcase-result--passed"> (passed)</span></a><em>; </em><a class="reference external" href="https://github.com/eclipse-score/lifecycle/blob/a64c4acf9f58ce2268f337d393e2276d443dc949/tests/integration/sandbox_options/root/sandbox_options.py#L26">test_sandbox_options<span class="score-testcase-result score-testcase-result--passed"> (passed)</span></a><em>; </em><a class="reference external" href="https://github.com/eclipse-score/lifecycle/blob/a64c4acf9f58ce2268f337d393e2276d443dc949/tests/integration/process_simple_rep_failure/process_simple_rep_failure.py#L19">test_recovery_action_simple_rep_failure<span class="score-testcase-result score-testcase-result--passed"> (passed)</span></a></span></span></div>
 <div class="line"><span class="needs_version"><span class="needs_label">version: </span>1</span></div>
 </span></span></div>
 <div class="line"><span><div class="line">derived from: <span class="derived_from"><span><a class="external_link reference external" href="https://eclipse-score.github.io/score/main/features/lifecycle/requirements/index.html#feat_req__lifecycle__conditional_startup">feat_req__lifecycle__conditional_startup</a></span></span></div>
@@ -1156,7 +1202,7 @@ satisfied when the configured binary is launched.</p></td>
 </table>
 </div>
 </div>
-<div class="need_container docutils container" id="SNCB-91033c12">
+<div class="need_container docutils container" id="SNCB-b95e540a">
 <div class="pst-scrollable-table-container"><table class="need needs_grid_complex needs_layout_score needs_style_none needs_type_comp_req table" id="comp_req__launch_man__rc_lifecycle">
 <tbody>
 <tr class="head row-odd"><td class="head_left" colspan="2"><div class="needs_head_left line-block">
@@ -1177,7 +1223,7 @@ satisfied when the configured binary is launched.</p></td>
 <tr class="meta row-even"><td class="meta" colspan="3"><div class="needs_meta_left line-block">
 <div class="line"><span><span><div class="line"><span class="needs_tags"><span class="needs_label">tags: </span><span class="needs_data_container"><span class="needs_data">lifecycle</span><span class="needs_spacer">, </span><span class="needs_data">launch_manager</span></span></span></div>
 <div class="line"><span class="needs_reqtype"><span class="needs_label">reqtype: </span><span class="needs_data">Functional</span></span></div>
-<div class="line"><span class="needs_testlink"><span class="needs_label">testlink: </span><span class="needs_data"><a class="reference external" href="https://github.com/eclipse-score/lifecycle/blob/fb19b397dc1268301b7efac1bf721879617209e2/tests/integration/fallback_to_same_target_restarts/fallback_to_same_target_restarts.py#L19">test_fallback_to_same_target_restarts<span class="score-testcase-result score-testcase-result--passed"> (passed)</span></a><em>; </em><a class="reference external" href="https://github.com/eclipse-score/lifecycle/blob/fb19b397dc1268301b7efac1bf721879617209e2/tests/integration/process_complex_rep_failure/process_complex_rep_failure.py#L19">test_recovery_action_complex_rep_failure<span class="score-testcase-result score-testcase-result--passed"> (passed)</span></a><em>; </em><a class="reference external" href="https://github.com/eclipse-score/lifecycle/blob/fb19b397dc1268301b7efac1bf721879617209e2/tests/integration/process_simple_rep_failure/process_simple_rep_failure.py#L19">test_recovery_action_simple_rep_failure<span class="score-testcase-result score-testcase-result--passed"> (passed)</span></a><em>; </em><a class="reference external" href="https://github.com/eclipse-score/lifecycle/blob/fb19b397dc1268301b7efac1bf721879617209e2/tests/integration/process_fd_leak/process_fd_leak.py#L19">test_process_fd_leak<span class="score-testcase-result score-testcase-result--passed"> (passed)</span></a><em>; </em><a class="reference external" href="https://github.com/eclipse-score/lifecycle/blob/fb19b397dc1268301b7efac1bf721879617209e2/tests/integration/incorrect_config_non_reporting/test_incorrect_config_non_reporting.py#L19">test_incorrect_config_non_reporting<span class="score-testcase-result score-testcase-result--passed"> (passed)</span></a></span></span></div>
+<div class="line"><span class="needs_testlink"><span class="needs_label">testlink: </span><span class="needs_data"><a class="reference external" href="https://github.com/eclipse-score/lifecycle/blob/a64c4acf9f58ce2268f337d393e2276d443dc949/tests/integration/fallback_to_same_target_restarts/fallback_to_same_target_restarts.py#L19">test_fallback_to_same_target_restarts<span class="score-testcase-result score-testcase-result--passed"> (passed)</span></a><em>; </em><a class="reference external" href="https://github.com/eclipse-score/lifecycle/blob/a64c4acf9f58ce2268f337d393e2276d443dc949/tests/integration/process_fd_leak/process_fd_leak.py#L19">test_process_fd_leak<span class="score-testcase-result score-testcase-result--passed"> (passed)</span></a><em>; </em><a class="reference external" href="https://github.com/eclipse-score/lifecycle/blob/a64c4acf9f58ce2268f337d393e2276d443dc949/tests/integration/incorrect_config_non_reporting/test_incorrect_config_non_reporting.py#L19">test_incorrect_config_non_reporting<span class="score-testcase-result score-testcase-result--passed"> (passed)</span></a><em>; </em><a class="reference external" href="https://github.com/eclipse-score/lifecycle/blob/a64c4acf9f58ce2268f337d393e2276d443dc949/tests/integration/process_complex_rep_failure/process_complex_rep_failure.py#L19">test_recovery_action_complex_rep_failure<span class="score-testcase-result score-testcase-result--passed"> (passed)</span></a><em>; </em><a class="reference external" href="https://github.com/eclipse-score/lifecycle/blob/a64c4acf9f58ce2268f337d393e2276d443dc949/tests/integration/process_simple_rep_failure/process_simple_rep_failure.py#L19">test_recovery_action_simple_rep_failure<span class="score-testcase-result score-testcase-result--passed"> (passed)</span></a></span></span></div>
 <div class="line"><span class="needs_version"><span class="needs_label">version: </span>1</span></div>
 </span></span></div>
 <div class="line"><span><div class="line">derived from: <span class="derived_from"><span><a class="external_link reference external" href="https://eclipse-score.github.io/score/main/features/lifecycle/requirements/index.html#feat_req__lifecycle__conditional_startup">feat_req__lifecycle__conditional_startup</a></span></span></div>
@@ -1204,7 +1250,7 @@ satisfied when a <a class="reference internal" href="../../../features/lifecycle
 </table>
 </div>
 </div>
-<div class="need_container docutils container" id="SNCB-c9186258">
+<div class="need_container docutils container" id="SNCB-cb52b9ff">
 <div class="pst-scrollable-table-container"><table class="need needs_grid_complex needs_layout_score needs_style_none needs_type_comp_req table" id="comp_req__launch_man__lifecycle_lang_support">
 <tbody>
 <tr class="head row-odd"><td class="head_left" colspan="2"><div class="needs_head_left line-block">
@@ -1225,7 +1271,7 @@ satisfied when a <a class="reference internal" href="../../../features/lifecycle
 <tr class="meta row-even"><td class="meta" colspan="3"><div class="needs_meta_left line-block">
 <div class="line"><span><span><div class="line"><span class="needs_tags"><span class="needs_label">tags: </span><span class="needs_data_container"><span class="needs_data">lifecycle</span><span class="needs_spacer">, </span><span class="needs_data">launch_manager</span></span></span></div>
 <div class="line"><span class="needs_reqtype"><span class="needs_label">reqtype: </span><span class="needs_data">Functional</span></span></div>
-<div class="line"><span class="needs_testlink"><span class="needs_label">testlink: </span><span class="needs_data"><a class="reference external" href="https://github.com/eclipse-score/lifecycle/blob/fb19b397dc1268301b7efac1bf721879617209e2/tests/integration/lifecycle_lang_support/lifecycle_lang_support.py#L18">test_lifecycle_lang_support<span class="score-testcase-result score-testcase-result--passed"> (passed)</span></a></span></span></div>
+<div class="line"><span class="needs_testlink"><span class="needs_label">testlink: </span><span class="needs_data"><a class="reference external" href="https://github.com/eclipse-score/lifecycle/blob/a64c4acf9f58ce2268f337d393e2276d443dc949/tests/integration/lifecycle_lang_support/lifecycle_lang_support.py#L18">test_lifecycle_lang_support<span class="score-testcase-result score-testcase-result--passed"> (passed)</span></a></span></span></div>
 <div class="line"><span class="needs_version"><span class="needs_label">version: </span>1</span></div>
 </span></span></div>
 <div class="line"><span><div class="line">derived from: <span class="derived_from"><span><a class="external_link reference external" href="https://eclipse-score.github.io/score/main/features/lifecycle/requirements/index.html#feat_req__lifecycle__prog_lang">feat_req__lifecycle__prog_lang</a></span></span></div>
@@ -1252,7 +1298,7 @@ report their <a class="reference internal" href="../../../features/lifecycle/glo
 </table>
 </div>
 </div>
-<div class="need_container docutils container" id="SNCB-0ad0b93a">
+<div class="need_container docutils container" id="SNCB-8434d244">
 <div class="pst-scrollable-table-container"><table class="need needs_grid_complex needs_layout_score needs_style_none needs_type_comp_req table" id="comp_req__launch_man__rc_file_state">
 <tbody>
 <tr class="head row-odd"><td class="head_left" colspan="2"><div class="needs_head_left line-block">
@@ -1273,7 +1319,7 @@ report their <a class="reference internal" href="../../../features/lifecycle/glo
 <tr class="meta row-even"><td class="meta" colspan="3"><div class="needs_meta_left line-block">
 <div class="line"><span><span><div class="line"><span class="needs_tags"><span class="needs_label">tags: </span><span class="needs_data_container"><span class="needs_data">lifecycle</span><span class="needs_spacer">, </span><span class="needs_data">launch_manager</span></span></span></div>
 <div class="line"><span class="needs_reqtype"><span class="needs_label">reqtype: </span><span class="needs_data">Functional</span></span></div>
-<div class="line"><span class="needs_testlink"><span class="needs_label">testlink: </span><span class="needs_data"><a class="reference external" href="https://github.com/eclipse-score/lifecycle/blob/fb19b397dc1268301b7efac1bf721879617209e2/tests/integration/ready_conditions/file_state/exists/ready_condition_file.py#L19">test_ready_condition_file<span class="score-testcase-result score-testcase-result--passed"> (passed)</span></a><em>; </em><a class="reference external" href="https://github.com/eclipse-score/lifecycle/blob/fb19b397dc1268301b7efac1bf721879617209e2/tests/integration/ready_conditions/file_state/not_existing/ready_condition_file_not_existing.py#L19">test_ready_condition_file_not_existing<span class="score-testcase-result score-testcase-result--passed"> (passed)</span></a></span></span></div>
+<div class="line"><span class="needs_testlink"><span class="needs_label">testlink: </span><span class="needs_data"><a class="reference external" href="https://github.com/eclipse-score/lifecycle/blob/a64c4acf9f58ce2268f337d393e2276d443dc949/tests/integration/ready_conditions/file_state/exists/ready_condition_file.py#L19">test_ready_condition_file<span class="score-testcase-result score-testcase-result--passed"> (passed)</span></a><em>; </em><a class="reference external" href="https://github.com/eclipse-score/lifecycle/blob/a64c4acf9f58ce2268f337d393e2276d443dc949/tests/integration/ready_conditions/file_state/not_existing/ready_condition_file_not_existing.py#L19">test_ready_condition_file_not_existing<span class="score-testcase-result score-testcase-result--passed"> (passed)</span></a></span></span></div>
 <div class="line"><span class="needs_version"><span class="needs_label">version: </span>1</span></div>
 </span></span></div>
 <div class="line"><span><div class="line">derived from: <span class="derived_from"><span><a class="external_link reference external" href="https://eclipse-score.github.io/score/main/features/lifecycle/requirements/index.html#feat_req__lifecycle__conditional_startup">feat_req__lifecycle__conditional_startup</a></span></span></div>
@@ -1300,7 +1346,7 @@ satisfied when a configured file path exists or does not exist.</p></td>
 </table>
 </div>
 </div>
-<div class="need_container docutils container" id="SNCB-c78be9ee">
+<div class="need_container docutils container" id="SNCB-c555c4af">
 <div class="pst-scrollable-table-container"><table class="need needs_grid_complex needs_layout_score needs_style_none needs_type_comp_req table" id="comp_req__launch_man__check_dependency_exec">
 <tbody>
 <tr class="head row-odd"><td class="head_left" colspan="2"><div class="needs_head_left line-block">
@@ -1346,7 +1392,7 @@ satisfied when a configured file path exists or does not exist.</p></td>
 </table>
 </div>
 </div>
-<div class="need_container docutils container" id="SNCB-8d4ded5c">
+<div class="need_container docutils container" id="SNCB-9deed140">
 <div class="pst-scrollable-table-container"><table class="need needs_grid_complex needs_layout_score needs_style_none needs_type_comp_req table" id="comp_req__launch_man__define_swc_dependencies">
 <tbody>
 <tr class="head row-odd"><td class="head_left" colspan="2"><div class="needs_head_left line-block">
@@ -1398,7 +1444,7 @@ satisfied when a configured file path exists or does not exist.</p></td>
 <h3>Processes<a class="headerlink" href="#processes" title="Link to this heading">#</a></h3>
 <section id="launching-processes">
 <h4>Launching Processes<a class="headerlink" href="#launching-processes" title="Link to this heading">#</a></h4>
-<div class="need_container docutils container" id="SNCB-d64aac62">
+<div class="need_container docutils container" id="SNCB-217c680b">
 <div class="pst-scrollable-table-container"><table class="need needs_grid_complex needs_layout_score needs_style_none needs_type_comp_req table" id="comp_req__launch_man__process_input_output">
 <tbody>
 <tr class="head row-odd"><td class="head_left" colspan="2"><div class="needs_head_left line-block">
@@ -1451,7 +1497,7 @@ multiple <a class="reference internal" href="../../../features/lifecycle/glossar
 </table>
 </div>
 </div>
-<div class="need_container docutils container" id="SNCB-2ce00080">
+<div class="need_container docutils container" id="SNCB-e18f7275">
 <div class="pst-scrollable-table-container"><table class="need needs_grid_complex needs_layout_score needs_style_none needs_type_comp_req table" id="comp_req__launch_man__multi_start_support">
 <tbody>
 <tr class="head row-odd"><td class="head_left" colspan="2"><div class="needs_head_left line-block">
@@ -1499,7 +1545,7 @@ multiple <a class="reference internal" href="../../../features/lifecycle/glossar
 </div>
 <section id="process-configuration">
 <h5>Process Configuration<a class="headerlink" href="#process-configuration" title="Link to this heading">#</a></h5>
-<div class="need_container docutils container" id="SNCB-db0a0664">
+<div class="need_container docutils container" id="SNCB-f1467cc6">
 <div class="pst-scrollable-table-container"><table class="need needs_grid_complex needs_layout_score needs_style_none needs_type_comp_req table" id="comp_req__launch_man__process_launch_args">
 <tbody>
 <tr class="head row-odd"><td class="head_left" colspan="2"><div class="needs_head_left line-block">
@@ -1520,7 +1566,7 @@ multiple <a class="reference internal" href="../../../features/lifecycle/glossar
 <tr class="meta row-even"><td class="meta" colspan="3"><div class="needs_meta_left line-block">
 <div class="line"><span><span><div class="line"><span class="needs_tags"><span class="needs_label">tags: </span><span class="needs_data_container"><span class="needs_data">lifecycle</span><span class="needs_spacer">, </span><span class="needs_data">launch_manager</span></span></span></div>
 <div class="line"><span class="needs_reqtype"><span class="needs_label">reqtype: </span><span class="needs_data">Functional</span></span></div>
-<div class="line"><span class="needs_testlink"><span class="needs_label">testlink: </span><span class="needs_data"><a class="reference external" href="https://github.com/eclipse-score/lifecycle/blob/fb19b397dc1268301b7efac1bf721879617209e2/tests/integration/switch_run_target/switch_run_target.py#L19">test_switch_run_target<span class="score-testcase-result score-testcase-result--passed"> (passed)</span></a><em>; </em><a class="reference external" href="https://github.com/eclipse-score/lifecycle/blob/fb19b397dc1268301b7efac1bf721879617209e2/tests/integration/fallback_to_same_target_restarts/fallback_to_same_target_restarts.py#L19">test_fallback_to_same_target_restarts<span class="score-testcase-result score-testcase-result--passed"> (passed)</span></a><em>; </em><a class="reference external" href="https://github.com/eclipse-score/lifecycle/blob/fb19b397dc1268301b7efac1bf721879617209e2/tests/integration/sandbox_options/root/sandbox_options.py#L26">test_sandbox_options<span class="score-testcase-result score-testcase-result--passed"> (passed)</span></a><em>; </em><a class="reference external" href="https://github.com/eclipse-score/lifecycle/blob/fb19b397dc1268301b7efac1bf721879617209e2/tests/integration/process_simple_rep_failure/process_simple_rep_failure.py#L19">test_recovery_action_simple_rep_failure<span class="score-testcase-result score-testcase-result--passed"> (passed)</span></a><em>; </em><a class="reference external" href="https://github.com/eclipse-score/lifecycle/blob/fb19b397dc1268301b7efac1bf721879617209e2/tests/integration/process_launch_args/process_launch_args.py#L19">test_process_launch_args<span class="score-testcase-result score-testcase-result--passed"> (passed)</span></a></span></span></div>
+<div class="line"><span class="needs_testlink"><span class="needs_label">testlink: </span><span class="needs_data"><a class="reference external" href="https://github.com/eclipse-score/lifecycle/blob/a64c4acf9f58ce2268f337d393e2276d443dc949/tests/integration/process_launch_args/process_launch_args.py#L19">test_process_launch_args<span class="score-testcase-result score-testcase-result--passed"> (passed)</span></a><em>; </em><a class="reference external" href="https://github.com/eclipse-score/lifecycle/blob/a64c4acf9f58ce2268f337d393e2276d443dc949/tests/integration/fallback_to_same_target_restarts/fallback_to_same_target_restarts.py#L19">test_fallback_to_same_target_restarts<span class="score-testcase-result score-testcase-result--passed"> (passed)</span></a><em>; </em><a class="reference external" href="https://github.com/eclipse-score/lifecycle/blob/a64c4acf9f58ce2268f337d393e2276d443dc949/tests/integration/switch_run_target/switch_run_target.py#L19">test_switch_run_target<span class="score-testcase-result score-testcase-result--passed"> (passed)</span></a><em>; </em><a class="reference external" href="https://github.com/eclipse-score/lifecycle/blob/a64c4acf9f58ce2268f337d393e2276d443dc949/tests/integration/sandbox_options/root/sandbox_options.py#L26">test_sandbox_options<span class="score-testcase-result score-testcase-result--passed"> (passed)</span></a><em>; </em><a class="reference external" href="https://github.com/eclipse-score/lifecycle/blob/a64c4acf9f58ce2268f337d393e2276d443dc949/tests/integration/process_simple_rep_failure/process_simple_rep_failure.py#L19">test_recovery_action_simple_rep_failure<span class="score-testcase-result score-testcase-result--passed"> (passed)</span></a></span></span></div>
 <div class="line"><span class="needs_version"><span class="needs_label">version: </span>1</span></div>
 </span></span></div>
 <div class="line"><span><div class="line">derived from: <span class="derived_from"><span><a class="external_link reference external" href="https://eclipse-score.github.io/score/main/features/lifecycle/requirements/index.html#feat_req__lifecycle__launch_support">feat_req__lifecycle__launch_support</a></span></span></div>
@@ -1548,7 +1594,7 @@ given set of arguments.</p></td>
 </table>
 </div>
 </div>
-<div class="need_container docutils container" id="SNCB-05980282">
+<div class="need_container docutils container" id="SNCB-b2f95bb7">
 <div class="pst-scrollable-table-container"><table class="need needs_grid_complex needs_layout_score needs_style_none needs_type_comp_req table" id="comp_req__launch_man__uid_gid_support">
 <tbody>
 <tr class="head row-odd"><td class="head_left" colspan="2"><div class="needs_head_left line-block">
@@ -1569,7 +1615,7 @@ given set of arguments.</p></td>
 <tr class="meta row-even"><td class="meta" colspan="3"><div class="needs_meta_left line-block">
 <div class="line"><span><span><div class="line"><span class="needs_tags"><span class="needs_label">tags: </span><span class="needs_data_container"><span class="needs_data">lifecycle</span><span class="needs_spacer">, </span><span class="needs_data">launch_manager</span></span></span></div>
 <div class="line"><span class="needs_reqtype"><span class="needs_label">reqtype: </span><span class="needs_data">Functional</span></span></div>
-<div class="line"><span class="needs_testlink"><span class="needs_label">testlink: </span><span class="needs_data"><a class="reference external" href="https://github.com/eclipse-score/lifecycle/blob/fb19b397dc1268301b7efac1bf721879617209e2/tests/integration/sandbox_options/root/sandbox_options.py#L26">test_sandbox_options<span class="score-testcase-result score-testcase-result--passed"> (passed)</span></a><em>; </em><a class="reference external" href="https://github.com/eclipse-score/lifecycle/blob/fb19b397dc1268301b7efac1bf721879617209e2/tests/integration/sandbox_options/non_root/sandbox_options_non_root.py#L49">test_sandbox_options_non_root<span class="score-testcase-result score-testcase-result--passed"> (passed)</span></a></span></span></div>
+<div class="line"><span class="needs_testlink"><span class="needs_label">testlink: </span><span class="needs_data"><a class="reference external" href="https://github.com/eclipse-score/lifecycle/blob/a64c4acf9f58ce2268f337d393e2276d443dc949/tests/integration/sandbox_options/non_root/sandbox_options_non_root.py#L49">test_sandbox_options_non_root<span class="score-testcase-result score-testcase-result--passed"> (passed)</span></a><em>; </em><a class="reference external" href="https://github.com/eclipse-score/lifecycle/blob/a64c4acf9f58ce2268f337d393e2276d443dc949/tests/integration/sandbox_options/root/sandbox_options.py#L26">test_sandbox_options<span class="score-testcase-result score-testcase-result--passed"> (passed)</span></a></span></span></div>
 <div class="line"><span class="needs_version"><span class="needs_label">version: </span>1</span></div>
 </span></span></div>
 <div class="line"><span><div class="line">derived from: <span class="derived_from"><span><a class="external_link reference external" href="https://eclipse-score.github.io/score/main/features/lifecycle/requirements/index.html#feat_req__lifecycle__sandbox_options">feat_req__lifecycle__sandbox_options</a></span></span></div>
@@ -1596,7 +1642,7 @@ given <a class="reference internal" href="../../../features/lifecycle/glossary_d
 </table>
 </div>
 </div>
-<div class="need_container docutils container" id="SNCB-b5c56863">
+<div class="need_container docutils container" id="SNCB-1907e2f5">
 <div class="pst-scrollable-table-container"><table class="need needs_grid_complex needs_layout_score needs_style_none needs_type_comp_req table" id="comp_req__launch_man__launch_priority_support">
 <tbody>
 <tr class="head row-odd"><td class="head_left" colspan="2"><div class="needs_head_left line-block">
@@ -1617,7 +1663,7 @@ given <a class="reference internal" href="../../../features/lifecycle/glossary_d
 <tr class="meta row-even"><td class="meta" colspan="3"><div class="needs_meta_left line-block">
 <div class="line"><span><span><div class="line"><span class="needs_tags"><span class="needs_label">tags: </span><span class="needs_data_container"><span class="needs_data">lifecycle</span><span class="needs_spacer">, </span><span class="needs_data">launch_manager</span></span></span></div>
 <div class="line"><span class="needs_reqtype"><span class="needs_label">reqtype: </span><span class="needs_data">Functional</span></span></div>
-<div class="line"><span class="needs_testlink"><span class="needs_label">testlink: </span><span class="needs_data"><a class="reference external" href="https://github.com/eclipse-score/lifecycle/blob/fb19b397dc1268301b7efac1bf721879617209e2/tests/integration/sandbox_options/root/sandbox_options.py#L26">test_sandbox_options<span class="score-testcase-result score-testcase-result--passed"> (passed)</span></a></span></span></div>
+<div class="line"><span class="needs_testlink"><span class="needs_label">testlink: </span><span class="needs_data"><a class="reference external" href="https://github.com/eclipse-score/lifecycle/blob/a64c4acf9f58ce2268f337d393e2276d443dc949/tests/integration/sandbox_options/root/sandbox_options.py#L26">test_sandbox_options<span class="score-testcase-result score-testcase-result--passed"> (passed)</span></a></span></span></div>
 <div class="line"><span class="needs_version"><span class="needs_label">version: </span>1</span></div>
 </span></span></div>
 <div class="line"><span><div class="line">derived from: <span class="derived_from"><span><a class="external_link reference external" href="https://eclipse-score.github.io/score/main/features/lifecycle/requirements/index.html#feat_req__lifecycle__sandbox_options">feat_req__lifecycle__sandbox_options</a></span></span></div>
@@ -1644,7 +1690,7 @@ given priority.</p></td>
 </table>
 </div>
 </div>
-<div class="need_container docutils container" id="SNCB-dca6c8d0">
+<div class="need_container docutils container" id="SNCB-3b23836f">
 <div class="pst-scrollable-table-container"><table class="need needs_grid_complex needs_layout_score needs_style_none needs_type_comp_req table" id="comp_req__launch_man__cwd_support">
 <tbody>
 <tr class="head row-odd"><td class="head_left" colspan="2"><div class="needs_head_left line-block">
@@ -1665,7 +1711,7 @@ given priority.</p></td>
 <tr class="meta row-even"><td class="meta" colspan="3"><div class="needs_meta_left line-block">
 <div class="line"><span><span><div class="line"><span class="needs_tags"><span class="needs_label">tags: </span><span class="needs_data_container"><span class="needs_data">lifecycle</span><span class="needs_spacer">, </span><span class="needs_data">launch_manager</span></span></span></div>
 <div class="line"><span class="needs_reqtype"><span class="needs_label">reqtype: </span><span class="needs_data">Functional</span></span></div>
-<div class="line"><span class="needs_testlink"><span class="needs_label">testlink: </span><span class="needs_data"><a class="reference external" href="https://github.com/eclipse-score/lifecycle/blob/fb19b397dc1268301b7efac1bf721879617209e2/tests/integration/sandbox_options/root/sandbox_options.py#L26">test_sandbox_options<span class="score-testcase-result score-testcase-result--passed"> (passed)</span></a></span></span></div>
+<div class="line"><span class="needs_testlink"><span class="needs_label">testlink: </span><span class="needs_data"><a class="reference external" href="https://github.com/eclipse-score/lifecycle/blob/a64c4acf9f58ce2268f337d393e2276d443dc949/tests/integration/sandbox_options/root/sandbox_options.py#L26">test_sandbox_options<span class="score-testcase-result score-testcase-result--passed"> (passed)</span></a></span></span></div>
 <div class="line"><span class="needs_version"><span class="needs_label">version: </span>1</span></div>
 </span></span></div>
 <div class="line"><span><div class="line">derived from: <span class="derived_from"><span><a class="external_link reference external" href="https://eclipse-score.github.io/score/main/features/lifecycle/requirements/index.html#feat_req__lifecycle__sandbox_options">feat_req__lifecycle__sandbox_options</a></span></span></div>
@@ -1692,7 +1738,7 @@ given <a class="reference internal" href="../../../features/lifecycle/glossary_d
 </table>
 </div>
 </div>
-<div class="need_container docutils container" id="SNCB-084af58b">
+<div class="need_container docutils container" id="SNCB-4b7f8ba1">
 <div class="pst-scrollable-table-container"><table class="need needs_grid_complex needs_layout_score needs_style_none needs_type_comp_req table" id="comp_req__launch_man__terminal_support">
 <tbody>
 <tr class="head row-odd"><td class="head_left" colspan="2"><div class="needs_head_left line-block">
@@ -1740,7 +1786,7 @@ session leader.</p></td>
 </table>
 </div>
 </div>
-<div class="need_container docutils container" id="SNCB-ac9e83c5">
+<div class="need_container docutils container" id="SNCB-b00e9685">
 <div class="pst-scrollable-table-container"><table class="need needs_grid_complex needs_layout_score needs_style_none needs_type_comp_req table" id="comp_req__launch_man__std_handle_redir">
 <tbody>
 <tr class="head row-odd"><td class="head_left" colspan="2"><div class="needs_head_left line-block">
@@ -1788,7 +1834,7 @@ redirection.</p></td>
 </table>
 </div>
 </div>
-<div class="need_container docutils container" id="SNCB-17d17e03">
+<div class="need_container docutils container" id="SNCB-57e86b75">
 <div class="pst-scrollable-table-container"><table class="need needs_grid_complex needs_layout_score needs_style_none needs_type_comp_req table" id="comp_req__launch_man__secpol_non_root">
 <tbody>
 <tr class="head row-odd"><td class="head_left" colspan="2"><div class="needs_head_left line-block">
@@ -1835,7 +1881,7 @@ policy as non-root.</p></td>
 </table>
 </div>
 </div>
-<div class="need_container docutils container" id="SNCB-e9d0d521">
+<div class="need_container docutils container" id="SNCB-a3f04bce">
 <div class="pst-scrollable-table-container"><table class="need needs_grid_complex needs_layout_score needs_style_none needs_type_comp_req table" id="comp_req__launch_man__retries_configurable">
 <tbody>
 <tr class="head row-odd"><td class="head_left" colspan="2"><div class="needs_head_left line-block">
@@ -1856,7 +1902,7 @@ policy as non-root.</p></td>
 <tr class="meta row-even"><td class="meta" colspan="3"><div class="needs_meta_left line-block">
 <div class="line"><span><span><div class="line"><span class="needs_tags"><span class="needs_label">tags: </span><span class="needs_data_container"><span class="needs_data">lifecycle</span><span class="needs_spacer">, </span><span class="needs_data">launch_manager</span></span></span></div>
 <div class="line"><span class="needs_reqtype"><span class="needs_label">reqtype: </span><span class="needs_data">Functional</span></span></div>
-<div class="line"><span class="needs_testlink"><span class="needs_label">testlink: </span><span class="needs_data"><a class="reference external" href="https://github.com/eclipse-score/lifecycle/blob/fb19b397dc1268301b7efac1bf721879617209e2/tests/integration/crash_on_startup/crash_on_startup.py#L22">test_crash_on_startup<span class="score-testcase-result score-testcase-result--passed"> (passed)</span></a></span></span></div>
+<div class="line"><span class="needs_testlink"><span class="needs_label">testlink: </span><span class="needs_data"><a class="reference external" href="https://github.com/eclipse-score/lifecycle/blob/a64c4acf9f58ce2268f337d393e2276d443dc949/tests/integration/crash_on_startup/crash_on_startup.py#L22">test_crash_on_startup<span class="score-testcase-result score-testcase-result--passed"> (passed)</span></a></span></span></div>
 <div class="line"><span class="needs_version"><span class="needs_label">version: </span>1</span></div>
 </span></span></div>
 <div class="line"><span><div class="line">derived from: <span class="derived_from"><span><a class="external_link reference external" href="https://eclipse-score.github.io/score/main/features/lifecycle/requirements/index.html#feat_req__lifecycle__recovery_action_support">feat_req__lifecycle__recovery_action_support</a></span></span></div>
@@ -1886,7 +1932,7 @@ If no retry attempts are successful this shall be considered a
 </table>
 </div>
 </div>
-<div class="need_container docutils container" id="SNCB-8394a193">
+<div class="need_container docutils container" id="SNCB-aafd9499">
 <div class="pst-scrollable-table-container"><table class="need needs_grid_complex needs_layout_score needs_style_none needs_type_comp_req table" id="comp_req__launch_man__capability_support">
 <tbody>
 <tr class="head row-odd"><td class="head_left" colspan="2"><div class="needs_head_left line-block">
@@ -1938,7 +1984,7 @@ with configured OS-specific capabilities and privileges.</p>
 </table>
 </div>
 </div>
-<div class="need_container docutils container" id="SNCB-d7618e0b">
+<div class="need_container docutils container" id="SNCB-42cfa62e">
 <div class="pst-scrollable-table-container"><table class="need needs_grid_complex needs_layout_score needs_style_none needs_type_comp_req table" id="comp_req__launch_man__supplementary_groups">
 <tbody>
 <tr class="head row-odd"><td class="head_left" colspan="2"><div class="needs_head_left line-block">
@@ -1959,7 +2005,7 @@ with configured OS-specific capabilities and privileges.</p>
 <tr class="meta row-even"><td class="meta" colspan="3"><div class="needs_meta_left line-block">
 <div class="line"><span><span><div class="line"><span class="needs_tags"><span class="needs_label">tags: </span><span class="needs_data_container"><span class="needs_data">lifecycle</span><span class="needs_spacer">, </span><span class="needs_data">launch_manager</span></span></span></div>
 <div class="line"><span class="needs_reqtype"><span class="needs_label">reqtype: </span><span class="needs_data">Functional</span></span></div>
-<div class="line"><span class="needs_testlink"><span class="needs_label">testlink: </span><span class="needs_data"><a class="reference external" href="https://github.com/eclipse-score/lifecycle/blob/fb19b397dc1268301b7efac1bf721879617209e2/tests/integration/sandbox_options/root/sandbox_options.py#L26">test_sandbox_options<span class="score-testcase-result score-testcase-result--passed"> (passed)</span></a><em>; </em><a class="reference external" href="https://github.com/eclipse-score/lifecycle/blob/fb19b397dc1268301b7efac1bf721879617209e2/tests/integration/sandbox_options/non_root/sandbox_options_non_root.py#L49">test_sandbox_options_non_root<span class="score-testcase-result score-testcase-result--passed"> (passed)</span></a></span></span></div>
+<div class="line"><span class="needs_testlink"><span class="needs_label">testlink: </span><span class="needs_data"><a class="reference external" href="https://github.com/eclipse-score/lifecycle/blob/a64c4acf9f58ce2268f337d393e2276d443dc949/tests/integration/sandbox_options/non_root/sandbox_options_non_root.py#L49">test_sandbox_options_non_root<span class="score-testcase-result score-testcase-result--passed"> (passed)</span></a><em>; </em><a class="reference external" href="https://github.com/eclipse-score/lifecycle/blob/a64c4acf9f58ce2268f337d393e2276d443dc949/tests/integration/sandbox_options/root/sandbox_options.py#L26">test_sandbox_options<span class="score-testcase-result score-testcase-result--passed"> (passed)</span></a></span></span></div>
 <div class="line"><span class="needs_version"><span class="needs_label">version: </span>1</span></div>
 </span></span></div>
 <div class="line"><span><div class="line">derived from: <span class="derived_from"><span><a class="external_link reference external" href="https://eclipse-score.github.io/score/main/features/lifecycle/requirements/index.html#feat_req__lifecycle__sandbox_options">feat_req__lifecycle__sandbox_options</a></span></span></div>
@@ -1986,7 +2032,7 @@ given set of supplementary groups.</p></td>
 </table>
 </div>
 </div>
-<div class="need_container docutils container" id="SNCB-098488f3">
+<div class="need_container docutils container" id="SNCB-4b0c6075">
 <div class="pst-scrollable-table-container"><table class="need needs_grid_complex needs_layout_score needs_style_none needs_type_comp_req table" id="comp_req__launch_man__scheduling_policy">
 <tbody>
 <tr class="head row-odd"><td class="head_left" colspan="2"><div class="needs_head_left line-block">
@@ -2007,7 +2053,7 @@ given set of supplementary groups.</p></td>
 <tr class="meta row-even"><td class="meta" colspan="3"><div class="needs_meta_left line-block">
 <div class="line"><span><span><div class="line"><span class="needs_tags"><span class="needs_label">tags: </span><span class="needs_data_container"><span class="needs_data">lifecycle</span><span class="needs_spacer">, </span><span class="needs_data">launch_manager</span></span></span></div>
 <div class="line"><span class="needs_reqtype"><span class="needs_label">reqtype: </span><span class="needs_data">Functional</span></span></div>
-<div class="line"><span class="needs_testlink"><span class="needs_label">testlink: </span><span class="needs_data"><a class="reference external" href="https://github.com/eclipse-score/lifecycle/blob/fb19b397dc1268301b7efac1bf721879617209e2/tests/integration/sandbox_options/root/sandbox_options.py#L26">test_sandbox_options<span class="score-testcase-result score-testcase-result--passed"> (passed)</span></a><em>; </em><a class="reference external" href="https://github.com/eclipse-score/lifecycle/blob/fb19b397dc1268301b7efac1bf721879617209e2/tests/integration/sandbox_options/non_root/sandbox_options_non_root.py#L49">test_sandbox_options_non_root<span class="score-testcase-result score-testcase-result--passed"> (passed)</span></a></span></span></div>
+<div class="line"><span class="needs_testlink"><span class="needs_label">testlink: </span><span class="needs_data"><a class="reference external" href="https://github.com/eclipse-score/lifecycle/blob/a64c4acf9f58ce2268f337d393e2276d443dc949/tests/integration/sandbox_options/non_root/sandbox_options_non_root.py#L49">test_sandbox_options_non_root<span class="score-testcase-result score-testcase-result--passed"> (passed)</span></a><em>; </em><a class="reference external" href="https://github.com/eclipse-score/lifecycle/blob/a64c4acf9f58ce2268f337d393e2276d443dc949/tests/integration/sandbox_options/root/sandbox_options.py#L26">test_sandbox_options<span class="score-testcase-result score-testcase-result--passed"> (passed)</span></a></span></span></div>
 <div class="line"><span class="needs_version"><span class="needs_label">version: </span>1</span></div>
 </span></span></div>
 <div class="line"><span><div class="line">derived from: <span class="derived_from"><span><a class="external_link reference external" href="https://eclipse-score.github.io/score/main/features/lifecycle/requirements/index.html#feat_req__lifecycle__sandbox_options">feat_req__lifecycle__sandbox_options</a></span></span></div>
@@ -2034,7 +2080,7 @@ a certain scheduling policy.</p></td>
 </table>
 </div>
 </div>
-<div class="need_container docutils container" id="SNCB-881ed306">
+<div class="need_container docutils container" id="SNCB-4937c534">
 <div class="pst-scrollable-table-container"><table class="need needs_grid_complex needs_layout_score needs_style_none needs_type_comp_req table" id="comp_req__launch_man__runmask_support">
 <tbody>
 <tr class="head row-odd"><td class="head_left" colspan="2"><div class="needs_head_left line-block">
@@ -2055,7 +2101,7 @@ a certain scheduling policy.</p></td>
 <tr class="meta row-even"><td class="meta" colspan="3"><div class="needs_meta_left line-block">
 <div class="line"><span><span><div class="line"><span class="needs_tags"><span class="needs_label">tags: </span><span class="needs_data_container"><span class="needs_data">lifecycle</span><span class="needs_spacer">, </span><span class="needs_data">launch_manager</span></span></span></div>
 <div class="line"><span class="needs_reqtype"><span class="needs_label">reqtype: </span><span class="needs_data">Functional</span></span></div>
-<div class="line"><span class="needs_testlink"><span class="needs_label">testlink: </span><span class="needs_data"><a class="reference external" href="https://github.com/eclipse-score/lifecycle/blob/fb19b397dc1268301b7efac1bf721879617209e2/tests/integration/sandbox_options/root/sandbox_options.py#L26">test_sandbox_options<span class="score-testcase-result score-testcase-result--passed"> (passed)</span></a></span></span></div>
+<div class="line"><span class="needs_testlink"><span class="needs_label">testlink: </span><span class="needs_data"><a class="reference external" href="https://github.com/eclipse-score/lifecycle/blob/a64c4acf9f58ce2268f337d393e2276d443dc949/tests/integration/sandbox_options/root/sandbox_options.py#L26">test_sandbox_options<span class="score-testcase-result score-testcase-result--passed"> (passed)</span></a></span></span></div>
 <div class="line"><span class="needs_version"><span class="needs_label">version: </span>1</span></div>
 </span></span></div>
 <div class="line"><span><div class="line">derived from: <span class="derived_from"><span><a class="external_link reference external" href="https://eclipse-score.github.io/score/main/features/lifecycle/requirements/index.html#feat_req__lifecycle__sandbox_options">feat_req__lifecycle__sandbox_options</a></span></span></div>
@@ -2082,7 +2128,7 @@ given runmask.</p></td>
 </table>
 </div>
 </div>
-<div class="need_container docutils container" id="SNCB-91013fbf">
+<div class="need_container docutils container" id="SNCB-b0e148c0">
 <div class="pst-scrollable-table-container"><table class="need needs_grid_complex needs_layout_score needs_style_none needs_type_comp_req table" id="comp_req__launch_man__aslr_support">
 <tbody>
 <tr class="head row-odd"><td class="head_left" colspan="2"><div class="needs_head_left line-block">
@@ -2130,7 +2176,7 @@ given runmask.</p></td>
 </table>
 </div>
 </div>
-<div class="need_container docutils container" id="SNCB-12abdf79">
+<div class="need_container docutils container" id="SNCB-b9f15f3e">
 <div class="pst-scrollable-table-container"><table class="need needs_grid_complex needs_layout_score needs_style_none needs_type_comp_req table" id="comp_req__launch_man__process_rlimit_support">
 <tbody>
 <tr class="head row-odd"><td class="head_left" colspan="2"><div class="needs_head_left line-block">
@@ -2151,8 +2197,8 @@ given runmask.</p></td>
 <tr class="meta row-even"><td class="meta" colspan="3"><div class="needs_meta_left line-block">
 <div class="line"><span><span><div class="line"><span class="needs_tags"><span class="needs_label">tags: </span><span class="needs_data_container"><span class="needs_data">lifecycle</span><span class="needs_spacer">, </span><span class="needs_data">launch_manager</span></span></span></div>
 <div class="line"><span class="needs_reqtype"><span class="needs_label">reqtype: </span><span class="needs_data">Functional</span></span></div>
-<div class="line"><span class="needs_source_code_link"><span class="needs_label">source_code_link: </span><span class="needs_data"><a class="reference external" href="https://github.com/eclipse-score/lifecycle/blob/fb19b397dc1268301b7efac1bf721879617209e2/score/launch_manager/src/daemon/src/process_group_manager/details/process_launcher.cpp#L129">score/launch_manager/src/daemon/src/process_group_manager/details/process_launcher.cpp:129</a></span></span></div>
-<div class="line"><span class="needs_testlink"><span class="needs_label">testlink: </span><span class="needs_data"><a class="reference external" href="https://github.com/eclipse-score/lifecycle/blob/fb19b397dc1268301b7efac1bf721879617209e2/tests/integration/sandbox_options/root/sandbox_options.py#L26">test_sandbox_options<span class="score-testcase-result score-testcase-result--passed"> (passed)</span></a><em>; </em><a class="reference external" href="https://github.com/eclipse-score/lifecycle/blob/fb19b397dc1268301b7efac1bf721879617209e2/tests/integration/sandbox_options/non_root/sandbox_options_non_root.py#L49">test_sandbox_options_non_root<span class="score-testcase-result score-testcase-result--passed"> (passed)</span></a></span></span></div>
+<div class="line"><span class="needs_source_code_link"><span class="needs_label">source_code_link: </span><span class="needs_data"><a class="reference external" href="https://github.com/eclipse-score/lifecycle/blob/a64c4acf9f58ce2268f337d393e2276d443dc949/score/launch_manager/src/daemon/src/process_group_manager/details/process_launcher.cpp#L129">score/launch_manager/src/daemon/src/process_group_manager/details/process_launcher.cpp:129</a></span></span></div>
+<div class="line"><span class="needs_testlink"><span class="needs_label">testlink: </span><span class="needs_data"><a class="reference external" href="https://github.com/eclipse-score/lifecycle/blob/a64c4acf9f58ce2268f337d393e2276d443dc949/tests/integration/sandbox_options/non_root/sandbox_options_non_root.py#L49">test_sandbox_options_non_root<span class="score-testcase-result score-testcase-result--passed"> (passed)</span></a><em>; </em><a class="reference external" href="https://github.com/eclipse-score/lifecycle/blob/a64c4acf9f58ce2268f337d393e2276d443dc949/tests/integration/sandbox_options/root/sandbox_options.py#L26">test_sandbox_options<span class="score-testcase-result score-testcase-result--passed"> (passed)</span></a></span></span></div>
 <div class="line"><span class="needs_version"><span class="needs_label">version: </span>1</span></div>
 </span></span></div>
 <div class="line"><span><div class="line">derived from: <span class="derived_from"><span><a class="external_link reference external" href="https://eclipse-score.github.io/score/main/features/lifecycle/requirements/index.html#feat_req__lifecycle__sandbox_options">feat_req__lifecycle__sandbox_options</a></span></span></div>
@@ -2181,7 +2227,7 @@ RLIMIT_DATA, RLIMIT_FSIZE, RLIMIT_NOFILE, RLIMIT_STACK and RLIMIT_AS.</p></td>
 </table>
 </div>
 </div>
-<div class="need_container docutils container" id="SNCB-c3fa33f2">
+<div class="need_container docutils container" id="SNCB-a3be4049">
 <div class="pst-scrollable-table-container"><table class="need needs_grid_complex needs_layout_score needs_style_none needs_type_comp_req table" id="comp_req__launch_man__detach_parent_process">
 <tbody>
 <tr class="head row-odd"><td class="head_left" colspan="2"><div class="needs_head_left line-block">
@@ -2235,7 +2281,7 @@ detach from parent.</p>
 </table>
 </div>
 </div>
-<div class="need_container docutils container" id="SNCB-29c9a533">
+<div class="need_container docutils container" id="SNCB-c6dcff84">
 <div class="pst-scrollable-table-container"><table class="need needs_grid_complex needs_layout_score needs_style_none needs_type_comp_req table" id="comp_req__launch_man__launch_parallel">
 <tbody>
 <tr class="head row-odd"><td class="head_left" colspan="2"><div class="needs_head_left line-block">
@@ -2256,7 +2302,7 @@ detach from parent.</p>
 <tr class="meta row-even"><td class="meta" colspan="3"><div class="needs_meta_left line-block">
 <div class="line"><span><span><div class="line"><span class="needs_tags"><span class="needs_label">tags: </span><span class="needs_data_container"><span class="needs_data">lifecycle</span><span class="needs_spacer">, </span><span class="needs_data">launch_manager</span></span></span></div>
 <div class="line"><span class="needs_reqtype"><span class="needs_label">reqtype: </span><span class="needs_data">Functional</span></span></div>
-<div class="line"><span class="needs_testlink"><span class="needs_label">testlink: </span><span class="needs_data"><a class="reference external" href="https://github.com/eclipse-score/lifecycle/blob/fb19b397dc1268301b7efac1bf721879617209e2/tests/integration/parallel_launch/parallel_launch.py#L19">test_parallel_launch<span class="score-testcase-result score-testcase-result--passed"> (passed)</span></a></span></span></div>
+<div class="line"><span class="needs_testlink"><span class="needs_label">testlink: </span><span class="needs_data"><a class="reference external" href="https://github.com/eclipse-score/lifecycle/blob/a64c4acf9f58ce2268f337d393e2276d443dc949/tests/integration/parallel_launch/parallel_launch.py#L19">test_parallel_launch<span class="score-testcase-result score-testcase-result--passed"> (passed)</span></a></span></span></div>
 <div class="line"><span class="needs_version"><span class="needs_label">version: </span>1</span></div>
 </span></span></div>
 <div class="line"><span><div class="line">derived from: <span class="derived_from"><span><a class="external_link reference external" href="https://eclipse-score.github.io/score/main/features/lifecycle/requirements/index.html#feat_req__lifecycle__launch_support">feat_req__lifecycle__launch_support</a></span></span></div>
@@ -2287,7 +2333,7 @@ in parallel.</p></td>
 </section>
 <section id="terminating-processes">
 <h4>Terminating Processes<a class="headerlink" href="#terminating-processes" title="Link to this heading">#</a></h4>
-<div class="need_container docutils container" id="SNCB-8b631c6c">
+<div class="need_container docutils container" id="SNCB-0d21808a">
 <div class="pst-scrollable-table-container"><table class="need needs_grid_complex needs_layout_score needs_style_none needs_type_comp_req table" id="comp_req__launch_man__configurable_timeout">
 <tbody>
 <tr class="head row-odd"><td class="head_left" colspan="2"><div class="needs_head_left line-block">
@@ -2334,7 +2380,7 @@ in parallel.</p></td>
 </table>
 </div>
 </div>
-<div class="need_container docutils container" id="SNCB-a10b09a6">
+<div class="need_container docutils container" id="SNCB-895ed018">
 <div class="pst-scrollable-table-container"><table class="need needs_grid_complex needs_layout_score needs_style_none needs_type_comp_req table" id="comp_req__launch_man__time_to_wait_config">
 <tbody>
 <tr class="head row-odd"><td class="head_left" colspan="2"><div class="needs_head_left line-block">
@@ -2381,7 +2427,7 @@ SIGKILL is sent. In case “0” is stated, the SIGKILL shall be sent immediatel
 </table>
 </div>
 </div>
-<div class="need_container docutils container" id="SNCB-05718206">
+<div class="need_container docutils container" id="SNCB-c4e71a8e">
 <div class="pst-scrollable-table-container"><table class="need needs_grid_complex needs_layout_score needs_style_none needs_type_comp_req table" id="comp_req__launch_man__shutdown_signal">
 <tbody>
 <tr class="head row-odd"><td class="head_left" colspan="2"><div class="needs_head_left line-block">
@@ -2402,7 +2448,7 @@ SIGKILL is sent. In case “0” is stated, the SIGKILL shall be sent immediatel
 <tr class="meta row-even"><td class="meta" colspan="3"><div class="needs_meta_left line-block">
 <div class="line"><span><span><div class="line"><span class="needs_tags"><span class="needs_label">tags: </span><span class="needs_data_container"><span class="needs_data">lifecycle</span><span class="needs_spacer">, </span><span class="needs_data">launch_manager</span></span></span></div>
 <div class="line"><span class="needs_reqtype"><span class="needs_label">reqtype: </span><span class="needs_data">Functional</span></span></div>
-<div class="line"><span class="needs_testlink"><span class="needs_label">testlink: </span><span class="needs_data"><a class="reference external" href="https://github.com/eclipse-score/lifecycle/blob/fb19b397dc1268301b7efac1bf721879617209e2/tests/integration/shutdown_signal/shutdown_signal.py#L19">test_shutdown_signal<span class="score-testcase-result score-testcase-result--passed"> (passed)</span></a></span></span></div>
+<div class="line"><span class="needs_testlink"><span class="needs_label">testlink: </span><span class="needs_data"><a class="reference external" href="https://github.com/eclipse-score/lifecycle/blob/a64c4acf9f58ce2268f337d393e2276d443dc949/tests/integration/shutdown_signal/shutdown_signal.py#L19">test_shutdown_signal<span class="score-testcase-result score-testcase-result--passed"> (passed)</span></a></span></span></div>
 <div class="line"><span class="needs_version"><span class="needs_label">version: </span>1</span></div>
 </span></span></div>
 <div class="line"><span><div class="line">derived from: <span class="derived_from"><span><a class="external_link reference external" href="https://eclipse-score.github.io/score/main/features/lifecycle/requirements/index.html#feat_req__lifecycle__process_termination">feat_req__lifecycle__process_termination</a></span></span></div>
@@ -2433,7 +2479,7 @@ the process. In case the process does not terminate itself, a SIGKILL shall be s
 </section>
 <section id="containers">
 <h3>Containers<a class="headerlink" href="#containers" title="Link to this heading">#</a></h3>
-<div class="need_container docutils container" id="SNCB-07b1c76a">
+<div class="need_container docutils container" id="SNCB-2d518883">
 <div class="pst-scrollable-table-container"><table class="need needs_grid_complex needs_layout_score needs_style_none needs_type_comp_req table" id="comp_req__launch_man__runtime_config_compat">
 <tbody>
 <tr class="head row-odd"><td class="head_left" colspan="2"><div class="needs_head_left line-block">
@@ -2485,7 +2531,7 @@ the process. In case the process does not terminate itself, a SIGKILL shall be s
 </section>
 <section id="run-targets">
 <h2>Run Targets<a class="headerlink" href="#run-targets" title="Link to this heading">#</a></h2>
-<div class="need_container docutils container" id="SNCB-c571385b">
+<div class="need_container docutils container" id="SNCB-dac58533">
 <div class="pst-scrollable-table-container"><table class="need needs_grid_complex needs_layout_score needs_style_none needs_type_comp_req table" id="comp_req__launch_man__start_named_run_target">
 <tbody>
 <tr class="head row-odd"><td class="head_left" colspan="2"><div class="needs_head_left line-block">
@@ -2506,7 +2552,7 @@ the process. In case the process does not terminate itself, a SIGKILL shall be s
 <tr class="meta row-even"><td class="meta" colspan="3"><div class="needs_meta_left line-block">
 <div class="line"><span><span><div class="line"><span class="needs_tags"><span class="needs_label">tags: </span><span class="needs_data_container"><span class="needs_data">lifecycle</span><span class="needs_spacer">, </span><span class="needs_data">launch_manager</span></span></span></div>
 <div class="line"><span class="needs_reqtype"><span class="needs_label">reqtype: </span><span class="needs_data">Functional</span></span></div>
-<div class="line"><span class="needs_testlink"><span class="needs_label">testlink: </span><span class="needs_data"><a class="reference external" href="https://github.com/eclipse-score/lifecycle/blob/fb19b397dc1268301b7efac1bf721879617209e2/tests/integration/smoke/smoke.py#L19">test_smoke<span class="score-testcase-result score-testcase-result--passed"> (passed)</span></a></span></span></div>
+<div class="line"><span class="needs_testlink"><span class="needs_label">testlink: </span><span class="needs_data"><a class="reference external" href="https://github.com/eclipse-score/lifecycle/blob/a64c4acf9f58ce2268f337d393e2276d443dc949/tests/integration/smoke/smoke.py#L19">test_smoke<span class="score-testcase-result score-testcase-result--passed"> (passed)</span></a></span></span></div>
 <div class="line"><span class="needs_version"><span class="needs_label">version: </span>1</span></div>
 </span></span></div>
 <div class="line"><span><div class="line">derived from: <span class="derived_from"><span><a class="external_link reference external" href="https://eclipse-score.github.io/score/main/features/lifecycle/requirements/index.html#feat_req__lifecycle__run_target_support">feat_req__lifecycle__run_target_support</a></span></span></div>
@@ -2532,7 +2578,7 @@ the process. In case the process does not terminate itself, a SIGKILL shall be s
 </table>
 </div>
 </div>
-<div class="need_container docutils container" id="SNCB-56877cf0">
+<div class="need_container docutils container" id="SNCB-7e21789a">
 <div class="pst-scrollable-table-container"><table class="need needs_grid_complex needs_layout_score needs_style_none needs_type_comp_req table" id="comp_req__launch_man__rt_comp_dep">
 <tbody>
 <tr class="head row-odd"><td class="head_left" colspan="2"><div class="needs_head_left line-block">
@@ -2553,7 +2599,7 @@ the process. In case the process does not terminate itself, a SIGKILL shall be s
 <tr class="meta row-even"><td class="meta" colspan="3"><div class="needs_meta_left line-block">
 <div class="line"><span><span><div class="line"><span class="needs_tags"><span class="needs_label">tags: </span><span class="needs_data_container"><span class="needs_data">lifecycle</span><span class="needs_spacer">, </span><span class="needs_data">launch_manager</span></span></span></div>
 <div class="line"><span class="needs_reqtype"><span class="needs_label">reqtype: </span><span class="needs_data">Functional</span></span></div>
-<div class="line"><span class="needs_testlink"><span class="needs_label">testlink: </span><span class="needs_data"><a class="reference external" href="https://github.com/eclipse-score/lifecycle/blob/fb19b397dc1268301b7efac1bf721879617209e2/tests/integration/switch_run_target/switch_run_target.py#L19">test_switch_run_target<span class="score-testcase-result score-testcase-result--passed"> (passed)</span></a><em>; </em><a class="reference external" href="https://github.com/eclipse-score/lifecycle/blob/fb19b397dc1268301b7efac1bf721879617209e2/tests/integration/fallback_to_same_target_restarts/fallback_to_same_target_restarts.py#L19">test_fallback_to_same_target_restarts<span class="score-testcase-result score-testcase-result--passed"> (passed)</span></a><em>; </em><a class="reference external" href="https://github.com/eclipse-score/lifecycle/blob/fb19b397dc1268301b7efac1bf721879617209e2/tests/integration/sandbox_options/root/sandbox_options.py#L26">test_sandbox_options<span class="score-testcase-result score-testcase-result--passed"> (passed)</span></a><em>; </em><a class="reference external" href="https://github.com/eclipse-score/lifecycle/blob/fb19b397dc1268301b7efac1bf721879617209e2/tests/integration/process_simple_rep_failure/process_simple_rep_failure.py#L19">test_recovery_action_simple_rep_failure<span class="score-testcase-result score-testcase-result--passed"> (passed)</span></a></span></span></div>
+<div class="line"><span class="needs_testlink"><span class="needs_label">testlink: </span><span class="needs_data"><a class="reference external" href="https://github.com/eclipse-score/lifecycle/blob/a64c4acf9f58ce2268f337d393e2276d443dc949/tests/integration/fallback_to_same_target_restarts/fallback_to_same_target_restarts.py#L19">test_fallback_to_same_target_restarts<span class="score-testcase-result score-testcase-result--passed"> (passed)</span></a><em>; </em><a class="reference external" href="https://github.com/eclipse-score/lifecycle/blob/a64c4acf9f58ce2268f337d393e2276d443dc949/tests/integration/switch_run_target/switch_run_target.py#L19">test_switch_run_target<span class="score-testcase-result score-testcase-result--passed"> (passed)</span></a><em>; </em><a class="reference external" href="https://github.com/eclipse-score/lifecycle/blob/a64c4acf9f58ce2268f337d393e2276d443dc949/tests/integration/sandbox_options/root/sandbox_options.py#L26">test_sandbox_options<span class="score-testcase-result score-testcase-result--passed"> (passed)</span></a><em>; </em><a class="reference external" href="https://github.com/eclipse-score/lifecycle/blob/a64c4acf9f58ce2268f337d393e2276d443dc949/tests/integration/process_simple_rep_failure/process_simple_rep_failure.py#L19">test_recovery_action_simple_rep_failure<span class="score-testcase-result score-testcase-result--passed"> (passed)</span></a></span></span></div>
 <div class="line"><span class="needs_version"><span class="needs_label">version: </span>1</span></div>
 </span></span></div>
 <div class="line"><span><div class="line">derived from: <span class="derived_from"><span><a class="external_link reference external" href="https://eclipse-score.github.io/score/main/features/lifecycle/requirements/index.html#feat_req__lifecycle__conditional_startup">feat_req__lifecycle__conditional_startup</a></span></span></div>
@@ -2581,7 +2627,7 @@ define a <a class="reference internal" href="../../../features/lifecycle/glossar
 </table>
 </div>
 </div>
-<div class="need_container docutils container" id="SNCB-0cd79bb1">
+<div class="need_container docutils container" id="SNCB-5010267e">
 <div class="pst-scrollable-table-container"><table class="need needs_grid_complex needs_layout_score needs_style_none needs_type_comp_req table" id="comp_req__launch_man__rt_rt_dep">
 <tbody>
 <tr class="head row-odd"><td class="head_left" colspan="2"><div class="needs_head_left line-block">
@@ -2602,7 +2648,7 @@ define a <a class="reference internal" href="../../../features/lifecycle/glossar
 <tr class="meta row-even"><td class="meta" colspan="3"><div class="needs_meta_left line-block">
 <div class="line"><span><span><div class="line"><span class="needs_tags"><span class="needs_label">tags: </span><span class="needs_data_container"><span class="needs_data">lifecycle</span><span class="needs_spacer">, </span><span class="needs_data">launch_manager</span></span></span></div>
 <div class="line"><span class="needs_reqtype"><span class="needs_label">reqtype: </span><span class="needs_data">Functional</span></span></div>
-<div class="line"><span class="needs_testlink"><span class="needs_label">testlink: </span><span class="needs_data"><a class="reference external" href="https://github.com/eclipse-score/lifecycle/blob/fb19b397dc1268301b7efac1bf721879617209e2/tests/integration/switch_run_target/switch_run_target.py#L19">test_switch_run_target<span class="score-testcase-result score-testcase-result--passed"> (passed)</span></a></span></span></div>
+<div class="line"><span class="needs_testlink"><span class="needs_label">testlink: </span><span class="needs_data"><a class="reference external" href="https://github.com/eclipse-score/lifecycle/blob/a64c4acf9f58ce2268f337d393e2276d443dc949/tests/integration/switch_run_target/switch_run_target.py#L19">test_switch_run_target<span class="score-testcase-result score-testcase-result--passed"> (passed)</span></a></span></span></div>
 <div class="line"><span class="needs_version"><span class="needs_label">version: </span>1</span></div>
 </span></span></div>
 <div class="line"><span><div class="line">derived from: <span class="derived_from"><span><a class="external_link reference external" href="https://eclipse-score.github.io/score/main/features/lifecycle/requirements/index.html#feat_req__lifecycle__conditional_startup">feat_req__lifecycle__conditional_startup</a></span></span></div>
@@ -2631,7 +2677,7 @@ define a <a class="reference internal" href="../../../features/lifecycle/glossar
 </table>
 </div>
 </div>
-<div class="need_container docutils container" id="SNCB-2eb9c459">
+<div class="need_container docutils container" id="SNCB-2298b6d0">
 <div class="pst-scrollable-table-container"><table class="need needs_grid_complex needs_layout_score needs_style_none needs_type_comp_req table" id="comp_req__launch_man__rt_activate_tout">
 <tbody>
 <tr class="head row-odd"><td class="head_left" colspan="2"><div class="needs_head_left line-block">
@@ -2679,7 +2725,7 @@ as failed if the activation exceeds the time configured in
 </table>
 </div>
 </div>
-<div class="need_container docutils container" id="SNCB-32789afe">
+<div class="need_container docutils container" id="SNCB-66f910b4">
 <div class="pst-scrollable-table-container"><table class="need needs_grid_complex needs_layout_score needs_style_none needs_type_comp_req table" id="comp_req__launch_man__process_state_comm">
 <tbody>
 <tr class="head row-odd"><td class="head_left" colspan="2"><div class="needs_head_left line-block">
@@ -2700,7 +2746,7 @@ as failed if the activation exceeds the time configured in
 <tr class="meta row-even"><td class="meta" colspan="3"><div class="needs_meta_left line-block">
 <div class="line"><span><span><div class="line"><span class="needs_tags"><span class="needs_label">tags: </span><span class="needs_data_container"><span class="needs_data">lifecycle</span><span class="needs_spacer">, </span><span class="needs_data">launch_manager</span></span></span></div>
 <div class="line"><span class="needs_reqtype"><span class="needs_label">reqtype: </span><span class="needs_data">Functional</span></span></div>
-<div class="line"><span class="needs_testlink"><span class="needs_label">testlink: </span><span class="needs_data"><a class="reference external" href="https://github.com/eclipse-score/lifecycle/blob/fb19b397dc1268301b7efac1bf721879617209e2/tests/integration/switch_run_target/switch_run_target.py#L19">test_switch_run_target<span class="score-testcase-result score-testcase-result--passed"> (passed)</span></a><em>; </em><a class="reference external" href="https://github.com/eclipse-score/lifecycle/blob/fb19b397dc1268301b7efac1bf721879617209e2/tests/integration/rt_running_when_process_exits/rt_running_when_process_exits.py#L19">test_rt_running_when_process_exits<span class="score-testcase-result score-testcase-result--passed"> (passed)</span></a></span></span></div>
+<div class="line"><span class="needs_testlink"><span class="needs_label">testlink: </span><span class="needs_data"><a class="reference external" href="https://github.com/eclipse-score/lifecycle/blob/a64c4acf9f58ce2268f337d393e2276d443dc949/tests/integration/switch_run_target/switch_run_target.py#L19">test_switch_run_target<span class="score-testcase-result score-testcase-result--passed"> (passed)</span></a><em>; </em><a class="reference external" href="https://github.com/eclipse-score/lifecycle/blob/a64c4acf9f58ce2268f337d393e2276d443dc949/tests/integration/rt_running_when_process_exits/rt_running_when_process_exits.py#L19">test_rt_running_when_process_exits<span class="score-testcase-result score-testcase-result--passed"> (passed)</span></a></span></span></div>
 <div class="line"><span class="needs_version"><span class="needs_label">version: </span>1</span></div>
 </span></span></div>
 <div class="line"><span><div class="line">derived from: <span class="derived_from"><span><a class="external_link reference external" href="https://eclipse-score.github.io/score/main/features/lifecycle/requirements/index.html#feat_req__lifecycle__process_ordering">feat_req__lifecycle__process_ordering</a></span></span></div>
@@ -2728,7 +2774,7 @@ to the launcher.</p></td>
 </table>
 </div>
 </div>
-<div class="need_container docutils container" id="SNCB-a7456109">
+<div class="need_container docutils container" id="SNCB-1006ef4b">
 <div class="pst-scrollable-table-container"><table class="need needs_grid_complex needs_layout_score needs_style_none needs_type_comp_req table" id="comp_req__launch_man__switch_run_targets">
 <tbody>
 <tr class="head row-odd"><td class="head_left" colspan="2"><div class="needs_head_left line-block">
@@ -2749,7 +2795,7 @@ to the launcher.</p></td>
 <tr class="meta row-even"><td class="meta" colspan="3"><div class="needs_meta_left line-block">
 <div class="line"><span><span><div class="line"><span class="needs_tags"><span class="needs_label">tags: </span><span class="needs_data_container"><span class="needs_data">lifecycle</span><span class="needs_spacer">, </span><span class="needs_data">launch_manager</span></span></span></div>
 <div class="line"><span class="needs_reqtype"><span class="needs_label">reqtype: </span><span class="needs_data">Functional</span></span></div>
-<div class="line"><span class="needs_testlink"><span class="needs_label">testlink: </span><span class="needs_data"><a class="reference external" href="https://github.com/eclipse-score/lifecycle/blob/fb19b397dc1268301b7efac1bf721879617209e2/tests/integration/switch_run_target/switch_run_target.py#L19">test_switch_run_target<span class="score-testcase-result score-testcase-result--passed"> (passed)</span></a><em>; </em><a class="reference external" href="https://github.com/eclipse-score/lifecycle/blob/fb19b397dc1268301b7efac1bf721879617209e2/tests/integration/smoke/smoke.py#L19">test_smoke<span class="score-testcase-result score-testcase-result--passed"> (passed)</span></a></span></span></div>
+<div class="line"><span class="needs_testlink"><span class="needs_label">testlink: </span><span class="needs_data"><a class="reference external" href="https://github.com/eclipse-score/lifecycle/blob/a64c4acf9f58ce2268f337d393e2276d443dc949/tests/integration/switch_run_target/switch_run_target.py#L19">test_switch_run_target<span class="score-testcase-result score-testcase-result--passed"> (passed)</span></a><em>; </em><a class="reference external" href="https://github.com/eclipse-score/lifecycle/blob/a64c4acf9f58ce2268f337d393e2276d443dc949/tests/integration/smoke/smoke.py#L19">test_smoke<span class="score-testcase-result score-testcase-result--passed"> (passed)</span></a></span></span></div>
 <div class="line"><span class="needs_version"><span class="needs_label">version: </span>1</span></div>
 </span></span></div>
 <div class="line"><span><div class="line">derived from: <span class="derived_from"><span><a class="external_link reference external" href="https://eclipse-score.github.io/score/main/features/lifecycle/requirements/index.html#feat_req__lifecycle__run_target_support">feat_req__lifecycle__run_target_support</a></span></span></div>
@@ -2775,7 +2821,7 @@ to the launcher.</p></td>
 </table>
 </div>
 </div>
-<div class="need_container docutils container" id="SNCB-cfaa9b32">
+<div class="need_container docutils container" id="SNCB-7b77e322">
 <div class="pst-scrollable-table-container"><table class="need needs_grid_complex needs_layout_score needs_style_none needs_type_comp_req table" id="comp_req__launch_man__queue_rt_selection">
 <tbody>
 <tr class="head row-odd"><td class="head_left" colspan="2"><div class="needs_head_left line-block">
@@ -2829,7 +2875,7 @@ abruptly interrupting ongoing processes.</p>
 </table>
 </div>
 </div>
-<div class="need_container docutils container" id="SNCB-2d131af1">
+<div class="need_container docutils container" id="SNCB-d2c38b21">
 <div class="pst-scrollable-table-container"><table class="need needs_grid_complex needs_layout_score needs_style_none needs_type_comp_req table" id="comp_req__launch_man__rt_already_active">
 <tbody>
 <tr class="head row-odd"><td class="head_left" colspan="2"><div class="needs_head_left line-block">
@@ -2885,7 +2931,7 @@ requests.</p>
 </table>
 </div>
 </div>
-<div class="need_container docutils container" id="SNCB-478b386e">
+<div class="need_container docutils container" id="SNCB-56034fbf">
 <div class="pst-scrollable-table-container"><table class="need needs_grid_complex needs_layout_score needs_style_none needs_type_comp_req table" id="comp_req__launch_man__force_rt_selection">
 <tbody>
 <tr class="head row-odd"><td class="head_left" colspan="2"><div class="needs_head_left line-block">
@@ -2906,6 +2952,7 @@ requests.</p>
 <tr class="meta row-even"><td class="meta" colspan="3"><div class="needs_meta_left line-block">
 <div class="line"><span><span><div class="line"><span class="needs_tags"><span class="needs_label">tags: </span><span class="needs_data_container"><span class="needs_data">lifecycle</span><span class="needs_spacer">, </span><span class="needs_data">launch_manager</span></span></span></div>
 <div class="line"><span class="needs_reqtype"><span class="needs_label">reqtype: </span><span class="needs_data">Functional</span></span></div>
+<div class="line"><span class="needs_testlink"><span class="needs_label">testlink: </span><span class="needs_data"><a class="reference external" href="https://github.com/eclipse-score/lifecycle/blob/a64c4acf9f58ce2268f337d393e2276d443dc949/tests/integration/run_target_requests/forced_activation/test.py#L19">test_forced_selection<span class="score-testcase-result score-testcase-result--passed"> (passed)</span></a></span></span></div>
 <div class="line"><span class="needs_version"><span class="needs_label">version: </span>1</span></div>
 </span></span></div>
 <div class="line"><span><div class="line">derived from: <span class="derived_from"><span><a class="external_link reference external" href="https://eclipse-score.github.io/score/main/features/lifecycle/requirements/index.html#feat_req__lifecycle__control_commands">feat_req__lifecycle__control_commands</a></span></span></div>
@@ -2942,7 +2989,7 @@ ongoing transition to complete or even for queued selections to be processed.</p
 </section>
 <section id="alive-monitoring">
 <h2>Alive Monitoring<a class="headerlink" href="#alive-monitoring" title="Link to this heading">#</a></h2>
-<div class="need_container docutils container" id="SNCB-a03ac8f1">
+<div class="need_container docutils container" id="SNCB-6c02755c">
 <div class="pst-scrollable-table-container"><table class="need needs_grid_complex needs_layout_score needs_style_none needs_type_comp_req table" id="comp_req__launch_man__alive_failure">
 <tbody>
 <tr class="head row-odd"><td class="head_left" colspan="2"><div class="needs_head_left line-block">
@@ -2963,7 +3010,7 @@ ongoing transition to complete or even for queued selections to be processed.</p
 <tr class="meta row-even"><td class="meta" colspan="3"><div class="needs_meta_left line-block">
 <div class="line"><span><span><div class="line"><span class="needs_tags"><span class="needs_label">tags: </span><span class="needs_data_container"><span class="needs_data">lifecycle</span><span class="needs_spacer">, </span><span class="needs_data">launch_manager</span></span></span></div>
 <div class="line"><span class="needs_reqtype"><span class="needs_label">reqtype: </span><span class="needs_data">Functional</span></span></div>
-<div class="line"><span class="needs_testlink"><span class="needs_label">testlink: </span><span class="needs_data"><a class="reference external" href="https://github.com/eclipse-score/lifecycle/blob/fb19b397dc1268301b7efac1bf721879617209e2/tests/integration/fallback_to_same_target_restarts/fallback_to_same_target_restarts.py#L19">test_fallback_to_same_target_restarts<span class="score-testcase-result score-testcase-result--passed"> (passed)</span></a></span></span></div>
+<div class="line"><span class="needs_testlink"><span class="needs_label">testlink: </span><span class="needs_data"><a class="reference external" href="https://github.com/eclipse-score/lifecycle/blob/a64c4acf9f58ce2268f337d393e2276d443dc949/tests/integration/fallback_to_same_target_restarts/fallback_to_same_target_restarts.py#L19">test_fallback_to_same_target_restarts<span class="score-testcase-result score-testcase-result--passed"> (passed)</span></a></span></span></div>
 <div class="line"><span class="needs_version"><span class="needs_label">version: </span>1</span></div>
 </span></span></div>
 <div class="line"><span><div class="line">derived from: <span class="derived_from"><span><a class="external_link reference external" href="https://eclipse-score.github.io/score/main/features/lifecycle/requirements/index.html#feat_req__lifecycle__monitor_processes">feat_req__lifecycle__monitor_processes</a></span></span></div>
@@ -2992,7 +3039,7 @@ This is then considered as a <a class="reference internal" href="../../../featur
 </table>
 </div>
 </div>
-<div class="need_container docutils container" id="SNCB-2d279958">
+<div class="need_container docutils container" id="SNCB-8d8475cd">
 <div class="pst-scrollable-table-container"><table class="need needs_grid_complex needs_layout_score needs_style_none needs_type_comp_req table" id="comp_req__launch_man__failure_detect">
 <tbody>
 <tr class="head row-odd"><td class="head_left" colspan="2"><div class="needs_head_left line-block">
@@ -3013,7 +3060,7 @@ This is then considered as a <a class="reference internal" href="../../../featur
 <tr class="meta row-even"><td class="meta" colspan="3"><div class="needs_meta_left line-block">
 <div class="line"><span><span><div class="line"><span class="needs_tags"><span class="needs_label">tags: </span><span class="needs_data_container"><span class="needs_data">lifecycle</span><span class="needs_spacer">, </span><span class="needs_data">launch_manager</span></span></span></div>
 <div class="line"><span class="needs_reqtype"><span class="needs_label">reqtype: </span><span class="needs_data">Functional</span></span></div>
-<div class="line"><span class="needs_testlink"><span class="needs_label">testlink: </span><span class="needs_data"><a class="reference external" href="https://github.com/eclipse-score/lifecycle/blob/fb19b397dc1268301b7efac1bf721879617209e2/tests/integration/crash_on_startup/crash_on_startup.py#L22">test_crash_on_startup<span class="score-testcase-result score-testcase-result--passed"> (passed)</span></a><em>; </em><a class="reference external" href="https://github.com/eclipse-score/lifecycle/blob/fb19b397dc1268301b7efac1bf721879617209e2/tests/integration/process_complex_rep_failure/process_complex_rep_failure.py#L19">test_recovery_action_complex_rep_failure<span class="score-testcase-result score-testcase-result--passed"> (passed)</span></a><em>; </em><a class="reference external" href="https://github.com/eclipse-score/lifecycle/blob/fb19b397dc1268301b7efac1bf721879617209e2/tests/integration/process_simple_rep_failure/process_simple_rep_failure.py#L19">test_recovery_action_simple_rep_failure<span class="score-testcase-result score-testcase-result--passed"> (passed)</span></a><em>; </em><a class="reference external" href="https://github.com/eclipse-score/lifecycle/blob/fb19b397dc1268301b7efac1bf721879617209e2/tests/integration/crash_ignores_dependents/crash_ignores_dependents.py#L19">test_crash_ignores_dependents<span class="score-testcase-result score-testcase-result--passed"> (passed)</span></a><em>; </em><a class="reference external" href="https://github.com/eclipse-score/lifecycle/blob/fb19b397dc1268301b7efac1bf721879617209e2/tests/integration/process_crash_monitoring/process_crash_monitoring.py#L19">test_process_crash_monitoring<span class="score-testcase-result score-testcase-result--passed"> (passed)</span></a></span></span></div>
+<div class="line"><span class="needs_testlink"><span class="needs_label">testlink: </span><span class="needs_data"><a class="reference external" href="https://github.com/eclipse-score/lifecycle/blob/a64c4acf9f58ce2268f337d393e2276d443dc949/tests/integration/crash_on_startup/crash_on_startup.py#L22">test_crash_on_startup<span class="score-testcase-result score-testcase-result--passed"> (passed)</span></a><em>; </em><a class="reference external" href="https://github.com/eclipse-score/lifecycle/blob/a64c4acf9f58ce2268f337d393e2276d443dc949/tests/integration/process_complex_rep_failure/process_complex_rep_failure.py#L19">test_recovery_action_complex_rep_failure<span class="score-testcase-result score-testcase-result--passed"> (passed)</span></a><em>; </em><a class="reference external" href="https://github.com/eclipse-score/lifecycle/blob/a64c4acf9f58ce2268f337d393e2276d443dc949/tests/integration/process_crash_monitoring/process_crash_monitoring.py#L19">test_process_crash_monitoring<span class="score-testcase-result score-testcase-result--passed"> (passed)</span></a><em>; </em><a class="reference external" href="https://github.com/eclipse-score/lifecycle/blob/a64c4acf9f58ce2268f337d393e2276d443dc949/tests/integration/process_simple_rep_failure/process_simple_rep_failure.py#L19">test_recovery_action_simple_rep_failure<span class="score-testcase-result score-testcase-result--passed"> (passed)</span></a><em>; </em><a class="reference external" href="https://github.com/eclipse-score/lifecycle/blob/a64c4acf9f58ce2268f337d393e2276d443dc949/tests/integration/crash_ignores_dependents/crash_ignores_dependents.py#L19">test_crash_ignores_dependents<span class="score-testcase-result score-testcase-result--passed"> (passed)</span></a></span></span></div>
 <div class="line"><span class="needs_version"><span class="needs_label">version: </span>1</span></div>
 </span></span></div>
 <div class="line"><span><div class="line">derived from: <span class="derived_from"><span><a class="external_link reference external" href="https://eclipse-score.github.io/score/main/features/lifecycle/requirements/index.html#feat_req__lifecycle__monitor_processes">feat_req__lifecycle__monitor_processes</a></span></span></div>
@@ -3040,7 +3087,7 @@ failure</span></a> throughout the whole lifetime of a <a class="reference intern
 </table>
 </div>
 </div>
-<div class="need_container docutils container" id="SNCB-03285851">
+<div class="need_container docutils container" id="SNCB-ebbaf65b">
 <div class="pst-scrollable-table-container"><table class="need needs_grid_complex needs_layout_score needs_style_none needs_type_comp_req table" id="comp_req__launch_man__monitoring_processes">
 <tbody>
 <tr class="head row-odd"><td class="head_left" colspan="2"><div class="needs_head_left line-block">
@@ -3097,7 +3144,7 @@ are therefore launched by the system before the <a class="reference internal" hr
 </div>
 <section id="recovery-actions">
 <h3>Recovery Actions<a class="headerlink" href="#recovery-actions" title="Link to this heading">#</a></h3>
-<div class="need_container docutils container" id="SNCB-38f3de2b">
+<div class="need_container docutils container" id="SNCB-9bb2fe0e">
 <div class="pst-scrollable-table-container"><table class="need needs_grid_complex needs_layout_score needs_style_none needs_type_comp_req table" id="comp_req__launch_man__ra_comp_failure_switch">
 <tbody>
 <tr class="head row-odd"><td class="head_left" colspan="2"><div class="needs_head_left line-block">
@@ -3145,7 +3192,7 @@ and there is an ongoing <a class="reference internal" href="../../../features/li
 </table>
 </div>
 </div>
-<div class="need_container docutils container" id="SNCB-f308e46a">
+<div class="need_container docutils container" id="SNCB-84769200">
 <div class="pst-scrollable-table-container"><table class="need needs_grid_complex needs_layout_score needs_style_none needs_type_comp_req table" id="comp_req__launch_man__ra_comp_failed_esc">
 <tbody>
 <tr class="head row-odd"><td class="head_left" colspan="2"><div class="needs_head_left line-block">
@@ -3193,7 +3240,7 @@ configured.</p></td>
 </table>
 </div>
 </div>
-<div class="need_container docutils container" id="SNCB-2654b4d1">
+<div class="need_container docutils container" id="SNCB-1440d6c5">
 <div class="pst-scrollable-table-container"><table class="need needs_grid_complex needs_layout_score needs_style_none needs_type_comp_req table" id="comp_req__launch_man__rt_queue">
 <tbody>
 <tr class="head row-odd"><td class="head_left" colspan="2"><div class="needs_head_left line-block">
@@ -3248,7 +3295,7 @@ the already queued run target activations.</p>
 </table>
 </div>
 </div>
-<div class="need_container docutils container" id="SNCB-1f3535f9">
+<div class="need_container docutils container" id="SNCB-28764848">
 <div class="pst-scrollable-table-container"><table class="need needs_grid_complex needs_layout_score needs_style_none needs_type_comp_req table" id="comp_req__launch_man__cancel_rt_force">
 <tbody>
 <tr class="head row-odd"><td class="head_left" colspan="2"><div class="needs_head_left line-block">
@@ -3303,7 +3350,7 @@ actions, taken by a state manager.</p>
 </table>
 </div>
 </div>
-<div class="need_container docutils container" id="SNCB-efded6fd">
+<div class="need_container docutils container" id="SNCB-4cc69ba4">
 <div class="pst-scrollable-table-container"><table class="need needs_grid_complex needs_layout_score needs_style_none needs_type_comp_req table" id="comp_req__launch_man__ra_rt_queue">
 <tbody>
 <tr class="head row-odd"><td class="head_left" colspan="2"><div class="needs_head_left line-block">
@@ -3360,7 +3407,7 @@ resume processing any activations that were previously requested.</p>
 </table>
 </div>
 </div>
-<div class="need_container docutils container" id="SNCB-24e12253">
+<div class="need_container docutils container" id="SNCB-57f52604">
 <div class="pst-scrollable-table-container"><table class="need needs_grid_complex needs_layout_score needs_style_none needs_type_comp_req table" id="comp_req__launch_man__comp_failure">
 <tbody>
 <tr class="head row-odd"><td class="head_left" colspan="2"><div class="needs_head_left line-block">
@@ -3408,7 +3455,7 @@ failure</span></a> during runtime of the <a class="reference internal" href="../
 </table>
 </div>
 </div>
-<div class="need_container docutils container" id="SNCB-eacac4cb">
+<div class="need_container docutils container" id="SNCB-fc840a42">
 <div class="pst-scrollable-table-container"><table class="need needs_grid_complex needs_layout_score needs_style_none needs_type_comp_req table" id="comp_req__launch_man__report_liveliness">
 <tbody>
 <tr class="head row-odd"><td class="head_left" colspan="2"><div class="needs_head_left line-block">
@@ -3455,7 +3502,7 @@ via the <a class="external_link reference external" href="https://eclipse-score.
 </table>
 </div>
 </div>
-<div class="need_container docutils container" id="SNCB-08eff03f">
+<div class="need_container docutils container" id="SNCB-2edcc270">
 <div class="pst-scrollable-table-container"><table class="need needs_grid_complex needs_layout_score needs_style_none needs_type_comp_req table" id="comp_req__launch_man__report_failed_live">
 <tbody>
 <tr class="head row-odd"><td class="head_left" colspan="2"><div class="needs_head_left line-block">
@@ -3503,7 +3550,7 @@ via the <a class="external_link reference external" href="https://eclipse-score.
 </table>
 </div>
 </div>
-<div class="need_container docutils container" id="SNCB-11224750">
+<div class="need_container docutils container" id="SNCB-8e180e33">
 <div class="pst-scrollable-table-container"><table class="need needs_grid_complex needs_layout_score needs_style_none needs_type_comp_req table" id="comp_req__launch_man__report_lang_support">
 <tbody>
 <tr class="head row-odd"><td class="head_left" colspan="2"><div class="needs_head_left line-block">
@@ -3552,7 +3599,7 @@ via the <a class="external_link reference external" href="https://eclipse-score.
 </section>
 <section id="id1">
 <h3>Recovery Actions<a class="headerlink" href="#id1" title="Link to this heading">#</a></h3>
-<div class="need_container docutils container" id="SNCB-e2fd5bd5">
+<div class="need_container docutils container" id="SNCB-3b1b4339">
 <div class="pst-scrollable-table-container"><table class="need needs_grid_complex needs_layout_score needs_style_none needs_type_comp_req table" id="comp_req__launch_man__ra_rt_sm_notify">
 <tbody>
 <tr class="head row-odd"><td class="head_left" colspan="2"><div class="needs_head_left line-block">
@@ -3600,7 +3647,7 @@ action that results in a <a class="reference internal" href="../../../features/l
 </table>
 </div>
 </div>
-<div class="need_container docutils container" id="SNCB-1733353d">
+<div class="need_container docutils container" id="SNCB-6ad4c46d">
 <div class="pst-scrollable-table-container"><table class="need needs_grid_complex needs_layout_score needs_style_none needs_type_comp_req table" id="comp_req__launch_man__ra_rt_failed_esc">
 <tbody>
 <tr class="head row-odd"><td class="head_left" colspan="2"><div class="needs_head_left line-block">
@@ -3647,7 +3694,7 @@ action that results in a <a class="reference internal" href="../../../features/l
 </table>
 </div>
 </div>
-<div class="need_container docutils container" id="SNCB-26d1a52f">
+<div class="need_container docutils container" id="SNCB-7b2c8365">
 <div class="pst-scrollable-table-container"><table class="need needs_grid_complex needs_layout_score needs_style_none needs_type_comp_req table" id="comp_req__launch_man__ra_fallback_failed_esc">
 <tbody>
 <tr class="head row-odd"><td class="head_left" colspan="2"><div class="needs_head_left line-block">
@@ -3697,7 +3744,7 @@ if the transition to the <a class="reference internal" href="../../../features/l
 </div>
 <section id="component-recovery-actions">
 <h4>Component Recovery Actions<a class="headerlink" href="#component-recovery-actions" title="Link to this heading">#</a></h4>
-<div class="need_container docutils container" id="SNCB-079b6e50">
+<div class="need_container docutils container" id="SNCB-ad92f9b4">
 <div class="pst-scrollable-table-container"><table class="need needs_grid_complex needs_layout_score needs_style_none needs_type_comp_req table" id="comp_req__launch_man__ra_comp_reactivate">
 <tbody>
 <tr class="head row-odd"><td class="head_left" colspan="2"><div class="needs_head_left line-block">
@@ -3718,7 +3765,7 @@ if the transition to the <a class="reference internal" href="../../../features/l
 <tr class="meta row-even"><td class="meta" colspan="3"><div class="needs_meta_left line-block">
 <div class="line"><span><span><div class="line"><span class="needs_tags"><span class="needs_label">tags: </span><span class="needs_data_container"><span class="needs_data">lifecycle</span><span class="needs_spacer">, </span><span class="needs_data">launch_manager</span></span></span></div>
 <div class="line"><span class="needs_reqtype"><span class="needs_label">reqtype: </span><span class="needs_data">Functional</span></span></div>
-<div class="line"><span class="needs_testlink"><span class="needs_label">testlink: </span><span class="needs_data"><a class="reference external" href="https://github.com/eclipse-score/lifecycle/blob/fb19b397dc1268301b7efac1bf721879617209e2/tests/integration/crash_on_startup/crash_on_startup.py#L22">test_crash_on_startup<span class="score-testcase-result score-testcase-result--passed"> (passed)</span></a></span></span></div>
+<div class="line"><span class="needs_testlink"><span class="needs_label">testlink: </span><span class="needs_data"><a class="reference external" href="https://github.com/eclipse-score/lifecycle/blob/a64c4acf9f58ce2268f337d393e2276d443dc949/tests/integration/crash_on_startup/crash_on_startup.py#L22">test_crash_on_startup<span class="score-testcase-result score-testcase-result--passed"> (passed)</span></a></span></span></div>
 <div class="line"><span class="needs_version"><span class="needs_label">version: </span>1</span></div>
 </span></span></div>
 <div class="line"><span><div class="line">derived from: <span class="derived_from"><span><a class="external_link reference external" href="https://eclipse-score.github.io/score/main/features/lifecycle/requirements/index.html#feat_req__lifecycle__recovery_action_support">feat_req__lifecycle__recovery_action_support</a></span></span></div>
@@ -3746,7 +3793,7 @@ by reactivating the failed <a class="reference internal" href="../../../features
 </table>
 </div>
 </div>
-<div class="need_container docutils container" id="SNCB-5d759684">
+<div class="need_container docutils container" id="SNCB-6fb1a94f">
 <div class="pst-scrollable-table-container"><table class="need needs_grid_complex needs_layout_score needs_style_none needs_type_comp_req table" id="comp_req__launch_man__ra_comp_switch_rt">
 <tbody>
 <tr class="head row-odd"><td class="head_left" colspan="2"><div class="needs_head_left line-block">
@@ -3767,7 +3814,7 @@ by reactivating the failed <a class="reference internal" href="../../../features
 <tr class="meta row-even"><td class="meta" colspan="3"><div class="needs_meta_left line-block">
 <div class="line"><span><span><div class="line"><span class="needs_tags"><span class="needs_label">tags: </span><span class="needs_data_container"><span class="needs_data">lifecycle</span><span class="needs_spacer">, </span><span class="needs_data">launch_manager</span></span></span></div>
 <div class="line"><span class="needs_reqtype"><span class="needs_label">reqtype: </span><span class="needs_data">Functional</span></span></div>
-<div class="line"><span class="needs_testlink"><span class="needs_label">testlink: </span><span class="needs_data"><a class="reference external" href="https://github.com/eclipse-score/lifecycle/blob/fb19b397dc1268301b7efac1bf721879617209e2/tests/integration/process_complex_rep_failure/process_complex_rep_failure.py#L19">test_recovery_action_complex_rep_failure<span class="score-testcase-result score-testcase-result--passed"> (passed)</span></a><em>; </em><a class="reference external" href="https://github.com/eclipse-score/lifecycle/blob/fb19b397dc1268301b7efac1bf721879617209e2/tests/integration/process_simple_rep_failure/process_simple_rep_failure.py#L19">test_recovery_action_simple_rep_failure<span class="score-testcase-result score-testcase-result--passed"> (passed)</span></a><em>; </em><a class="reference external" href="https://github.com/eclipse-score/lifecycle/blob/fb19b397dc1268301b7efac1bf721879617209e2/tests/integration/process_crash_monitoring/process_crash_monitoring.py#L19">test_process_crash_monitoring<span class="score-testcase-result score-testcase-result--passed"> (passed)</span></a></span></span></div>
+<div class="line"><span class="needs_testlink"><span class="needs_label">testlink: </span><span class="needs_data"><a class="reference external" href="https://github.com/eclipse-score/lifecycle/blob/a64c4acf9f58ce2268f337d393e2276d443dc949/tests/integration/process_complex_rep_failure/process_complex_rep_failure.py#L19">test_recovery_action_complex_rep_failure<span class="score-testcase-result score-testcase-result--passed"> (passed)</span></a><em>; </em><a class="reference external" href="https://github.com/eclipse-score/lifecycle/blob/a64c4acf9f58ce2268f337d393e2276d443dc949/tests/integration/process_crash_monitoring/process_crash_monitoring.py#L19">test_process_crash_monitoring<span class="score-testcase-result score-testcase-result--passed"> (passed)</span></a><em>; </em><a class="reference external" href="https://github.com/eclipse-score/lifecycle/blob/a64c4acf9f58ce2268f337d393e2276d443dc949/tests/integration/process_simple_rep_failure/process_simple_rep_failure.py#L19">test_recovery_action_simple_rep_failure<span class="score-testcase-result score-testcase-result--passed"> (passed)</span></a></span></span></div>
 <div class="line"><span class="needs_version"><span class="needs_label">version: </span>1</span></div>
 </span></span></div>
 <div class="line"><span><div class="line">derived from: <span class="derived_from"><span><a class="external_link reference external" href="https://eclipse-score.github.io/score/main/features/lifecycle/requirements/index.html#feat_req__lifecycle__recovery_action_support">feat_req__lifecycle__recovery_action_support</a></span></span></div>
@@ -3795,7 +3842,7 @@ by switching to a configured <a class="reference internal" href="../../../featur
 </table>
 </div>
 </div>
-<div class="need_container docutils container" id="SNCB-c3480b4b">
+<div class="need_container docutils container" id="SNCB-33893cb2">
 <div class="pst-scrollable-table-container"><table class="need needs_grid_complex needs_layout_score needs_style_none needs_type_comp_req table" id="comp_req__launch_man__ra_comp_stop">
 <tbody>
 <tr class="head row-odd"><td class="head_left" colspan="2"><div class="needs_head_left line-block">
@@ -3843,7 +3890,7 @@ by stopping the failed <a class="reference internal" href="../../../features/lif
 </table>
 </div>
 </div>
-<div class="need_container docutils container" id="SNCB-78dadfca">
+<div class="need_container docutils container" id="SNCB-02d4ab23">
 <div class="pst-scrollable-table-container"><table class="need needs_grid_complex needs_layout_score needs_style_none needs_type_comp_req table" id="comp_req__launch_man__ra_comp_replace">
 <tbody>
 <tr class="head row-odd"><td class="head_left" colspan="2"><div class="needs_head_left line-block">
@@ -3892,7 +3939,7 @@ by stopping the failed <a class="reference internal" href="../../../features/lif
 </table>
 </div>
 </div>
-<div class="need_container docutils container" id="SNCB-e5071d4a">
+<div class="need_container docutils container" id="SNCB-a214bbb4">
 <div class="pst-scrollable-table-container"><table class="need needs_grid_complex needs_layout_score needs_style_none needs_type_comp_req table" id="comp_req__launch_man__ra_comp_fallback">
 <tbody>
 <tr class="head row-odd"><td class="head_left" colspan="2"><div class="needs_head_left line-block">
@@ -3944,7 +3991,7 @@ by switching to the <a class="reference internal" href="../../../features/lifecy
 </section>
 <section id="run-target-recovery-actions">
 <h4>Run Target Recovery Actions<a class="headerlink" href="#run-target-recovery-actions" title="Link to this heading">#</a></h4>
-<div class="need_container docutils container" id="SNCB-37178ec6">
+<div class="need_container docutils container" id="SNCB-7e7eb561">
 <div class="pst-scrollable-table-container"><table class="need needs_grid_complex needs_layout_score needs_style_none needs_type_comp_req table" id="comp_req__launch_man__ra_rt_switch_rt">
 <tbody>
 <tr class="head row-odd"><td class="head_left" colspan="2"><div class="needs_head_left line-block">
@@ -3997,7 +4044,7 @@ by switching to a configured <a class="reference internal" href="../../../featur
 </section>
 <section id="watchdog">
 <h2>Watchdog<a class="headerlink" href="#watchdog" title="Link to this heading">#</a></h2>
-<div class="need_container docutils container" id="SNCB-d31235c8">
+<div class="need_container docutils container" id="SNCB-151fdd55">
 <div class="pst-scrollable-table-container"><table class="need needs_grid_complex needs_layout_score needs_style_none needs_type_comp_req table" id="comp_req__launch_man__lm_ext_watchdog_notify">
 <tbody>
 <tr class="head row-odd"><td class="head_left" colspan="2"><div class="needs_head_left line-block">
@@ -4044,7 +4091,7 @@ by switching to a configured <a class="reference internal" href="../../../featur
 </table>
 </div>
 </div>
-<div class="need_container docutils container" id="SNCB-1cecac8a">
+<div class="need_container docutils container" id="SNCB-25081462">
 <div class="pst-scrollable-table-container"><table class="need needs_grid_complex needs_layout_score needs_style_none needs_type_comp_req table" id="comp_req__launch_man__lm_ext_wdg_failed_test">
 <tbody>
 <tr class="head row-odd"><td class="head_left" colspan="2"><div class="needs_head_left line-block">
@@ -4091,7 +4138,7 @@ notification if an internal health check failed.</p></td>
 </table>
 </div>
 </div>
-<div class="need_container docutils container" id="SNCB-0a11b811">
+<div class="need_container docutils container" id="SNCB-f3135abd">
 <div class="pst-scrollable-table-container"><table class="need needs_grid_complex needs_layout_score needs_style_none needs_type_comp_req table" id="comp_req__launch_man__lm_ext_watchdog_cfg">
 <tbody>
 <tr class="head row-odd"><td class="head_left" colspan="2"><div class="needs_head_left line-block">
@@ -4141,7 +4188,7 @@ the internal health check executions.</p></td>
 </section>
 <section id="logging">
 <h2>Logging<a class="headerlink" href="#logging" title="Link to this heading">#</a></h2>
-<div class="need_container docutils container" id="SNCB-d0fedf47">
+<div class="need_container docutils container" id="SNCB-b73b9d60">
 <div class="pst-scrollable-table-container"><table class="need needs_grid_complex needs_layout_score needs_style_none needs_type_comp_req table" id="comp_req__launch_man__process_logging_support">
 <tbody>
 <tr class="head row-odd"><td class="head_left" colspan="2"><div class="needs_head_left line-block">
@@ -4188,7 +4235,7 @@ the internal health check executions.</p></td>
 </table>
 </div>
 </div>
-<div class="need_container docutils container" id="SNCB-caee4ec5">
+<div class="need_container docutils container" id="SNCB-6d080252">
 <div class="pst-scrollable-table-container"><table class="need needs_grid_complex needs_layout_score needs_style_none needs_type_comp_req table" id="comp_req__launch_man__dag_logging_controlif">
 <tbody>
 <tr class="head row-odd"><td class="head_left" colspan="2"><div class="needs_head_left line-block">
@@ -4235,7 +4282,7 @@ in a human readable format, triggered via the <a class="reference internal" href
 </table>
 </div>
 </div>
-<div class="need_container docutils container" id="SNCB-6b318511">
+<div class="need_container docutils container" id="SNCB-dd32f149">
 <div class="pst-scrollable-table-container"><table class="need needs_grid_complex needs_layout_score needs_style_none needs_type_comp_req table" id="comp_req__launch_man__dependency_visu">
 <tbody>
 <tr class="head row-odd"><td class="head_left" colspan="2"><div class="needs_head_left line-block">
@@ -4285,7 +4332,7 @@ in a human readable format, triggered via the <a class="reference internal" href
 </section>
 <section id="configuration-file">
 <h2>Configuration file<a class="headerlink" href="#configuration-file" title="Link to this heading">#</a></h2>
-<div class="need_container docutils container" id="SNCB-43caa719">
+<div class="need_container docutils container" id="SNCB-e2a49961">
 <div class="pst-scrollable-table-container"><table class="need needs_grid_complex needs_layout_score needs_style_none needs_type_comp_req table" id="comp_req__launch_man__modular_config_support">
 <tbody>
 <tr class="head row-odd"><td class="head_left" colspan="2"><div class="needs_head_left line-block">
@@ -4332,7 +4379,7 @@ in a human readable format, triggered via the <a class="reference internal" href
 </table>
 </div>
 </div>
-<div class="need_container docutils container" id="SNCB-fd51e5a1">
+<div class="need_container docutils container" id="SNCB-402bb494">
 <div class="pst-scrollable-table-container"><table class="need needs_grid_complex needs_layout_score needs_style_none needs_type_comp_req table" id="comp_req__launch_man__central_default_defines">
 <tbody>
 <tr class="head row-odd"><td class="head_left" colspan="2"><div class="needs_head_left line-block">
@@ -4353,7 +4400,7 @@ in a human readable format, triggered via the <a class="reference internal" href
 <tr class="meta row-even"><td class="meta" colspan="3"><div class="needs_meta_left line-block">
 <div class="line"><span><span><div class="line"><span class="needs_tags"><span class="needs_label">tags: </span><span class="needs_data_container"><span class="needs_data">lifecycle</span><span class="needs_spacer">, </span><span class="needs_data">launch_manager</span></span></span></div>
 <div class="line"><span class="needs_reqtype"><span class="needs_label">reqtype: </span><span class="needs_data">Functional</span></span></div>
-<div class="line"><span class="needs_testlink"><span class="needs_label">testlink: </span><span class="needs_data"><a class="reference external" href="https://github.com/eclipse-score/lifecycle/blob/fb19b397dc1268301b7efac1bf721879617209e2/scripts/config_mapping/integration_tests.py#L161">test_full_config<span class="score-testcase-result score-testcase-result--passed"> (passed)</span></a></span></span></div>
+<div class="line"><span class="needs_testlink"><span class="needs_label">testlink: </span><span class="needs_data"><a class="reference external" href="https://github.com/eclipse-score/lifecycle/blob/a64c4acf9f58ce2268f337d393e2276d443dc949/scripts/config_mapping/integration_tests.py#L161">test_full_config<span class="score-testcase-result score-testcase-result--passed"> (passed)</span></a></span></span></div>
 <div class="line"><span class="needs_version"><span class="needs_label">version: </span>1</span></div>
 </span></span></div>
 <div class="line"><span><div class="line">derived from: <span class="derived_from"><span><a class="external_link reference external" href="https://eclipse-score.github.io/score/main/features/lifecycle/requirements/index.html#feat_req__lifecycle__component_group_config">feat_req__lifecycle__component_group_config</a></span></span></div>
@@ -4379,7 +4426,7 @@ in a human readable format, triggered via the <a class="reference internal" href
 </table>
 </div>
 </div>
-<div class="need_container docutils container" id="SNCB-c4f02cf8">
+<div class="need_container docutils container" id="SNCB-83f9ae8c">
 <div class="pst-scrollable-table-container"><table class="need needs_grid_complex needs_layout_score needs_style_none needs_type_comp_req table" id="comp_req__launch_man__lazy_check">
 <tbody>
 <tr class="head row-odd"><td class="head_left" colspan="2"><div class="needs_head_left line-block">
@@ -4400,6 +4447,7 @@ in a human readable format, triggered via the <a class="reference internal" href
 <tr class="meta row-even"><td class="meta" colspan="3"><div class="needs_meta_left line-block">
 <div class="line"><span><span><div class="line"><span class="needs_tags"><span class="needs_label">tags: </span><span class="needs_data_container"><span class="needs_data">lifecycle</span><span class="needs_spacer">, </span><span class="needs_data">launch_manager</span></span></span></div>
 <div class="line"><span class="needs_reqtype"><span class="needs_label">reqtype: </span><span class="needs_data">Functional</span></span></div>
+<div class="line"><span class="needs_testlink"><span class="needs_label">testlink: </span><span class="needs_data"><a class="reference external" href="https://github.com/eclipse-score/lifecycle/blob/a64c4acf9f58ce2268f337d393e2276d443dc949/tests/integration/lazy_check/lazy_check.py#L21">test_lazy_check<span class="score-testcase-result score-testcase-result--passed"> (passed)</span></a></span></span></div>
 <div class="line"><span class="needs_version"><span class="needs_label">version: </span>1</span></div>
 </span></span></div>
 <div class="line"><span><div class="line">derived from: <span class="derived_from"><span><a class="external_link reference external" href="https://eclipse-score.github.io/score/main/features/lifecycle/requirements/index.html#feat_req__lifecycle__component_group_config">feat_req__lifecycle__component_group_config</a></span></span></div>
@@ -4425,7 +4473,7 @@ in a human readable format, triggered via the <a class="reference internal" href
 </table>
 </div>
 </div>
-<div class="need_container docutils container" id="SNCB-9ab6c80f">
+<div class="need_container docutils container" id="SNCB-60dd01d9">
 <div class="pst-scrollable-table-container"><table class="need needs_grid_complex needs_layout_score needs_style_none needs_type_comp_req table" id="comp_req__launch_man__offline_config_valid">
 <tbody>
 <tr class="head row-odd"><td class="head_left" colspan="2"><div class="needs_head_left line-block">
