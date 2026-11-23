@@ -44,7 +44,7 @@ Changes to the Module
 New Features
 ~~~~~~~~~~~~
 
-- None
+- Non-forced activation requests are now queued, allowing multiple requests in quick succession to be accepted.
 
 Improvements
 ~~~~~~~~~~~~
