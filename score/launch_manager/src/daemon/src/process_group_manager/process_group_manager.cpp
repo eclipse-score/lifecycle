@@ -157,8 +157,13 @@ bool ProcessGroupManager::initialize()
 
 void ProcessGroupManager::deinitialize()
 {
+    em_cancelled.store(true);
+
     // ucm_polling_thread_.stopPolling();
-    watchdog_->disable();
+    if (watchdog_)
+    {
+        watchdog_->disable();
+    }
 
     pending_activation_queue_.stop();
 
@@ -167,7 +172,10 @@ void ProcessGroupManager::deinitialize()
         event_queue_->stop();
     }
     os_handler_.reset();
-    alive_monitor_->stopMonitoring();
+    if (alive_monitor_)
+    {
+        alive_monitor_->stopMonitoring();
+    }
 
     // Join the worker threads before destroying the process groups: a worker may
     // still be (de)activating a ProcessInfoNode owned by a graph, so tearing the
@@ -298,6 +306,8 @@ void ProcessGroupManager::allProcessGroupsOff()
 {
     SCORE_LANGUAGE_FUTURECPP_ASSERT_MESSAGE(bool(graph_), "Graph not initialized");
 
+    em_cancelled.store(true);
+
     // Wait for process group state to change while actively draining shutdown events.
     // SupervisionFailure is intentionally ignored here so recovery transitions do not
     // fight the forced transition to Off.
@@ -370,6 +380,21 @@ void ProcessGroupManager::allProcessGroupsOff()
         thread_pool_->stop();
         graph_->forceKillProcesses();
         thread_pool_.reset();
+    }
+
+    if (event_queue_)
+    {
+        while (auto event = event_queue_->getNextEvent())
+        {
+            if (std::holds_alternative<GetActiveRunTarget>(*event) ||
+                std::holds_alternative<SetRequestedRunTarget>(*event))
+            {
+                if (graph_)
+                {
+                    graph_->unblockComponentEvent(*event, ExecErrc::kShuttingDown);
+                }
+            }
+        }
     }
 }
 
@@ -460,6 +485,11 @@ void ProcessGroupManager::handleGetActiveRunTarget(GetActiveRunTarget* event) co
 
 Result<IdentifierHash> ProcessGroupManager::getActiveRunTarget() const noexcept
 {
+    if (em_cancelled.load() || !event_queue_)
+    {
+        return score::MakeUnexpected(ExecErrc::kShuttingDown);
+    }
+
     CompletionSlot<Result<IdentifierHash>> slot;
 
     const bool push_result = event_queue_->push(GetActiveRunTarget{&slot});
@@ -559,6 +589,11 @@ void ProcessGroupManager::handleSetRequestedRunTarget(SetRequestedRunTarget* eve
 
 Result<void> ProcessGroupManager::setRequestedRunTarget(IdentifierHash run_target, bool force) noexcept
 {
+    if (em_cancelled.load() || !event_queue_)
+    {
+        return score::MakeUnexpected(ExecErrc::kShuttingDown);
+    }
+
     CompletionSlot<Result<void>> slot;
 
     const bool push_result = event_queue_->push(SetRequestedRunTarget{run_target, &slot, force});

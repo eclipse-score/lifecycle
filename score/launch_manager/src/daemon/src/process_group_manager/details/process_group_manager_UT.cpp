@@ -334,5 +334,27 @@ TEST_F(ProcessGroupManagerWatchdogTest, GetActiveRunTargetWhenStoppedReturnsShut
     EXPECT_EQ(set_result.error(), ExecErrc::kShuttingDown);
 }
 
+TEST_F(ProcessGroupManagerWatchdogTest, RequestsAfterCancelReturnShuttingDownImmediately)
+{
+    RecordProperty(
+        "Description",
+        "Verify getActiveRunTarget and setRequestedRunTarget return kShuttingDown immediately when cancelled, without "
+        "hanging.");
+    expectNormalStartup();
+    EXPECT_CALL(*watchdog_, disable()).Times(1);
+    EXPECT_CALL(*alive_monitor_, stopMonitoring()).Times(1);
+
+    ASSERT_TRUE(process_group_manager_->initialize());
+    process_group_manager_->cancel();
+
+    auto set_result = process_group_manager_->setRequestedRunTarget(IdentifierHash{"Startup"}, false);
+    EXPECT_FALSE(set_result.has_value());
+    EXPECT_EQ(set_result.error(), ExecErrc::kShuttingDown);
+
+    auto active_result = process_group_manager_->getActiveRunTarget();
+    EXPECT_FALSE(active_result.has_value());
+    EXPECT_EQ(active_result.error(), ExecErrc::kShuttingDown);
+}
+
 }  // namespace
 }  // namespace score::mw::lifecycle::internal

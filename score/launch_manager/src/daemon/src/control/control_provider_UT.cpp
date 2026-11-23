@@ -499,6 +499,26 @@ TEST_F(ControlProviderUT, ActivateRunTarget_SetRequestedRunTargetFails_Rejected)
     EXPECT_EQ(response.rejection_reason, ExecErrc::kFailed);
 }
 
+TEST_F(ControlProviderUT, ActivateRunTarget_ShuttingDown_Rejected)
+{
+    RecordProperty(
+        "Description",
+        "When Launch Manager is shutting down, activate_run_target is properly rejected with kShuttingDown.");
+
+    auto provider = MakeProvider();
+    ASSERT_TRUE(on_activate_) << "activate_run_target handler was not registered";
+
+    const IdentifierHash known{"cp_ut_known_target_shutting_down"};
+    EXPECT_CALL(graph_, setRequestedRunTarget(_, true)).WillOnce(Return(MakeUnexpected(ExecErrc::kShuttingDown)));
+
+    ActivateRunTargetResponse response{};
+    const ActivateRunTargetRequest request{RunTargetName{known.get_name()}, ActivationMode::kForced};
+    on_activate_(response, request);
+
+    EXPECT_EQ(response.status, RequestStatus::kRejected);
+    EXPECT_EQ(response.rejection_reason, ExecErrc::kShuttingDown);
+}
+
 TEST_F(ControlProviderUT, ActivateRunTarget_ForcedSuccess_Accepted)
 {
     RecordProperty(
@@ -534,6 +554,24 @@ TEST_F(ControlProviderUT, GetActiveRunTarget_ActivationInProgress_NotAvailable)
     ASSERT_TRUE(on_get_active_) << "get_active_run_target handler was not registered";
 
     EXPECT_CALL(graph_, getActiveRunTarget()).WillOnce(Return(MakeUnexpected(ExecErrc::kActivationInProgress)));
+
+    GetActiveRunTargetResponse response{};
+    on_get_active_(response);
+
+    EXPECT_EQ(response.status, QueryStatus::kNotAvailable);
+}
+
+TEST_F(ControlProviderUT, GetActiveRunTarget_ShuttingDown_NotAvailable)
+{
+    RecordProperty(
+        "Description",
+        "When the graph reports kShuttingDown during Launch Manager shutdown, "
+        "the response carries kNotAvailable without hitting assertions.");
+
+    auto provider = MakeProvider();
+    ASSERT_TRUE(on_get_active_) << "get_active_run_target handler was not registered";
+
+    EXPECT_CALL(graph_, getActiveRunTarget()).WillOnce(Return(MakeUnexpected(ExecErrc::kShuttingDown)));
 
     GetActiveRunTargetResponse response{};
     on_get_active_(response);
