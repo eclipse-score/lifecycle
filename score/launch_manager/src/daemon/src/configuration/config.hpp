@@ -28,7 +28,6 @@ namespace score::mw::lifecycle::internal::configuration
 struct RunTargetConfig
 {
     std::string name;
-    std::string description;
     std::vector<std::string> depends_on;
     std::uint32_t transition_timeout_ms{};
     SwitchRunTargetAction recovery_action;
@@ -36,7 +35,6 @@ struct RunTargetConfig
 
 struct FallbackRunTargetConfig
 {
-    std::string description;
     std::vector<std::string> depends_on;
     std::uint32_t transition_timeout_ms{};
 };
