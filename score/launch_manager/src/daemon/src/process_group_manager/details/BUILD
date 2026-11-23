@@ -12,7 +12,7 @@
 # *******************************************************************************
 
 load("@rules_cc//cc:defs.bzl", "cc_library")
-load("//tests/utils/bazel:unit_test.bzl", "lm_cc_test")
+load("//tests/utils/bazel:unit_test.bzl", "MOCK_SYSCALLS_WRAPPED_SYMBOLS", "linker_wrap_symbols", "lm_cc_test")
 
 cc_library(
     name = "component",
@@ -580,38 +580,29 @@ cc_library(
 lm_cc_test(
     name = "process_launcher_UT",
     srcs = ["process_launcher_UT.cpp"],
-    linkopts = [
-        "-Wl,--wrap=fork",
-        "-Wl,--wrap=execve",
-        "-Wl,--wrap=kill",
-        "-Wl,--wrap=wait",
-        "-Wl,--wrap=access",
-        "-Wl,--wrap=shm_open",
-        "-Wl,--wrap=ftruncate",
-        "-Wl,--wrap=shm_unlink",
-        "-Wl,--wrap=mmap",
-        "-Wl,--wrap=munmap",
-        "-Wl,--wrap=setpgid",
-        "-Wl,--wrap=setgid",
-        "-Wl,--wrap=setuid",
-        "-Wl,--wrap=sched_setscheduler",
-        "-Wl,--wrap=chdir",
-        "-Wl,--wrap=setrlimit",
-        "-Wl,--wrap=getpid",
-        "-Wl,--wrap=fcntl",
-        "-Wl,--wrap=sem_destroy",
-        "-Wl,--wrap=msync",
-        "-Wl,--wrap=close",
-        "-Wl,--wrap=fstat",
-        "-Wl,--wrap=clock_gettime",
-        "-Wl,--wrap=clock_getres",
-    ],
+    linkopts = linker_wrap_symbols(MOCK_SYSCALLS_WRAPPED_SYMBOLS),
     linkstatic = True,
     deps = [
         ":process_launcher",
         "//tests/utils/mocks:mock_syscalls",
         "@googletest//:gtest_main",
         "@score_baselibs//score/os/mocklib:semaphore_mock",
+    ],
+)
+
+lm_cc_test(
+    name = "process_shutdown_CT",
+    srcs = ["process_shutdown_CT.cpp"],
+    linkopts = linker_wrap_symbols(MOCK_SYSCALLS_WRAPPED_SYMBOLS),
+    linkstatic = True,
+    deps = [
+        ":os_handler",
+        ":process_info_node",
+        ":process_launcher",
+        ":safe_process_map",
+        "//score/launch_manager/src/daemon/src/alive_monitor:mock_supervision_factory",
+        "//tests/utils/mocks:mock_syscalls",
+        "@googletest//:gtest_main",
     ],
 )
 
