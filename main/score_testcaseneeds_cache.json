@@ -1,7 +1,7 @@
 [
   {
     "name": "test_crash_on_startup",
-    "file": "tests/integration/crash_on_startup/crash_on_startup.py",
+    "file": "tests/integration/crash_on_startup/test.py",
     "line": "22",
     "result": "passed",
     "repo_name": "local_repo",
@@ -15,7 +15,7 @@
   },
   {
     "name": "test_lm_shutdown",
-    "file": "tests/integration/lm_shutdown_during_rt_switch/lm_shutdown_during_rt_switch.py",
+    "file": "tests/integration/lm_shutdown_during_rt_switch/test.py",
     "line": "19",
     "result": "passed",
     "repo_name": "local_repo",
@@ -29,7 +29,7 @@
   },
   {
     "name": "test_ready_condition_process_state",
-    "file": "tests/integration/ready_conditions/process_state/kterminated/kterminated.py",
+    "file": "tests/integration/ready_conditions/process_state/kterminated/test.py",
     "line": "19",
     "result": "passed",
     "repo_name": "local_repo",
@@ -43,7 +43,7 @@
   },
   {
     "name": "test_ready_condition_file",
-    "file": "tests/integration/ready_conditions/file_state/exists/ready_condition_file.py",
+    "file": "tests/integration/ready_conditions/file_state/exists/test.py",
     "line": "19",
     "result": "passed",
     "repo_name": "local_repo",
@@ -57,7 +57,7 @@
   },
   {
     "name": "test_ready_condition_file_not_existing",
-    "file": "tests/integration/ready_conditions/file_state/not_existing/ready_condition_file_not_existing.py",
+    "file": "tests/integration/ready_conditions/file_state/not_existing/test.py",
     "line": "19",
     "result": "passed",
     "repo_name": "local_repo",
@@ -71,7 +71,7 @@
   },
   {
     "name": "test_unknown_run_target",
-    "file": "tests/integration/run_target_requests/unknown_run_target/unknown_run_target.py",
+    "file": "tests/integration/run_target_requests/unknown_run_target/test.py",
     "line": "19",
     "result": "passed",
     "repo_name": "local_repo",
@@ -99,7 +99,7 @@
   },
   {
     "name": "test_replaced_activation",
-    "file": "tests/integration/run_target_requests/replaced_activation/replaced_activation.py",
+    "file": "tests/integration/run_target_requests/replaced_activation/test.py",
     "line": "19",
     "result": "passed",
     "repo_name": "local_repo",
@@ -113,7 +113,7 @@
   },
   {
     "name": "test_same_run_target_in_transition",
-    "file": "tests/integration/run_target_requests/same_run_target_in_transition/same_run_target_in_transition.py",
+    "file": "tests/integration/run_target_requests/same_run_target_in_transition/test.py",
     "line": "19",
     "result": "passed",
     "repo_name": "local_repo",
@@ -127,7 +127,7 @@
   },
   {
     "name": "test_already_active_run_target",
-    "file": "tests/integration/run_target_requests/already_active_run_target/already_active_run_target.py",
+    "file": "tests/integration/run_target_requests/already_active_run_target/test.py",
     "line": "19",
     "result": "passed",
     "repo_name": "local_repo",
@@ -141,7 +141,7 @@
   },
   {
     "name": "test_process_launch_args",
-    "file": "tests/integration/process_launch_args/process_launch_args.py",
+    "file": "tests/integration/process_launch_args/test.py",
     "line": "19",
     "result": "passed",
     "repo_name": "local_repo",
@@ -155,7 +155,7 @@
   },
   {
     "name": "test_fallback_to_same_target_restarts",
-    "file": "tests/integration/fallback_to_same_target_restarts/fallback_to_same_target_restarts.py",
+    "file": "tests/integration/fallback_to_same_target_restarts/test.py",
     "line": "19",
     "result": "passed",
     "repo_name": "local_repo",
@@ -169,7 +169,7 @@
   },
   {
     "name": "test_lm_shutdown",
-    "file": "tests/integration/lm_shutdown_during_switch_to_off/lm_shutdown_during_switch_to_off.py",
+    "file": "tests/integration/lm_shutdown_during_switch_to_off/test.py",
     "line": "19",
     "result": "passed",
     "repo_name": "local_repo",
@@ -197,7 +197,7 @@
   },
   {
     "name": "test_process_fd_leak",
-    "file": "tests/integration/process_fd_leak/process_fd_leak.py",
+    "file": "tests/integration/process_fd_leak/test.py",
     "line": "19",
     "result": "passed",
     "repo_name": "local_repo",
@@ -211,7 +211,7 @@
   },
   {
     "name": "test_incorrect_config_non_reporting",
-    "file": "tests/integration/incorrect_config_non_reporting/test_incorrect_config_non_reporting.py",
+    "file": "tests/integration/incorrect_config_non_reporting/test.py",
     "line": "19",
     "result": "passed",
     "repo_name": "local_repo",
@@ -225,7 +225,7 @@
   },
   {
     "name": "test_component_order",
-    "file": "tests/integration/component_order/component_order.py",
+    "file": "tests/integration/component_order/test.py",
     "line": "20",
     "result": "passed",
     "repo_name": "local_repo",
@@ -239,7 +239,7 @@
   },
   {
     "name": "test_recovery_action_complex_rep_failure",
-    "file": "tests/integration/process_complex_rep_failure/process_complex_rep_failure.py",
+    "file": "tests/integration/process_complex_rep_failure/test.py",
     "line": "19",
     "result": "passed",
     "repo_name": "local_repo",
@@ -253,7 +253,7 @@
   },
   {
     "name": "test_switch_run_target",
-    "file": "tests/integration/switch_run_target/switch_run_target.py",
+    "file": "tests/integration/switch_run_target/test.py",
     "line": "19",
     "result": "passed",
     "repo_name": "local_repo",
@@ -267,7 +267,7 @@
   },
   {
     "name": "test_parallel_launch",
-    "file": "tests/integration/parallel_launch/parallel_launch.py",
+    "file": "tests/integration/parallel_launch/test.py",
     "line": "19",
     "result": "passed",
     "repo_name": "local_repo",
@@ -281,7 +281,7 @@
   },
   {
     "name": "test_process_wrong_binary_failure",
-    "file": "tests/integration/process_wrong_binary_failure/process_wrong_binary_failure.py",
+    "file": "tests/integration/process_wrong_binary_failure/test.py",
     "line": "19",
     "result": "passed",
     "repo_name": "local_repo",
@@ -295,7 +295,7 @@
   },
   {
     "name": "test_rt_running_when_process_exits",
-    "file": "tests/integration/rt_running_when_process_exits/rt_running_when_process_exits.py",
+    "file": "tests/integration/rt_running_when_process_exits/test.py",
     "line": "19",
     "result": "passed",
     "repo_name": "local_repo",
@@ -309,7 +309,7 @@
   },
   {
     "name": "test_sandbox_options_non_root",
-    "file": "tests/integration/sandbox_options/non_root/sandbox_options_non_root.py",
+    "file": "tests/integration/sandbox_options/non_root/test.py",
     "line": "49",
     "result": "passed",
     "repo_name": "local_repo",
@@ -323,7 +323,7 @@
   },
   {
     "name": "test_bad_sandbox_options_non_root",
-    "file": "tests/integration/sandbox_options/non_root/sandbox_options_non_root.py",
+    "file": "tests/integration/sandbox_options/non_root/test.py",
     "line": "96",
     "result": "passed",
     "repo_name": null,
@@ -337,7 +337,7 @@
   },
   {
     "name": "test_sandbox_options",
-    "file": "tests/integration/sandbox_options/root/sandbox_options.py",
+    "file": "tests/integration/sandbox_options/root/test.py",
     "line": "26",
     "result": "passed",
     "repo_name": "local_repo",
@@ -351,7 +351,7 @@
   },
   {
     "name": "test_shutdown_signal",
-    "file": "tests/integration/shutdown_signal/shutdown_signal.py",
+    "file": "tests/integration/shutdown_signal/test.py",
     "line": "19",
     "result": "passed",
     "repo_name": "local_repo",
@@ -365,7 +365,7 @@
   },
   {
     "name": "test_process_crash_monitoring",
-    "file": "tests/integration/process_crash_monitoring/process_crash_monitoring.py",
+    "file": "tests/integration/process_crash_monitoring/test.py",
     "line": "19",
     "result": "passed",
     "repo_name": "local_repo",
@@ -379,7 +379,7 @@
   },
   {
     "name": "test_smoke",
-    "file": "tests/integration/smoke/smoke.py",
+    "file": "tests/integration/smoke/test.py",
     "line": "19",
     "result": "passed",
     "repo_name": "local_repo",
@@ -393,7 +393,7 @@
   },
   {
     "name": "test_recovery_action_simple_rep_failure",
-    "file": "tests/integration/process_simple_rep_failure/process_simple_rep_failure.py",
+    "file": "tests/integration/process_simple_rep_failure/test.py",
     "line": "19",
     "result": "passed",
     "repo_name": "local_repo",
@@ -407,7 +407,7 @@
   },
   {
     "name": "test_complex_monitoring",
-    "file": "tests/integration/complex_monitoring/complex_monitoring.py",
+    "file": "tests/integration/complex_monitoring/test.py",
     "line": "19",
     "result": "passed",
     "repo_name": "local_repo",
@@ -421,7 +421,7 @@
   },
   {
     "name": "test_crash_ignores_dependents",
-    "file": "tests/integration/crash_ignores_dependents/crash_ignores_dependents.py",
+    "file": "tests/integration/crash_ignores_dependents/test.py",
     "line": "19",
     "result": "passed",
     "repo_name": "local_repo",
@@ -435,7 +435,7 @@
   },
   {
     "name": "test_explicit_fallback_request",
-    "file": "tests/integration/explicit_fallback_request/explicit_fallback_request.py",
+    "file": "tests/integration/explicit_fallback_request/test.py",
     "line": "19",
     "result": "passed",
     "repo_name": "local_repo",
@@ -449,7 +449,7 @@
   },
   {
     "name": "test_lifecycle_lang_support",
-    "file": "tests/integration/lifecycle_lang_support/lifecycle_lang_support.py",
+    "file": "tests/integration/lifecycle_lang_support/test.py",
     "line": "18",
     "result": "passed",
     "repo_name": "local_repo",
