@@ -14,11 +14,12 @@
 #ifndef CYCLETIMER_HPP_INCLUDED
 #define CYCLETIMER_HPP_INCLUDED
 
-#include <unistd.h>
+#include <time.h>
 #include <cerrno>
+#include <chrono>
+#include <cstdint>
 
 #include "score/mw/launch_manager/alive_monitor/details/timers/OsClockInterface.hpp"
-#include "score/mw/launch_manager/alive_monitor/details/timers/Timers_OsClock.hpp"
 
 namespace score::mw::lifecycle::internal::saf::timers
 {

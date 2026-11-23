@@ -12,9 +12,14 @@
  ********************************************************************************/
 
 #include "score/mw/launch_manager/alive_monitor/details/ifexm/ObservableEventReader.hpp"
-#include "score/launch_manager/src/daemon/src/common/log.hpp"
+
+#include <time.h>
+#include <utility>
+
 #include "score/mw/launch_manager/alive_monitor/details/timers/TimeConversion.hpp"
+#include "score/mw/launch_manager/common/log.hpp"
 #include "score/mw/lifecycle/execution_error.h"
+#include "score/result/error.h"
 
 namespace score::mw::lifecycle::internal::saf::ifexm
 {

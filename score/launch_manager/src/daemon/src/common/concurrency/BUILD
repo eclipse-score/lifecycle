@@ -52,11 +52,22 @@ lm_cc_test(
 )
 
 cc_library(
-    name = "mpmc_concurrent_queue",
-    hdrs = [
-        "concurrency_error_domain.hpp",
-        "mpmc_concurrent_queue.hpp",
+    name = "concurrency_error_domain",
+    hdrs = ["concurrency_error_domain.hpp"],
+    include_prefix = "score/mw/launch_manager/common/concurrency",
+    strip_include_prefix = "/score/launch_manager/src/daemon/src/common/concurrency",
+    visibility = ["//score:__subpackages__"],
+    deps = [
+        "@score_baselibs//score/mw/log",
+        "@score_baselibs//score/mw/log:frontend",
+        "@score_baselibs//score/result",
+        "@score_baselibs//score/result:error",
     ],
+)
+
+cc_library(
+    name = "mpmc_concurrent_queue",
+    hdrs = ["mpmc_concurrent_queue.hpp"],
     include_prefix = "score/mw/launch_manager/common/concurrency",
     linkopts = select({
         "@platforms//os:qnx": [
@@ -67,12 +78,10 @@ cc_library(
     strip_include_prefix = "/score/launch_manager/src/daemon/src/common/concurrency",
     visibility = ["//score:__subpackages__"],
     deps = [
+        ":concurrency_error_domain",
         "//score/launch_manager/src/daemon/src/common/concurrency/details:helgrind_annotations",
         "//score/launch_manager/src/daemon/src/osal:return_types",
         "//score/launch_manager/src/daemon/src/osal:semaphore",
-        "@score_baselibs//score/language/futurecpp",
-        "@score_baselibs//score/mw/log",
-        "@score_baselibs//score/result",
     ],
 )
 
@@ -87,17 +96,14 @@ cc_binary(
 
 cc_library(
     name = "mpsc_bounded_queue",
-    hdrs = [
-        "concurrency_error_domain.hpp",
-        "mpsc_bounded_queue.hpp",
-    ],
+    hdrs = ["mpsc_bounded_queue.hpp"],
     include_prefix = "score/mw/launch_manager/common/concurrency",
     strip_include_prefix = "/score/launch_manager/src/daemon/src/common/concurrency",
     visibility = ["//score:__subpackages__"],
     deps = [
+        ":concurrency_error_domain",
         ":fixed_size_queue",
         "@score_baselibs//score/language/futurecpp",
-        "@score_baselibs//score/result",
     ],
 )
 

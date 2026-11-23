@@ -11,14 +11,15 @@
  * SPDX-License-Identifier: Apache-2.0
  ********************************************************************************/
 
-#include "score/mw/launch_manager/common/concurrency/mpmc_concurrent_queue.hpp"
-
 #include <benchmark/benchmark.h>
-
 #include <atomic>
+#include <cstddef>
 #include <cstdint>
+#include <string>
 #include <thread>
 #include <vector>
+
+#include "score/mw/launch_manager/common/concurrency/mpmc_concurrent_queue.hpp"
 
 using namespace score::mw::lifecycle::internal;
 

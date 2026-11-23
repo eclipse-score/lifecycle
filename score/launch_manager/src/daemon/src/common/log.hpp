@@ -16,7 +16,6 @@
 
 #include <chrono>
 #include <cstring>
-
 // Compile time switch to use different logging subsystems.
 // Parts of LM code will be compiled into different binaries, think IPC between Lifecycle client library and LM daemon.
 // In this situation, this code will need to inherit logging mechanism of the binary file.
@@ -32,6 +31,7 @@ struct TIMESTAMP_MS
 
 #ifdef LC_LOG_SCORE_MW_LOG
 
+#include "score/mw/log/log_stream.h"  // IWYU pragma: export
 #include "score/mw/log/logger.h"
 
 namespace score::mw::lifecycle::internal

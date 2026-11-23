@@ -24,6 +24,5 @@ cc_library(
         "//score/health_monitor/src/cpp:common",
         "//score/health_monitor/src/cpp:tag",
         "@score_baselibs//score/language/futurecpp",
-        "@score_baselibs//score/result",
     ],
 )

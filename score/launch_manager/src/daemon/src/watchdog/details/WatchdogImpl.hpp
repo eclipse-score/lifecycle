@@ -15,15 +15,13 @@
 #define WATCHDOGIMPL_HPP_INCLUDED
 
 #include <cstdint>
+#include <optional>
+#include <string>
 
-#include "score/mw/launch_manager/configuration/config.hpp"
 #include "score/mw/launch_manager/watchdog/IWatchdogIf.hpp"
 #include "score/mw/launch_manager/watchdog/details/DeviceIf.hpp"
 #include "score/os/fcntl.h"
 #include "score/os/unistd.h"
-#include <optional>
-#include <string>
-#include <vector>
 
 namespace score::mw::lifecycle::internal::watchdog
 {

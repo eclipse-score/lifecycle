@@ -11,9 +11,12 @@
  * SPDX-License-Identifier: Apache-2.0
  ********************************************************************************/
 
+#include <semaphore.h>
 #include <chrono>
+#include <cstdint>
 #include <ctime>
 
+#include "score/mw/launch_manager/osal/return_types.hpp"
 #include "score/mw/launch_manager/osal/semaphore.hpp"
 #include "score/os/errno.h"
 #include "score/os/semaphore.h"
