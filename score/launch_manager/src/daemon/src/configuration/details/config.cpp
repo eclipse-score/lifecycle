@@ -12,8 +12,6 @@
  ********************************************************************************/
 #include "score/mw/launch_manager/configuration/config.hpp"
 
-#include <score/assert.hpp>
-
 #include <utility>
 
 namespace score::mw::lifecycle::internal::configuration

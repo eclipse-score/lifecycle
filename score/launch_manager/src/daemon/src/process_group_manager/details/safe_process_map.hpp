@@ -15,8 +15,10 @@
 #define SAFE_PROCESS_MAP_HPP_INCLUDED
 
 #include "score/mw/launch_manager/common/init_only_resource.hpp"
+#include "score/mw/launch_manager/osal/return_types.hpp"
+#include "score/mw/launch_manager/process_group_manager/details/icomponent.hpp"
 #include "score/mw/launch_manager/process_group_manager/details/icomponent_controller.hpp"
-#include "score/mw/launch_manager/process_group_manager/iprocess.hpp"
+#include <stddef.h>
 #include <condition_variable>
 #include <cstdint>
 #include <functional>
@@ -24,6 +26,7 @@
 #include <mutex>
 #include <optional>
 #include <unordered_map>
+#include <utility>
 #include <variant>
 
 namespace score::mw::lifecycle::internal

@@ -25,6 +25,10 @@ cc_binary(
     deps = [
         "//score/launch_manager:control_cc",
         "//score/launch_manager:lifecycle_cc",
+        "//score/launch_manager/src/lifecycle_client:report_running",
+        "@score_baselibs//score/language/futurecpp",
+        "@score_baselibs//score/result",
+        "@score_baselibs//score/result:error",
         "@score_baselibs//score/string_manipulation/arguments",
         "@score_communication//score/mw/com",
     ],
@@ -39,6 +43,7 @@ cc_binary(
     visibility = ["//visibility:private"],
     deps = [
         "//score/launch_manager:lifecycle_cc",
+        "//score/launch_manager/src/lifecycle_client:report_running",
     ],
 )
 
@@ -50,6 +55,7 @@ cc_binary(
     visibility = ["//visibility:private"],
     deps = [
         "//score/launch_manager:lifecycle_cc",
+        "//score/launch_manager/src/lifecycle_client:report_running",
     ],
 )
 
@@ -69,6 +75,9 @@ cc_binary(
     visibility = ["//visibility:private"],
     deps = [
         "//score/launch_manager:lifecycle_cc",
+        "//score/launch_manager/src/lifecycle_client:aasapplicationcontainer",
+        "//score/launch_manager/src/lifecycle_client:runapplication",
+        "@score_baselibs//score/language/futurecpp",
     ],
 )
 

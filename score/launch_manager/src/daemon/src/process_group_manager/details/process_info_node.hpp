@@ -14,18 +14,24 @@
 #ifndef _INCLUDED_PROCESSINFONODE_
 #define _INCLUDED_PROCESSINFONODE_
 
-#include "score/launch_manager/src/daemon/src/configuration/component_config.hpp"
 #include "score/mw/launch_manager/alive_monitor/ialive_supervision_handle.hpp"
+#include "score/mw/launch_manager/common/identifier_hash.hpp"
 #include "score/mw/launch_manager/configuration/component_config.hpp"
+#include "score/mw/launch_manager/osal/ipc_comms.hpp"
+#include "score/mw/launch_manager/osal/return_types.hpp"
 #include "score/mw/launch_manager/process_group_manager/details/icomponent.hpp"
 #include "score/mw/launch_manager/process_group_manager/details/process_handling.hpp"
 #include "score/mw/launch_manager/process_group_manager/details/ready_condition/termination_waiter.hpp"
-#include "score/mw/launch_manager/process_group_manager/details/safe_process_map.hpp"
 #include "score/mw/launch_manager/process_group_manager/process_state.hpp"
+#include <score/expected.hpp>
 #include <score/stop_token.hpp>
+#include <time.h>
 #include <atomic>
 #include <chrono>
+#include <cstdint>
+#include <memory>
 #include <optional>
+#include <utility>
 
 namespace score::mw::lifecycle::internal
 {

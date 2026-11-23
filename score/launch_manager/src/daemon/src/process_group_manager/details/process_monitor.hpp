@@ -16,6 +16,7 @@
 
 #include "score/mw/launch_manager/process_group_manager/details/icomponent_controller.hpp"
 #include "score/mw/launch_manager/process_group_manager/details/icomponent_event_publisher_consumer.hpp"
+#include <stdint.h>
 
 namespace score::mw::lifecycle::internal
 {

@@ -11,15 +11,17 @@
  * SPDX-License-Identifier: Apache-2.0
  ********************************************************************************/
 #include "score/mw/launch_manager/watchdog/details/WatchdogImpl.hpp"
-#include "score/launch_manager/src/daemon/src/common/log.hpp"
 
 #include <score/assert.hpp>
-
+#include <score/expected.hpp>
 #include <unistd.h>
-#include <chrono>
-#include <thread>
+#include <stddef.h>
+#include <exception>
+#include <limits>
 
-#include "score/mw/launch_manager/configuration/config.hpp"
+#include "score/bitmanipulation/bitmask_operators.h"
+#include "score/mw/launch_manager/common/log.hpp"
+#include "score/mw/launch_manager/configuration/watchdog_config.hpp"
 #include "score/mw/launch_manager/watchdog/details/Watchdog.hpp"
 
 namespace score::mw::lifecycle::internal::watchdog

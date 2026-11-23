@@ -15,6 +15,8 @@
 #define SCORE_LCM_TERMINATION_WAITER_HPP_INCLUDED
 
 #include "score/concurrency/condition_variable.h"
+#include <score/stop_token.hpp>
+#include <chrono>
 #include <condition_variable>
 #include <mutex>
 

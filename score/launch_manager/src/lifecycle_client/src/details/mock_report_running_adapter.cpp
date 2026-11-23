@@ -28,12 +28,14 @@
 /// production code calls (e.g., ReportRunningImpl{}.ReportRunningState()) to the GMock object,
 /// enabling EXPECT_CALL verification.
 
+#include <atomic>
+#include <functional>
+#include <variant>
+
 #include "score/mw/lifecycle/execution_error.h"
 #include "score/mw/lifecycle/lifecycle_client/details/mock_report_running_impl.h"
 #include "score/mw/lifecycle/lifecycle_client/details/report_running_impl.hpp"
-
-#include <atomic>
-#include <functional>
+#include "score/result/result.h"
 
 namespace
 {
