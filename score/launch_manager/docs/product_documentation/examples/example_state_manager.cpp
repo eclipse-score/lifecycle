@@ -11,18 +11,27 @@
  * SPDX-License-Identifier: Apache-2.0
  ********************************************************************************/
 
+#include <score/mw/lifecycle/ilm_control.hpp>
+#include <score/mw/lifecycle/report_running.h>
+#include <score/span.hpp>
 #include <unistd.h>
+#include <stdlib.h>
 #include <atomic>
 #include <chrono>
 #include <csignal>
 #include <iostream>
 #include <memory>
+#include <string_view>
 #include <thread>
+#include <utility>
+#include <vector>
 
 #include "score/mw/com/runtime.h"
+#include "score/mw/lifecycle/fixed_string.hpp"
+#include "score/mw/lifecycle/run_target_activation_source.hpp"
+#include "score/result/error.h"
+#include "score/result/result.h"
 #include "score/string_manipulation/arguments/arguments.h"
-#include <score/mw/lifecycle/ilm_control.hpp>
-#include <score/mw/lifecycle/report_running.h>
 
 using namespace std::literals::chrono_literals;
 

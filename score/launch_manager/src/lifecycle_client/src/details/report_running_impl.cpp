@@ -11,19 +11,19 @@
  * SPDX-License-Identifier: Apache-2.0
  ********************************************************************************/
 
-#include <sys/mman.h>
 #include <sys/stat.h>
+#include <sys/types.h>
 #include <unistd.h>
 #include <atomic>
 #include <variant>
 
-#include "score/result/result.h"
-
-#include "score/mw/launch_manager/common/constants.hpp"
 #include "score/mw/launch_manager/common/log.hpp"
 #include "score/mw/launch_manager/osal/ipc_comms.hpp"
+#include "score/mw/launch_manager/osal/return_types.hpp"
+#include "score/mw/launch_manager/osal/semaphore.hpp"
 #include "score/mw/lifecycle/execution_error.h"
 #include "score/mw/lifecycle/lifecycle_client/details/report_running_impl.hpp"
+#include "score/result/result.h"
 
 using namespace score::mw::lifecycle::internal::osal;
 

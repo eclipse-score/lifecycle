@@ -13,8 +13,11 @@
 
 #include "score/mw/lifecycle/aasapplicationcontainer.h"
 
-#include "score/mw/lifecycle/lifecyclemanager.h"
 #include <score/jthread.hpp>
+#include <algorithm>
+#include <functional>
+
+#include "score/mw/lifecycle/lifecyclemanager.h"
 
 namespace score::mw::lifecycle
 {

@@ -149,3 +149,21 @@ void wait_for_activation(
     // Invoked without holding the mutex so the callback may block or call activation_received_callback/wait_for_activation.
     callback(source, target);
 }
+
+void expect_no_events(const std::chrono::milliseconds timeout)
+{
+    {
+        std::cout << __FUNCTION__ << "Locking" << std::endl;
+        std::unique_lock event_lock(event_mutex);
+        if (!event_condition.wait_for(event_lock, timeout, [&] {
+                return event_received;
+            }))
+        {
+            std::cout << "No run target activation event received within " << timeout.count() << " ms";
+            return;
+        }
+        event_received = false;
+        ADD_FAILURE() << "Received an event when we expected none";
+    }
+    event_condition.notify_one();
+}

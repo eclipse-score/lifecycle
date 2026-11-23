@@ -15,10 +15,12 @@
 #define SCORE_MW_LIFECYCLE_MOCKS_APPLICATIONCONTEXTMOCK_H_
 
 #include <gmock/gmock.h>
-
+#include <cstdint>
 #include <string>
 #include <string_view>
 #include <vector>
+
+#include "gtest/gtest.h"
 
 namespace score
 {

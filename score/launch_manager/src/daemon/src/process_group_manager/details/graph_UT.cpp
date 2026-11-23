@@ -199,10 +199,9 @@ class GraphTest : public ::testing::Test
     MockSupervisionFactory mock_factory_{};
     std::unique_ptr<Graph> graph_{};
 
-    RunTargetConfig startup_ = {"Startup", "", {}, 10, {}};
-    RunTargetConfig off_ = {"Off", "", {}, 10, {}};
+    RunTargetConfig startup_ = {"Startup", {}, 10, {}};
+    RunTargetConfig off_ = {"Off", {}, 10, {}};
     FallbackRunTargetConfig fallback_ = {
-        "",
         {},
         10,
     };

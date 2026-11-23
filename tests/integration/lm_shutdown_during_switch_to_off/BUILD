@@ -34,11 +34,11 @@ cc_binary(
 integration_test(
     name = "lm_shutdown_during_switch_to_off",
     timeout = "short",
-    srcs = ["lm_shutdown_during_switch_to_off.py"],
+    srcs = ["test.py"],
     binaries = [
         "//tests/utils/test_helper:process_hanging_on_sigterm",
         ":control_client_test_driver",
         "//score/launch_manager",
     ],
-    config = ":lm_shutdown_during_switch_to_off.json",
+    config = ":config.json",
 )

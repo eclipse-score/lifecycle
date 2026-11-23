@@ -14,7 +14,9 @@
 #ifndef OS_HANDLER_HPP_INCLUDED
 #define OS_HANDLER_HPP_INCLUDED
 
+#include <atomic>
 #include <chrono>
+#include <string>
 #include <thread>
 
 #include "score/mw/launch_manager/process_group_manager/details/safe_process_map.hpp"

@@ -48,7 +48,6 @@ Config makeMinimalConfig(ApplicationType application_type = ApplicationType::Nat
 {
     ComponentConfig component;
     component.name = "comp_a";
-    component.description = "Component A";
     component.component_properties.application_profile.application_type = application_type;
     component.component_properties.application_profile.is_self_terminating = true;
     component.component_properties.ready_condition = ReadyCondition{ProcessState::Running};
@@ -63,13 +62,11 @@ Config makeMinimalConfig(ApplicationType application_type = ApplicationType::Nat
 
     RunTargetConfig startup;
     startup.name = "Startup";
-    startup.description = "Initial Run Target";
     startup.depends_on = {"comp_a"};
     startup.transition_timeout_ms = 5000U;
     startup.recovery_action.run_target = "fallback_run_target";
 
     FallbackRunTargetConfig fallback;
-    fallback.description = "Safe state";
     fallback.transition_timeout_ms = 1500U;
 
     AliveSupervisionConfig alive;
@@ -87,7 +84,6 @@ Config makeMinimalConfig(ApplicationType application_type = ApplicationType::Nat
     // Shutdown always transitions to the "Off" Run Target, so the configuration must provide one.
     RunTargetConfig off;
     off.name = "Off";
-    off.description = "All components stopped";
     off.transition_timeout_ms = 5000U;
 
     std::vector<RunTargetConfig> run_targets;

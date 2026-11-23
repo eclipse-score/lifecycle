@@ -12,13 +12,15 @@
  ********************************************************************************/
 
 #include "score/mw/launch_manager/alive_monitor/details/AliveImpl.h"
-#include "score/launch_manager/src/daemon/src/common/log.hpp"
 
+#include <sys/types.h>
 #include <unistd.h>
-
-#include <cstring>
+#include <stdlib.h>
+#include <stdexcept>
+#include <utility>
 
 #include "score/mw/launch_manager/alive_monitor/details/timers/Timers_OsClock.hpp"
+#include "score/mw/launch_manager/common/log.hpp"
 
 namespace score::mw::lifecycle
 {

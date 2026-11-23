@@ -26,11 +26,11 @@ cc_binary(
 
 integration_test(
     name = "process_wrong_binary_failure",
-    srcs = ["process_wrong_binary_failure.py"],
+    srcs = ["test.py"],
     binaries = [
         ":control_client_test_driver",
         "//score/launch_manager",
         "//tests/utils/test_helper:verification_process",
     ],
-    config = ":process_wrong_binary_failure.json",
+    config = ":config.json",
 )

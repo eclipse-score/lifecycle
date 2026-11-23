@@ -12,7 +12,9 @@
  ********************************************************************************/
 
 #include "score/mw/launch_manager/alive_monitor/details/daemon/SupervisionManager.hpp"
-#include "score/launch_manager/src/daemon/src/common/log.hpp"
+
+#include <utility>
+
 #include "score/mw/launch_manager/alive_monitor/details/ifappl/MonitorIfDaemon.hpp"
 #include "score/mw/launch_manager/alive_monitor/details/supervision/Alive.hpp"
 

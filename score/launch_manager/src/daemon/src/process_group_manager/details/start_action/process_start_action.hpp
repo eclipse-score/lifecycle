@@ -15,7 +15,8 @@
 #define SCORE_LCM_PROCESS_START_ACTION_HPP_INCLUDED
 
 #include "score/mw/launch_manager/configuration/component_config.hpp"
-#include "score/mw/launch_manager/process_group_manager/details/handle.hpp"
+#include "score/mw/launch_manager/osal/ipc_comms.hpp"
+#include "score/mw/launch_manager/osal/return_types.hpp"
 #include "score/mw/launch_manager/process_group_manager/details/icomponent.hpp"
 #include "score/mw/launch_manager/process_group_manager/details/safe_process_map.hpp"
 #include "score/mw/launch_manager/process_group_manager/details/start_action/istart_action.hpp"
