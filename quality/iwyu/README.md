@@ -25,11 +25,9 @@ bazel build --config=iwyu -- $(bazel query 'kind("cc_library|cc_binary", //score
 ```
 
 bazel_iwyu runs on every target that provides `CcInfo`, which includes Rust libraries with C++
-dependencies. IWYU cannot analyze `.rs` files, so in CI the Rust packages are excluded from the target
-list, together with the aliases that point to them (an aspect applied to an alias also runs on its
-`actual` target).
+dependencies. IWYU cannot analyze `.rs` files, so the query selects only the C++ targets.
 
-The check runs in CI for every pull request (`iwyu` job in `.github/workflows/on-pr.yml`).
+The check runs in CI for every pull request with the same query (`.github/workflows/_iwyu.yml`).
 
 The check uses the LLVM/clang toolchain, because IWYU does not understand the flags of the GCC
 toolchain. Do not combine `--config=iwyu` with `--config=x86_64-linux`.

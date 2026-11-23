@@ -129,16 +129,9 @@ jobs:
 
   iwyu:
     name: Include check (IWYU)
+    uses: ./.github/workflows/_iwyu.yml
     permissions:
       contents: read
-    uses: eclipse-score/cicd-workflows/.github/workflows/bazel.yml@69812f9210f4f910e562a786dc56e199c3df5248 # main (2026-11-11)
-    with:
-      # IWYU cannot analyze Rust, so the Rust packages and their aliases are excluded (see quality/iwyu/README.md).
-      build-targets: >-
-        //score/... -//score/health_monitor:health_monitoring_rust -//score/health_monitor/src/rust/... -//score/launch_manager:alive_rust
-        -//score/launch_manager:lifecycle_rust -//score/launch_manager/src/alive/src/rust/... -//score/launch_manager/src/lifecycle_client/src/rust/...
-      bazel-configs: iwyu
-      cache-key: iwyu
 
   docs-check:
     name: Check documentation

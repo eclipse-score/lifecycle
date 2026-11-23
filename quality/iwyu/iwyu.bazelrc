@@ -22,7 +22,6 @@ build:iwyu --platform_suffix=iwyu
 build:iwyu --extra_toolchains=@llvm_toolchain//:cc-toolchain-x86_64-linux
 build:iwyu --host_platform=@score_bazel_platforms//:x86_64-linux
 build:iwyu --incompatible_strict_action_env
-build:iwyu --extra_toolchains=@score_toolchains_rust//toolchains/ferrocene:ferrocene_x86_64_unknown_linux_gnu_miri
 
 build:iwyu --aspects=@bazel_iwyu//:iwyu.bzl%iwyu_aspect
 build:iwyu --output_groups=report
