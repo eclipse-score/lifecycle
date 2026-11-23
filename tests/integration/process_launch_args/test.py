@@ -17,27 +17,26 @@ from attribute_plugin import add_test_properties
 
 
 @add_test_properties(
-    partially_verifies=[
-        "feat_req__lifecycle__run_target_support",
-        "comp_req__launch_man__start_named_run_target",
-        "comp_req__launch_man__switch_run_targets",
+    fully_verifies=[
+        "comp_req__launch_man__process_launch_args",
     ],
-    test_type="interface-test",
-    derivation_technique="explorative-testing",
+    partially_verifies=["feat_req__lifecycle__launch_support"],
+    test_type="requirements-based",
+    derivation_technique="requirements-analysis",
 )
-def test_smoke(target, setup_test, assert_test_results, remote_test_dir):
+def test_process_launch_args(target, setup_test, assert_test_results, remote_test_dir):
     """
-    Objective: Verifies the basic end-to-end lifecycle flow of the launch manager, including process startup, Run Target transitions, and execution state reporting.
+    Objective: Verifies that the launch manager correctly passes configured launch arguments to processes.
 
-    The launch manager starts with an initial Run Target. The control daemon activates the "Running" Run Target (starting the managed process), then transitions back to "Startup".
-    Expected Behaviour: All Run Target transitions complete successfully and all processes report running.
+    A process is configured with a command line argument and launched via the initial Run Target.
+    Expected Behaviour: Process starts successfully, reports running, and receives the configured argument value.
     """
 
     run_test(
         target=target,
         binary_path=str(remote_test_dir / "launch_manager"),
-        args=["-c", str(remote_test_dir / "etc/lifecycle_smoketest.bin")],
+        args=["-c", str(remote_test_dir / "etc/config.bin")],
         cwd=str(remote_test_dir),
     )
 
-    assert_test_results({"control_client_test_driver.xml", "gtest_process.xml"})
+    assert_test_results({"process_initial.xml"})

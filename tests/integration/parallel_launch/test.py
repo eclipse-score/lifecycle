@@ -10,7 +10,6 @@
 #
 # SPDX-License-Identifier: Apache-2.0
 # *******************************************************************************
-
 from tests.utils.testing_utils.setup_test import setup_test
 from tests.utils.testing_utils.run_test import run_test
 from tests.utils.testing_utils.test_results import assert_test_results
@@ -19,54 +18,36 @@ from attribute_plugin import add_test_properties
 
 @add_test_properties(
     fully_verifies=[
-        "comp_req__launch_man__dep_based_startup_order",
+        "comp_req__launch_man__launch_parallel",
     ],
     partially_verifies=[
         "feat_req__lifecycle__launch_support",
-        "comp_req__launch_man__stop_process_dependents",
-        "feat_req__lifecycle__termination_dependency",
     ],
     test_type="requirements-based",
     derivation_technique="requirements-analysis",
 )
-def test_component_order(target, setup_test, assert_test_results, remote_test_dir):
+def test_parallel_launch(target, setup_test, assert_test_results, remote_test_dir):
     """
-    Objective: Verifies that the launch manager starts processes in the order
-    given by their dependencies, and stops them in the reverse order.
+    Objective: Verifies that the launch manager launches independent processes in parallel.
 
-    The config is such that:
-
-    run_target_b(component_c) -> run_target_a(component_a -> component_b)
-
-    Should observe:
-    1. activate run_target_a
-       component_a starts then
-       component_b starts
-    2. activate run_target_b
-       component_c starts
-
-    Then the stop order is verified:
-
-    3. activate run_target_a
-       component_c stops
-    4. activate Startup
-       component_b stops then
-       component_a stops
-
+    One Run Target depends on three independent components. Each component records a
+    timestamp before sleeping and one after reporting running. If launched in parallel,
+    all components start before any of them finishes sleeping and reports running.
+    Expected Behaviour: The latest start timestamp precedes the earliest running timestamp.
     """
 
     run_test(
         target=target,
         binary_path=str(remote_test_dir / "launch_manager"),
-        args=["-c", str(remote_test_dir / "etc/component_order.bin")],
+        args=["-c", str(remote_test_dir / "etc/config.bin")],
         cwd=str(remote_test_dir),
     )
 
     assert_test_results(
         {
-            "order_process_a.xml",
-            "order_process_b.xml",
-            "order_process_c.xml",
+            "component_parallel_launch_a.xml",
+            "component_parallel_launch_b.xml",
+            "component_parallel_launch_c.xml",
             "control_client_test_driver.xml",
         }
     )

@@ -12,31 +12,40 @@
 # *******************************************************************************
 from tests.utils.testing_utils.setup_test import setup_test
 from tests.utils.testing_utils.run_test import run_test
+from tests.utils.testing_utils.test_results import assert_test_results
 from attribute_plugin import add_test_properties
 
 
 @add_test_properties(
-    fully_verifies=[
-        "comp_req__launch_man__lifecycle_lang_support",
-        "feat_req__lifecycle__prog_lang",
+    partially_verifies=[
+        "comp_req__launch_man__conf_of_comp_ready_cond",
+        "feat_req__lifecycle__conditional_startup",
     ],
     test_type="requirements-based",
     derivation_technique="requirements-analysis",
 )
-def test_lifecycle_lang_support(target, setup_test, remote_test_dir):
+def test_ready_condition_process_state(
+    target, setup_test, assert_test_results, remote_test_dir
+):
     """
-    Objective: Verifies that the launch manager supports C++, Rust and C
-    applications reporting their readiness via the Lifecycle Interface.
+    Objective: Verifies that a component with a kTerminated process_state ready condition only
+    reaches its ready state once the process has terminated.
 
-    All component are configured with the ready condition "Running".
-    The verification component depends on all three, so it is only started once
-    every one of them has reported running, and then terminates the test.
-    Expected Behaviour: The Startup Run Target is activated and the verification component runs.
+    The initial run target contains a component that terminates after a delay.
+
+    Expected Behaviour: The launch manager waits for the process to terminate or
+    or the timeout to expire, whichever happens first.
     """
 
     run_test(
         target=target,
         binary_path=str(remote_test_dir / "launch_manager"),
-        args=["-c", str(remote_test_dir / "etc/lifecycle_lang_support.bin")],
+        args=["-c", str(remote_test_dir / "etc/config.bin")],
         cwd=str(remote_test_dir),
+    )
+
+    assert_test_results(
+        {
+            "control_client_test_driver.xml",
+        }
     )

@@ -17,24 +17,22 @@ from attribute_plugin import add_test_properties
 
 
 @add_test_properties(
-    fully_verifies=[],
     partially_verifies=[],
     test_type="interface-test",
-    derivation_technique="error-guessing",
+    derivation_technique="explorative-testing",
 )
-def test_process_wrong_binary_failure(
-    target, setup_test, assert_test_results, remote_test_dir
-):
+def test_replaced_activation(target, setup_test, assert_test_results, remote_test_dir):
     """
-    Objective: Verifies that activating a Run Target containing a component whose binary does not exist
-    results in a failure and triggers the configured recovery action (switch to fallback Run Target).
+    Objective: Verifies that a forced request for another Run Target replaces an activation in progress.
+
+    Expected Behaviour: The request for Startup is accepted, the next activation reported is Startup, and run_target_gated is never reported as activated.
     """
 
     run_test(
         target=target,
         binary_path=str(remote_test_dir / "launch_manager"),
-        args=["-c", str(remote_test_dir / "etc/process_wrong_binary_failure.bin")],
+        args=["-c", str(remote_test_dir / "etc/config.bin")],
         cwd=str(remote_test_dir),
     )
 
-    assert_test_results({"control_client_test_driver.xml"})
+    assert_test_results({"control_client_test_driver.xml", "gated.xml"})

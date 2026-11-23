@@ -17,26 +17,24 @@ from attribute_plugin import add_test_properties
 
 
 @add_test_properties(
-    fully_verifies=[],
-    partially_verifies=[
-        "feat_req__lifecycle__conditional_startup",
-        "comp_req__launch_man__rc_lifecycle",
-        "comp_req__launch_man__rc_os_state",
-    ],
+    partially_verifies=[],
     test_type="interface-test",
-    derivation_technique="error-guessing",
+    derivation_technique="explorative-testing",
 )
-def test_process_fd_leak(target, setup_test, assert_test_results, remote_test_dir):
-    """Tests the inherited file descriptors from LCM for Native, Reporting and
-    State_Manager application types."""
+def test_same_run_target_in_transition(
+    target, setup_test, assert_test_results, remote_test_dir
+):
+    """
+    Objective: Verifies that repeating a request for the Run Target that is being activated is rejected.
+
+    Expected Behaviour: The repeated request is rejected with kInTransitionToSameState and the original activation still completes.
+    """
 
     run_test(
         target=target,
         binary_path=str(remote_test_dir / "launch_manager"),
-        args=["-c", str(remote_test_dir / "etc/process_fd_leak.bin")],
+        args=["-c", str(remote_test_dir / "etc/config.bin")],
         cwd=str(remote_test_dir),
     )
 
-    assert_test_results(
-        {"native.xml", "control_client_test_driver.xml", "reporting.xml"}
-    )
+    assert_test_results({"control_client_test_driver.xml", "gated.xml"})

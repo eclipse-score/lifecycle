@@ -15,12 +15,12 @@ load("@rules_cc//cc:defs.bzl", "cc_binary")
 # Shared by the root (//tests/integration/sandbox_options/root) and non-root
 # (//tests/integration/sandbox_options/non_root) variants of the sandbox options test.
 exports_files(
-    ["sandbox_options.in.json"],
+    ["config.in.json"],
     visibility = ["//tests/integration/sandbox_options:__subpackages__"],
 )
 
 # Three binaries are built from the same source. Each verifies the sandbox options passed to it on
-# the command line (see sandbox_options.in.json), and derives its GTest XML result file name from its
+# the command line (see config.in.json), and derives its GTest XML result file name from its
 # own executable name so the results do not collide.
 [
     cc_binary(

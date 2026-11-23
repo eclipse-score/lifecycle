@@ -18,27 +18,25 @@ from attribute_plugin import add_test_properties
 
 @add_test_properties(
     fully_verifies=[],
-    partially_verifies=[
-        "feat_req__lifecycle__conditional_startup",
-        "comp_req__launch_man__rc_lifecycle",
-    ],
-    test_type="requirements-based",
+    test_type="interface-test",
     derivation_technique="error-guessing",
 )
-def test_incorrect_config_non_reporting(
+def test_explicit_fallback_request(
     target, setup_test, assert_test_results, remote_test_dir
 ):
     """
-    Objective: Test robustness of report_running() API
-    Input: Component wrongly configured as `native` application type, acquires a file descriptor ordinarily used by LM communication, and reports the Running state to LaunchManager.
-    Expected Outcome: Process does not crash.
+    Objective: Verifies that an explicit State Manager request for the fallback Run Target is reported with
+    activation source kStateManagerRequest, not kRecoveryAction.
+
+    The control client activates "fallback_run_target" by name although no process failed.
+    Expected Behaviour: The explicit activation is reported as kStateManagerRequest.
     """
 
     run_test(
         target=target,
         binary_path=str(remote_test_dir / "launch_manager"),
-        args=["-c", str(remote_test_dir / "etc/non_reporting_config.bin")],
+        args=["-c", str(remote_test_dir / "etc/config.bin")],
         cwd=str(remote_test_dir),
     )
 
-    assert_test_results({"non_reporting_process.xml"})
+    assert_test_results({"control_client_test_driver.xml"})

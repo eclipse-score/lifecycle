@@ -18,24 +18,22 @@ from attribute_plugin import add_test_properties
 
 @add_test_properties(
     fully_verifies=[],
+    partially_verifies=[],
     test_type="interface-test",
     derivation_technique="error-guessing",
 )
-def test_explicit_fallback_request(
+def test_process_wrong_binary_failure(
     target, setup_test, assert_test_results, remote_test_dir
 ):
     """
-    Objective: Verifies that an explicit State Manager request for the fallback Run Target is reported with
-    activation source kStateManagerRequest, not kRecoveryAction.
-
-    The control client activates "fallback_run_target" by name although no process failed.
-    Expected Behaviour: The explicit activation is reported as kStateManagerRequest.
+    Objective: Verifies that activating a Run Target containing a component whose binary does not exist
+    results in a failure and triggers the configured recovery action (switch to fallback Run Target).
     """
 
     run_test(
         target=target,
         binary_path=str(remote_test_dir / "launch_manager"),
-        args=["-c", str(remote_test_dir / "etc/explicit_fallback_request.bin")],
+        args=["-c", str(remote_test_dir / "etc/config.bin")],
         cwd=str(remote_test_dir),
     )
 
