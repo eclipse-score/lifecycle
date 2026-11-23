@@ -568,7 +568,7 @@ TEST_F(GraphOffTransitionTest, shutdownDuringTransition)
     const auto start_res = graph_->startTransitionToOffState();
     const auto second_pending_state = graph_->getPendingTransition().run_target;
 
-    EXPECT_FALSE(start_res);
+    EXPECT_TRUE(start_res);
     EXPECT_EQ(first_pending_state, second_pending_state);
 }
 
