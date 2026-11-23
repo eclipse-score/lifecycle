@@ -322,6 +322,16 @@ bool Graph::startTransitionToOffState()
     // is an ordinary transition to that node: everything the Off target doesn't need is stopped,
     // and the (dependency-less) Off node is activated.
     setRequestStartTime();
+
+    // If the graph is in kAborting state (e.g., from a timed-out cancellation), force it to
+    // kUndefinedState first so we can start the transition to Off. During shutdown, we must
+    // be able to transition to Off even if a cancellation didn't complete cleanly.
+    if (getState() == GraphState::kAborting)
+    {
+        LM_LOG_DEBUG() << "Graph is in kAborting state, forcing to kUndefinedState before transitioning to Off";
+        setState(GraphState::kUndefinedState);
+    }
+
     if (setState(GraphState::kInTransition))
     {
         // The Off state always has a RunTarget node, so this cannot fail.
