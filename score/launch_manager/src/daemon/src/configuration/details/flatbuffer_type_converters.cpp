@@ -13,17 +13,20 @@
 
 #include "score/launch_manager/src/daemon/src/configuration/details/flatbuffer_type_converters.hpp"
 
-#include "score/launch_manager/src/daemon/src/configuration/details/lm_flatcfg_generated.h"
-
-#include "score/mw/launch_manager/common/log.hpp"
-
 #include <sched.h>
 #include <score/assert.hpp>
 #include <sys/resource.h>
 #include <sys/types.h>
+#include <chrono>
 #include <cstdint>
 #include <string>
+#include <utility>
 #include <vector>
+
+#include "flatbuffers/stl_emulation.h"
+#include "score/launch_manager/src/daemon/src/configuration/details/lm_flatcfg_generated.h"
+#include "score/mw/launch_manager/common/log.hpp"
+#include "score/mw/launch_manager/configuration/process_command.hpp"
 
 namespace score::mw::lifecycle::internal::configuration
 {

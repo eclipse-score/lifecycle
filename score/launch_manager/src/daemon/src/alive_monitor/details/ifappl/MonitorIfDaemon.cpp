@@ -11,9 +11,16 @@
  * SPDX-License-Identifier: Apache-2.0
  ********************************************************************************/
 
-#include <cstring>
+#include <chrono>
+#include <cstdint>
 
+#include "score/mw/launch_manager/alive_monitor/details/common/Observer.hpp"
+#include "score/mw/launch_manager/alive_monitor/details/ifappl/Checkpoint.hpp"
+#include "score/mw/launch_manager/alive_monitor/details/ifappl/DataStructures.hpp"
 #include "score/mw/launch_manager/alive_monitor/details/ifappl/MonitorIfDaemon.hpp"
+#include "score/mw/launch_manager/alive_monitor/details/ifexm/ObservableEvent.hpp"
+#include "score/mw/launch_manager/alive_monitor/details/ifexm/supervision_event.hpp"
+#include "score/mw/launch_manager/common/identifier_hash.hpp"
 #include "score/mw/launch_manager/common/log.hpp"
 
 namespace score::mw::lifecycle::internal::saf::ifappl

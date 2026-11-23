@@ -36,6 +36,7 @@ cc_library(
     visibility = ["//score/launch_manager/src/daemon/src/process_group_manager:__subpackages__"],
     deps = [
         ":istart_action",
+        "@googletest//:gtest",
         "@googletest//:gtest_main",
     ],
 )
@@ -47,7 +48,12 @@ cc_library(
     include_prefix = "score/mw/launch_manager/process_group_manager/details/start_action",
     strip_include_prefix = "/score/launch_manager/src/daemon/src/process_group_manager/details/start_action",
     visibility = ["//score/launch_manager/src/daemon/src/process_group_manager:__subpackages__"],
-    deps = [":istart_action"],
+    deps = [
+        ":istart_action",
+        "//score/launch_manager/src/daemon/src/process_group_manager/details:handle",
+        "@score_baselibs//score/language/futurecpp",
+        "@score_baselibs//score/result",
+    ],
 )
 
 lm_cc_test(
@@ -72,11 +78,14 @@ cc_library(
         "//score/launch_manager:error",
         "//score/launch_manager/src/daemon/src/common:log",
         "//score/launch_manager/src/daemon/src/configuration:component_config",
+        "//score/launch_manager/src/daemon/src/osal:ipc_comms",
         "//score/launch_manager/src/daemon/src/osal:return_types",
         "//score/launch_manager/src/daemon/src/process_group_manager:iprocess",
+        "//score/launch_manager/src/daemon/src/process_group_manager/details:handle",
         "//score/launch_manager/src/daemon/src/process_group_manager/details:icomponent",
         "//score/launch_manager/src/daemon/src/process_group_manager/details:safe_process_map",
         "@score_baselibs//score/language/futurecpp",
+        "@score_baselibs//score/result",
     ],
 )
 

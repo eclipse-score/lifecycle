@@ -11,18 +11,48 @@
  * SPDX-License-Identifier: Apache-2.0
  ********************************************************************************/
 
-#include <fcntl.h>
-#include <sys/wait.h>
-#include <unistd.h>
-#include <algorithm>
+#include <stdint.h>
+#include <atomic>
+#include <chrono>
 #include <csignal>
+#include <cstddef>
+#include <memory>
+#include <optional>
+#include <string>
+#include <string_view>
+#include <utility>
+#include <variant>
+#include <vector>
 
+#include "score/mw/launch_manager/alive_monitor/IAliveMonitor.hpp"
+#include "score/mw/launch_manager/common/concurrency/concurrency_error_domain.hpp"
+#include "score/mw/launch_manager/common/concurrency/thread_pool.hpp"
+#include "score/mw/launch_manager/common/constants.hpp"
+#include "score/mw/launch_manager/common/identifier_hash.hpp"
 #include "score/mw/launch_manager/common/log.hpp"
+#include "score/mw/launch_manager/configuration/component_config.hpp"
+#include "score/mw/launch_manager/configuration/config.hpp"
+#include "score/mw/launch_manager/configuration/watchdog_config.hpp"
+#include "score/mw/launch_manager/osal/wait_for_file.hpp"
 #include "score/mw/launch_manager/process_group_manager/details/completion_slot.hpp"
 #include "score/mw/launch_manager/process_group_manager/details/component_event.hpp"
+#include "score/mw/launch_manager/process_group_manager/details/component_event_queue.hpp"
+#include "score/mw/launch_manager/process_group_manager/details/component_task.hpp"
+#include "score/mw/launch_manager/process_group_manager/details/graph.hpp"
+#include "score/mw/launch_manager/process_group_manager/details/os_handler.hpp"
+#include "score/mw/launch_manager/process_group_manager/details/process_handling.hpp"
 #include "score/mw/launch_manager/process_group_manager/details/process_monitor.hpp"
+#include "score/mw/launch_manager/process_group_manager/details/safe_process_map.hpp"
+#include "score/mw/launch_manager/process_group_manager/iprocess.hpp"
+#include "score/mw/launch_manager/process_group_manager/irun_target_control.hpp"
 #include "score/mw/launch_manager/process_group_manager/process_group_manager.hpp"
-#include "score/mw/lifecycle/details/lm_control_service.h"
+#include "score/mw/launch_manager/recovery_client/irecovery_client.h"
+#include "score/mw/launch_manager/watchdog/IWatchdogIf.hpp"
+#include "score/mw/lifecycle/execution_error.h"
+#include "score/mw/lifecycle/run_target_activation_source.hpp"
+#include "score/result/error.h"
+#include "score/result/result.h"
+#include <score/assert.hpp>
 
 namespace score::mw::lifecycle::internal
 {

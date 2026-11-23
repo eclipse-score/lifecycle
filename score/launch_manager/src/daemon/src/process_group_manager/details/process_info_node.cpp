@@ -12,15 +12,24 @@
  ********************************************************************************/
 
 #include "process_info_node.hpp"
-#include "score/launch_manager/src/daemon/src/configuration/component_config.hpp"
+#include "score/mw/launch_manager/alive_monitor/isupervision_factory.hpp"
+#include "score/mw/launch_manager/common/constants.hpp"
 #include "score/mw/launch_manager/common/log.hpp"
+#include "score/mw/launch_manager/configuration/component_config.hpp"
+#include "score/mw/launch_manager/configuration/environment_config.hpp"
+#include "score/mw/launch_manager/configuration/process_command.hpp"
 #include "score/mw/launch_manager/osal/ifile_waiter.hpp"
 #include "score/mw/launch_manager/osal/ipc_comms.hpp"
+#include "score/mw/launch_manager/osal/semaphore.hpp"
 #include "score/mw/launch_manager/process_group_manager/details/safe_process_map.hpp"
+#include "score/mw/launch_manager/process_group_manager/iprocess.hpp"
 #include <score/assert.hpp>
-#include <unistd.h>
+#include <score/blank.hpp>
+#include <sys/types.h>
 #include <cstdint>
-#include <cstring>
+#include <string>
+#include <type_traits>
+#include <variant>
 
 namespace score::mw::lifecycle::internal
 {

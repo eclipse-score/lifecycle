@@ -11,20 +11,44 @@
  * SPDX-License-Identifier: Apache-2.0
  ********************************************************************************/
 
-#include <ctime>
-
-#include <score/span.hpp>
-#include <algorithm>
+#include <stdint.h>
 #include <chrono>
 #include <functional>
+#include <memory>
+#include <mutex>
+#include <optional>
+#include <string>
+#include <string_view>
 #include <type_traits>
-#include <unordered_map>
+#include <utility>
 #include <variant>
+#include <vector>
 
+#include "score/mw/launch_manager/common/concurrency/concurrency_error_domain.hpp"
+#include "score/mw/launch_manager/common/concurrency/mpmc_concurrent_queue.hpp"
+#include "score/mw/launch_manager/common/constants.hpp"
+#include "score/mw/launch_manager/common/identifier_hash.hpp"
 #include "score/mw/launch_manager/common/log.hpp"
+#include "score/mw/launch_manager/configuration/component_config.hpp"
+#include "score/mw/launch_manager/configuration/config.hpp"
+#include "score/mw/launch_manager/osal/return_types.hpp"
+#include "score/mw/launch_manager/process_group_manager/details/component_event.hpp"
+#include "score/mw/launch_manager/process_group_manager/details/component_of.hpp"
+#include "score/mw/launch_manager/process_group_manager/details/component_task.hpp"
+#include "score/mw/launch_manager/process_group_manager/details/dependency_graph.hpp"
 #include "score/mw/launch_manager/process_group_manager/details/graph.hpp"
+#include "score/mw/launch_manager/process_group_manager/details/icomponent.hpp"
+#include "score/mw/launch_manager/process_group_manager/details/process_handling.hpp"
 #include "score/mw/launch_manager/process_group_manager/details/process_info_node.hpp"
+#include "score/mw/launch_manager/process_group_manager/details/run_target.hpp"
+#include "score/mw/launch_manager/process_group_manager/details/transition.hpp"
+#include "score/mw/launch_manager/process_group_manager/iprocess.hpp"
+#include "score/mw/launch_manager/process_group_manager/irun_target_control.hpp"
+#include "score/mw/lifecycle/execution_error.h"
 #include "score/mw/lifecycle/run_target_activation_source.hpp"
+#include "score/result/error.h"
+#include "score/result/result.h"
+#include <score/stop_token.hpp>
 
 #include "score/assert.hpp"
 
@@ -397,7 +421,7 @@ void Graph::handleComponentEvent(const ComponentEvent& event)
 void Graph::unblockComponentEvent(const ComponentEvent& event, const ExecErrc reason)
 {
     std::visit(
-        [this, reason](const auto& data) {
+        [reason](const auto& data) {
             using T = std::decay_t<decltype(data)>;
             if constexpr (std::is_same_v<T, GetActiveRunTarget>)
             {
