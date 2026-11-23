@@ -122,7 +122,13 @@ bool ProcessGroupManager::initialize()
         return false;
     }
 
-    if (!alive_monitor_->init())
+    if (recovery_client_ == nullptr)
+    {
+        LM_LOG_ERROR() << "Recovery client is null";
+        return false;
+    }
+
+    if (alive_monitor_ == nullptr || !alive_monitor_->init())
     {
         LM_LOG_ERROR() << "Alive monitor initialization failed";
         return false;
@@ -158,7 +164,10 @@ bool ProcessGroupManager::initialize()
 void ProcessGroupManager::deinitialize()
 {
     // ucm_polling_thread_.stopPolling();
-    watchdog_->disable();
+    if (watchdog_)
+    {
+        watchdog_->disable();
+    }
 
     pending_activation_queue_.stop();
 
@@ -167,7 +176,10 @@ void ProcessGroupManager::deinitialize()
         event_queue_->stop();
     }
     os_handler_.reset();
-    alive_monitor_->stopMonitoring();
+    if (alive_monitor_)
+    {
+        alive_monitor_->stopMonitoring();
+    }
 
     // Join the worker threads before destroying the process groups: a worker may
     // still be (de)activating a ProcessInfoNode owned by a graph, so tearing the

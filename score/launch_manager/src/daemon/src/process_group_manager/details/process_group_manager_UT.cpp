@@ -334,5 +334,30 @@ TEST_F(ProcessGroupManagerWatchdogTest, GetActiveRunTargetWhenStoppedReturnsShut
     EXPECT_EQ(set_result.error(), ExecErrc::kShuttingDown);
 }
 
+TEST_F(ProcessGroupManagerWatchdogTest, InitializeFailsWhenRecoveryClientIsNull)
+{
+    RecordProperty(
+        "Description", "Verify that initialize() returns false and fails startup cleanly if recovery_client is null.");
+    EXPECT_CALL(*watchdog_, disable()).Times(1);
+    EXPECT_CALL(*alive_monitor_, stopMonitoring()).Times(1);
+
+    auto alive_monitor = std::make_unique<NiceMock<MockAliveMonitor>>();
+    ON_CALL(*alive_monitor, init).WillByDefault(Return(true));
+    auto watchdog = std::make_unique<NiceMock<MockWatchdogIf>>();
+    auto process_interface = std::make_unique<NiceMock<osal::MockIProcess>>();
+    auto config = makeMinimalConfig(applicationType());
+
+    ProcessGroupManager pgm(
+        config.takeGraph(),
+        std::move(alive_monitor),
+        nullptr,
+        std::move(watchdog),
+        config.takeWatchdog(),
+        std::move(process_interface));
+
+    EXPECT_FALSE(pgm.initialize());
+    pgm.deinitialize();
+}
+
 }  // namespace
 }  // namespace score::mw::lifecycle::internal
