@@ -48,6 +48,7 @@ def test_lm_shutdown(target, setup_test, assert_test_results, remote_test_dir):
         binary_path=str(remote_test_dir / "launch_manager"),
         args=["-c", str(remote_test_dir / "etc/lm_shutdown_during_rt_switch.bin")],
         cwd=str(remote_test_dir),
+        timeout=60,
     )
 
     # component_c never runs (the pending switch was cancelled), so it produces no XML
