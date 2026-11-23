@@ -643,7 +643,7 @@ def custom_validations(config):
         success = False
 
     # Check that for any switch_run_target recovery action, the run_target is set to "fallback_run_target"
-    for _, run_target in config["run_targets"].items():
+    for run_target_name, run_target in config["run_targets"].items():
         recovery_target_name = (
             run_target.get("recovery_action", {})
             .get("switch_run_target", {})
@@ -651,7 +651,20 @@ def custom_validations(config):
         )
         if recovery_target_name != "fallback_run_target":
             report_error(
-                'For any switch_run_target recovery action, the recovery RunTarget must be set to "fallback_run_target".'
+                f"RunTarget '{run_target_name}': for any switch_run_target recovery action, the recovery RunTarget must be set to \"fallback_run_target\"."
+            )
+            success = False
+
+    for component_name, component_config in config["components"].items():
+        recovery_target_name = (
+            component_config.get("deployment_config", {})
+            .get("recovery_action", {})
+            .get("switch_run_target", {})
+            .get("run_target", "fallback_run_target")
+        )
+        if recovery_target_name != "fallback_run_target":
+            report_error(
+                f"Component '{component_name}': for any switch_run_target recovery action, the recovery RunTarget must be set to \"fallback_run_target\"."
             )
             success = False
 

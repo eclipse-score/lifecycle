@@ -747,6 +747,30 @@ def test_custom_validations_recovery_target_not_fallback(full_valid_config):
     assert custom_validations(full_valid_config) is False
 
 
+def test_custom_validations_component_recovery_target_not_fallback(full_valid_config):
+    """Component switch_run_target recovery actions must target fallback_run_target (currently a known limitation)."""
+    full_valid_config["components"]["app1"]["deployment_config"] = {
+        "recovery_action": {"switch_run_target": {"run_target": "Startup"}}
+    }
+    assert custom_validations(full_valid_config) is False
+
+
+def test_custom_validations_component_recovery_target_fallback(full_valid_config):
+    """A component switch_run_target recovery action targeting fallback_run_target is valid."""
+    full_valid_config["components"]["app1"]["deployment_config"] = {
+        "recovery_action": {"switch_run_target": {"run_target": "fallback_run_target"}}
+    }
+    assert custom_validations(full_valid_config) is True
+
+
+def test_custom_validations_component_restart_recovery_action(full_valid_config):
+    """A component restart recovery action is not affected by the fallback_run_target constraint."""
+    full_valid_config["components"]["app1"]["deployment_config"] = {
+        "recovery_action": {"restart": {}}
+    }
+    assert custom_validations(full_valid_config) is True
+
+
 def test_custom_validations_ready_condition_file_state(full_valid_config):
     """A ready condition based on the file state alone is valid."""
     full_valid_config["components"]["app1"]["component_properties"][

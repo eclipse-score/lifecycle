@@ -13,7 +13,7 @@
             "activation_retry_delay_ms": 0,
             "recovery_action": {
                 "switch_run_target": {
-                    "run_target": "Off"
+                    "run_target": "fallback_run_target"
                 }
             },
             "sandbox": {
@@ -137,7 +137,7 @@
             ],
             "recovery_action": {
                 "switch_run_target": {
-                    "run_target": "Off"
+                    "run_target": "fallback_run_target"
                 }
             }
         },
@@ -150,7 +150,7 @@
             "transition_timeout_ms": 5000,
             "recovery_action": {
                 "switch_run_target": {
-                    "run_target": "Minimal"
+                    "run_target": "fallback_run_target"
                 }
             }
         },
@@ -158,7 +158,7 @@
             "description": "Nothing is running",
             "recovery_action": {
                 "switch_run_target": {
-                    "run_target": "Off"
+                    "run_target": "fallback_run_target"
                 }
             }
         }
