@@ -13,27 +13,25 @@
 //
 // Single source of truth for the health monitor configuration.
 //
-// This file drives both:
-//   1. JSON -> FlatBuffer binary conversion with `flatc --binary`.
-//   2. The JSON schema `health_monitor_config_schema.json`, generated with baselibs'
-//      `generate_json_schema`. After a change, regenerate and commit it:
-//          bazel run //scripts/config_mapping:generate_health_monitor_schema
-//      `health_monitor_tests` fails while the checked-in schema differs from the generated one.
+// `flatc --binary` uses this file to convert a JSON configuration to a FlatBuffer binary.
+// Baselibs' `generate_json_schema` derives the JSON schema `health_monitor_config_schema.json` from it.
+// After a change, regenerate the schema and commit it:
+//     bazel run //scripts/config_mapping:generate_health_monitor_schema
+// `health_monitor_tests` fails while the checked-in schema differs from the generated one.
 //
-// Authoring rules:
-//   * Field names are the JSON keys, in snake_case.
-//   * Schema metadata that `flatc --jsonschema` cannot derive is written as `///` tokens,
-//     before the description lines:
-//         /// @title: <schema title>
-//         /// @default: <schema default>
-//         /// @min: <minimum>
-//         /// @max: <maximum>
-//         /// @required
-//         /// @shared: <name>    (table-level: emitted once in $defs and referenced)
-//   * A required scalar is declared `field: T = null;` and marked `@required`, because a plain
-//     scalar reads back as its default when the key is missing.
-//   * A required string, table or vector is marked `(required)` and `@required`.
-//   * A scalar with a default keeps the same value in `@default` and in the FlatBuffers default.
+// Field names are the JSON keys, in snake_case.
+// `///` tokens before the description lines carry the schema metadata that `flatc --jsonschema` cannot derive:
+//     /// @title: <schema title>
+//     /// @default: <schema default>
+//     /// @min: <minimum>
+//     /// @max: <maximum>
+//     /// @required
+//     /// @shared: <name>
+// `@shared` marks a table that the schema defines once in `$defs` and references from each use.
+// A required scalar is declared `field: T = null;` and marked `@required`.
+// A plain scalar reads back as its default when the key is missing.
+// A required string, table or vector is marked `(required)` and `@required`.
+// A scalar with a default keeps the same value in `@default` and in the FlatBuffers default.
 
 namespace score.mw.health.configuration.fb;
 
@@ -49,7 +47,8 @@ enum SchedulingPolicy : byte {
 
 /// @shared: time_range
 /// @title: Time Range
-/// Closed interval [min_ms, max_ms] of whole milliseconds. min_ms must not exceed max_ms.
+/// Closed interval [min_ms, max_ms] of whole milliseconds.
+/// min_ms must not exceed max_ms.
 table TimeRange {
   /// @title: Minimum
   /// @min: 0
@@ -81,14 +80,17 @@ table SchedulerParameters {
 /// A value that is not set keeps the operating system default.
 table ThreadParameters {
   /// @title: Scheduler Parameters
-  /// Scheduling policy and priority. If not set, the monitoring thread inherits the scheduling of the thread that starts the health monitor.
+  /// Scheduling policy and priority.
+  /// If not set, the monitoring thread inherits the scheduling of the thread that starts the health monitor.
   scheduler_parameters: SchedulerParameters;
   /// @title: Affinity
-  /// CPU indices the monitoring thread can run on, each below the CPU count. If empty or not set, the monitoring thread can run on any CPU.
+  /// CPU indices the monitoring thread can run on, each below the CPU count.
+  /// If empty or not set, the monitoring thread can run on any CPU.
   affinity: [uint32];
   /// @title: Stack Size
   /// @min: 0
-  /// Stack size in bytes. If not set, the operating system default is used.
+  /// Stack size in bytes.
+  /// If not set, the monitoring thread uses the operating system default.
   /// It must not be below the minimum of the operating system.
   stack_size: uint64 = null;
 }
@@ -128,7 +130,8 @@ table HeartbeatMonitor {
   tag: string (required);
   /// @title: Heartbeat Range
   /// @required
-  /// Allowed time between two heartbeats. min_ms must exceed half the internal processing cycle.
+  /// Allowed time between two heartbeats.
+  /// min_ms must exceed half the internal processing cycle.
   range: TimeRange (required);
 }
 
@@ -141,7 +144,8 @@ table State {
   tag: string (required);
   /// @title: Allowed States
   /// @required
-  /// Tags of the states this state can move to. Each must be a state of the monitor.
+  /// Tags of the states this state can move to.
+  /// Each must be a state of the monitor.
   /// A state can move to itself only if this list contains it.
   allowed_states: [string] (required);
 }
@@ -155,16 +159,19 @@ table LogicMonitor {
   tag: string (required);
   /// @title: Initial State
   /// @required
-  /// Tag of the state before the first transition. It must be a state of the monitor.
+  /// Tag of the state before the first transition.
+  /// It must be a state of the monitor.
   initial_state: string (required);
   /// @title: States
   /// @required
-  /// States of the graph. At least one state is required.
+  /// States of the graph.
+  /// At least one state is required.
   states: [State] (required);
 }
 
 /// @title: Health Monitor Configuration
-/// Configuration of one health monitor instance. At least one monitor is required.
+/// Configuration of one health monitor instance.
+/// At least one monitor is required.
 table HealthMonitorConfig {
   /// @title: Schema Version
   /// @min: 1

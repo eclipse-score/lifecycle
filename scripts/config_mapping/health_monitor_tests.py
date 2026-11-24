@@ -12,11 +12,10 @@
 # *******************************************************************************
 """Checks of the health monitor configuration schema.
 
-* The checked-in ``health_monitor_config_schema.json`` is byte-identical to the schema generated
-  from ``health_monitor_config.fbs``.
-* The example configuration is valid against the checked-in schema.
-* ``health_monitor_config.py`` accepts the example and rejects configurations that ``flatc``
-  would accept or that violate the schema otherwise.
+The checked-in schema is byte-identical to the one generated from ``health_monitor_config.fbs``.
+The example configuration is valid against the checked-in schema.
+``health_monitor_config.py`` accepts the example.
+It rejects a configuration that violates the schema, including one that ``flatc`` accepts.
 """
 
 import json
@@ -38,7 +37,7 @@ def test_schema_matches_fbs(generated_schema, schema_file):
         committed = handle.read()
     assert committed == generated, (
         "health_monitor_config_schema.json is out of sync with health_monitor_config.fbs. "
-        "Re-run: bazel run //scripts/config_mapping:generate_health_monitor_schema and commit the result."
+        "Run `bazel run //scripts/config_mapping:generate_health_monitor_schema` and commit the result."
     )
 
 

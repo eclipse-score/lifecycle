@@ -12,10 +12,9 @@
 # *******************************************************************************
 """Write ``health_monitor_config_schema.json`` from the FlatBuffers schema.
 
-``health_monitor_config.fbs`` is the single source of truth. Baselibs' ``generate_json_schema``
-runs ``flatc --jsonschema`` and post-processes the result in a Bazel action; its output is
-passed in with ``--in``. This tool copies it over the checked-in schema, so
-``health_monitor_tests`` can compare the two byte for byte.
+Baselibs' ``generate_json_schema`` derives a JSON schema from ``health_monitor_config.fbs`` with ``flatc``.
+``--in`` takes its output, and this tool copies that output over the checked-in schema.
+``health_monitor_tests`` compares the two byte for byte.
 
 Run it with:
     bazel run //scripts/config_mapping:generate_health_monitor_schema
@@ -53,7 +52,7 @@ def main(argv=None):
         workspace = os.environ.get("BUILD_WORKSPACE_DIRECTORY")
         if not workspace:
             raise SystemExit(
-                "BUILD_WORKSPACE_DIRECTORY is not set; run via `bazel run`, or pass an absolute --output."
+                "BUILD_WORKSPACE_DIRECTORY is not set. Run with `bazel run`, or pass an absolute --output."
             )
         output = os.path.join(workspace, output)
 

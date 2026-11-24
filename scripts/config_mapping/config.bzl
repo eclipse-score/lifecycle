@@ -171,7 +171,7 @@ def _hm_config_generator_impl(ctx):
 
 hm_config_generator = rule(
     implementation = _hm_config_generator_impl,
-    doc = "Validates a health monitor configuration against its JSON schema and outputs a copy of it.",
+    doc = "Validates a health monitor configuration against its JSON schema and outputs the configuration unchanged.",
     attrs = {
         "config": attr.label(
             allow_single_file = [".json"],
@@ -201,8 +201,7 @@ def health_monitor_config(
         **kwargs):
     """Validates a health monitor configuration and serializes it to <name>.bin.
 
-    The configuration is validated against the JSON schema before flatc converts it, so a
-    missing required value or a value out of range fails the build.
+    The JSON schema check runs before flatc, so a missing required value or an out-of-range value fails the build.
     """
     gen_name = name + "_gen"
     hm_config_generator(

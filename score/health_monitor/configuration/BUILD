@@ -22,10 +22,10 @@ exports_files(
     visibility = ["//visibility:public"],
 )
 
-# health_monitor_config.fbs is the single source of truth for the configuration.
-# The JSON schema health_monitor_config_schema.json is generated from it and checked in;
-# //scripts/config_mapping/tests/health_monitor:health_monitor_tests keeps the two in sync.
-# Regenerate it with:
+# Generates the JSON schema from health_monitor_config.fbs.
+# health_monitor_config_schema.json is the checked-in copy of its output.
+# //scripts/config_mapping/tests/health_monitor:health_monitor_tests fails while the two differ.
+# Regenerate the checked-in copy with:
 #   bazel run //scripts/config_mapping:generate_health_monitor_schema
 generate_json_schema(
     name = "health_monitor_config_postproc_schema",
@@ -36,7 +36,7 @@ generate_json_schema(
 )
 
 # Building the example validates it against the JSON schema and converts it with flatc.
-# Either step fails the build if the example does not match.
+# Either step fails the build for an invalid example.
 health_monitor_config(
     name = "health_monitor_config_example",
     config = "example/health_monitor_config.json",

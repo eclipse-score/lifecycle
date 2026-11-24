@@ -12,10 +12,10 @@
 # *******************************************************************************
 """Validate a health monitor configuration against its JSON schema.
 
-``flatc --binary`` rejects a missing ``(required)`` string, table or vector, but it accepts a
-missing optional scalar (``field: T = null;``) and does not check value ranges. This tool runs
-the JSON schema first. On success it writes ``<output_dir>/<stem>_gen.json``, an unchanged copy
-of the input. ``serialize_buffer`` then reads that copy, so it only converts validated input.
+``flatc --binary`` rejects a missing ``(required)`` string, table or vector.
+It accepts a missing optional scalar (``field: T = null;``) and does not check value ranges.
+On success, this tool writes ``<output_dir>/<stem>_gen.json``, an unchanged copy of the input.
+``serialize_buffer`` reads that copy, so it converts only validated input.
 
 Usage:
     health_monitor_config.py <configuration.json> --schema <schema.json> -o <output_dir>
@@ -30,7 +30,7 @@ import sys
 
 import jsonschema
 
-# Possible exit codes returned from this script. The values match lifecycle_config.py.
+# Possible exit codes returned from this script
 SUCCESS = 0
 SCHEMA_VALIDATION_FAILURE = 2
 
