@@ -162,5 +162,9 @@
   {
     "version": "pr-1086",
     "url": "https://eclipse-score.github.io/lifecycle/pr-1086/"
+  },
+  {
+    "version": "pr-1088",
+    "url": "https://eclipse-score.github.io/lifecycle/pr-1088/"
   }
 ]
