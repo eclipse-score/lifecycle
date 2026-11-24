@@ -89,29 +89,6 @@ evaluation_cycle_ms (integer, optional)
     Description: Specifies the length, in milliseconds, of the time window used by the **Launch Manager** to assess incoming alive supervision reports from components.
     Constraint: Must be greater than 0.
 
-.. _lm_conf_watchdog_object_:
-
-watchdog (object)
-^^^^^^^^^^^^^^^^^
-
-**Description:**
-  Defines a reusable type that contains configuration parameters for the external watchdog device, used to monitor the overall system health and initiate resets if necessary.
-
-**Properties:**
-
-device_file_path (string, optional)
-    Description: Specifies the absolute path to the external watchdog device file (e.g., ``/dev/watchdog``).
-
-max_timeout_ms (integer, optional)
-    Description: Specifies the maximum timeout value, in milliseconds, that the **Launch Manager** configures on the external watchdog during startup. The external watchdog uses this timeout as the deadline for receiving periodic alive reports from the **Launch Manager**.
-    Constraint: Must be 0 or greater.
-
-deactivate_on_shutdown (boolean, optional)
-    Description: Specifies whether the **Launch Manager** disables the external watchdog during shutdown. When set to ``true``, the watchdog is deactivated; when ``false``, it remains active, potentially triggering a reset if the shutdown is prolonged.
-
-require_magic_close (boolean, optional)
-    Description: Specifies whether the **Launch Manager** performs a defined shutdown sequence to inform the external watchdog that the shutdown is intentional and to prevent a watchdog-initiated reset. When ``true``, the magic close sequence is performed; when ``false``, it is not, which might lead to an unintentional reset.
-
 .. _lm_conf_recovery_action_object_:
 
 recovery_action (object)
@@ -368,7 +345,6 @@ Beyond these core sections, several other crucial properties govern the overall 
 * The ``schema_version`` property ensures compatibility by indicating the schema version used for the configuration file.
 * The ``initial_run_target`` explicitly defines which **Run Target** the **Launch Manager** must activate upon startup.
 * The ``fallback_run_target`` provides a specialized **Run Target** to be activated when all other recovery attempts for normal **Run Targets** have been exhausted. This particular **Run Target** does not include a ``recovery_action`` property, as it represents the final state; if its activation also fails, the external watchdog will be triggered.
-* The ``watchdog`` property configures the external watchdog device used for monitoring the **Launch Manager** itself.
 * The ``alive_supervision`` property defines the global evaluation cycle parameters for monitoring processes launched by the **Launch Manager**.
 
 With this overview in mind, let us now examine each root configuration property in detail.
@@ -408,10 +384,6 @@ run_target (object, optional)
 alive_supervision (object, optional)
     Description: Defines default alive supervision configuration values. These values are used unless a global ``alive_supervision`` configuration is explicitly specified at the root level of the configuration file.
     Reference: This property refers to the ``alive_supervision`` reusable type defined in this schema.
-
-watchdog (object, optional)
-    Description: Defines default watchdog configuration values. These values are applied to all watchdogs unless overridden in individual watchdog definitions.
-    Reference: This property refers to the ``watchdog`` reusable type defined in this schema.
 
 .. _lm_conf_components_object_optional_:
 
@@ -492,14 +464,6 @@ alive_supervision (object, optional)
     Description: Defines the global alive supervision configuration parameters used to monitor component health. If specified, this configuration will override any default values set in ``defaults.alive_supervision``.
     Reference: This property refers to the ``alive_supervision`` reusable type defined in this schema.
 
-.. _lm_conf_watchdog_object_optional_:
-
-watchdog (object, optional)
-^^^^^^^^^^^^^^^^^^^^^^^^^^^
-
-**Description:** Defines the global external watchdog device configuration used by the **Launch Manager**. If specified, this configuration will override any default values set in ``defaults.watchdog``.
-**Reference:** This property refers to the ``watchdog`` reusable type defined in this schema.
-
 .. _lm_conf_default_values:
 
 Default values
@@ -509,7 +473,7 @@ The **Launch Manager** configuration extensively utilizes the concept of default
 
 To achieve this robust defaulting mechanism, the **Launch Manager** employs two distinct levels of default values:
 
-1. **User-Defined Defaults:** These are specified within the ``defaults`` section of the **Launch Manager** configuration. Users can define a set of configuration options here, which will be applied if those options are not provided at a more specific level within the configuration (e.g., within an individual component, a **Run Target**, or at the root level for properties like ``alive_supervision`` or ``watchdog``).
+1. **User-Defined Defaults:** These are specified within the ``defaults`` section of the **Launch Manager** configuration. Users can define a set of configuration options here, which will be applied if those options are not provided at a more specific level within the configuration (e.g., within an individual component, a **Run Target**, or at the root level for properties like ``alive_supervision``).
 2. **S-CORE Standard Defaults:** These represent a second tier of default values, provided by the S-CORE standard itself. The purpose of these defaults is to ensure a valid configuration value is available even if an option is entirely absent from both its specific definition and the user-defined ``defaults`` section.
 
 The S-CORE standard defaults are particularly beneficial during the development phase. They allow developers to concentrate on core tasks without needing to meticulously define every configuration option, as a functional default is guaranteed.
@@ -529,16 +493,6 @@ alive_supervision
   .. dropdown:: alive_supervision_defaults.json
 
      .. literalinclude:: default_values/alive_supervision_defaults.json
-        :language: json
-
-watchdog
-  Defines default values for ``watchdog`` properties.
-
-  Please note that an empty object (``{}``) for ``watchdog`` signifies that the **Launch Manager** will disable watchdog functionality by default.
-
-  .. dropdown:: watchdog_defaults.json
-
-     .. literalinclude:: default_values/watchdog_defaults.json
         :language: json
 
 run_target

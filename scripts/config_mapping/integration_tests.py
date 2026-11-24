@@ -169,7 +169,7 @@ def test_full_config(schema_file):
     """
     Test generation of launch manager configuration
     with all parameters specified at every level (defaults, components, Run Targets,
-    alive supervision, watchdog, sandbox, etc.).
+    alive supervision, sandbox, etc.).
     """
     test_name = "full_config_test"
     input_file = tests_dir / test_name / "input" / "lm_config.json"
@@ -335,6 +335,14 @@ SCHEMA_VALIDATION_TEST_CASES = [
     {
         "config_filename": "invalid_switch_run_target.json",
         "test_id": "invalid_switch_run_target",
+    },
+    {
+        "config_filename": "removed_watchdog_section.json",
+        "test_id": "removed_watchdog_section",
+    },
+    {
+        "config_filename": "removed_watchdog_defaults.json",
+        "test_id": "removed_watchdog_defaults",
     },
 ]
 

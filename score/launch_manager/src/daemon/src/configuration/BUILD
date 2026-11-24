@@ -57,14 +57,6 @@ lm_cc_test(
 )
 
 cc_library(
-    name = "watchdog_config",
-    hdrs = ["watchdog_config.hpp"],
-    include_prefix = "score/mw/launch_manager/configuration",
-    strip_include_prefix = "/score/launch_manager/src/daemon/src/configuration",
-    visibility = ["//score:__subpackages__"],
-)
-
-cc_library(
     name = "recovery_action_config",
     hdrs = ["recovery_action_config.hpp"],
     include_prefix = "score/mw/launch_manager/configuration",
@@ -95,7 +87,7 @@ cc_library(
     deps = [
         ":component_config",
         ":recovery_action_config",
-        ":watchdog_config",
+        "@score_baselibs//score/language/futurecpp",
     ],
 )
 
@@ -137,7 +129,6 @@ cc_library(
         ":environment_config",
         ":process_command",
         ":recovery_action_config",
-        ":watchdog_config",
         "//score/launch_manager/src/daemon/src/common:log",
         "@score_baselibs//score/flatbuffers:flatbufferscpp",
         "@score_baselibs//score/language/futurecpp",
@@ -159,7 +150,6 @@ cc_library(
         ":config",
         ":config_loader",
         ":flatbuffer_type_converters",
-        ":watchdog_config",
         "//score/launch_manager/src/daemon/src/common:log",
         "@score_baselibs//score/filesystem",
         "@score_baselibs//score/flatbuffers:flatbufferscpp",
