@@ -33,7 +33,6 @@
 #include "score/mw/launch_manager/configuration/config_loader.hpp"
 #include "score/mw/launch_manager/configuration/environment_config.hpp"
 #include "score/mw/launch_manager/configuration/recovery_action_config.hpp"
-#include "score/mw/launch_manager/configuration/watchdog_config.hpp"
 
 namespace score::mw::lifecycle::internal::configuration
 {
@@ -151,9 +150,6 @@ score::cpp::expected<TargetT, IConfigLoader::Error> validateRange(int64_t value,
 /// @brief Converts a FlatBuffer AliveSupervision to an AliveSupervisionConfig.
 [[nodiscard]] score::cpp::expected<AliveSupervisionConfig, IConfigLoader::Error> convertAliveSupervision(
     const fb::AliveSupervision* fb_as);
-/// @brief Converts a FlatBuffer Watchdog to a WatchdogConfig, or nullopt if absent.
-[[nodiscard]] score::cpp::expected<std::optional<WatchdogConfig>, IConfigLoader::Error> convertWatchdog(
-    const fb::Watchdog* fb_wd);
 
 }  // namespace score::mw::lifecycle::internal::configuration
 

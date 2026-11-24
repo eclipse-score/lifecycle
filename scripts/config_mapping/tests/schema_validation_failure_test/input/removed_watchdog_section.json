@@ -1,0 +1,16 @@
+{
+    "schema_version": 2,
+    "run_targets": {
+        "Startup": {}
+    },
+    "initial_run_target": "Startup",
+    "fallback_run_target": {
+        "depends_on": []
+    },
+    "watchdog": {
+        "device_file_path": "/dev/watchdog",
+        "max_timeout_ms": 2000,
+        "deactivate_on_shutdown": true,
+        "require_magic_close": false
+    }
+}

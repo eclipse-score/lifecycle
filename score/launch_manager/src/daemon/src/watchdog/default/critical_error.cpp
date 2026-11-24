@@ -11,24 +11,21 @@
  * SPDX-License-Identifier: Apache-2.0
  ********************************************************************************/
 
-#include "score/mw/launch_manager/watchdog/details/DeviceIf.hpp"
+#include "score/mw/launch_manager/watchdog/critical_error.hpp"
 
-#include <sys/ioctl.h>
+#include "score/mw/launch_manager/common/log.hpp"
+
+#include <cstdlib>
 
 namespace score::mw::lifecycle::internal::watchdog
 {
 
-DeviceIf& DeviceIf::instance() noexcept
+void onCriticalError(CriticalErrorType type, std::string_view msg) noexcept
 {
-    static DeviceIf instance;
-    return instance;
-}
-
-std::int32_t DeviceIf::ioctl(std::int32_t f_fd, IoctlRequestType f_request, std::int32_t* f_payload_p) noexcept
-{
-    // Wrapper over the real syscall.
-    // NOLINTNEXTLINE(cppcoreguidelines-pro-type-vararg, hicpp-vararg, score-banned-function)
-    return ::ioctl(f_fd, f_request, f_payload_p);
+    // The heartbeat region of the DefaultWatchdog is intentionally left in place: a frozen counter tells an external
+    // monitor that the Launch Manager terminated abnormally.
+    LM_LOG_FATAL() << "Critical error" << toString(type) << ":" << msg << "- aborting the Launch Manager";
+    std::abort();
 }
 
 }  // namespace score::mw::lifecycle::internal::watchdog

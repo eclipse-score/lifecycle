@@ -32,7 +32,6 @@
 #include "score/mw/launch_manager/common/log.hpp"
 #include "score/mw/launch_manager/configuration/component_config.hpp"
 #include "score/mw/launch_manager/configuration/config.hpp"
-#include "score/mw/launch_manager/configuration/watchdog_config.hpp"
 #include "score/mw/launch_manager/osal/wait_for_file.hpp"
 #include "score/mw/launch_manager/process_group_manager/details/completion_slot.hpp"
 #include "score/mw/launch_manager/process_group_manager/details/component_event.hpp"
@@ -47,7 +46,7 @@
 #include "score/mw/launch_manager/process_group_manager/irun_target_control.hpp"
 #include "score/mw/launch_manager/process_group_manager/process_group_manager.hpp"
 #include "score/mw/launch_manager/recovery_client/irecovery_client.h"
-#include "score/mw/launch_manager/watchdog/IWatchdogIf.hpp"
+#include "score/mw/launch_manager/watchdog/critical_error.hpp"
 #include "score/mw/lifecycle/execution_error.h"
 #include "score/mw/lifecycle/run_target_activation_source.hpp"
 #include "score/result/error.h"
@@ -74,11 +73,9 @@ ProcessGroupManager::ProcessGroupManager(
     configuration::GraphConfig&& config,
     std::unique_ptr<saf::daemon::IAliveMonitor> alive_monitor,
     std::shared_ptr<IRecoveryClient> recovery_client,
-    std::unique_ptr<score::mw::lifecycle::internal::watchdog::IWatchdogIf> watchdog,
-    std::optional<configuration::WatchdogConfig>&& watchdog_config,
+    std::unique_ptr<score::mw::lifecycle::internal::watchdog::IWatchdog> watchdog,
     std::unique_ptr<osal::IProcess> process_interface)
     : configuration_(std::move(config)),
-      watchdog_config_(watchdog_config),
       process_interface_(std::move(process_interface)),
       file_waiter_(),
       process_map_(nullptr),
@@ -137,19 +134,10 @@ bool ProcessGroupManager::initialize()
 
     alive_monitor_->startMonitoring();
 
-    // Watchdog config may not be available if no watchdog is configured
-    if (watchdog_config_.has_value())
+    if (!watchdog_->init())
     {
-        if (!watchdog_->init(std::move(watchdog_config_).value(), score::mw::lifecycle::internal::kMainLoopCycleTimeNs))
-        {
-            LM_LOG_ERROR() << "Watchdog initialization failed";
-            return false;
-        }
-        if (!watchdog_->enable())
-        {
-            LM_LOG_ERROR() << "Watchdog enable failed";
-            return false;
-        }
+        LM_LOG_ERROR() << "Watchdog initialization failed";
+        return false;
     }
 
     return true;
@@ -157,9 +145,6 @@ bool ProcessGroupManager::initialize()
 
 void ProcessGroupManager::deinitialize()
 {
-    // ucm_polling_thread_.stopPolling();
-    watchdog_->disable();
-
     pending_activation_queue_.stop();
 
     if (event_queue_)
@@ -178,6 +163,7 @@ void ProcessGroupManager::deinitialize()
     graph_.reset();
     process_map_.reset();
     process_monitor_.reset();
+    watchdog_->deinit();
 }
 
 bool ProcessGroupManager::initializeProcessGroups()
@@ -226,7 +212,6 @@ bool ProcessGroupManager::run()
     LM_LOG_DEBUG() << "run() at" << TIMESTAMP_MS();
 
     bool result = startInitialTransition();
-    bool overflow_logged = false;
 
     if (result)
     {
@@ -244,11 +229,11 @@ bool ProcessGroupManager::run()
                 processComponentEvents();
             }
 
-            if (event_queue_->getOverflow() && !overflow_logged)
+            if (event_queue_->getOverflow())
             {
-                LM_LOG_FATAL() << "ComponentEventQueue overflow - one or more events were lost";
-                overflow_logged = true;
-                watchdog_->fireWatchdogReaction();
+                watchdog::onCriticalError(
+                    watchdog::CriticalErrorType::kQueueOverflow,
+                    "ComponentEventQueue overflow - one or more events were lost");
             }
 
             if (graph_)
@@ -258,7 +243,10 @@ bool ProcessGroupManager::run()
 
             watchdog_->serviceWatchdog();
         }
-        LM_LOG_INFO() << "ProcessGroupManager::run() - received SIGTERM, exiting";
+        if (result)
+        {
+            LM_LOG_INFO() << "ProcessGroupManager::run() - received SIGTERM, exiting";
+        }
     }
 
     allProcessGroupsOff();
