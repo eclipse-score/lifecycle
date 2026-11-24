@@ -59,12 +59,12 @@ struct ProcessExitEvent
 
 }  // namespace
 
-class ProcessShutdownComponentTest : public ::testing::Test
+class ProcessShutdownTest : public ::testing::Test
 {
   protected:
     void SetUp() override
     {
-        RecordProperty("TestType", "component-test");
+        RecordProperty("TestType", "interface-test");
         RecordProperty("DerivationTechnique", "equivalence-classes");
         RecordProperty(
             "FullyVerifies", "comp_req__launch_man__graceful_p_shutd, comp_req__launch_man__instant_p_shutd");
@@ -97,7 +97,7 @@ class ProcessShutdownComponentTest : public ::testing::Test
     NiceMock<score::mw::lifecycle::MockSupervisionFactory> mock_factory_;
 };
 
-TEST_F(ProcessShutdownComponentTest, GracefulShutdown_SendsSigtermThenSigkillAfterTimeout)
+TEST_F(ProcessShutdownTest, GracefulShutdown_SendsSigtermThenSigkillAfterTimeout)
 {
     RecordProperty(
         "Description",
@@ -187,7 +187,7 @@ TEST_F(ProcessShutdownComponentTest, GracefulShutdown_SendsSigtermThenSigkillAft
     EXPECT_EQ(node->getState(), score::mw::lifecycle::ProcessState::kIdle);
 }
 
-TEST_F(ProcessShutdownComponentTest, ImmediateShutdown_SendsSigkillWithoutSigterm)
+TEST_F(ProcessShutdownTest, ImmediateShutdown_SendsSigkillWithoutSigterm)
 {
     RecordProperty(
         "Description",
@@ -255,7 +255,7 @@ TEST_F(ProcessShutdownComponentTest, ImmediateShutdown_SendsSigkillWithoutSigter
     EXPECT_EQ(node->getState(), score::mw::lifecycle::ProcessState::kIdle);
 }
 
-TEST_F(ProcessShutdownComponentTest, GracefulShutdown_ProcessCooperates_NoSigkillSent)
+TEST_F(ProcessShutdownTest, GracefulShutdown_ProcessCooperates_NoSigkillSent)
 {
     RecordProperty(
         "Description",
