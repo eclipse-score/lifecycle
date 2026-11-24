@@ -151,10 +151,10 @@ TEST_F(ProcessShutdownComponentTest, GracefulShutdown_SendsSigtermThenSigkillAft
     // delivers the exit event; call_once ensures the promise is fulfilled exactly once.
     EXPECT_CALL(*g_syscall_mock, kill(kFakePid, SIGKILL))
         .After(sigterm_call)
-        .WillRepeatedly([&](pid_t, int) -> int {
-            std::call_once(sigkill_flag, [&] {
+        .WillRepeatedly([&](pid_t pid, int sig) -> int {
+            std::call_once(sigkill_flag, [&, pid, sig] {
                 sigkill_time = std::chrono::steady_clock::now();
-                child_exit_promise.set_value({kFakePid, SIGKILL});
+                child_exit_promise.set_value({pid, sig});
             });
             return 0;
         });
@@ -169,7 +169,7 @@ TEST_F(ProcessShutdownComponentTest, GracefulShutdown_SendsSigtermThenSigkillAft
             *status = sig;
             return pid;
         })
-        .WillRepeatedly([](int* status) -> pid_t {
+        .WillRepeatedly([](int*) -> pid_t {
             errno = ECHILD;
             return -1;
         });
@@ -226,9 +226,9 @@ TEST_F(ProcessShutdownComponentTest, ImmediateShutdown_SendsSigkillWithoutSigter
     // termination_waiter_ is signalled. A second SIGKILL can arrive before OsHandler
     // delivers the exit event; call_once ensures the promise is fulfilled exactly once.
     EXPECT_CALL(*g_syscall_mock, kill(kFakePid, SIGKILL))
-        .WillRepeatedly([&](pid_t, int) -> int {
-            std::call_once(sigkill_flag, [&] {
-                child_exit_promise.set_value({kFakePid, SIGKILL});
+        .WillRepeatedly([&](pid_t pid, int sig) -> int {
+            std::call_once(sigkill_flag, [&, pid, sig] {
+                child_exit_promise.set_value({pid, sig});
             });
             return 0;
         });
@@ -243,7 +243,7 @@ TEST_F(ProcessShutdownComponentTest, ImmediateShutdown_SendsSigkillWithoutSigter
             *status = sig;
             return pid;
         })
-        .WillRepeatedly([](int* status) -> pid_t {
+        .WillRepeatedly([](int*) -> pid_t {
             errno = ECHILD;
             return -1;
         });
@@ -292,8 +292,8 @@ TEST_F(ProcessShutdownComponentTest, GracefulShutdown_ProcessCooperates_NoSigkil
     auto child_exit_future = child_exit_promise.get_future();
 
     EXPECT_CALL(*g_syscall_mock, kill(kFakePid, SIGTERM))
-        .WillOnce([&](pid_t, int) -> int {
-            child_exit_promise.set_value({kFakePid, 0});  // process exits in response to SIGTERM
+        .WillOnce([&](pid_t pid, int sig) -> int {
+            child_exit_promise.set_value({pid, sig});  // process exits cleanly in response to SIGTERM
             return 0;
         });
 
@@ -309,7 +309,7 @@ TEST_F(ProcessShutdownComponentTest, GracefulShutdown_ProcessCooperates_NoSigkil
             *status = sig;
             return pid;
         })
-        .WillRepeatedly([](int* status) -> pid_t {
+        .WillRepeatedly([](int*) -> pid_t {
             errno = ECHILD;
             return -1;
         });
