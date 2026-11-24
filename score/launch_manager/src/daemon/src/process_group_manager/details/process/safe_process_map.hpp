@@ -1,0 +1,185 @@
+/********************************************************************************
+ * Copyright (c) 2025 Contributors to the Eclipse Foundation
+ *
+ * See the NOTICE file(s) distributed with this work for additional
+ * information regarding copyright ownership.
+ *
+ * This program and the accompanying materials are made available under the
+ * terms of the Apache License Version 2.0 which is available at
+ * https://www.apache.org/licenses/LICENSE-2.0
+ *
+ * SPDX-License-Identifier: Apache-2.0
+ ********************************************************************************/
+
+#ifndef SAFE_PROCESS_MAP_HPP_INCLUDED
+#define SAFE_PROCESS_MAP_HPP_INCLUDED
+
+#include "score/mw/launch_manager/common/init_only_resource.hpp"
+#include "score/mw/launch_manager/osal/return_types.hpp"
+#include "score/mw/launch_manager/process_group_manager/details/icomponent_controller.hpp"
+#include "score/mw/launch_manager/process_group_manager/icomponent.hpp"
+#include <stddef.h>
+#include <condition_variable>
+#include <cstdint>
+#include <functional>
+#include <memory_resource>
+#include <mutex>
+#include <optional>
+#include <unordered_map>
+#include <utility>
+#include <variant>
+
+namespace score::mw::lifecycle::internal
+{
+
+/// @brief Enum type used for public methods return value.
+enum class SafeProcessMapReturnType : std::uint_fast8_t
+{
+    /// @brief A pair of values were matched, and the callback was invoked.
+    kMatched,
+
+    /// @brief An entry was inserted and is waiting for another insertion.
+    kInserted,
+
+    /// @brief An error occurred during insertion (e.g., out of memory).
+    kInsertionError,
+
+    /// @brief The provided process ID (`key`) is not valid ( < 0).
+    kInvalidIdError,
+};
+
+/// @brief Result of inserting a component into the SafeProcessMap.
+struct SafeProcessMapInsertResult
+{
+    /// @brief Outcome of the insertion.
+    SafeProcessMapReturnType type;
+
+    /// @brief Exit status of the already terminated process. Only valid if \c type is \c kMatched.
+    int32_t exit_status{0};
+};
+
+/// @brief Interface for inserting components into SafeProcessMap.
+class SafeProcessMapInserter
+{
+  public:
+    virtual ~SafeProcessMapInserter() = default;
+
+    /// @brief Insert a component into the map. If it matches with an already-
+    ///        inserted exit status, remove them both and return the exit status.
+    /// @note On \c kMatched, the termination handler is not invoked: the caller is
+    ///       responsible for handling the termination of the component.
+    /// @param key The key to insert under.
+    /// @param component The component to insert.
+    /// @return The outcome of the insertion, and the exit status on \c kMatched.
+    virtual SafeProcessMapInsertResult insertIfNotTerminated(osal::ProcessID key, IComponent* component) = 0;
+};
+
+/// @brief The SafeProcessMap waits for both a component and exit status to be
+///        registered under the same key, then invokes a callback with both
+///        values.
+class SafeProcessMap final : public SafeProcessMapInserter
+{
+  public:
+    /// @brief Constructs a SafeProcessMap.
+    /// @param capacity The maximum number of entries the map can hold.
+    /// @param termination_handler Called when an exit status and component are matched.
+    SafeProcessMap(size_t capacity, IComponentController& termination_handler);
+
+    /// @brief Destructor to clean up resources used by the SafeProcessMap object.
+    ~SafeProcessMap() = default;
+
+    /// @brief Insert an exit status into the map. If it matches with an already-
+    ///        inserted component, remove them both and notify the termination
+    ///        handler. The handler is invoked after the map lock was released.
+    /// @param key The key to insert under.
+    /// @param status The exit status to insert.
+    SafeProcessMapReturnType findTerminated(osal::ProcessID key, int32_t status);
+
+    /// @brief Insert a component into the map. If it matches with an already-
+    ///        inserted exit status, remove them both and return the exit status.
+    /// @note On \c kMatched, the termination handler is not invoked: the caller is
+    ///       responsible for handling the termination of the component.
+    /// @param key The key to insert under.
+    /// @param component The component to insert.
+    /// @return The outcome of the insertion, and the exit status on \c kMatched.
+    SafeProcessMapInsertResult insertIfNotTerminated(osal::ProcessID key, IComponent* component) override;
+
+  private:
+    /// @brief Outcome of tryInsert(), together with the matched value on \c kMatched.
+    template <typename MatchType>
+    struct TryInsertResult
+    {
+        SafeProcessMapReturnType type;
+        std::optional<MatchType> match;
+    };
+
+    /// @brief Insert @p value under @p key. If a value of type @p MatchType is already
+    ///        stored under @p key, remove it and return it instead.
+    template <typename InsertType, typename MatchType>
+    TryInsertResult<MatchType> tryInsert(osal::ProcessID key, InsertType value)
+    {
+        if (key < 0)
+        {
+            return {SafeProcessMapReturnType::kInvalidIdError, std::nullopt};
+        }
+
+        std::unique_lock map_lock(map_mutex_);
+
+        while (true)
+        {
+            const auto it = process_map_.find(key);
+
+            if (it == process_map_.end())
+            {
+                if (process_map_.size() == capacity_)
+                {
+                    return {SafeProcessMapReturnType::kInsertionError, std::nullopt};
+                }
+
+                const bool inserted = process_map_.try_emplace(key, value).second;
+
+                return {
+                    inserted ? SafeProcessMapReturnType::kInserted : SafeProcessMapReturnType::kInsertionError,
+                    std::nullopt};
+            }
+
+            if (const MatchType* match = std::get_if<MatchType>(&it->second))
+            {
+                const MatchType matched_value = *match;
+                process_map_.erase(it);
+                map_cv_.notify_all();
+                return {SafeProcessMapReturnType::kMatched, matched_value};
+            }
+
+            // If there is no match, and there is already a value stored, then
+            // we are dealing with a reused key. This is handled by blocking
+            // until the previous entry is removed.
+            map_cv_.wait(map_lock);
+        }
+    }
+
+    /// @brief Maximum number of processes which can be stored simultaneously.
+    size_t capacity_;
+
+    /// @brief Resource which pre-allocates memory.
+    InitOnlyResource init_resource_;
+
+    /// @brief Resource which allows the pre-allocated memory to be reused.
+    std::pmr::unsynchronized_pool_resource pool_resource_;
+
+    /// @brief Mutex which protects the map.
+    std::mutex map_mutex_;
+
+    /// @brief Condition variable which is signalled whenever an entry is removed.
+    std::condition_variable map_cv_;
+
+    /// @brief Map of process IDs to components or exit statuses.
+    std::pmr::unordered_map<osal::ProcessID, std::variant<int32_t, std::reference_wrapper<IComponent>>> process_map_;
+
+    /// @brief Handler to notify about process terminations.
+    IComponentController& termination_handler_;
+};
+
+}  // namespace score::mw::lifecycle::internal
+
+#endif  /// SAFE_PROCESS_MAP_HPP_INCLUDED

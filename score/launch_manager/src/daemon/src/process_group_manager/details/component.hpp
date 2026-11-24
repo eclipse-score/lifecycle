@@ -19,10 +19,10 @@
 #include "score/mw/launch_manager/configuration/component_config.hpp"
 #include "score/mw/launch_manager/process_group_manager/details/force_stop_action/iforce_stop_action.hpp"
 #include "score/mw/launch_manager/process_group_manager/details/handle.hpp"
-#include "score/mw/launch_manager/process_group_manager/details/icomponent.hpp"
 #include "score/mw/launch_manager/process_group_manager/details/ready_condition/iready_condition.hpp"
 #include "score/mw/launch_manager/process_group_manager/details/start_action/istart_action.hpp"
 #include "score/mw/launch_manager/process_group_manager/details/stop_action/istop_action.hpp"
+#include "score/mw/launch_manager/process_group_manager/icomponent.hpp"
 #include "score/result/result.h"
 #include <score/stop_token.hpp>
 #include <chrono>

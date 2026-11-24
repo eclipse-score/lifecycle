@@ -1,0 +1,479 @@
+/********************************************************************************
+ * Copyright (c) 2026 Contributors to the Eclipse Foundation
+ *
+ * See the NOTICE file(s) distributed with this work for additional
+ * information regarding copyright ownership.
+ *
+ * This program and the accompanying materials are made available under the
+ * terms of the Apache License Version 2.0 which is available at
+ * https://www.apache.org/licenses/LICENSE-2.0
+ *
+ * SPDX-License-Identifier: Apache-2.0
+ ********************************************************************************/
+
+#include <gmock/gmock.h>
+#include <gtest/gtest.h>
+
+#include <atomic>
+#include <chrono>
+#include <thread>
+#include <vector>
+
+#include "score/mw/launch_manager/common/constants.hpp"
+#include "score/mw/launch_manager/process_group_manager/details/mock_component_controller.hpp"
+#include "score/mw/launch_manager/process_group_manager/details/process/safe_process_map.hpp"
+
+using namespace testing;
+using namespace score::mw::lifecycle::internal;
+
+namespace
+{
+
+#ifdef __QNX__
+// stress tests on qemu qnx take to long otherwise
+constexpr int kNumThreads = 2;
+constexpr int kIterations = 512;
+constexpr int kPidsPerThread = 128;
+#else
+constexpr int kNumThreads = 4;
+constexpr int kIterations = 1000;
+constexpr int kPidsPerThread = 256;
+#endif
+
+constexpr uint32_t kCapacity = static_cast<uint32_t>(ProcessLimits::kMaxProcesses);
+
+class MockComponent : public IComponent
+{
+  public:
+    MOCK_METHOD(RequestResult, activate, (score::cpp::stop_token stop_token), (override));
+    MOCK_METHOD(RequestResult, deactivate, (score::cpp::stop_token stop_token), (override));
+    MOCK_METHOD(TerminationResult, tryHandleTermination, (const Handle& terminated, int32_t status), (override));
+    MOCK_METHOD(bool, active, (), (const override));
+    MOCK_METHOD(bool, stopped, (), (const override));
+    MOCK_METHOD(score::mw::lifecycle::IdentifierHash, getIdentifier, (), (const override));
+};
+
+class SafeProcessMapTest : public ::testing::Test
+{
+  protected:
+    void SetUp() override
+    {
+        RecordProperty("TestType", "interface-test");
+        RecordProperty("DerivationTechnique", "explorative-testing");
+    }
+
+    NiceMock<MockComponentController> controller_;
+    SafeProcessMap sut_{kCapacity, controller_};
+    MockComponent callback_;
+};
+
+// --- Construction ---
+
+TEST_F(SafeProcessMapTest, ConstructWithZeroCapacity)
+{
+    RecordProperty("Description", "SafeProcessMap can be constructed with zero capacity.");
+
+    // when
+    SafeProcessMap map(0, controller_);
+}
+
+// --- findTerminated ---
+
+TEST_F(SafeProcessMapTest, FindTerminatedWithNegativePidReturnsInvalid)
+{
+    RecordProperty("Description", "findTerminated returns kInvalidIdError for a negative process ID.");
+
+    // when
+    score::mw::lifecycle::internal::SafeProcessMapReturnType result = sut_.findTerminated(-1, 1000);
+
+    // then
+    EXPECT_EQ(result, score::mw::lifecycle::internal::SafeProcessMapReturnType::kInvalidIdError);
+}
+
+TEST_F(SafeProcessMapTest, FindTerminatedInsertsEntryWhenPidNotPresent)
+{
+    RecordProperty("Description", "findTerminated inserts an entry and returns kYield when the PID is not in the map.");
+
+    // when
+    score::mw::lifecycle::internal::SafeProcessMapReturnType result = sut_.findTerminated(1000, 0);
+
+    // then
+    EXPECT_EQ(result, score::mw::lifecycle::internal::SafeProcessMapReturnType::kInserted);
+}
+
+TEST_F(SafeProcessMapTest, FindTerminatedMatchesExistingInsertAndCallsCallback)
+{
+    RecordProperty(
+        "Description", "findTerminated matches an existing insert entry and invokes the termination callback.");
+
+    // given
+    sut_.insertIfNotTerminated(1000, &callback_);
+
+    // then — the termination is reported for the process with the matched pid
+    EXPECT_CALL(
+        controller_,
+        terminated(
+            Ref(callback_),
+            Truly([](const Handle& h) {
+                return isSameResource(h, ProcessHandle{1000, nullptr});
+            }),
+            42));
+
+    // when
+    score::mw::lifecycle::internal::SafeProcessMapReturnType result = sut_.findTerminated(1000, 42);
+    EXPECT_EQ(result, score::mw::lifecycle::internal::SafeProcessMapReturnType::kMatched);
+}
+
+// --- insertIfNotTerminated ---
+
+TEST_F(SafeProcessMapTest, InsertIntoEmptyTreeReturnsYield)
+{
+    RecordProperty("Description", "insertIfNotTerminated returns kYield when inserting into an empty tree.");
+
+    // when
+    score::mw::lifecycle::internal::SafeProcessMapReturnType result = sut_.insertIfNotTerminated(2000, &callback_).type;
+
+    // then
+    EXPECT_EQ(result, score::mw::lifecycle::internal::SafeProcessMapReturnType::kInserted);
+}
+
+TEST_F(SafeProcessMapTest, InsertMatchesExistingFindTerminatedEntry)
+{
+    RecordProperty(
+        "Description",
+        "insertIfNotTerminated returns kMatched together with the stored exit status when matching an entry "
+        "previously added by findTerminated, and leaves handling the termination to the caller.");
+
+    // given
+    sut_.findTerminated(1000, 42);
+
+    // then — the termination handler is not invoked, the caller handles the termination
+    EXPECT_CALL(controller_, terminated(_, _, _)).Times(0);
+
+    // when
+    const SafeProcessMapInsertResult result = sut_.insertIfNotTerminated(1000, &callback_);
+
+    // then
+    EXPECT_EQ(result.type, score::mw::lifecycle::internal::SafeProcessMapReturnType::kMatched);
+    EXPECT_EQ(result.exit_status, 42);
+}
+
+TEST_F(SafeProcessMapTest, MatchedEntryIsRemoved)
+{
+    RecordProperty(
+        "Description",
+        "After insertIfNotTerminated matched an entry previously added by findTerminated, the entry is removed, so "
+        "inserting the same PID again creates a new entry.");
+
+    // given
+    sut_.findTerminated(1000, 42);
+    ASSERT_EQ(
+        sut_.insertIfNotTerminated(1000, &callback_).type,
+        score::mw::lifecycle::internal::SafeProcessMapReturnType::kMatched);
+
+    // when / then
+    EXPECT_EQ(
+        sut_.insertIfNotTerminated(1000, &callback_).type,
+        score::mw::lifecycle::internal::SafeProcessMapReturnType::kInserted);
+}
+
+TEST_F(SafeProcessMapTest, TerminationHandlerMayAccessMapWhenFindTerminatedMatches)
+{
+    RecordProperty(
+        "Description",
+        "findTerminated invokes the termination handler without holding the map lock, so the handler may access the "
+        "map (as a component does when it re-inserts itself) without a deadlock.");
+
+    // given
+    sut_.insertIfNotTerminated(1000, &callback_);
+
+    // then — re-entering the map from the handler must not deadlock
+    EXPECT_CALL(controller_, terminated(Ref(callback_), _, 42))
+        .WillOnce(Invoke([this](IComponent& component, const Handle&, int32_t) {
+            EXPECT_EQ(
+                sut_.insertIfNotTerminated(2000, &component).type,
+                score::mw::lifecycle::internal::SafeProcessMapReturnType::kInserted);
+        }));
+
+    // when
+    EXPECT_EQ(sut_.findTerminated(1000, 42), score::mw::lifecycle::internal::SafeProcessMapReturnType::kMatched);
+}
+
+TEST_F(SafeProcessMapTest, InsertMultipleNodesThenFindTerminatedRemovesAll)
+{
+    RecordProperty(
+        "Description", "Inserting kMaxProcesses nodes and then calling findTerminated for each returns kMatched.");
+
+    // given
+    NiceMock<MockComponent> callbacks[kCapacity];
+    for (uint32_t i = 1; i <= kCapacity; ++i)
+    {
+        sut_.insertIfNotTerminated(static_cast<int32_t>(i), &callbacks[i - 1]);
+    }
+
+    // when / then
+    for (uint32_t j = 1; j <= kCapacity; ++j)
+    {
+        EXPECT_EQ(
+            sut_.findTerminated(static_cast<int32_t>(j), 0),
+            score::mw::lifecycle::internal::SafeProcessMapReturnType::kMatched);
+    }
+}
+
+TEST_F(SafeProcessMapTest, InsertBeyondCapacityReturnsOutOfMemory)
+{
+    RecordProperty(
+        "Description",
+        "insertIfNotTerminated returns kInsertionError when the map is full and a new entry is attempted.");
+
+    // given
+    NiceMock<MockComponent> callbacks[kCapacity];
+    for (uint32_t i = 0; i < kCapacity; ++i)
+    {
+        EXPECT_EQ(
+            sut_.insertIfNotTerminated(static_cast<int32_t>(i), &callbacks[i]).type,
+            score::mw::lifecycle::internal::SafeProcessMapReturnType::kInserted);
+    }
+
+    // when
+    score::mw::lifecycle::internal::SafeProcessMapReturnType result =
+        sut_.insertIfNotTerminated(static_cast<int32_t>(kCapacity + 1), &callback_).type;
+
+    // then
+    EXPECT_EQ(result, score::mw::lifecycle::internal::SafeProcessMapReturnType::kInsertionError);
+}
+
+// --- Anomalous (PID reuse) cases ---
+
+TEST_F(SafeProcessMapTest, InsertSamePidTwiceYieldsUntilFindTerminatedResolves)
+{
+    RecordProperty(
+        "Description",
+        "Inserting the same PID twice causes the second insert to yield until findTerminated resolves it.");
+
+    // given
+    std::atomic_bool first_done{false};
+    std::atomic_bool second_done{false};
+    score::mw::lifecycle::internal::SafeProcessMapReturnType ret1;
+    score::mw::lifecycle::internal::SafeProcessMapReturnType ret2;
+
+    NiceMock<MockComponent> cb;
+
+    std::thread inserter([&]() {
+        ret1 = sut_.insertIfNotTerminated(42, &cb).type;
+        first_done.store(true);
+        ret2 = sut_.insertIfNotTerminated(42, &cb).type;
+        second_done.store(true);
+    });
+
+    // when — wait for first insert to complete
+    while (!first_done)
+        std::this_thread::yield();
+    std::this_thread::sleep_for(std::chrono::milliseconds(10));
+
+    // then — first insertion succeeded, second is still blocked
+    EXPECT_EQ(ret1, score::mw::lifecycle::internal::SafeProcessMapReturnType::kInserted);
+    EXPECT_FALSE(second_done.load());
+
+    // when — resolve the anomaly
+    EXPECT_EQ(sut_.findTerminated(42, 0), score::mw::lifecycle::internal::SafeProcessMapReturnType::kMatched);
+    inserter.join();
+
+    // then
+    EXPECT_TRUE(second_done.load());
+    EXPECT_EQ(ret2, score::mw::lifecycle::internal::SafeProcessMapReturnType::kInserted);
+}
+
+TEST_F(SafeProcessMapTest, FindTerminatedSamePidTwiceYieldsUntilInsertResolves)
+{
+    RecordProperty(
+        "Description",
+        "Calling findTerminated twice with the same PID causes the second call to yield "
+        "until insertIfNotTerminated resolves it.");
+
+    // given
+    std::atomic_bool first_done{false};
+    std::atomic_bool second_done{false};
+    score::mw::lifecycle::internal::SafeProcessMapReturnType ret1;
+    score::mw::lifecycle::internal::SafeProcessMapReturnType ret2;
+
+    NiceMock<MockComponent> cb;
+
+    std::thread finder([&]() {
+        ret1 = sut_.findTerminated(42, 0);
+        first_done.store(true);
+        ret2 = sut_.findTerminated(42, 0);
+        second_done.store(true);
+    });
+
+    // when — wait for first find to complete
+    while (!first_done)
+        std::this_thread::yield();
+    std::this_thread::sleep_for(std::chrono::milliseconds(10));
+
+    // then — first succeeded, second is still blocked
+    EXPECT_EQ(ret1, score::mw::lifecycle::internal::SafeProcessMapReturnType::kInserted);
+    EXPECT_FALSE(second_done.load());
+
+    // when — resolve the anomaly
+    EXPECT_EQ(
+        sut_.insertIfNotTerminated(42, &cb).type, score::mw::lifecycle::internal::SafeProcessMapReturnType::kMatched);
+    finder.join();
+
+    // then
+    EXPECT_TRUE(second_done.load());
+    EXPECT_EQ(ret2, score::mw::lifecycle::internal::SafeProcessMapReturnType::kInserted);
+}
+
+// --- Max depth tree ---
+
+TEST_F(SafeProcessMapTest, FindTerminatedWorksAtMaxTreeDepth)
+{
+    RecordProperty("Description", "The binary tree handles maximum depth correctly.");
+
+    // given — build a deep tree using bit patterns that always branch one way
+    EXPECT_EQ(sut_.findTerminated(0x00000000, 0), score::mw::lifecycle::internal::SafeProcessMapReturnType::kInserted);
+    EXPECT_EQ(sut_.findTerminated(0x00000001, 0), score::mw::lifecycle::internal::SafeProcessMapReturnType::kInserted);
+    EXPECT_EQ(sut_.findTerminated(0x00000002, 0), score::mw::lifecycle::internal::SafeProcessMapReturnType::kInserted);
+    EXPECT_EQ(sut_.findTerminated(0x00000003, 0), score::mw::lifecycle::internal::SafeProcessMapReturnType::kInserted);
+    EXPECT_EQ(sut_.findTerminated(0x00000007, 0), score::mw::lifecycle::internal::SafeProcessMapReturnType::kInserted);
+    EXPECT_EQ(sut_.findTerminated(0x0000000F, 0), score::mw::lifecycle::internal::SafeProcessMapReturnType::kInserted);
+    EXPECT_EQ(sut_.findTerminated(0x0000001F, 0), score::mw::lifecycle::internal::SafeProcessMapReturnType::kInserted);
+    EXPECT_EQ(sut_.findTerminated(0x0000003F, 0), score::mw::lifecycle::internal::SafeProcessMapReturnType::kInserted);
+    EXPECT_EQ(sut_.findTerminated(0x0000007F, 0), score::mw::lifecycle::internal::SafeProcessMapReturnType::kInserted);
+    EXPECT_EQ(sut_.findTerminated(0x000000FF, 0), score::mw::lifecycle::internal::SafeProcessMapReturnType::kInserted);
+    EXPECT_EQ(sut_.findTerminated(0x000001FF, 0), score::mw::lifecycle::internal::SafeProcessMapReturnType::kInserted);
+    EXPECT_EQ(sut_.findTerminated(0x000003FF, 0), score::mw::lifecycle::internal::SafeProcessMapReturnType::kInserted);
+    EXPECT_EQ(sut_.findTerminated(0x000007FF, 0), score::mw::lifecycle::internal::SafeProcessMapReturnType::kInserted);
+    EXPECT_EQ(sut_.findTerminated(0x00000FFF, 0), score::mw::lifecycle::internal::SafeProcessMapReturnType::kInserted);
+    EXPECT_EQ(sut_.findTerminated(0x00001FFF, 0), score::mw::lifecycle::internal::SafeProcessMapReturnType::kInserted);
+    EXPECT_EQ(sut_.findTerminated(0x00003FFF, 0), score::mw::lifecycle::internal::SafeProcessMapReturnType::kInserted);
+    EXPECT_EQ(sut_.findTerminated(0x00007FFF, 0), score::mw::lifecycle::internal::SafeProcessMapReturnType::kInserted);
+    EXPECT_EQ(sut_.findTerminated(0x0000FFFF, 0), score::mw::lifecycle::internal::SafeProcessMapReturnType::kInserted);
+    EXPECT_EQ(sut_.findTerminated(0x0000FFFE, 0), score::mw::lifecycle::internal::SafeProcessMapReturnType::kInserted);
+    EXPECT_EQ(sut_.findTerminated(0x0001FFFF, 0), score::mw::lifecycle::internal::SafeProcessMapReturnType::kInserted);
+    EXPECT_EQ(sut_.findTerminated(0x0003FFFF, 0), score::mw::lifecycle::internal::SafeProcessMapReturnType::kInserted);
+    EXPECT_EQ(sut_.findTerminated(0x0007FFFF, 0), score::mw::lifecycle::internal::SafeProcessMapReturnType::kInserted);
+    EXPECT_EQ(sut_.findTerminated(0x000FFFFF, 0), score::mw::lifecycle::internal::SafeProcessMapReturnType::kInserted);
+    EXPECT_EQ(sut_.findTerminated(0x001FFFFF, 0), score::mw::lifecycle::internal::SafeProcessMapReturnType::kInserted);
+    EXPECT_EQ(sut_.findTerminated(0x003FFFFF, 0), score::mw::lifecycle::internal::SafeProcessMapReturnType::kInserted);
+    EXPECT_EQ(sut_.findTerminated(0x007FFFFF, 0), score::mw::lifecycle::internal::SafeProcessMapReturnType::kInserted);
+    EXPECT_EQ(sut_.findTerminated(0x00FFFFFF, 0), score::mw::lifecycle::internal::SafeProcessMapReturnType::kInserted);
+    EXPECT_EQ(sut_.findTerminated(0x01FFFFFF, 0), score::mw::lifecycle::internal::SafeProcessMapReturnType::kInserted);
+    EXPECT_EQ(sut_.findTerminated(0x03FFFFFF, 0), score::mw::lifecycle::internal::SafeProcessMapReturnType::kInserted);
+    EXPECT_EQ(sut_.findTerminated(0x07FFFFFF, 0), score::mw::lifecycle::internal::SafeProcessMapReturnType::kInserted);
+    EXPECT_EQ(sut_.findTerminated(0x0FFFFFFF, 0), score::mw::lifecycle::internal::SafeProcessMapReturnType::kInserted);
+    EXPECT_EQ(sut_.findTerminated(0x1FFFFFFF, 0), score::mw::lifecycle::internal::SafeProcessMapReturnType::kInserted);
+    EXPECT_EQ(sut_.findTerminated(0x3FFFFFFF, 0), score::mw::lifecycle::internal::SafeProcessMapReturnType::kInserted);
+    EXPECT_EQ(sut_.findTerminated(0x7FFFFFFF, 0), score::mw::lifecycle::internal::SafeProcessMapReturnType::kInserted);
+
+    // when / then — boundary values
+    EXPECT_EQ(
+        sut_.findTerminated(static_cast<int32_t>(0xFFFFFFFF), 0),
+        score::mw::lifecycle::internal::SafeProcessMapReturnType::kInvalidIdError);
+    EXPECT_EQ(
+        sut_.insertIfNotTerminated(static_cast<int32_t>(0xFFFFFFFF), &callback_).type,
+        score::mw::lifecycle::internal::SafeProcessMapReturnType::kInvalidIdError);
+
+    // when / then — retrieve entries using insertIfNotTerminated
+    NiceMock<MockComponent> cb;
+    EXPECT_EQ(
+        sut_.insertIfNotTerminated(0x0000FFFE, &cb).type,
+        score::mw::lifecycle::internal::SafeProcessMapReturnType::kMatched);
+    EXPECT_EQ(
+        sut_.insertIfNotTerminated(0x00010000, &cb).type,
+        score::mw::lifecycle::internal::SafeProcessMapReturnType::kInserted);
+    EXPECT_EQ(
+        sut_.insertIfNotTerminated(0x0001FFFF, &cb).type,
+        score::mw::lifecycle::internal::SafeProcessMapReturnType::kMatched);
+    EXPECT_EQ(
+        sut_.insertIfNotTerminated(0x00000002, &cb).type,
+        score::mw::lifecycle::internal::SafeProcessMapReturnType::kMatched);
+}
+
+// --- Multi-threaded stress tests ---
+
+TEST_F(SafeProcessMapTest, ConcurrentInsertAndFindFromMultipleThreads)
+{
+    RecordProperty(
+        "Description",
+        "Multiple threads concurrently inserting and finding terminated processes completes without error.");
+
+    NiceMock<MockComponent> stubs[kNumThreads];
+    score::mw::lifecycle::internal::SafeProcessMapReturnType results[kNumThreads] = {};
+
+    // when
+    std::vector<std::thread> threads;
+    threads.reserve(kNumThreads);
+    for (int t = 0; t < kNumThreads; ++t)
+    {
+        threads.emplace_back([&, t]() {
+            int base = 1000 + t * kPidsPerThread;
+            for (int j = 0; j < kIterations; ++j)
+            {
+                for (int i = 0; i < kPidsPerThread; ++i)
+                {
+                    results[t] = sut_.insertIfNotTerminated(base + i, &stubs[t]).type;
+                }
+                for (int i = 0; i < kPidsPerThread; ++i)
+                {
+                    sut_.findTerminated(base + i, 0);
+                }
+            }
+        });
+    }
+
+    for (auto& thread : threads)
+    {
+        thread.join();
+    }
+
+    // then
+    for (int t = 0; t < kNumThreads; ++t)
+    {
+        EXPECT_EQ(results[t], score::mw::lifecycle::internal::SafeProcessMapReturnType::kInserted);
+    }
+}
+
+TEST_F(SafeProcessMapTest, ConcurrentFindAndInsertFromMultipleThreads)
+{
+    RecordProperty(
+        "Description", "Multiple threads concurrently finding and inserting processes completes without error.");
+
+    NiceMock<MockComponent> stubs[kNumThreads];
+    score::mw::lifecycle::internal::SafeProcessMapReturnType results[kNumThreads] = {};
+
+    // when
+    std::vector<std::thread> threads;
+    threads.reserve(kNumThreads);
+    for (int t = 0; t < kNumThreads; ++t)
+    {
+        threads.emplace_back([&, t]() {
+            int base = 1000 + t * kPidsPerThread;
+            for (int j = 0; j < kIterations; ++j)
+            {
+                for (int i = 0; i < kPidsPerThread; ++i)
+                {
+                    results[t] = sut_.findTerminated(base + i, 0);
+                }
+                for (int i = 0; i < kPidsPerThread; ++i)
+                {
+                    sut_.insertIfNotTerminated(base + i, &stubs[t]);
+                }
+            }
+        });
+    }
+
+    for (auto& thread : threads)
+    {
+        thread.join();
+    }
+
+    // then
+    for (int t = 0; t < kNumThreads; ++t)
+    {
+        EXPECT_EQ(results[t], score::mw::lifecycle::internal::SafeProcessMapReturnType::kInserted);
+    }
+}
+
+}  // namespace

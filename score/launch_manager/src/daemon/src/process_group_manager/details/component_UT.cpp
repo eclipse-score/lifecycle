@@ -15,13 +15,13 @@
 #include "score/mw/launch_manager/alive_monitor/mock_supervision_factory.hpp"
 #include "score/mw/launch_manager/process_group_manager/details/component.hpp"
 #include "score/mw/launch_manager/process_group_manager/details/force_stop_action/mock_force_stop_action.hpp"
-#include "score/mw/launch_manager/process_group_manager/details/process_launcher.hpp"
+#include "score/mw/launch_manager/process_group_manager/details/process/mock_iprocess.hpp"
+#include "score/mw/launch_manager/process_group_manager/details/process/process_launcher.hpp"
+#include "score/mw/launch_manager/process_group_manager/details/process/process_terminated_ready_condition.hpp"
+#include "score/mw/launch_manager/process_group_manager/details/process/report_running_ready_condition.hpp"
 #include "score/mw/launch_manager/process_group_manager/details/ready_condition/mock_ready_condition.hpp"
-#include "score/mw/launch_manager/process_group_manager/details/ready_condition/process_terminated_ready_condition.hpp"
-#include "score/mw/launch_manager/process_group_manager/details/ready_condition/report_running_ready_condition.hpp"
 #include "score/mw/launch_manager/process_group_manager/details/start_action/mock_start_action.hpp"
 #include "score/mw/launch_manager/process_group_manager/details/stop_action/mock_stop_action.hpp"
-#include "score/mw/launch_manager/process_group_manager/mock_iprocess.hpp"
 #include "score/mw/lifecycle/execution_error.h"
 #include <gmock/gmock.h>
 #include <gtest/gtest.h>

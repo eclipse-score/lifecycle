@@ -16,7 +16,7 @@
 
 #include "score/mw/launch_manager/process_group_manager/details/force_stop_action/iforce_stop_action.hpp"
 #include "score/mw/launch_manager/process_group_manager/details/handle.hpp"
-#include "score/mw/launch_manager/process_group_manager/details/icomponent.hpp"
+#include "score/mw/launch_manager/process_group_manager/icomponent.hpp"
 #include "score/result/result.h"
 
 namespace score::mw::lifecycle::internal

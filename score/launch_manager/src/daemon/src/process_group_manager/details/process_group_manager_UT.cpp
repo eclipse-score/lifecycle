@@ -17,7 +17,7 @@
 #include "score/mw/launch_manager/alive_monitor/mock_alive_supervision_handle.hpp"
 #include "score/mw/launch_manager/alive_monitor/mock_supervision_factory.hpp"
 #include "score/mw/launch_manager/osal/ipc_comms.hpp"
-#include "score/mw/launch_manager/process_group_manager/mock_iprocess.hpp"
+#include "score/mw/launch_manager/process_group_manager/details/process/mock_iprocess.hpp"
 #include "score/mw/launch_manager/recovery_client/mock_recovery_client.h"
 #include "score/mw/launch_manager/watchdog/mock_IWatchdogIf.hpp"
 

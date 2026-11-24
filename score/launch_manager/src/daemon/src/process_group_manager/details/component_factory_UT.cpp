@@ -15,8 +15,8 @@
 #include "score/mw/launch_manager/alive_monitor/mock_supervision_factory.hpp"
 #include "score/mw/launch_manager/osal/mock_ifile_waiter.hpp"
 #include "score/mw/launch_manager/process_group_manager/details/component_factory.hpp"
-#include "score/mw/launch_manager/process_group_manager/details/mock_safe_process_map_inserter.hpp"
-#include "score/mw/launch_manager/process_group_manager/mock_iprocess.hpp"
+#include "score/mw/launch_manager/process_group_manager/details/process/mock_iprocess.hpp"
+#include "score/mw/launch_manager/process_group_manager/details/process/mock_safe_process_map_inserter.hpp"
 #include "score/mw/lifecycle/execution_error.h"
 #include <gmock/gmock.h>
 #include <gtest/gtest.h>

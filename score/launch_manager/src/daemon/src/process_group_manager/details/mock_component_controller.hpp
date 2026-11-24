@@ -13,7 +13,7 @@
 #ifndef MOCK_COMPONENT_CONTROLLER_HPP_INCLUDED
 #define MOCK_COMPONENT_CONTROLLER_HPP_INCLUDED
 
-#include "score/mw/launch_manager/process_group_manager/details/safe_process_map.hpp"
+#include "score/mw/launch_manager/process_group_manager/details/icomponent_controller.hpp"
 #include <gmock/gmock.h>
 
 namespace score::mw::lifecycle::internal

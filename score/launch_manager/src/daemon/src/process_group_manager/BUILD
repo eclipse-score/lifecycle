@@ -11,33 +11,7 @@
 # SPDX-License-Identifier: Apache-2.0
 # *******************************************************************************
 load("@rules_cc//cc:defs.bzl", "cc_library")
-
-cc_library(
-    name = "iprocess",
-    hdrs = ["iprocess.hpp"],
-    include_prefix = "score/mw/launch_manager/process_group_manager",
-    strip_include_prefix = "/score/launch_manager/src/daemon/src/process_group_manager",
-    visibility = ["//score:__subpackages__"],
-    deps = [
-        "//score/launch_manager/src/daemon/src/common:constants",
-        "//score/launch_manager/src/daemon/src/configuration:component_config",
-        "//score/launch_manager/src/daemon/src/osal:ipc_comms",
-    ],
-)
-
-cc_library(
-    name = "mock_iprocess",
-    testonly = True,
-    hdrs = ["mock_iprocess.hpp"],
-    include_prefix = "score/mw/launch_manager/process_group_manager",
-    strip_include_prefix = "/score/launch_manager/src/daemon/src/process_group_manager",
-    visibility = ["//score:__subpackages__"],
-    deps = [
-        ":iprocess",
-        "@googletest//:gtest",
-        "@googletest//:gtest_main",
-    ],
-)
+load("//tests/utils/bazel:unit_test.bzl", "lm_cc_test")
 
 cc_library(
     name = "process_group_manager",
@@ -47,7 +21,6 @@ cc_library(
     strip_include_prefix = "/score/launch_manager/src/daemon/src/process_group_manager",
     visibility = ["//score:__subpackages__"],
     deps = [
-        ":iprocess",
         ":irun_target_control",
         "//score/launch_manager:error",
         "//score/launch_manager/src/daemon/src/alive_monitor:i_alive_monitor",
@@ -67,11 +40,12 @@ cc_library(
         "//score/launch_manager/src/daemon/src/process_group_manager/details:component_event_queue",
         "//score/launch_manager/src/daemon/src/process_group_manager/details:component_task",
         "//score/launch_manager/src/daemon/src/process_group_manager/details:graph",
-        "//score/launch_manager/src/daemon/src/process_group_manager/details:os_handler",
-        "//score/launch_manager/src/daemon/src/process_group_manager/details:process_handling",
-        "//score/launch_manager/src/daemon/src/process_group_manager/details:process_launcher",
-        "//score/launch_manager/src/daemon/src/process_group_manager/details:process_monitor",
-        "//score/launch_manager/src/daemon/src/process_group_manager/details:safe_process_map",
+        "//score/launch_manager/src/daemon/src/process_group_manager/details/process:iprocess",
+        "//score/launch_manager/src/daemon/src/process_group_manager/details/process:os_handler",
+        "//score/launch_manager/src/daemon/src/process_group_manager/details/process:process_handling",
+        "//score/launch_manager/src/daemon/src/process_group_manager/details/process:process_launcher",
+        "//score/launch_manager/src/daemon/src/process_group_manager/details/process:process_monitor",
+        "//score/launch_manager/src/daemon/src/process_group_manager/details/process:safe_process_map",
         "//score/launch_manager/src/daemon/src/recovery_client:irecovery_client",
         "//score/launch_manager/src/daemon/src/watchdog:i_watchdog_if",
         "//score/launch_manager/src/lm_control",
@@ -79,14 +53,6 @@ cc_library(
         "@score_baselibs//score/result",
         "@score_baselibs//score/result:error",
     ],
-)
-
-cc_library(
-    name = "process_state",
-    hdrs = ["process_state.hpp"],
-    include_prefix = "score/mw/launch_manager/process_group_manager",
-    strip_include_prefix = "/score/launch_manager/src/daemon/src/process_group_manager",
-    visibility = ["//score:__subpackages__"],
 )
 
 cc_library(
@@ -98,5 +64,53 @@ cc_library(
     deps = [
         "//score/launch_manager/src/daemon/src/common:identifier_hash",
         "@score_baselibs//score/result",
+    ],
+)
+
+cc_library(
+    name = "icomponent",
+    hdrs = ["icomponent.hpp"],
+    include_prefix = "score/mw/launch_manager/process_group_manager",
+    strip_include_prefix = "/score/launch_manager/src/daemon/src/process_group_manager",
+    visibility = ["//score:__subpackages__"],
+    deps = [
+        "//score/launch_manager/src/daemon/src/common:identifier_hash",
+        "//score/launch_manager/src/daemon/src/process_group_manager/details:handle",
+        "@score_baselibs//score/language/futurecpp",
+    ],
+)
+
+lm_cc_test(
+    name = "icomponent_UT",
+    srcs = ["icomponent_UT.cpp"],
+    deps = [
+        ":icomponent",
+        ":mock_component",
+        "@googletest//:gtest_main",
+    ],
+)
+
+cc_library(
+    name = "mock_component",
+    testonly = True,
+    hdrs = ["mock_component.hpp"],
+    include_prefix = "score/mw/launch_manager/process_group_manager",
+    strip_include_prefix = "/score/launch_manager/src/daemon/src/process_group_manager",
+    visibility = ["//score:__subpackages__"],
+    deps = [
+        ":icomponent",
+        "@googletest//:gtest",
+        "@googletest//:gtest_main",
+    ],
+)
+
+cc_library(
+    name = "run_target",
+    hdrs = ["run_target.hpp"],
+    include_prefix = "score/mw/launch_manager/process_group_manager",
+    strip_include_prefix = "/score/launch_manager/src/daemon/src/process_group_manager",
+    visibility = ["//score/launch_manager/src/daemon/src/process_group_manager:__subpackages__"],
+    deps = [
+        ":icomponent",
     ],
 )
