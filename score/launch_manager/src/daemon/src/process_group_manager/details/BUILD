@@ -591,8 +591,8 @@ lm_cc_test(
 )
 
 lm_cc_test(
-    name = "process_shutdown_CT",
-    srcs = ["process_shutdown_CT.cpp"],
+    name = "process_shutdown_UT",
+    srcs = ["process_shutdown_UT.cpp"],
     linkopts = linker_wrap_symbols(MOCK_SYSCALLS_WRAPPED_SYMBOLS),
     linkstatic = True,
     deps = [
