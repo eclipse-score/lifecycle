@@ -29,3 +29,6 @@ build:iwyu --output_groups=report
 build:iwyu --@bazel_iwyu//:iwyu_mappings=//quality/iwyu:mappings
 # Report all findings instead of stopping at the first failing target.
 build:iwyu --keep_going
+# The query also selects platform-specific targets (e.g. QNX-only osal:start_process); skip them
+# instead of failing the build. Same as `--config=codeql`.
+build:iwyu --skip_incompatible_explicit_targets
