@@ -81,10 +81,10 @@ table SchedulerParameters {
 /// A value that is not set keeps the operating system default.
 table ThreadParameters {
   /// @title: Scheduler Parameters
-  /// Scheduling policy and priority. If not set, the worker inherits the scheduling of the thread that starts the health monitor.
+  /// Scheduling policy and priority. If not set, the monitoring thread inherits the scheduling of the thread that starts the health monitor.
   scheduler_parameters: SchedulerParameters;
   /// @title: Affinity
-  /// CPU indices the worker can run on, each below the CPU count. If empty or not set, the worker can run on any CPU.
+  /// CPU indices the monitoring thread can run on, each below the CPU count. If empty or not set, the monitoring thread can run on any CPU.
   affinity: [uint32];
   /// @title: Stack Size
   /// @min: 0

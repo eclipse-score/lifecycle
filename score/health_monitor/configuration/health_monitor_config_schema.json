@@ -38,7 +38,7 @@
                 "scheduler_parameters": {
                     "type": "object",
                     "title": "Scheduler Parameters",
-                    "description": "Scheduling policy and priority. If not set, the worker inherits the scheduling of the thread that starts the health monitor.",
+                    "description": "Scheduling policy and priority. If not set, the monitoring thread inherits the scheduling of the thread that starts the health monitor.",
                     "required": [
                         "policy",
                         "priority"
@@ -65,7 +65,7 @@
                 "affinity": {
                     "type": "array",
                     "title": "Affinity",
-                    "description": "CPU indices the worker can run on, each below the CPU count. If empty or not set, the worker can run on any CPU.",
+                    "description": "CPU indices the monitoring thread can run on, each below the CPU count. If empty or not set, the monitoring thread can run on any CPU.",
                     "items": {
                         "type": "integer"
                     }
