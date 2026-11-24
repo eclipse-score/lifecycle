@@ -31,6 +31,8 @@ py_binary(
 
 # Regenerates the checked-in health monitor JSON schema from health_monitor_config.fbs.
 #   bazel run //scripts/config_mapping:generate_health_monitor_schema
+# The output is a workspace-relative path, not a label: the schema is written, not read,
+# so the target also works when the schema file does not exist.
 py_binary(
     name = "generate_health_monitor_schema",
     srcs = ["generate_health_monitor_schema.py"],
@@ -38,11 +40,10 @@ py_binary(
         "--in",
         "$(location //score/health_monitor/configuration:health_monitor_config_postproc_schema)",
         "--output",
-        "$(rootpath //score/health_monitor/configuration:health_monitor_config_schema.json)",
+        "score/health_monitor/configuration/health_monitor_config_schema.json",
     ],
     data = [
         "//score/health_monitor/configuration:health_monitor_config_postproc_schema",
-        "//score/health_monitor/configuration:health_monitor_config_schema.json",
     ],
     target_compatible_with = ["@platforms//os:linux"],
 )
