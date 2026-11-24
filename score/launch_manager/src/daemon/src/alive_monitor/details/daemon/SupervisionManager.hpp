@@ -123,7 +123,7 @@ class SupervisionManager
 
     /// @brief Vector of Alive Supervisions
     std::vector<supervision::Alive> alive_supervisions_;
-    
+
     /// @brief Factory used to construct alive supervision workers
     std::unique_ptr<factory::IAliveWorkerFactory> flat_cfg_factory_;
 
