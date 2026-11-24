@@ -1,7 +1,7 @@
 {
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "title": "Health Monitor Configuration",
-    "description": "Configuration of one health monitor instance.\nAt least one monitor is required.",
+    "description": "Configuration of one health monitor instance. At least one monitor is required.",
     "type": "object",
     "required": [
         "schema_version"
@@ -18,7 +18,7 @@
         "supervisor_api_cycle_ms": {
             "type": "integer",
             "title": "Supervisor API Cycle",
-            "description": "Time in milliseconds between two alive notifications to the supervisor.\nIt must be an integer multiple of internal_processing_cycle_ms.",
+            "description": "Time in milliseconds between two alive notifications to the supervisor. It must be an integer multiple of internal_processing_cycle_ms.",
             "default": 500,
             "minimum": 1
         },
@@ -38,7 +38,7 @@
                 "scheduler_parameters": {
                     "type": "object",
                     "title": "Scheduler Parameters",
-                    "description": "Scheduling policy and priority.\nIf not set, the monitoring thread inherits the scheduling of the thread that starts the health monitor.",
+                    "description": "Scheduling policy and priority. If not set, the monitoring thread inherits the scheduling of the thread that starts the health monitor.",
                     "required": [
                         "policy",
                         "priority"
@@ -65,7 +65,7 @@
                 "affinity": {
                     "type": "array",
                     "title": "Affinity",
-                    "description": "CPU indices the monitoring thread can run on, each below the CPU count.\nIf empty or not set, the monitoring thread can run on any CPU.",
+                    "description": "CPU indices the monitoring thread can run on, each below the CPU count. If empty or not set, the monitoring thread can run on any CPU.",
                     "items": {
                         "type": "integer"
                     }
@@ -73,7 +73,7 @@
                 "stack_size": {
                     "type": "integer",
                     "title": "Stack Size",
-                    "description": "Stack size in bytes.\nIf not set, the monitoring thread uses the operating system default.\nIt must not be below the minimum of the operating system.",
+                    "description": "Stack size in bytes. If not set, the monitoring thread uses the operating system default. It must not be below the minimum of the operating system.",
                     "minimum": 0
                 }
             }
@@ -149,7 +149,7 @@
                     "range": {
                         "$ref": "#/$defs/time_range",
                         "title": "Heartbeat Range",
-                        "description": "Allowed time between two heartbeats.\nmin_ms must exceed half the internal processing cycle."
+                        "description": "Allowed time between two heartbeats. min_ms must exceed half the internal processing cycle."
                     }
                 }
             }
@@ -177,12 +177,12 @@
                     "initial_state": {
                         "type": "string",
                         "title": "Initial State",
-                        "description": "Tag of the state before the first transition.\nIt must be a state of the monitor."
+                        "description": "Tag of the state before the first transition. It must be a state of the monitor."
                     },
                     "states": {
                         "type": "array",
                         "title": "States",
-                        "description": "States of the graph.\nAt least one state is required.",
+                        "description": "States of the graph. At least one state is required.",
                         "items": {
                             "type": "object",
                             "title": "State",
@@ -201,7 +201,7 @@
                                 "allowed_states": {
                                     "type": "array",
                                     "title": "Allowed States",
-                                    "description": "Tags of the states this state can move to.\nEach must be a state of the monitor.\nA state can move to itself only if this list contains it.",
+                                    "description": "Tags of the states this state can move to. Each must be a state of the monitor. A state can move to itself only if this list contains it.",
                                     "items": {
                                         "type": "string"
                                     }
@@ -217,7 +217,7 @@
         "time_range": {
             "type": "object",
             "title": "Time Range",
-            "description": "Closed interval [min_ms, max_ms] of whole milliseconds.\nmin_ms must not exceed max_ms.",
+            "description": "Closed interval [min_ms, max_ms] of whole milliseconds. min_ms must not exceed max_ms.",
             "required": [
                 "min_ms",
                 "max_ms"

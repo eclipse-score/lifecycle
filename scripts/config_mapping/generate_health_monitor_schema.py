@@ -13,22 +13,41 @@
 """Write ``health_monitor_config_schema.json`` from the FlatBuffers schema.
 
 Baselibs' ``generate_json_schema`` derives a JSON schema from ``health_monitor_config.fbs`` with ``flatc``.
-``--in`` takes its output, and this tool copies that output over the checked-in schema.
-``health_monitor_tests`` compares the two byte for byte.
+``--in`` takes its output.
+This tool joins the lines of each description into one line and writes the result over the checked-in schema.
+``health_monitor_tests`` compares the checked-in schema with the output of ``generate()`` byte for byte.
 
 Run it with:
     bazel run //scripts/config_mapping:generate_health_monitor_schema
 """
 
 import argparse
+import json
 import os
 import sys
 
 
+def _join_description_lines(node):
+    """Join the lines of every ``description`` string in ``node`` with a space."""
+    if isinstance(node, dict):
+        for key, value in node.items():
+            if key == "description" and isinstance(value, str):
+                node[key] = " ".join(
+                    line.strip() for line in value.split("\n") if line.strip()
+                )
+            else:
+                _join_description_lines(value)
+    elif isinstance(node, list):
+        for item in node:
+            _join_description_lines(item)
+
+
 def generate(postproc_schema_path):
-    """Return the schema text generated from the ``.fbs``."""
+    """Return the schema generated from the ``.fbs``, with each description on one line."""
     with open(postproc_schema_path, "r", encoding="utf-8") as handle:
-        return handle.read()
+        schema = json.load(handle)
+    _join_description_lines(schema)
+    return json.dumps(schema, indent=4, ensure_ascii=False) + "\n"
 
 
 def main(argv=None):

@@ -28,6 +28,7 @@
 //     /// @required
 //     /// @shared: <name>
 // `@shared` marks a table that the schema defines once in `$defs` and references from each use.
+// The JSON schema joins the lines of a description into one line, separated by a space.
 // A required scalar is declared `field: T = null;` and marked `@required`.
 // A plain scalar reads back as its default when the key is missing.
 // A required string, table or vector is marked `(required)` and `@required`.
