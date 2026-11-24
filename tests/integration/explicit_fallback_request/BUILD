@@ -26,10 +26,10 @@ cc_binary(
 
 integration_test(
     name = "explicit_fallback_request",
-    srcs = ["explicit_fallback_request.py"],
+    srcs = ["test.py"],
     binaries = [
         ":control_client_test_driver",
         "//score/launch_manager",
     ],
-    config = ":explicit_fallback_request.json",
+    config = ":config.json",
 )

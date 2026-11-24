@@ -36,11 +36,11 @@ cc_binary(
 
 integration_test(
     name = "parallel_launch",
-    srcs = ["parallel_launch.py"],
+    srcs = ["test.py"],
     binaries = [
         ":component_parallel_launch",
         ":control_client_test_driver",
         "//score/launch_manager",
     ],
-    config = ":parallel_launch.json",
+    config = ":config.json",
 )

@@ -17,7 +17,6 @@
 #include <cerrno>
 #include <memory>
 
-#include "score/launch_manager/src/daemon/src/common/log.hpp"
 #include "score/mw/launch_manager/alive_monitor/details/common/EInitCode.hpp"
 #include "score/mw/launch_manager/alive_monitor/details/daemon/SupervisionManager.hpp"
 #include "score/mw/launch_manager/alive_monitor/details/ifexm/ObservableEventReader.hpp"
@@ -25,6 +24,7 @@
 #include "score/mw/launch_manager/alive_monitor/details/timers/CycleTimer.hpp"
 #include "score/mw/launch_manager/alive_monitor/details/timers/TimeConversion.hpp"
 #include "score/mw/launch_manager/alive_monitor/isupervision_factory.hpp"
+#include "score/mw/launch_manager/common/log.hpp"
 #include "score/mw/launch_manager/configuration/config.hpp"
 
 namespace score::mw::lifecycle::internal::saf::daemon

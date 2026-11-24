@@ -13,17 +13,20 @@
 
 #include "score/launch_manager/src/daemon/src/configuration/details/flatbuffer_type_converters.hpp"
 
-#include "score/launch_manager/src/daemon/src/configuration/details/lm_flatcfg_generated.h"
-
-#include "score/mw/launch_manager/common/log.hpp"
-
 #include <sched.h>
 #include <score/assert.hpp>
 #include <sys/resource.h>
 #include <sys/types.h>
+#include <chrono>
 #include <cstdint>
 #include <string>
+#include <utility>
 #include <vector>
+
+#include "flatbuffers/stl_emulation.h"
+#include "score/launch_manager/src/daemon/src/configuration/details/lm_flatcfg_generated.h"
+#include "score/mw/launch_manager/common/log.hpp"
+#include "score/mw/launch_manager/configuration/process_command.hpp"
 
 namespace score::mw::lifecycle::internal::configuration
 {
@@ -567,7 +570,6 @@ score::cpp::expected<ComponentConfig, IConfigLoader::Error> convertComponent(con
             fb_comp->deployment_config(),
             "Component::deployment_config must never be nullptr as it is required in the schema");
         result.name = fb_comp->name()->str();
-        result.description = safeString(fb_comp->description());
         auto component_properties = convertComponentProperties(fb_comp->component_properties());
         if (!component_properties.has_value())
         {
@@ -609,7 +611,6 @@ score::cpp::expected<RunTargetConfig, IConfigLoader::Error> convertRunTarget(con
             return score::cpp::make_unexpected(transition_timeout.error());
         }
         result.name = fb_rt->name()->str();
-        result.description = safeString(fb_rt->description());
         result.depends_on = convertStringVector(fb_rt->depends_on());
         result.transition_timeout_ms = *transition_timeout;
         result.recovery_action = convertRequiredSwitchRunTargetAction(fb_rt->recovery_action());
@@ -629,7 +630,6 @@ score::cpp::expected<FallbackRunTargetConfig, IConfigLoader::Error> convertFallb
         {
             return score::cpp::make_unexpected(transition_timeout.error());
         }
-        result.description = safeString(fb_frt->description());
         result.depends_on = convertStringVector(fb_frt->depends_on());
         result.transition_timeout_ms = *transition_timeout;
     }

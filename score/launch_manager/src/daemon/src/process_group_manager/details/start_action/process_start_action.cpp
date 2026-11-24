@@ -13,8 +13,12 @@
 
 #include "score/mw/launch_manager/process_group_manager/details/start_action/process_start_action.hpp"
 #include "score/mw/launch_manager/common/log.hpp"
+#include "score/mw/launch_manager/osal/ipc_comms.hpp"
 #include "score/mw/launch_manager/osal/return_types.hpp"
+#include "score/mw/launch_manager/process_group_manager/details/handle.hpp"
 #include "score/mw/lifecycle/execution_error.h"
+#include <score/stop_token.hpp>
+#include <string>
 
 namespace score::mw::lifecycle::internal
 {

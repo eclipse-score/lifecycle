@@ -14,36 +14,38 @@
 #include <string_view>
 
 #include <fcntl.h>
-#include <grp.h>
-#include <libgen.h>
-#include <sys/mman.h>
+#include <sched.h>
 #include <sys/resource.h>
+#include <sys/types.h>
 #include <sys/wait.h>
 #include <unistd.h>
-#include <limits.h>
 #include <signal.h>
+#include <stdint.h>
 
 #include "score/mw/launch_manager/common/log.hpp"
 #include "score/mw/launch_manager/common/signal_safe_log.hpp"
+#include "score/mw/launch_manager/configuration/component_config.hpp"
+#include "score/mw/launch_manager/configuration/environment_config.hpp"
+#include "score/mw/launch_manager/configuration/process_command.hpp"
 #include "score/mw/launch_manager/osal/ipc_comms.hpp"
+#include "score/mw/launch_manager/osal/return_types.hpp"
 #include "score/mw/launch_manager/osal/security_policy.hpp"
+#include "score/mw/launch_manager/osal/semaphore.hpp"
 #include "score/mw/launch_manager/osal/set_affinity.hpp"
 #include "score/mw/launch_manager/osal/set_groups.hpp"
 #include "score/mw/launch_manager/osal/shm_open_anon.hpp"
 #include "score/mw/launch_manager/osal/sys_exit.hpp"
 #include "score/mw/launch_manager/process_group_manager/details/process_launcher.hpp"
 #include "score/mw/launch_manager/process_group_manager/iprocess.hpp"
-#include <charconv>
 #include <score/assert.hpp>
-#include <array>
-#include <cassert>
 #include <cerrno>
-#include <csignal>
+#include <chrono>
 #include <cstdio>
 #include <cstdlib>
-#include <cstring>
-#include <iterator>
+#include <memory>
 #include <optional>
+#include <string>
+#include <vector>
 
 constexpr int kPidZero = 0;  // This value is used to check if the process ID (uses pid_t) is valid or not.
 constexpr int kPosixSuccess = 0;

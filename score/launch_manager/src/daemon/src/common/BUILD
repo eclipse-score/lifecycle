@@ -76,9 +76,13 @@ cc_library(
     strip_include_prefix = "/score/launch_manager/src/daemon/src/common",
     visibility = ["//score:__subpackages__"],
     deps = select({
-        "//config:lm_use_cout_log": ["@score_baselibs//score/language/futurecpp"],
+        "//config:lm_use_cout_log": [],
         "//conditions:default": ["@score_baselibs//score/mw/log"],
-    }),
+    }) + [
+        "@score_baselibs//score/language/futurecpp",
+        "@score_baselibs//score/mw/log:frontend",
+        "@score_baselibs//score/mw/log:log_stream",
+    ],
 )
 
 cc_library(
@@ -106,6 +110,7 @@ cc_library(
     visibility = [
         "//score:__subpackages__",
         "//src:__subpackages__",
+        "//tests/utils/fixtures:__subpackages__",
     ],
 )
 

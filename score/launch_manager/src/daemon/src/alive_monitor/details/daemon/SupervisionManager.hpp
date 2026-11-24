@@ -14,34 +14,28 @@
 #ifndef SUPERVISIONMANAGER_HPP_INCLUDED
 #define SUPERVISIONMANAGER_HPP_INCLUDED
 
+#include <sys/types.h>
+#include <chrono>
+#include <cstddef>
+#include <memory>
+#include <vector>
+
 #include "score/mw/launch_manager/alive_monitor/details/factory/IAliveWorkerFactory.hpp"
 #include "score/mw/launch_manager/alive_monitor/details/ifappl/DataStructures.hpp"
+#include "score/mw/launch_manager/alive_monitor/details/ifappl/MonitorIfDaemon.hpp"
 #include "score/mw/launch_manager/alive_monitor/details/ifexm/ObservableEvent.hpp"
 #include "score/mw/launch_manager/alive_monitor/details/ifexm/ObservableEventReader.hpp"
-#include "score/mw/launch_manager/alive_monitor/details/timers/Timers_OsClock.hpp"
+#include "score/mw/launch_manager/alive_monitor/details/supervision/Alive.hpp"
+#include "score/mw/launch_manager/common/identifier_hash.hpp"
+#include "score/mw/launch_manager/configuration/component_config.hpp"
 #include "score/mw/launch_manager/configuration/config.hpp"
-#include <string>
-#include <vector>
+#include "score/mw/launch_manager/recovery_client/irecovery_client.h"
 
 namespace score::mw::lifecycle
 {
 
-class IRecoveryClient;
-
 namespace internal::saf
 {
-
-// Forward declarations
-namespace ifappl
-{
-class MonitorIfDaemon;
-struct Checkpoint;
-}  // namespace ifappl
-
-namespace supervision
-{
-class Alive;
-}  // namespace supervision
 
 // End Forward declarations
 

@@ -27,10 +27,10 @@ cc_binary(
 integration_test(
     name = "unknown_run_target",
     timeout = "short",
-    srcs = ["unknown_run_target.py"],
+    srcs = ["test.py"],
     binaries = [
         ":control_client_test_driver",
         "//score/launch_manager",
     ],
-    config = ":unknown_run_target.json",
+    config = ":config.json",
 )

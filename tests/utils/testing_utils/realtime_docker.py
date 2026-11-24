@@ -70,7 +70,7 @@ def _daemon_supports_cpu_rt_runtime(request) -> bool:
 @pytest.fixture(scope=determine_target_scope)
 def docker_configuration(request):
     """Grant the container CAP_SYS_NICE so the launch manager can apply the
-    SCHED_FIFO real-time scheduling policy configured in sandbox_options.in.json.
+    SCHED_FIFO real-time scheduling policy configured in config.in.json.
     Without it, sched_setscheduler() fails with 'Operation not permitted'.
 
     On kernels built with CONFIG_RT_GROUP_SCHED (e.g. the WSL2 kernel) running

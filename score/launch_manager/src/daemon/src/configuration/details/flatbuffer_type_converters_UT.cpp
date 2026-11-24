@@ -1129,7 +1129,7 @@ TEST_F(ConverterTest, ConvertDeploymentConfigMissingShutdownTimeoutReturnsError)
 
 TEST_F(ConverterTest, ConvertComponentValid)
 {
-    RecordProperty("Description", "convertComponent maps name, description, and nested structs.");
+    RecordProperty("Description", "convertComponent maps name and nested structs.");
     ::flatbuffers::FlatBufferBuilder fbb;
 
     auto app_profile = fb::CreateApplicationProfile(fbb, fb::ApplicationType::Native, false /*is_self_terminating*/);
@@ -1155,15 +1155,13 @@ TEST_F(ConverterTest, ConvertComponentValid)
         sandbox);
 
     auto comp_name = fbb.CreateString("TestComp");
-    auto comp_desc = fbb.CreateString("A test component");
-    auto component = fb::CreateComponent(fbb, comp_name, comp_desc, comp_props, deploy);
+    auto component = fb::CreateComponent(fbb, comp_name, comp_props, deploy);
     fbb.Finish(component);
     const auto* ptr = ::flatbuffers::GetRoot<fb::Component>(fbb.GetBufferPointer());
 
     auto result = convertComponent(ptr);
     ASSERT_THAT(result.has_value(), IsTrue());
     EXPECT_THAT(result->name, Eq("TestComp"));
-    EXPECT_THAT(result->description, Eq("A test component"));
     EXPECT_THAT(result->deployment_config.process_command.executablePath(), Eq("/opt/my_binary"));
     EXPECT_THAT(result->deployment_config.ready_timeout_ms, Eq(1000U));
     EXPECT_THAT(
@@ -1202,7 +1200,7 @@ TEST_F(ConverterTest, ConvertComponentsValid)
             0 /*recovery_action*/,
             sandbox);
         auto comp_name = fbb.CreateString(name);
-        return fb::CreateComponent(fbb, comp_name, 0 /*description*/, comp_props, deploy);
+        return fb::CreateComponent(fbb, comp_name, comp_props, deploy);
     };
 
     auto comp_a = build_comp("CompA");
@@ -1247,7 +1245,7 @@ TEST_F(ConverterTest, ConvertComponentsWithInvalidComponentReturnsError)
         0 /*recovery_action*/,
         sandbox);
     auto comp_name = fbb.CreateString("BadComp");
-    auto comp = fb::CreateComponent(fbb, comp_name, 0 /*description*/, comp_props, deploy);
+    auto comp = fb::CreateComponent(fbb, comp_name, comp_props, deploy);
     auto comps = fbb.CreateVector(std::vector<::flatbuffers::Offset<fb::Component>>{comp});
     fbb.Finish(comps);
     const auto* ptr =
@@ -1267,8 +1265,7 @@ TEST_F(ConverterTest, ConvertRunTargetsValid)
         auto switch_target = fbb.CreateString(recovery_target);
         auto switch_action = fb::CreateSwitchRunTargetAction(fbb, switch_target);
         auto rt_name = fbb.CreateString(name);
-        return fb::CreateRunTarget(
-            fbb, rt_name, 0 /*description*/, 0 /*depends_on*/, 1000 /*transition_timeout_ms*/, switch_action);
+        return fb::CreateRunTarget(fbb, rt_name, 0 /*depends_on*/, 1000 /*transition_timeout_ms*/, switch_action);
     };
 
     auto rt_a = build_rt("Startup", "SafeState");
@@ -1298,7 +1295,7 @@ TEST_F(ConverterTest, ConvertRunTargetsWithInvalidRunTargetReturnsError)
     auto rt = fb::CreateRunTarget(
         fbb,
         rt_name,
-        0 /*description*/,
+
         0 /*depends_on*/,
         ::flatbuffers::nullopt /*transition_timeout_ms*/,
         switch_action);
@@ -1320,17 +1317,15 @@ TEST_F(ConverterTest, ConvertRunTargetValid)
     auto switch_target = fbb.CreateString("SafeState");
     auto switch_action = fb::CreateSwitchRunTargetAction(fbb, switch_target);
     auto rt_name = fbb.CreateString("Startup");
-    auto rt_desc = fbb.CreateString("Initial state");
     auto rt_dep = fbb.CreateString("component_a");
     auto rt_deps = fbb.CreateVector(std::vector<::flatbuffers::Offset<::flatbuffers::String>>{rt_dep});
-    auto rt = fb::CreateRunTarget(fbb, rt_name, rt_desc, rt_deps, 5000 /*transition_timeout_ms*/, switch_action);
+    auto rt = fb::CreateRunTarget(fbb, rt_name, rt_deps, 5000 /*transition_timeout_ms*/, switch_action);
     fbb.Finish(rt);
     const auto* ptr = ::flatbuffers::GetRoot<fb::RunTarget>(fbb.GetBufferPointer());
 
     auto result = convertRunTarget(ptr);
     ASSERT_THAT(result.has_value(), IsTrue());
     EXPECT_THAT(result->name, Eq("Startup"));
-    EXPECT_THAT(result->description, Eq("Initial state"));
     ASSERT_THAT(result->depends_on.size(), Eq(1U));
     EXPECT_THAT(result->depends_on[0], Eq("component_a"));
     EXPECT_THAT(result->transition_timeout_ms, Eq(5000U));
@@ -1347,7 +1342,7 @@ TEST_F(ConverterTest, ConvertRunTargetMissingTransitionTimeoutReturnsError)
     auto rt = fb::CreateRunTarget(
         fbb,
         rt_name,
-        0 /*description*/,
+
         0 /*depends_on*/,
         ::flatbuffers::nullopt /*transition_timeout_ms*/,
         switch_action);
@@ -1363,16 +1358,14 @@ TEST_F(ConverterTest, ConvertFallbackRunTargetValid)
 {
     RecordProperty("Description", "convertFallbackRunTarget maps all fields correctly.");
     ::flatbuffers::FlatBufferBuilder fbb;
-    auto desc = fbb.CreateString("Fallback state");
     auto dep = fbb.CreateString("critical_comp");
     auto deps = fbb.CreateVector(std::vector<::flatbuffers::Offset<::flatbuffers::String>>{dep});
-    auto frt = fb::CreateFallbackRunTarget(fbb, desc, deps, 10000 /*transition_timeout_ms*/);
+    auto frt = fb::CreateFallbackRunTarget(fbb, deps, 10000 /*transition_timeout_ms*/);
     fbb.Finish(frt);
     const auto* ptr = ::flatbuffers::GetRoot<fb::FallbackRunTarget>(fbb.GetBufferPointer());
 
     auto result = convertFallbackRunTarget(ptr);
     ASSERT_THAT(result.has_value(), IsTrue());
-    EXPECT_THAT(result->description, Eq("Fallback state"));
     ASSERT_THAT(result->depends_on.size(), Eq(1U));
     EXPECT_THAT(result->depends_on[0], Eq("critical_comp"));
     EXPECT_THAT(result->transition_timeout_ms, Eq(10000U));

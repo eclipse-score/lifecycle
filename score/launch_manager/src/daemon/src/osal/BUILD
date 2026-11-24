@@ -50,10 +50,10 @@ cc_library(
         ":ifile_waiter",
         ":return_types",
         "//score/launch_manager/src/daemon/src/configuration:component_config",
+        "@score_baselibs//score/language/futurecpp",
         "@score_baselibs//score/language/safecpp/string_view:zstring_view",
         "@score_baselibs//score/os:errno",
         "@score_baselibs//score/os:stat",
-        "@score_baselibs//score/result:error",
     ],
 )
 
@@ -82,6 +82,7 @@ cc_library(
     deps = [
         ":return_types",
         "//score/launch_manager/src/daemon/src/configuration:component_config",
+        "@score_baselibs//score/language/futurecpp",
         "@score_baselibs//score/language/safecpp/string_view:zstring_view",
     ],
 )
@@ -95,6 +96,7 @@ cc_library(
     visibility = ["//score:__subpackages__"],
     deps = [
         ":ifile_waiter",
+        "@googletest//:gtest",
         "@googletest//:gtest_main",
     ],
 )
