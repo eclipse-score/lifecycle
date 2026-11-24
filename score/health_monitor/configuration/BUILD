@@ -10,12 +10,11 @@
 #
 # SPDX-License-Identifier: Apache-2.0
 # *******************************************************************************
-load("@rules_python//python:defs.bzl", "py_binary", "py_test")
 load("@score_baselibs//score/flatbuffers/bazel:tools.bzl", "generate_json_schema", "serialize_buffer")
-load("@score_lifecycle_pip//:requirements.bzl", "requirement")
 
 exports_files(
     [
+        "example/health_monitor_config.json",
         "health_monitor_config.fbs",
         "health_monitor_config_schema.json",
     ],
@@ -24,53 +23,15 @@ exports_files(
 
 # health_monitor_config.fbs is the single source of truth for the configuration.
 # The JSON schema health_monitor_config_schema.json is generated from it and checked in;
-# schema_test keeps the two in sync.
+# //scripts/config_mapping/tests/health_monitor:health_monitor_tests keeps the two in sync.
+# Regenerate it with:
+#   bazel run //scripts/config_mapping:generate_health_monitor_schema
 generate_json_schema(
     name = "health_monitor_config_postproc_schema",
     output = "health_monitor_config.postproc.schema.json",
     schema = "health_monitor_config.fbs",
     target_compatible_with = ["@platforms//os:linux"],
-)
-
-# Regenerates health_monitor_config_schema.json from health_monitor_config.fbs.
-#   bazel run //score/health_monitor/configuration:generate_schema
-py_binary(
-    name = "generate_schema",
-    srcs = ["generate_schema.py"],
-    args = [
-        "--in",
-        "$(location :health_monitor_config_postproc_schema)",
-        "--output",
-        "$(rootpath health_monitor_config_schema.json)",
-    ],
-    data = [
-        "health_monitor_config_schema.json",
-        ":health_monitor_config_postproc_schema",
-    ],
-    target_compatible_with = ["@platforms//os:linux"],
-)
-
-py_test(
-    name = "schema_test",
-    srcs = [
-        "generate_schema.py",
-        "schema_test.py",
-    ],
-    args = [
-        "--generated",
-        "$(rootpath :health_monitor_config_postproc_schema)",
-        "--schema",
-        "$(rootpath health_monitor_config_schema.json)",
-        "--example",
-        "$(rootpath example/health_monitor_config.json)",
-    ],
-    data = [
-        "example/health_monitor_config.json",
-        "health_monitor_config_schema.json",
-        ":health_monitor_config_postproc_schema",
-    ],
-    target_compatible_with = ["@platforms//os:linux"],
-    deps = [requirement("jsonschema")],
+    visibility = ["//scripts/config_mapping:__subpackages__"],
 )
 
 # Converting the example with flatc fails the build if it does not match the .fbs.

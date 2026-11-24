@@ -17,8 +17,8 @@
 //   1. JSON -> FlatBuffer binary conversion with `flatc --binary`.
 //   2. The JSON schema `health_monitor_config_schema.json`, generated with baselibs'
 //      `generate_json_schema`. After a change, regenerate and commit it:
-//          bazel run //score/health_monitor/configuration:generate_schema
-//      `schema_test` fails while the checked-in schema differs from the generated one.
+//          bazel run //scripts/config_mapping:generate_health_monitor_schema
+//      `health_monitor_tests` fails while the checked-in schema differs from the generated one.
 //
 // Authoring rules:
 //   * Field names are the JSON keys, in snake_case.

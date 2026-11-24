@@ -14,11 +14,11 @@
 
 ``health_monitor_config.fbs`` is the single source of truth. Baselibs' ``generate_json_schema``
 runs ``flatc --jsonschema`` and post-processes the result in a Bazel action; its output is
-passed in with ``--in``. This tool copies it over the checked-in schema, so ``schema_test`` can
-compare the two byte for byte.
+passed in with ``--in``. This tool copies it over the checked-in schema, so
+``health_monitor_tests`` can compare the two byte for byte.
 
 Run it with:
-    bazel run //score/health_monitor/configuration:generate_schema
+    bazel run //scripts/config_mapping:generate_health_monitor_schema
 """
 
 import argparse
