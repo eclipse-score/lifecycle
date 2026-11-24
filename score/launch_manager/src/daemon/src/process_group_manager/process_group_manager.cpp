@@ -11,18 +11,48 @@
  * SPDX-License-Identifier: Apache-2.0
  ********************************************************************************/
 
-#include <fcntl.h>
-#include <sys/wait.h>
-#include <unistd.h>
-#include <algorithm>
+#include <stdint.h>
+#include <atomic>
+#include <chrono>
 #include <csignal>
+#include <cstddef>
+#include <memory>
+#include <optional>
+#include <string>
+#include <string_view>
+#include <utility>
+#include <variant>
+#include <vector>
 
+#include "score/mw/launch_manager/alive_monitor/IAliveMonitor.hpp"
+#include "score/mw/launch_manager/common/concurrency/concurrency_error_domain.hpp"
+#include "score/mw/launch_manager/common/concurrency/thread_pool.hpp"
+#include "score/mw/launch_manager/common/constants.hpp"
+#include "score/mw/launch_manager/common/identifier_hash.hpp"
 #include "score/mw/launch_manager/common/log.hpp"
+#include "score/mw/launch_manager/configuration/component_config.hpp"
+#include "score/mw/launch_manager/configuration/config.hpp"
+#include "score/mw/launch_manager/configuration/watchdog_config.hpp"
+#include "score/mw/launch_manager/osal/wait_for_file.hpp"
 #include "score/mw/launch_manager/process_group_manager/details/completion_slot.hpp"
 #include "score/mw/launch_manager/process_group_manager/details/component_event.hpp"
+#include "score/mw/launch_manager/process_group_manager/details/component_event_queue.hpp"
+#include "score/mw/launch_manager/process_group_manager/details/component_task.hpp"
+#include "score/mw/launch_manager/process_group_manager/details/graph.hpp"
+#include "score/mw/launch_manager/process_group_manager/details/os_handler.hpp"
+#include "score/mw/launch_manager/process_group_manager/details/process_handling.hpp"
 #include "score/mw/launch_manager/process_group_manager/details/process_monitor.hpp"
+#include "score/mw/launch_manager/process_group_manager/details/safe_process_map.hpp"
+#include "score/mw/launch_manager/process_group_manager/iprocess.hpp"
+#include "score/mw/launch_manager/process_group_manager/irun_target_control.hpp"
 #include "score/mw/launch_manager/process_group_manager/process_group_manager.hpp"
-#include "score/mw/lifecycle/details/lm_control_service.h"
+#include "score/mw/launch_manager/recovery_client/irecovery_client.h"
+#include "score/mw/launch_manager/watchdog/IWatchdogIf.hpp"
+#include "score/mw/lifecycle/execution_error.h"
+#include "score/mw/lifecycle/run_target_activation_source.hpp"
+#include "score/result/error.h"
+#include "score/result/result.h"
+#include <score/assert.hpp>
 
 namespace score::mw::lifecycle::internal
 {
@@ -395,9 +425,6 @@ void ProcessGroupManager::processGroupHandler(Graph& pg)
 
             LM_LOG_WARN() << "Problem discovered, activating recovery state:" << Graph::recovery_state_name;
 
-            // All pending activations are cancelled before a recovery action runs.
-            clearQueuedActivations("failed transition");
-
             // no point checking errors here...
             // nobody requested this transition, so there is nowhere to communicate an error
             // if we failed and there is no external request, we will try again next time
@@ -472,10 +499,6 @@ void ProcessGroupManager::handleSetRequestedRunTarget(SetRequestedRunTarget* eve
     {
         // Reject before this can reach Graph::startTransition() with no matching node (#541).
         response = score::MakeUnexpected(ExecErrc::kRunTargetDoesntExist);
-    }
-    else if (graph_->isRecovering())
-    {
-        response = score::MakeUnexpected(ExecErrc::kRecoveryInProgress);
     }
     else if (!event->forced && isActivationBusy())
     {

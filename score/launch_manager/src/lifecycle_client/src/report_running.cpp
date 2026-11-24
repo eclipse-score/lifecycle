@@ -12,6 +12,9 @@
  ********************************************************************************/
 
 #include "score/mw/lifecycle/report_running.h"
+
+#include <variant>
+
 #include "score/mw/lifecycle/lifecycle_client/details/report_running_impl.hpp"
 
 void score::mw::lifecycle::report_running() noexcept

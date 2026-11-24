@@ -15,9 +15,9 @@
 #define ASSERTION_HANDLER_HPP_INCLUDED
 
 #include <score/assert.hpp>
-
 #include <iostream>
 #include <sstream>
+#include <string>
 
 namespace score::mw::lifecycle::internal::common
 {

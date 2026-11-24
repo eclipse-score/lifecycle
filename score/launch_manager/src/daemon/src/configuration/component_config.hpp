@@ -114,7 +114,6 @@ struct DeploymentConfig
 struct ComponentConfig
 {
     std::string name;
-    std::string description;
     ComponentProperties component_properties{};
     DeploymentConfig deployment_config{};
 };

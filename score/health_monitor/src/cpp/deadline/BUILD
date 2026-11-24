@@ -23,6 +23,6 @@ cc_library(
     deps = [
         "//score/health_monitor/src/cpp:common",
         "//score/health_monitor/src/cpp:tag",
-        "@score_baselibs//score/result",
+        "@score_baselibs//score/language/futurecpp",
     ],
 )

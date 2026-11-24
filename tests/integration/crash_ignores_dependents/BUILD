@@ -36,11 +36,11 @@ cc_binary(
 
 integration_test(
     name = "crash_ignores_dependents",
-    srcs = ["crash_ignores_dependents.py"],
+    srcs = ["test.py"],
     binaries = [
         ":test_process",
         ":process_crashing_once",
         "//score/launch_manager",
     ],
-    config = ":crash_ignores_dependents.json",
+    config = ":config.json",
 )

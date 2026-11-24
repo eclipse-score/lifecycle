@@ -48,14 +48,14 @@ cc_binary(
 
 integration_test(
     name = "complex_monitoring",
-    srcs = ["complex_monitoring.py"],
+    srcs = ["test.py"],
     binaries = [
         ":component_complex_monitoring",
         ":control_client_test_driver",
         "//score/launch_manager",
         "//tests/utils/test_helper:verification_process",
     ],
-    config = ":complex_monitoring.json",
+    config = ":config.json",
     tags = [
         "flaky",  # Test uses heartbeat monitoring which on CI will always be flaky.
     ],

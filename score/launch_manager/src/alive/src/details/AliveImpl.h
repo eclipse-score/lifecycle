@@ -16,10 +16,11 @@
 
 #include <memory>
 #include <optional>
+#include <string>
+#include <string_view>
 
 #include "score/mw/launch_manager/alive_monitor/details/ifappl/DataStructures.hpp"
 #include "score/mw/launch_manager/alive_monitor/details/ipc/IpcClient.hpp"
-#include <string>
 
 namespace score::mw::lifecycle
 {
