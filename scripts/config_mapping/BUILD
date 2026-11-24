@@ -16,6 +16,7 @@ load("@score_lifecycle_pip//:requirements.bzl", "requirement")
 
 exports_files([
     "generate_health_monitor_schema.py",
+    "health_monitor_config.py",
     "health_monitor_tests.py",
     "integration_tests.py",
     "unit_tests.py",
@@ -25,6 +26,13 @@ exports_files([
 py_binary(
     name = "lifecycle_config",
     srcs = ["lifecycle_config.py"],
+    visibility = ["//visibility:public"],
+    deps = [requirement("jsonschema")],
+)
+
+py_binary(
+    name = "health_monitor_config",
+    srcs = ["health_monitor_config.py"],
     visibility = ["//visibility:public"],
     deps = [requirement("jsonschema")],
 )

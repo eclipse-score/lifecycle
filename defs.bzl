@@ -13,7 +13,14 @@
 
 """Unified entrypoint for lifecycle Bazel macros & rules."""
 
-# --- Launch Manager Configuration ---
-load("//scripts/config_mapping:config.bzl", _launch_manager_config = "launch_manager_config")
+load(
+    "//scripts/config_mapping:config.bzl",
+    _health_monitor_config = "health_monitor_config",
+    _launch_manager_config = "launch_manager_config",
+)
 
+# --- Launch Manager Configuration ---
 launch_manager_config = _launch_manager_config
+
+# --- Health Monitor Configuration ---
+health_monitor_config = _health_monitor_config

@@ -10,7 +10,8 @@
 #
 # SPDX-License-Identifier: Apache-2.0
 # *******************************************************************************
-load("@score_baselibs//score/flatbuffers/bazel:tools.bzl", "generate_json_schema", "serialize_buffer")
+load("@score_baselibs//score/flatbuffers/bazel:tools.bzl", "generate_json_schema")
+load("//:defs.bzl", "health_monitor_config")
 
 exports_files(
     [
@@ -34,10 +35,9 @@ generate_json_schema(
     visibility = ["//scripts/config_mapping:__subpackages__"],
 )
 
-# Converting the example with flatc fails the build if it does not match the .fbs.
-serialize_buffer(
-    name = "health_monitor_config_example_bin",
-    data = "example/health_monitor_config.json",
-    output = "health_monitor_config_example.bin",
-    schema = "health_monitor_config.fbs",
+# Building the example validates it against the JSON schema and converts it with flatc.
+# Either step fails the build if the example does not match.
+health_monitor_config(
+    name = "health_monitor_config_example",
+    config = "example/health_monitor_config.json",
 )

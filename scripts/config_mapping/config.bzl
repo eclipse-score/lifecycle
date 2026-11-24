@@ -139,3 +139,83 @@ def launch_manager_config(
         srcs = [":" + name + "_lm_bin"],
         dir_name = flatbuffer_out_dir,
     )
+
+def _hm_config_generator_impl(ctx):
+    """Run health_monitor_config.py to validate the configuration against its JSON schema."""
+    script = ctx.executable.script
+    config = ctx.file.config
+    schema = ctx.file.schema
+    base = config.basename
+    dot_index = base.rfind(".")
+    stem = base if dot_index == -1 else base[:dot_index]
+    output_name = "{}_gen.json".format(stem)
+    out_file = ctx.actions.declare_file("{}/{}".format(ctx.label.name, output_name))
+
+    ctx.actions.run(
+        inputs = [config, schema],
+        outputs = [out_file],
+        tools = [script],
+        mnemonic = "HealthMonitorJsonConfigValidation",
+        executable = script,
+        progress_message = "validating Health Monitor config {}".format(config.short_path),
+        arguments = [
+            config.path,
+            "--schema",
+            schema.path,
+            "-o",
+            out_file.dirname,
+        ],
+    )
+
+    return [DefaultInfo(files = depset([out_file]))]
+
+hm_config_generator = rule(
+    implementation = _hm_config_generator_impl,
+    doc = "Validates a health monitor configuration against its JSON schema and outputs a copy of it.",
+    attrs = {
+        "config": attr.label(
+            allow_single_file = [".json"],
+            mandatory = True,
+            doc = "Json file to validate.",
+        ),
+        "schema": attr.label(
+            default = Label("//score/health_monitor/configuration:health_monitor_config_schema.json"),
+            allow_single_file = [".json"],
+            doc = "Json schema file to validate the input json against",
+        ),
+        "script": attr.label(
+            default = Label("//scripts/config_mapping:health_monitor_config"),
+            executable = True,
+            cfg = "exec",
+            doc = "Python script to execute",
+        ),
+    },
+)
+
+def health_monitor_config(
+        name,
+        config,
+        schema = Label("//score/health_monitor/configuration:health_monitor_config_schema.json"),
+        script = Label("//scripts/config_mapping:health_monitor_config"),
+        fbs = Label("//score/health_monitor/configuration:health_monitor_config.fbs"),
+        **kwargs):
+    """Validates a health monitor configuration and serializes it to <name>.bin.
+
+    The configuration is validated against the JSON schema before flatc converts it, so a
+    missing required value or a value out of range fails the build.
+    """
+    gen_name = name + "_gen"
+    hm_config_generator(
+        name = gen_name,
+        config = config,
+        schema = schema,
+        script = script,
+    )
+
+    serialize_buffer(
+        name = name,
+        data = ":" + gen_name,
+        schema = fbs,
+        output = name + ".bin",
+        **kwargs
+    )

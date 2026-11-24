@@ -30,7 +30,8 @@ score_py_pytest(
         "//score/health_monitor/configuration:health_monitor_config_postproc_schema",
         "//score/health_monitor/configuration:health_monitor_config_schema.json",
         "//scripts/config_mapping:generate_health_monitor_schema.py",
-    ],
+        "//scripts/config_mapping:health_monitor_config.py",
+    ] + glob(["invalid/*.json"]),
     target_compatible_with = ["@platforms//os:linux"],
     deps = [
         requirement("pytest"),
