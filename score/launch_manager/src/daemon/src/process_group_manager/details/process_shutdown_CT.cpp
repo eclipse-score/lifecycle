@@ -39,7 +39,9 @@ namespace
 class TerminationForwarder final : public IComponentController
 {
   public:
-    void doWork(ComponentTask&&) override {}
+    void doWork(ComponentTask&&) override
+    {
+    }
     void terminated(IComponent& component, int32_t status) override
     {
         static_cast<void>(component.tryHandleTermination(status));
@@ -64,10 +66,10 @@ class ProcessShutdownComponentTest : public ::testing::Test
     {
         RecordProperty("TestType", "component-test");
         RecordProperty("DerivationTechnique", "equivalence-classes");
-        RecordProperty("FullyVerifies", "comp_req__launch_man__graceful_p_shutd, comp_req__launch_man__instant_p_shutd");
+        RecordProperty(
+            "FullyVerifies", "comp_req__launch_man__graceful_p_shutd, comp_req__launch_man__instant_p_shutd");
 
         g_syscall_mock = std::make_unique<SyscallMock>();
-
     }
 
     void TearDown() override
@@ -79,12 +81,10 @@ class ProcessShutdownComponentTest : public ::testing::Test
     {
         configuration::ComponentConfig config{};
         config.name = "test_process";
-        config.component_properties.application_profile.application_type =
-            configuration::ApplicationType::Native;
+        config.component_properties.application_profile.application_type = configuration::ApplicationType::Native;
         config.component_properties.ready_condition = configuration::ProcessState::Running;
         config.deployment_config.shutdown_timeout_ms = shutdown_timeout_ms;
-        config.deployment_config.process_command =
-            configuration::ProcessCommand{"/fake/process", {}};
+        config.deployment_config.process_command = configuration::ProcessCommand{"/fake/process", {}};
         return config;
     }
 
@@ -92,8 +92,7 @@ class ProcessShutdownComponentTest : public ::testing::Test
 
     // TerminationForwarder must outlive SafeProcessMap — declaration order matters.
     TerminationForwarder termination_forwarder_;
-    std::shared_ptr<SafeProcessMap> process_map_{
-        std::make_shared<SafeProcessMap>(10U, termination_forwarder_)};
+    std::shared_ptr<SafeProcessMap> process_map_{std::make_shared<SafeProcessMap>(10U, termination_forwarder_)};
     ProcessLauncher process_launcher_;
     NiceMock<score::mw::lifecycle::MockSupervisionFactory> mock_factory_;
 };
@@ -118,8 +117,7 @@ TEST_F(ProcessShutdownComponentTest, GracefulShutdown_SendsSigtermThenSigkillAft
     // (reverse declaration order), ensuring the OsHandler thread stops before
     // node and process_map are released.
     auto node = std::make_unique<ProcessInfoNode>(
-        makeConfig(shutdown_timeout_ms),
-        ProcessHandling{&process_launcher_, process_map_, nullptr, mock_factory_});
+        makeConfig(shutdown_timeout_ms), ProcessHandling{&process_launcher_, process_map_, nullptr, mock_factory_});
 
     // Activate: fork() returns kFakePid so the node enters kRunning with that pid.
     // No real child process is created; the parent path in ProcessLauncher stores
@@ -138,13 +136,12 @@ TEST_F(ProcessShutdownComponentTest, GracefulShutdown_SendsSigtermThenSigkillAft
     std::once_flag sigkill_flag;
 
     // SIGTERM must be called before SIGKILL (.After enforces the order).
-    auto& sigterm_call = EXPECT_CALL(*g_syscall_mock, kill(kFakePid, SIGTERM))
-        .WillOnce([&](pid_t, int) -> int {
-            sigterm_time = std::chrono::steady_clock::now();
-            return 0;
-            // Returning without calling tryHandleTermination simulates a child
-            // that ignores SIGTERM, causing the shutdown_timeout_ms to expire.
-        });
+    auto& sigterm_call = EXPECT_CALL(*g_syscall_mock, kill(kFakePid, SIGTERM)).WillOnce([&](pid_t, int) -> int {
+        sigterm_time = std::chrono::steady_clock::now();
+        return 0;
+        // Returning without calling tryHandleTermination simulates a child
+        // that ignores SIGTERM, causing the shutdown_timeout_ms to expire.
+    });
 
     // WillRepeatedly + call_once: handleForcedTermination loops sending SIGKILL until
     // termination_waiter_ is signalled. A second SIGKILL can arrive before OsHandler
@@ -184,8 +181,8 @@ TEST_F(ProcessShutdownComponentTest, GracefulShutdown_SendsSigtermThenSigkillAft
     EXPECT_EQ(result, IComponent::RequestResult::kSuccess);
     EXPECT_GE(sigkill_time - sigterm_time, std::chrono::milliseconds{shutdown_timeout_ms});
     // Check that SIGKILL fired promptly after the timeout, not arbitrarily late
-    EXPECT_LE(sigkill_time - sigterm_time,
-              std::chrono::milliseconds{shutdown_timeout_ms} + std::chrono::milliseconds{100});
+    EXPECT_LE(
+        sigkill_time - sigterm_time, std::chrono::milliseconds{shutdown_timeout_ms} + std::chrono::milliseconds{100});
     EXPECT_FALSE(node->active());
     EXPECT_EQ(node->getState(), score::mw::lifecycle::ProcessState::kIdle);
 }
@@ -204,8 +201,7 @@ TEST_F(ProcessShutdownComponentTest, ImmediateShutdown_SendsSigkillWithoutSigter
     // (reverse declaration order), ensuring the OsHandler thread stops before
     // node and process_map are released.
     auto node = std::make_unique<ProcessInfoNode>(
-        makeConfig(0U),
-        ProcessHandling{&process_launcher_, process_map_, nullptr, mock_factory_});
+        makeConfig(0U), ProcessHandling{&process_launcher_, process_map_, nullptr, mock_factory_});
 
     // Activate: fork() returns kFakePid so the node enters kRunning with that pid.
     // No real child process is created; the parent path in ProcessLauncher stores
@@ -225,13 +221,12 @@ TEST_F(ProcessShutdownComponentTest, ImmediateShutdown_SendsSigkillWithoutSigter
     // WillRepeatedly + call_once: handleForcedTermination loops sending SIGKILL until
     // termination_waiter_ is signalled. A second SIGKILL can arrive before OsHandler
     // delivers the exit event; call_once ensures the promise is fulfilled exactly once.
-    EXPECT_CALL(*g_syscall_mock, kill(kFakePid, SIGKILL))
-        .WillRepeatedly([&](pid_t pid, int sig) -> int {
-            std::call_once(sigkill_flag, [&, pid, sig] {
-                child_exit_promise.set_value({pid, sig});
-            });
-            return 0;
+    EXPECT_CALL(*g_syscall_mock, kill(kFakePid, SIGKILL)).WillRepeatedly([&](pid_t pid, int sig) -> int {
+        std::call_once(sigkill_flag, [&, pid, sig] {
+            child_exit_promise.set_value({pid, sig});
         });
+        return 0;
+    });
 
     // wait() blocks until SIGKILL is sent, then returns the child exit status.
     // OsHandler routes it: findTerminated() → TerminationForwarder::terminated()
@@ -276,8 +271,7 @@ TEST_F(ProcessShutdownComponentTest, GracefulShutdown_ProcessCooperates_NoSigkil
     // (reverse declaration order), ensuring the OsHandler thread stops before
     // node and process_map are released.
     auto node = std::make_unique<ProcessInfoNode>(
-        makeConfig(500U),
-        ProcessHandling{&process_launcher_, process_map_, nullptr, mock_factory_});
+        makeConfig(500U), ProcessHandling{&process_launcher_, process_map_, nullptr, mock_factory_});
 
     // Activate: fork() returns kFakePid so the node enters kRunning with that pid.
     // No real child process is created; the parent path in ProcessLauncher stores
@@ -291,11 +285,10 @@ TEST_F(ProcessShutdownComponentTest, GracefulShutdown_ProcessCooperates_NoSigkil
     std::promise<ProcessExitEvent> child_exit_promise;
     auto child_exit_future = child_exit_promise.get_future();
 
-    EXPECT_CALL(*g_syscall_mock, kill(kFakePid, SIGTERM))
-        .WillOnce([&](pid_t pid, int sig) -> int {
-            child_exit_promise.set_value({pid, sig});  // process exits cleanly in response to SIGTERM
-            return 0;
-        });
+    EXPECT_CALL(*g_syscall_mock, kill(kFakePid, SIGTERM)).WillOnce([&](pid_t pid, int sig) -> int {
+        child_exit_promise.set_value({pid, sig});  // process exits cleanly in response to SIGTERM
+        return 0;
+    });
 
     EXPECT_CALL(*g_syscall_mock, kill(kFakePid, SIGKILL)).Times(0);
 
