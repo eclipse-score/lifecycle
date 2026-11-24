@@ -40,7 +40,7 @@ namespace score.mw.health.configuration.fb;
 file_identifier "HMCF";
 file_extension "bin";
 
-/// Scheduling policy of the worker thread.
+/// Scheduling policy of the monitoring thread.
 enum SchedulingPolicy : byte {
   OTHER = 0,
   FIFO = 1,
@@ -64,7 +64,7 @@ table TimeRange {
 }
 
 /// @title: Scheduler Parameters
-/// Scheduling policy and priority of the worker thread.
+/// Scheduling policy and priority of the monitoring thread.
 table SchedulerParameters {
   /// @title: Policy
   /// @required
@@ -77,7 +77,7 @@ table SchedulerParameters {
 }
 
 /// @title: Thread Parameters
-/// Scheduling, CPU affinity and stack size of the worker thread.
+/// Scheduling, CPU affinity and stack size of the monitoring thread.
 /// A value that is not set keeps the operating system default.
 table ThreadParameters {
   /// @title: Scheduler Parameters
@@ -88,7 +88,8 @@ table ThreadParameters {
   affinity: [uint32];
   /// @title: Stack Size
   /// @min: 0
-  /// Stack size in bytes, not below the minimum of the operating system.
+  /// Stack size in bytes. If not set, the operating system default is used.
+  /// It must not be below the minimum of the operating system.
   stack_size: uint64 = null;
 }
 
@@ -183,7 +184,7 @@ table HealthMonitorConfig {
   /// Time in milliseconds between two checks of all monitors.
   internal_processing_cycle_ms: uint32 = 100;
   /// @title: Thread Parameters
-  /// Scheduling, CPU affinity and stack size of the worker thread.
+  /// Scheduling, CPU affinity and stack size of the monitoring thread.
   thread_parameters: ThreadParameters;
   /// @title: Deadline Monitors
   /// Deadline monitors.

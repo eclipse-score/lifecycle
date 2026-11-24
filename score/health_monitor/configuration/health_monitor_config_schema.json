@@ -32,7 +32,7 @@
         "thread_parameters": {
             "type": "object",
             "title": "Thread Parameters",
-            "description": "Scheduling, CPU affinity and stack size of the worker thread.",
+            "description": "Scheduling, CPU affinity and stack size of the monitoring thread.",
             "additionalProperties": false,
             "properties": {
                 "scheduler_parameters": {
@@ -73,7 +73,7 @@
                 "stack_size": {
                     "type": "integer",
                     "title": "Stack Size",
-                    "description": "Stack size in bytes, not below the minimum of the operating system.",
+                    "description": "Stack size in bytes. If not set, the operating system default is used.\nIt must not be below the minimum of the operating system.",
                     "minimum": 0
                 }
             }
