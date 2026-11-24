@@ -39,11 +39,11 @@ cc_binary(
 
 integration_test(
     name = "component_order",
-    srcs = ["component_order.py"],
+    srcs = ["test.py"],
     binaries = [
         ":order_process",
         ":control_client_test_driver",
         "//score/launch_manager",
     ],
-    config = ":component_order.json",
+    config = ":config.json",
 )

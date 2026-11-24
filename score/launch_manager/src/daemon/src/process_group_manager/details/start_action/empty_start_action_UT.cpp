@@ -11,6 +11,7 @@
  * SPDX-License-Identifier: Apache-2.0
  ********************************************************************************/
 
+#include "score/mw/launch_manager/process_group_manager/details/mock_component.hpp"
 #include "score/mw/launch_manager/process_group_manager/details/start_action/empty_start_action.hpp"
 #include <gtest/gtest.h>
 
@@ -22,19 +23,23 @@ namespace
 TEST(EmptyStartActionTest, StartSucceeds)
 {
     EmptyStartAction empty_start_action;
+    MockComponent component;
 
-    const auto result = empty_start_action.start(cpp::stop_token{});
+    const auto result = empty_start_action.start(cpp::stop_token{}, component);
 
     EXPECT_TRUE(result.has_value());
 }
 
-TEST(EmptyStartActionTest, StartReturnsEmptyHandle)
+TEST(EmptyStartActionTest, StartReturnsEmptyHandleWhichHasNotTerminated)
 {
     EmptyStartAction empty_start_action;
+    MockComponent component;
 
-    const auto result = empty_start_action.start(cpp::stop_token{});
+    const auto result = empty_start_action.start(cpp::stop_token{}, component);
 
-    EXPECT_TRUE(std::holds_alternative<EmptyHandle>(result.value()));
+    ASSERT_TRUE(result.has_value());
+    EXPECT_TRUE(std::holds_alternative<EmptyHandle>(result.value().handle));
+    EXPECT_FALSE(result.value().exit_status.has_value());
 }
 
 }  // namespace

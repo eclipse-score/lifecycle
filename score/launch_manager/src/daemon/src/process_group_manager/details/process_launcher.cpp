@@ -14,36 +14,38 @@
 #include <string_view>
 
 #include <fcntl.h>
-#include <grp.h>
-#include <libgen.h>
-#include <sys/mman.h>
+#include <sched.h>
 #include <sys/resource.h>
+#include <sys/types.h>
 #include <sys/wait.h>
 #include <unistd.h>
-#include <limits.h>
 #include <signal.h>
+#include <stdint.h>
 
 #include "score/mw/launch_manager/common/log.hpp"
 #include "score/mw/launch_manager/common/signal_safe_log.hpp"
+#include "score/mw/launch_manager/configuration/component_config.hpp"
+#include "score/mw/launch_manager/configuration/environment_config.hpp"
+#include "score/mw/launch_manager/configuration/process_command.hpp"
 #include "score/mw/launch_manager/osal/ipc_comms.hpp"
+#include "score/mw/launch_manager/osal/return_types.hpp"
 #include "score/mw/launch_manager/osal/security_policy.hpp"
+#include "score/mw/launch_manager/osal/semaphore.hpp"
 #include "score/mw/launch_manager/osal/set_affinity.hpp"
 #include "score/mw/launch_manager/osal/set_groups.hpp"
 #include "score/mw/launch_manager/osal/shm_open_anon.hpp"
 #include "score/mw/launch_manager/osal/sys_exit.hpp"
 #include "score/mw/launch_manager/process_group_manager/details/process_launcher.hpp"
 #include "score/mw/launch_manager/process_group_manager/iprocess.hpp"
-#include <charconv>
 #include <score/assert.hpp>
-#include <array>
-#include <cassert>
 #include <cerrno>
-#include <csignal>
+#include <chrono>
 #include <cstdio>
 #include <cstdlib>
-#include <cstring>
-#include <iterator>
+#include <memory>
 #include <optional>
+#include <string>
+#include <vector>
 
 constexpr int kPidZero = 0;  // This value is used to check if the process ID (uses pid_t) is valid or not.
 constexpr int kPosixSuccess = 0;
@@ -103,7 +105,6 @@ void handleComms(score::mw::lifecycle::internal::osal::ChildProcessConfig& param
     }
 
     param.fd = dup2(param.fd, param.shared_block->sync_fd);
-    param.shared_block->pid_ = getpid();  // Store pid for check at client end
 
     // Flag FD_CLOEXEC is cleared to ensure that sync_fd remains open after the execve call.
     if (-1 == fcntl(IpcCommsSync::sync_fd, F_SETFD, 0))
@@ -490,9 +491,18 @@ OsalReturnType ProcessLauncher::waitForkRunning(IpcCommsP sync, std::chrono::mil
     if (result != OsalReturnType::kSuccess)
     {
         LM_LOG_ERROR() << "Semaphore timedWait failed: Did not receive kRunning within the specified timeout.";
+        return result;
     }
 
-    return result;
+    // The semaphore is also posted when the process terminates, so only the reported_running_ flag tells whether the
+    // process actually reported kRunning.
+    if (!sync->hasReportedRunning())
+    {
+        LM_LOG_ERROR() << "Process terminated without reporting kRunning.";
+        return OsalReturnType::kFail;
+    }
+
+    return OsalReturnType::kSuccess;
 }
 
 }  // namespace score::mw::lifecycle::internal::osal

@@ -3,7 +3,6 @@
     "components": [
         {
             "name": "component_a",
-            "description": "Component A - reporting with alive supervision",
             "component_properties": {
                 "binary_name": "default_app",
                 "application_profile": {
@@ -92,7 +91,6 @@
         },
         {
             "name": "component_b",
-            "description": "Component B - native (no LC integration)",
             "component_properties": {
                 "binary_name": "app_b",
                 "application_profile": {
@@ -163,7 +161,6 @@
         },
         {
             "name": "component_c",
-            "description": "Component C - reporting only (no alive supervision)",
             "component_properties": {
                 "binary_name": "app_c",
                 "application_profile": {
@@ -235,7 +232,6 @@
         },
         {
             "name": "state_manager",
-            "description": "State Manager component",
             "component_properties": {
                 "binary_name": "sm",
                 "application_profile": {
@@ -313,7 +309,6 @@
             "recovery_action": {
                 "run_target": "fallback_run_target"
             },
-            "description": "Initial startup mode with minimal services",
             "depends_on": [
                 "state_manager"
             ]
@@ -324,7 +319,6 @@
             "recovery_action": {
                 "run_target": "fallback_run_target"
             },
-            "description": "Full operational mode with all services",
             "depends_on": [
                 "component_a",
                 "component_b",
@@ -338,7 +332,6 @@
             "recovery_action": {
                 "run_target": "fallback_run_target"
             },
-            "description": "Diagnostic mode for troubleshooting",
             "depends_on": [
                 "component_a",
                 "component_b"
@@ -348,7 +341,6 @@
     "initial_run_target": "Startup",
     "fallback_run_target": {
         "transition_timeout_ms": 1500,
-        "description": "Fallback mode - all non-essential services stopped",
         "depends_on": [
             "state_manager"
         ]

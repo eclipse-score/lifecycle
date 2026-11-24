@@ -40,6 +40,7 @@ cc_library(
     visibility = ["//score:__subpackages__"],
     deps = [
         ":i_alive_monitor",
+        "@googletest//:gtest",
         "@googletest//:gtest_main",
     ],
 )
@@ -74,6 +75,7 @@ cc_library(
     visibility = ["//score:__subpackages__"],
     deps = [
         ":ialive_supervision_handle",
+        "@googletest//:gtest",
         "@googletest//:gtest_main",
     ],
 )
@@ -87,6 +89,7 @@ cc_library(
     visibility = ["//score:__subpackages__"],
     deps = [
         ":isupervision_factory",
+        "@googletest//:gtest",
         "@googletest//:gtest_main",
     ],
 )

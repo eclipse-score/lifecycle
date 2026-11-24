@@ -1,0 +1,31 @@
+# *******************************************************************************
+# Copyright (c) 2026 Contributors to the Eclipse Foundation
+#
+# See the NOTICE file(s) distributed with this work for additional
+# information regarding copyright ownership.
+#
+# This program and the accompanying materials are made available under the
+# terms of the Apache License Version 2.0 which is available at
+# https://www.apache.org/licenses/LICENSE-2.0
+#
+# SPDX-License-Identifier: Apache-2.0
+# *******************************************************************************
+
+# Check that every C++ file includes what it uses (include-what-you-use).
+# Usage: see README.md.
+#
+# IWYU is based on clang and does not understand GCC-only flags (e.g. -Wformat-diag, -z noexecstack),
+# so the analysis uses the LLVM/clang toolchain instead of the GCC toolchain of `--config=x86_64-linux`.
+# Do not combine it with `--config=x86_64-linux`. Same toolchain setup as `--config=codeql`.
+build:iwyu --config=stub
+build:iwyu --platform_suffix=iwyu
+build:iwyu --extra_toolchains=@llvm_toolchain//:cc-toolchain-x86_64-linux
+build:iwyu --host_platform=@score_bazel_platforms//:x86_64-linux
+build:iwyu --incompatible_strict_action_env
+
+build:iwyu --aspects=@bazel_iwyu//:iwyu.bzl%iwyu_aspect
+build:iwyu --output_groups=report
+# Mappings for external headers without IWYU pragmas, see //quality/iwyu:mappings.
+build:iwyu --@bazel_iwyu//:iwyu_mappings=//quality/iwyu:mappings
+# Report all findings instead of stopping at the first failing target.
+build:iwyu --keep_going

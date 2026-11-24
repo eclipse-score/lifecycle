@@ -15,6 +15,7 @@
 
 #include <score/assert.hpp>
 #include <chrono>
+#include <cstdint>
 #include <optional>
 
 namespace score::mw::health

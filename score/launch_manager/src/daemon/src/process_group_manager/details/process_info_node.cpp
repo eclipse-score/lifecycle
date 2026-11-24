@@ -12,15 +12,24 @@
  ********************************************************************************/
 
 #include "process_info_node.hpp"
-#include "score/launch_manager/src/daemon/src/configuration/component_config.hpp"
+#include "score/mw/launch_manager/alive_monitor/isupervision_factory.hpp"
+#include "score/mw/launch_manager/common/constants.hpp"
 #include "score/mw/launch_manager/common/log.hpp"
+#include "score/mw/launch_manager/configuration/component_config.hpp"
+#include "score/mw/launch_manager/configuration/environment_config.hpp"
+#include "score/mw/launch_manager/configuration/process_command.hpp"
 #include "score/mw/launch_manager/osal/ifile_waiter.hpp"
 #include "score/mw/launch_manager/osal/ipc_comms.hpp"
+#include "score/mw/launch_manager/osal/semaphore.hpp"
 #include "score/mw/launch_manager/process_group_manager/details/safe_process_map.hpp"
+#include "score/mw/launch_manager/process_group_manager/iprocess.hpp"
 #include <score/assert.hpp>
-#include <unistd.h>
+#include <score/blank.hpp>
+#include <sys/types.h>
 #include <cstdint>
-#include <cstring>
+#include <string>
+#include <type_traits>
+#include <variant>
 
 namespace score::mw::lifecycle::internal
 {
@@ -470,15 +479,16 @@ score::cpp::expected_blank<IComponent::RequestResult> ProcessInfoNode::handlePro
 score::cpp::expected<score::cpp::expected_blank<IComponent::RequestResult>, IComponent::RequestResult>
 ProcessInfoNode::handleProcessStarted(const score::cpp::stop_token& stop_token)
 {
-    switch (process_handling_.process_map_->insertIfNotTerminated(pid_, this))
+    const SafeProcessMapInsertResult insert_result = process_handling_.process_map_->insertIfNotTerminated(pid_, this);
+    switch (insert_result.type)
     {
         case score::mw::lifecycle::internal::SafeProcessMapReturnType::kInserted:  // Entry was inserted; process is
                                                                                    // still running
             return handleProcessStillStarting(stop_token);
         case score::mw::lifecycle::internal::SafeProcessMapReturnType::kMatched:
-            // Process has already exited and tryHandleTermination has completed.
-            // tryHandleTermination is called by insertIfNotTerminated() and therefore executes in sequence in this
-            // case.
+            // Process has already exited. The process map does not report the termination in this case, so it is
+            // handled here. While starting, a termination is never reported as a failure, so the result is ignored.
+            static_cast<void>(tryHandleTermination(insert_result.exit_status));
             return handleProcessAlreadyTerminated();
         default:  // Error case when pn == -1
             // really bad fatal error, should not happen, treat as a failure to set the state & kill the process
@@ -530,8 +540,6 @@ void ProcessInfoNode::handleTerminationProcess(const score::cpp::stop_token& sto
         // handle forced termination
         handleForcedTermination(stop_token);
     }
-
-    termination_requested_.store(false);
 }
 
 void ProcessInfoNode::handleForcedTermination(const score::cpp::stop_token& stop_token)

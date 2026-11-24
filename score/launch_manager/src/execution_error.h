@@ -71,8 +71,8 @@ enum class ExecErrc : score::result::ErrorCode
     /// @brief The request could not be completed because launch manager is shutting down
     kShuttingDown = 16,
 
-    /// @brief A recovery is currently in progress
-    kRecoveryInProgress = 17,
+    /// @brief The operation timed out
+    kTimeout = 17,
 };
 
 class ExecErrorDomain final : public score::result::ErrorDomain
@@ -115,8 +115,8 @@ class ExecErrorDomain final : public score::result::ErrorDomain
                 return "The requested functionality is not yet implemented";
             case ExecErrc::kShuttingDown:
                 return "The request could not be completed because launch manager is shutting down";
-            case ExecErrc::kRecoveryInProgress:
-                return "A recovery is currently in progress.";
+            case ExecErrc::kTimeout:
+                return "The operation timed out";
             default:
                 return "Unknown error";
         }

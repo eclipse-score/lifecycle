@@ -13,11 +13,13 @@
 #ifndef SCORE_HM_LOGIC_LOGIC_MONITOR_H
 #define SCORE_HM_LOGIC_LOGIC_MONITOR_H
 
-#include "score/mw/health/common.h"
-#include "score/mw/health/tag.h"
 #include <score/expected.hpp>
+#include <optional>
 #include <utility>
 #include <vector>
+
+#include "score/mw/health/common.h"
+#include "score/mw/health/tag.h"
 
 namespace score::mw::health
 {

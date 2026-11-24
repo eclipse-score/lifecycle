@@ -14,13 +14,12 @@
 #ifndef ALIVEWORKERFACTORY_HPP_INCLUDED
 #define ALIVEWORKERFACTORY_HPP_INCLUDED
 
-#include <memory>
+#include <sys/types.h>
+#include <cstdint>
+#include <string>
 
 #include "score/mw/launch_manager/alive_monitor/details/factory/IAliveWorkerFactory.hpp"
-#include "score/mw/launch_manager/alive_monitor/details/ifexm/ObservableEventReader.hpp"
-#include "score/mw/launch_manager/configuration/config.hpp"
-#include <string>
-#include <vector>
+#include "score/mw/launch_manager/alive_monitor/details/ifappl/DataStructures.hpp"
 
 namespace score::mw::lifecycle::internal::saf::factory
 {

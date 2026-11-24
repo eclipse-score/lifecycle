@@ -11,15 +11,17 @@
  * SPDX-License-Identifier: Apache-2.0
  ********************************************************************************/
 #include "score/mw/launch_manager/watchdog/details/WatchdogImpl.hpp"
-#include "score/launch_manager/src/daemon/src/common/log.hpp"
 
 #include <score/assert.hpp>
-
+#include <score/expected.hpp>
 #include <unistd.h>
-#include <chrono>
-#include <thread>
+#include <stddef.h>
+#include <exception>
+#include <limits>
 
-#include "score/mw/launch_manager/configuration/config.hpp"
+#include "score/bitmanipulation/bitmask_operators.h"
+#include "score/mw/launch_manager/common/log.hpp"
+#include "score/mw/launch_manager/configuration/watchdog_config.hpp"
 #include "score/mw/launch_manager/watchdog/details/Watchdog.hpp"
 
 namespace score::mw::lifecycle::internal::watchdog
@@ -43,7 +45,7 @@ T secToMs(const T f_timeout)
 }  // namespace
 
 WatchdogImpl::WatchdogImpl(DeviceIf& deviceIf, score::os::Fcntl& fcntl, score::os::Unistd& unistd) noexcept
-    : IWatchdogIf(), watchdogDevice_(), state_(ELibState::idle), deviceIf_(deviceIf), fcntl_(fcntl), unistd_(unistd)
+    : IWatchdogIf(), watchdog_device_(), state_(ELibState::idle), device_if_(deviceIf), fcntl_(fcntl), unistd_(unistd)
 {
 }
 
@@ -79,7 +81,7 @@ bool WatchdogImpl::init(
     catch (const std::exception& e)
     {
         isSuccess = false;
-        watchdogDevice_.reset();
+        watchdog_device_.reset();
         LM_LOG_ERROR() << "Watchdog: Watchdog initialization failed:" << std::string(e.what());
     }
     return isSuccess;
@@ -97,7 +99,7 @@ bool WatchdogImpl::configureDevice(const DeviceConfig& f_config_r, std::int64_t 
         return false;
     }
 
-    watchdogDevice_ = WatchdogDevice{f_config_r};
+    watchdog_device_ = WatchdogDevice{f_config_r};
     return true;
 }
 
@@ -114,7 +116,7 @@ bool WatchdogImpl::enable() noexcept
         return true;
     }
 
-    const auto wasEnabled{enableDevice(*watchdogDevice_)};
+    const auto wasEnabled{enableDevice(*watchdog_device_)};
     if (wasEnabled)
     {
         state_ = ELibState::activated;
@@ -129,7 +131,7 @@ void WatchdogImpl::disable() noexcept
         return;
     }
 
-    if (disableDevice(*watchdogDevice_))
+    if (disableDevice(*watchdog_device_))
     {
         state_ = ELibState::idle;
     }
@@ -144,11 +146,11 @@ void WatchdogImpl::serviceWatchdog() noexcept
 
     // Cannot be invalid when state_ == ELibState::activated
     SCORE_LANGUAGE_FUTURECPP_ASSERT_MESSAGE(
-        watchdogDevice_->fileDescriptor >= 0, "Watchdog file descriptor is not valid");
+        watchdog_device_->fileDescriptor >= 0, "Watchdog file descriptor is not valid");
 
     // save to ignore return value here. If keepalive does not work, watchdog will eventually fire
-    static_cast<void>(deviceIf_.ioctl(
-        watchdogDevice_->fileDescriptor, static_cast<DeviceIf::IoctlRequestType>(WDIOC_KEEPALIVE), nullptr));
+    static_cast<void>(device_if_.ioctl(
+        watchdog_device_->fileDescriptor, static_cast<DeviceIf::IoctlRequestType>(WDIOC_KEEPALIVE), nullptr));
 }
 
 void WatchdogImpl::fireWatchdogReaction() noexcept
@@ -162,14 +164,14 @@ void WatchdogImpl::fireWatchdogReaction() noexcept
 
     // Cannot be invalid when state_ was ELibState::activated
     SCORE_LANGUAGE_FUTURECPP_ASSERT_MESSAGE(
-        watchdogDevice_->fileDescriptor >= 0, "Watchdog file descriptor is not valid");
+        watchdog_device_->fileDescriptor >= 0, "Watchdog file descriptor is not valid");
 
     // This log message is introduced as a result of FMEA
-    LM_LOG_FATAL() << "Watchdog: Trigger RESET for watchdog" << watchdogDevice_->config.fileName;
+    LM_LOG_FATAL() << "Watchdog: Trigger RESET for watchdog" << watchdog_device_->config.fileName;
 
     std::uint16_t timeout{0U};
     // Save to ignore return value here. If setting timeout does not work, watchdog will eventually fire
-    static_cast<void>(setTimeout(watchdogDevice_->fileDescriptor, timeout));
+    static_cast<void>(setTimeout(watchdog_device_->fileDescriptor, timeout));
 
     waitForever();
 }
@@ -177,14 +179,14 @@ void WatchdogImpl::fireWatchdogReaction() noexcept
 bool WatchdogImpl::setEnableCardOption(std::int32_t f_fd) const noexcept
 {
     std::int32_t options{WDIOS_ENABLECARD};
-    return deviceIf_.ioctl(f_fd, static_cast<DeviceIf::IoctlRequestType>(WDIOC_SETOPTIONS), &options) >= 0;
+    return device_if_.ioctl(f_fd, static_cast<DeviceIf::IoctlRequestType>(WDIOC_SETOPTIONS), &options) >= 0;
 }
 
 std::int32_t WatchdogImpl::getConfiguredTimeout(std::int32_t& f_configuredTimeout_r, std::int32_t f_fd) const noexcept
 {
     f_configuredTimeout_r = -1;
 
-    if (deviceIf_.ioctl(f_fd, static_cast<DeviceIf::IoctlRequestType>(WDIOC_GETTIMEOUT), &f_configuredTimeout_r) < 0)
+    if (device_if_.ioctl(f_fd, static_cast<DeviceIf::IoctlRequestType>(WDIOC_GETTIMEOUT), &f_configuredTimeout_r) < 0)
     {
         return -1;
     }
@@ -199,7 +201,7 @@ std::int32_t WatchdogImpl::getConfiguredTimeout(std::int32_t& f_configuredTimeou
 std::int32_t WatchdogImpl::getRemainingTime(std::int32_t& f_remainingTime_r, std::int32_t f_fd) const noexcept
 {
     f_remainingTime_r = -1;
-    if (deviceIf_.ioctl(f_fd, static_cast<DeviceIf::IoctlRequestType>(WDIOC_GETTIMELEFT), &f_remainingTime_r) < 0)
+    if (device_if_.ioctl(f_fd, static_cast<DeviceIf::IoctlRequestType>(WDIOC_GETTIMELEFT), &f_remainingTime_r) < 0)
     {
         return -1;
     }
@@ -216,7 +218,7 @@ bool WatchdogImpl::setTimeout(std::int32_t f_fd, std::uint16_t f_timeoutInMs) co
     std::int32_t timeout{static_cast<std::int32_t>(msToSec(f_timeoutInMs))};
     std::int32_t timeoutBefore{timeout};
     const bool ioctlSuccessful{
-        deviceIf_.ioctl(f_fd, static_cast<DeviceIf::IoctlRequestType>(WDIOC_SETTIMEOUT), &timeout) >= 0};
+        device_if_.ioctl(f_fd, static_cast<DeviceIf::IoctlRequestType>(WDIOC_SETTIMEOUT), &timeout) >= 0};
     timeout = secToMs(timeout);
     timeoutBefore = secToMs(timeoutBefore);
 #else
@@ -224,7 +226,7 @@ bool WatchdogImpl::setTimeout(std::int32_t f_fd, std::uint16_t f_timeoutInMs) co
     std::int32_t timeout{static_cast<std::int32_t>(f_timeoutInMs)};
     std::int32_t timeoutBefore{timeout};
     const bool ioctlSuccessful{
-        deviceIf_.ioctl(f_fd, static_cast<DeviceIf::IoctlRequestType>(WDIOC_SETTIMEOUT), &timeout) >= 0};
+        device_if_.ioctl(f_fd, static_cast<DeviceIf::IoctlRequestType>(WDIOC_SETTIMEOUT), &timeout) >= 0};
 #endif
     // The timeout value may have been altered to the nearest timeout that is supported,
     // if the given timeout is not supported.
@@ -333,7 +335,7 @@ bool WatchdogImpl::disableDevice(WatchdogDevice& f_watchdogDevice_r) const noexc
 {
     // Cannot be invalid as this is only called when in state ELibState::activated
     SCORE_LANGUAGE_FUTURECPP_ASSERT_MESSAGE(
-        watchdogDevice_->fileDescriptor >= 0, "Watchdog file descriptor is not valid");
+        watchdog_device_->fileDescriptor >= 0, "Watchdog file descriptor is not valid");
 
     if (!f_watchdogDevice_r.config.canBeDeactivated)
     {
@@ -345,7 +347,7 @@ bool WatchdogImpl::disableDevice(WatchdogDevice& f_watchdogDevice_r) const noexc
         static_cast<void>(unistd_.write(f_watchdogDevice_r.fileDescriptor, kMagicCloseChar, static_cast<size_t>(2)));
     }
     std::int32_t option{WDIOS_DISABLECARD};
-    static_cast<void>(deviceIf_.ioctl(
+    static_cast<void>(device_if_.ioctl(
         f_watchdogDevice_r.fileDescriptor, static_cast<DeviceIf::IoctlRequestType>(WDIOC_SETOPTIONS), &option));
     static_cast<void>(unistd_.close(f_watchdogDevice_r.fileDescriptor));
     f_watchdogDevice_r.fileDescriptor = -1;
@@ -361,7 +363,7 @@ bool WatchdogImpl::hasValidTimeout(const DeviceConfig& f_config_r) noexcept
 
 bool WatchdogImpl::deviceAlreadyConfigured() const noexcept
 {
-    return watchdogDevice_.has_value();
+    return watchdog_device_.has_value();
 }
 
 bool WatchdogImpl::isValidDeviceConfig(const DeviceConfig& f_config_r, std::int64_t f_cycleTimeInNs) const noexcept

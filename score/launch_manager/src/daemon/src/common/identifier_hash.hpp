@@ -17,11 +17,11 @@
 #include <cstddef>
 #include <mutex>
 #include <optional>
-#include <ostream>
 #include <sstream>
 #include <string>
 #include <string_view>
 #include <unordered_map>
+#include <utility>
 
 namespace score::mw::lifecycle
 {

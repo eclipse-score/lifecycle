@@ -15,7 +15,6 @@
 #define TIMECONVERSION_HPP_INCLUDED
 
 #include <chrono>
-#include <cstdint>
 #include <ctime>
 
 namespace score::mw::lifecycle::internal::saf::timers

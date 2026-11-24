@@ -3,7 +3,6 @@
     "components": [
         {
             "name": "max_values",
-            "description": "",
             "component_properties": {
                 "binary_name": "max_values",
                 "application_profile": {
@@ -46,7 +45,6 @@
         },
         {
             "name": "min_values",
-            "description": "",
             "component_properties": {
                 "binary_name": "min_values",
                 "application_profile": {

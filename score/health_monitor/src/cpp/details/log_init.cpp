@@ -11,8 +11,10 @@
  * SPDX-License-Identifier: Apache-2.0
  ********************************************************************************/
 
-#include "score/mw/log/rust/stdout_logger_init.h"
 #include <gtest/gtest.h>
+#include <string>
+
+#include "score/mw/log/rust/stdout_logger_init.h"
 
 /// @brief Initializer for `StdoutLogger`.
 /// @details This enables logging for Rust libraries.

@@ -27,6 +27,14 @@ class IReadyCondition
   public:
     virtual ~IReadyCondition() = default;
 
+    /// @brief Prepare the ready condition for a new activation.
+    /// @details Called once per activation, before the resource is started and while no
+    ///          termination of the new resource can be reported yet. Implementations can use
+    ///          this to discard state left over from a previous activation.
+    virtual void prepare() const
+    {
+    }
+
     /// @brief Wait until the resource represented by the given handle is ready.
     /// @param stop_token Token which can be used to interrupt the wait.
     /// @param handle The resource to wait on.
@@ -34,6 +42,10 @@ class IReadyCondition
     virtual Result<void> wait(cpp::stop_token stop_token, const Handle& handle) const = 0;
 
     /// @brief Notify the ready condition that a POSIX process has terminated.
+    /// @details Only called while wait() may be running for the same activation. If the termination is
+    ///          accepted, the ready condition itself is responsible for waking wait(). If it is not
+    ///          accepted, the caller treats the termination as unexpected and requests a stop on the
+    ///          stop token passed to wait(), which interrupts the wait.
     /// @param handle The process that terminated.
     /// @param status Exit code of the process.
     /// @return Whether this ready condition accepts the event.

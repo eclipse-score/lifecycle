@@ -11,19 +11,19 @@
  * SPDX-License-Identifier: Apache-2.0
  ********************************************************************************/
 
-#include <sys/mman.h>
 #include <sys/stat.h>
+#include <sys/types.h>
 #include <unistd.h>
 #include <atomic>
 #include <variant>
 
-#include "score/result/result.h"
-
-#include "score/mw/launch_manager/common/constants.hpp"
 #include "score/mw/launch_manager/common/log.hpp"
 #include "score/mw/launch_manager/osal/ipc_comms.hpp"
+#include "score/mw/launch_manager/osal/return_types.hpp"
+#include "score/mw/launch_manager/osal/semaphore.hpp"
 #include "score/mw/lifecycle/execution_error.h"
 #include "score/mw/lifecycle/lifecycle_client/details/report_running_impl.hpp"
+#include "score/result/result.h"
 
 using namespace score::mw::lifecycle::internal::osal;
 
@@ -78,9 +78,18 @@ score::Result<std::monostate> ReportRunningImpl::reportKRunningtoDaemon() const 
     }
 
     // This is our best safeguard against incorrect data treated as an IPCCommsSync
-    if (sync->pid_ != getpid())
+    if (sync->magic_ != IpcCommsSync::kMagic)
     {
-        LM_LOG_ERROR() << "[Lifecycle client] Cannot report kRunning from a process not started by Launch Manager";
+        LM_LOG_ERROR() << "[Lifecycle client] FD " << sync_fd
+                       << " is not a Launch Manager comms object, cannot report kRunning";
+        return comms_error;
+    }
+
+    if (sync->version_ != IpcCommsSync::kLayoutVersion)
+    {
+        LM_LOG_ERROR() << "[Lifecycle client] Comms object version " << sync->version_
+                       << " does not match expected version " << IpcCommsSync::kLayoutVersion
+                       << ", Launch Manager and client are incompatible";
         return comms_error;
     }
 
@@ -90,6 +99,10 @@ score::Result<std::monostate> ReportRunningImpl::reportKRunningtoDaemon() const 
 
         return comms_error;
     }
+
+    // Set the reported_running_ flag before waking up Launch Manager, which uses it to tell our report apart from a
+    // wake-up caused by our termination.
+    sync->reportRunning();
 
     if (sync->send_sync_.post() == OsalReturnType::kFail)
     {

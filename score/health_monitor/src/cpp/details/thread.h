@@ -13,10 +13,13 @@
 #ifndef SCORE_HM_THREAD_H
 #define SCORE_HM_THREAD_H
 
-#include "score/mw/health/common.h"
+#include <stddef.h>
 #include <cstdint>
+#include <optional>
 #include <utility>
 #include <vector>
+
+#include "score/mw/health/common.h"
 
 namespace score::mw::health
 {

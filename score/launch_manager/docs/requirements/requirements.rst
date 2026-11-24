@@ -31,17 +31,30 @@ Components
    TODO all requirements that are not under the Process heading shall 
    be reworded to speak in terms of components.
 
-.. comp_req:: Invalid dependency
-    :id: comp_req__launch_man__consistent_dependencies
+.. comp_req:: Verification of configuration validity on compile time
+    :id: comp_req__launch_man__comp_dep_ver_cmp_time
     :reqtype: Functional
     :security: NO
     :safety: ASIL_B
-    :derived_from: feat_req__lifecycle__process_ordering[version==1]
+    :derived_from: feat_req__lifecycle__config_file_verification[version==1]
+    :status: valid
+    :version: 1
+    :valid_from: v1.0.0
+    :satisfied_by: comp__lifecycle_launch_manager
+
+    The :term:`Launch Manager` shall fail the build if given :term:`invalid configuration<Invalid Configuration>` during compile time.
+
+.. comp_req:: Verification of configuration validity on run time
+    :id: comp_req__launch_man__comp_dep_ver_run_time
+    :reqtype: Functional
+    :security: NO
+    :safety: ASIL_B
+    :derived_from: feat_req__lifecycle__config_file_verification[version==1]
     :status: valid
     :version: 1
     :satisfied_by: comp__lifecycle_launch_manager
 
-    The :term:`Launch Manager` shall reject an inconsistent definition of a set of executables' dependencies.
+    The :term:`Launch Manager` shall exit with an error result if given an :term:`invalid configuration<Invalid Configuration>` at startup.
 
 
 Activating Components
@@ -55,6 +68,7 @@ Activating Components
     :derived_from: feat_req__lifecycle__conditional_startup[version==1]
     :status: valid
     :version: 1
+    :valid_from: v1.0.0
     :satisfied_by: comp__lifecycle_launch_manager
 
     The :term:`Launch Manager` shall consider the component activation
@@ -72,8 +86,8 @@ Deactivating Components
     :safety: ASIL_B
     :derived_from: feat_req__lifecycle__termination_dependency[version==1]
     :status: valid
-    :valid_from: v2.0.0
     :version: 1
+    :valid_from: v2.0.0
     :satisfied_by: comp__lifecycle_launch_manager
 
     The :term:`Launch Manager` shall support fast shutdown by terminating itself
@@ -93,6 +107,7 @@ Deactivating Components
     :derived_from: feat_req__lifecycle__termination_dependency[version==1]
     :status: valid
     :version: 1
+    :valid_from: v1.0.0
     :satisfied_by: comp__lifecycle_launch_manager
 
     The :term:`Launch Manager` shall support normal shutdown by terminating all
@@ -106,6 +121,7 @@ Deactivating Components
     :derived_from: feat_req__lifecycle__termination_dependency[version==1]
     :status: valid
     :version: 1
+    :valid_from: v1.0.0
     :satisfied_by: comp__lifecycle_launch_manager
 
     The :term:`Launch Manager` shall exit after performing shutdown operation by
@@ -118,8 +134,8 @@ Deactivating Components
     :safety: ASIL_B
     :derived_from: feat_req__lifecycle__running_processes[version==1]
     :status: valid
-    :valid_from: v2.0.0
     :version: 1
+    :valid_from: v2.0.0
     :satisfied_by: comp__lifecycle_launch_manager
 
     The :term:`Launch Manager` shall provide support for dropping all surveillance
@@ -138,6 +154,7 @@ Deactivating Components
     :status: invalid
     :tags: unclear
     :version: 1
+    :valid_from: v2.0.0
     :satisfied_by: comp__lifecycle_launch_manager
 
     The :term:`Launch Manager` shall permit the stop order of non-dependent processes to be specified.
@@ -151,6 +168,7 @@ Deactivating Components
     :derived_from: feat_req__lifecycle__termination_dependency[version==1]
     :status: valid
     :version: 1
+    :valid_from: v1.0.0
     :satisfied_by: comp__lifecycle_launch_manager
 
     The :term:`Launch Manager` shall be able to stop a process when all its dependents are stopped if specified in the set of executables.
@@ -167,6 +185,7 @@ Conditional Launching
     :derived_from: feat_req__lifecycle__conditional_startup[version==1]
     :status: valid
     :version: 1
+    :valid_from: v1.0.0
     :satisfied_by: comp__lifecycle_launch_manager
 
     The :term:`Launch Manager` shall support configuration of conditions that
@@ -181,6 +200,7 @@ Conditional Launching
     :derived_from: feat_req__lifecycle__conditional_startup[version==1]
     :status: valid
     :version: 1
+    :valid_from: v1.0.0
     :satisfied_by: comp__lifecycle_launch_manager
 
     The :term:`Launch Manager` shall start a component only after all its
@@ -198,6 +218,7 @@ Ready Conditions
     :derived_from: feat_req__lifecycle__conditional_startup[version==1]
     :status: valid
     :version: 1
+    :valid_from: v1.0.0
     :satisfied_by: comp__lifecycle_launch_manager
 
     The :term:`Launch Manager` shall support a :term:`Ready Condition` that is
@@ -211,6 +232,7 @@ Ready Conditions
     :derived_from: feat_req__lifecycle__conditional_startup[version==1]
     :status: valid
     :version: 1
+    :valid_from: v1.0.0
     :satisfied_by: comp__lifecycle_launch_manager
 
     The :term:`Launch Manager` shall support a :term:`Ready Condition` that is
@@ -224,6 +246,7 @@ Ready Conditions
     :derived_from: feat_req__lifecycle__prog_lang[version==1]
     :status: valid
     :version: 1
+    :valid_from: v1.0.0
     :satisfied_by: comp__lifecycle_launch_manager
 
     The :term:`Launch Manager` shall support Rust and C++ applications to 
@@ -237,6 +260,7 @@ Ready Conditions
     :derived_from: feat_req__lifecycle__conditional_startup[version==1]
     :status: valid
     :version: 1
+    :valid_from: v1.0.0
     :satisfied_by: comp__lifecycle_launch_manager
 
     The :term:`Launch Manager` shall support a :term:`Ready Condition` that is
@@ -251,6 +275,7 @@ Ready Conditions
     :status: invalid
     :tags: unclear
     :version: 1
+    :valid_from: v2.0.0
     :satisfied_by: comp__lifecycle_launch_manager
 
     The :term:`Launch Manager` shall provide a method to check if at least one dependency has been executed.
@@ -264,6 +289,7 @@ Ready Conditions
     :status: invalid
     :tags: unclear
     :version: 1
+    :valid_from: v2.0.0
     :satisfied_by: comp__lifecycle_launch_manager
 
     The :term:`Launch Manager` shall provide a way to define for each :term:`SWC` (Software Components), its dependencies.
@@ -299,6 +325,7 @@ Launching Processes
     :status: invalid
     :tags: unclear
     :version: 1
+    :valid_from: v2.0.0
     :satisfied_by: comp__lifecycle_launch_manager
 
     The :term:`Launch Manager` shall permit an executable to be launched more than once.
@@ -318,6 +345,7 @@ Process Configuration
     :derived_from: feat_req__lifecycle__launch_support[version==1]
     :status: valid
     :version: 1
+    :valid_from: v1.0.0
     :satisfied_by: comp__lifecycle_launch_manager
 
     The :term:`Launch Manager` shall provide support for launching a process with a
@@ -331,6 +359,7 @@ Process Configuration
     :derived_from: feat_req__lifecycle__sandbox_options[version==1]
     :status: valid
     :version: 1
+    :valid_from: v1.0.0
     :satisfied_by: comp__lifecycle_launch_manager
 
     The :term:`Launch Manager` shall provide support for launching a process with a
@@ -344,6 +373,7 @@ Process Configuration
     :derived_from: feat_req__lifecycle__sandbox_options[version==1]
     :status: valid
     :version: 1
+    :valid_from: v1.0.0
     :satisfied_by: comp__lifecycle_launch_manager
 
     The :term:`Launch Manager` shall provide support for launching a process with a
@@ -356,6 +386,7 @@ Process Configuration
     :safety: ASIL_B
     :derived_from: feat_req__lifecycle__sandbox_options[version==1]
     :status: valid
+    :valid_from: v1.0.0
     :version: 1
     :satisfied_by: comp__lifecycle_launch_manager
 
@@ -383,8 +414,8 @@ Process Configuration
     :safety: ASIL_B
     :derived_from: feat_req__lifecycle__sandbox_options[version==1]
     :status: valid
-    :valid_from: v2.0.0
     :version: 1
+    :valid_from: v2.0.0
     :satisfied_by: comp__lifecycle_launch_manager
 
     The :term:`Launch Manager` shall provide support for stdin, stdout, stderr
@@ -398,6 +429,7 @@ Process Configuration
     :derived_from: feat_req__lifecycle__sandbox_options[version==1]
     :status: valid
     :version: 1
+    :valid_from: v1.0.0
     :satisfied_by: comp__lifecycle_launch_manager
 
     The :term:`Launch Manager` shall provide support to be started with security
@@ -411,6 +443,7 @@ Process Configuration
     :derived_from: feat_req__lifecycle__recovery_action_support[version==1]
     :status: valid
     :version: 1
+    :valid_from: v1.0.0
     :satisfied_by: comp__lifecycle_launch_manager
 
     The :term:`Launch Manager` shall support restarting the process 
@@ -427,6 +460,7 @@ Process Configuration
     :derived_from: feat_req__lifecycle__sandbox_options[version==1]
     :status: valid
     :version: 1
+    :valid_from: v1.0.0
     :satisfied_by: comp__lifecycle_launch_manager
 
     The :term:`Launch Manager` shall provide support for launching :term:`Processes <Process>`
@@ -443,6 +477,7 @@ Process Configuration
     :derived_from: feat_req__lifecycle__sandbox_options[version==1]
     :status: valid
     :version: 1
+    :valid_from: v1.0.0
     :satisfied_by: comp__lifecycle_launch_manager
 
     The :term:`Launch Manager` shall provide support for launching a process with a
@@ -456,6 +491,7 @@ Process Configuration
     :derived_from: feat_req__lifecycle__sandbox_options[version==1]
     :status: valid
     :version: 1
+    :valid_from: v1.0.0
     :satisfied_by: comp__lifecycle_launch_manager
 
     The :term:`Launch Manager` shall provide support for launching a process with
@@ -469,6 +505,7 @@ Process Configuration
     :derived_from: feat_req__lifecycle__sandbox_options[version==1]
     :status: valid
     :version: 1
+    :valid_from: v1.0.0
     :satisfied_by: comp__lifecycle_launch_manager
 
     The :term:`Launch Manager` shall provide support for launching a process with a
@@ -481,8 +518,8 @@ Process Configuration
     :safety: ASIL_B
     :derived_from: feat_req__lifecycle__sandbox_options[version==1]
     :status: valid
-    :valid_from: v2.0.0
     :version: 1
+    :valid_from: v2.0.0
     :satisfied_by: comp__lifecycle_launch_manager
 
     The :term:`Launch Manager` shall provide support for launching a process with
@@ -496,6 +533,7 @@ Process Configuration
     :derived_from: feat_req__lifecycle__sandbox_options[version==1]
     :status: valid
     :version: 1
+    :valid_from: v1.0.0
     :satisfied_by: comp__lifecycle_launch_manager
 
     The :term:`Launch Manager` shall provide support for launching a process with
@@ -510,8 +548,8 @@ Process Configuration
     :safety: ASIL_B
     :derived_from: feat_req__lifecycle__sandbox_options[version==1]
     :status: valid
-    :valid_from: v2.0.0
     :version: 1
+    :valid_from: v2.0.0
     :satisfied_by: comp__lifecycle_launch_manager
 
     The :term:`Launch Manager` shall provide support for launching a process to
@@ -529,6 +567,7 @@ Process Configuration
     :derived_from: feat_req__lifecycle__launch_support[version==1]
     :status: valid
     :version: 1
+    :valid_from: v1.0.0
     :satisfied_by: comp__lifecycle_launch_manager
 
     The :term:`Launch Manager` shall provide support for launching :term:`Processes <Process>`
@@ -546,6 +585,7 @@ Terminating Processes
     :derived_from: feat_req__lifecycle__process_termination[version==1]
     :status: valid
     :version: 1
+    :valid_from: v1.0.0
     :satisfied_by: comp__lifecycle_launch_manager
 
     The :term:`Launch Manager` shall provide support for a configurable timeout
@@ -559,6 +599,7 @@ Terminating Processes
     :derived_from: feat_req__lifecycle__process_termination[version==1]
     :status: valid
     :version: 1
+    :valid_from: v1.0.0
     :satisfied_by: comp__lifecycle_launch_manager
 
     The :term:`Launch Manager` shall offer a configuration of the time to wait before
@@ -572,6 +613,7 @@ Terminating Processes
     :derived_from: feat_req__lifecycle__process_termination[version==1]
     :status: valid
     :version: 1
+    :valid_from: v1.0.0
     :satisfied_by: comp__lifecycle_launch_manager
 
     The :term:`Launch Manager` shall implement a shutdown by sending a SIGTERM to
@@ -588,8 +630,8 @@ Containers
     :safety: ASIL_B
     :derived_from: feat_req__lifecycle__config_file_support[version==1]
     :status: valid
-    :valid_from: v2.0.0
     :version: 1
+    :valid_from: v2.0.0
     :satisfied_by: comp__lifecycle_launch_manager
 
     The launch manager shall provide modular configuration files support for configurations coming from 
@@ -607,6 +649,7 @@ Run Targets
     :derived_from: feat_req__lifecycle__run_target_support[version==1]
     :status: valid
     :version: 1
+    :valid_from: v1.0.0
     :satisfied_by: comp__lifecycle_launch_manager
 
     The :term:`Launch Manager` shall be able to start a named :term:`Run Target`.
@@ -619,6 +662,7 @@ Run Targets
     :derived_from: feat_req__lifecycle__conditional_startup[version==1]
     :status: valid
     :version: 1
+    :valid_from: v1.0.0
     :satisfied_by: comp__lifecycle_launch_manager
 
     The :term:`Launch Manager` shall provide support to
@@ -633,6 +677,7 @@ Run Targets
     :derived_from: feat_req__lifecycle__conditional_startup[version==1]
     :status: valid
     :version: 1
+    :valid_from: v1.0.0
     :satisfied_by: comp__lifecycle_launch_manager
 
     The :term:`Launch Manager` shall provide support to
@@ -648,6 +693,7 @@ Run Targets
     :derived_from: feat_req__lifecycle__conditional_startup[version==1]
     :status: valid
     :version: 1
+    :valid_from: v1.0.0
     :satisfied_by: comp__lifecycle_launch_manager
 
     The :term:`Launch Manager` shall consider a :term:`Run Target` activation
@@ -662,6 +708,7 @@ Run Targets
     :derived_from: feat_req__lifecycle__process_ordering[version==1]
     :status: valid
     :version: 1
+    :valid_from: v1.0.0
     :satisfied_by: comp__lifecycle_launch_manager
 
     The :term:`Launch Manager` shall have a means for the launched :term:`Processes <Process>`
@@ -676,6 +723,7 @@ Run Targets
     :derived_from: feat_req__lifecycle__run_target_support[version==1]
     :status: valid
     :version: 1
+    :valid_from: v1.0.0
     :satisfied_by: comp__lifecycle_launch_manager
 
     The :term:`Launch Manager` shall be able to switch between different :term:`run targets <Run target>`.
@@ -688,6 +736,7 @@ Run Targets
     :derived_from: feat_req__lifecycle__control_commands[version==1]
     :status: valid
     :version: 1
+    :valid_from: v1.0.0
     :satisfied_by: comp__lifecycle_launch_manager
 
     The :term:`Launch Manager` shall provide support for queueing a
@@ -698,6 +747,26 @@ Run Targets
         unprocessed selections to complete, ensuring that the system transitions in an orderly manner without 
         abruptly interrupting ongoing processes.
 
+.. comp_req:: Activating a run target that is already active
+    :id: comp_req__launch_man__rt_already_active
+    :reqtype: Functional
+    :security: NO
+    :safety: ASIL_B
+    :derived_from: feat_req__lifecycle__control_commands[version==1]
+    :status: valid
+    :version: 1
+    :satisfied_by: comp__lifecycle_launch_manager
+
+    The :term:`Launch Manager` shall send a notification of a successful
+    :term:`Run Target` activation when it processes an activation request for a
+    :term:`Run Target` that is already active.
+
+    .. note::
+       **Rationale:** Activating a run target that is already active is a
+       no-op, however a state manager should be able to rely on getting the
+       same number of notifications as the number of accepted activation
+       requests.
+
 .. comp_req:: Force a run target selection
     :id: comp_req__launch_man__force_rt_selection
     :reqtype: Functional
@@ -706,6 +775,7 @@ Run Targets
     :derived_from: feat_req__lifecycle__control_commands[version==1]
     :status: valid
     :version: 1
+    :valid_from: v1.0.0
     :satisfied_by: comp__lifecycle_launch_manager
 
     The :term:`Launch Manager` shall provide support for forcefully initiating a :term:`run target selection <Run target>` 
@@ -728,6 +798,7 @@ Alive Monitoring
     :derived_from: feat_req__lifecycle__monitor_processes[version==1]
     :status: valid
     :version: 1
+    :valid_from: v1.0.0
     :satisfied_by: comp__lifecycle_launch_manager
 
     The :term:`Launch Manager` shall forcefully deactivate a :term:`Component`
@@ -743,6 +814,7 @@ Alive Monitoring
     :derived_from: feat_req__lifecycle__monitor_processes[version==1]
     :status: valid
     :version: 1
+    :valid_from: v1.0.0
     :satisfied_by: comp__lifecycle_launch_manager
 
     The :term:`Launch Manager` shall be able to detect :term:`Component
@@ -755,8 +827,8 @@ Alive Monitoring
     :safety: ASIL_B
     :derived_from: feat_req__lifecycle__monitor_processes[version==1]
     :status: valid
-    :valid_from: v2.0.0
     :version: 1
+    :valid_from: v2.0.0
     :satisfied_by: comp__lifecycle_launch_manager
 
     The :term:`Launch Manager` shall provide support for monitoring adopted
@@ -779,6 +851,7 @@ Recovery Actions
     :derived_from: feat_req__lifecycle__recovery_action_support[version==1]
     :status: valid
     :version: 1
+    :valid_from: v1.0.0
     :satisfied_by: comp__lifecycle_launch_manager
 
     The :term:`Launch Manager` shall perform the :term:`Run Target` recovery
@@ -793,14 +866,36 @@ Recovery Actions
     :derived_from: feat_req__lifecycle__recovery_action_support[version==1]
     :status: valid
     :version: 1
+    :valid_from: v1.0.0
     :satisfied_by: comp__lifecycle_launch_manager
 
     The :term:`Launch Manager` shall perform the :term:`Run Target` recovery
     action if a :term:`Component` recovery action has failed or is not
     configured.
 
-.. comp_req:: Recovery Action cancel queued transitions
-    :id: comp_req__launch_man__ra_rt_cancel_trans
+.. comp_req:: Recovery Action queue preservation
+    :id: comp_req__launch_man__rt_queue
+    :reqtype: Functional
+    :security: NO
+    :safety: ASIL_B
+    :derived_from: feat_req__lifecycle__recovery_action_support[version==1]
+    :status: valid
+    :version: 1
+    :valid_from: v1.0.0
+    :satisfied_by: comp__lifecycle_launch_manager
+
+    The :term:`Launch Manager` shall resume servicing the :term:`Run Target`
+    activation queue, once any :term:`Recovery Action` is finished.
+
+    .. note::
+       **Use Case**: Recovery Actions shall be transparent to the user and so
+       any transition previously queued shall stay valid.
+
+       Executing recovery action should not have an impact on
+       the already queued run target activations.
+
+.. comp_req:: Cancel Recovery Action on forced activation
+    :id: comp_req__launch_man__cancel_rt_force
     :reqtype: Functional
     :security: NO
     :safety: ASIL_B
@@ -809,8 +904,35 @@ Recovery Actions
     :version: 1
     :satisfied_by: comp__lifecycle_launch_manager
 
-    The :term:`Launch Manager` shall cancel all pending and ongoing :term:`Run Target`
-    activations before running any :term:`Run Target` recovery action.
+    The :term:`Launch Manager` shall abort any ongoing :term:`Recovery Action`
+    if a **forced** :term:`Run Target` activation request arrives. Then it shall
+    process the request as per
+    :need:`comp_req__launch_man__force_rt_selection`.
+
+    .. note::
+       **Rationale:** Forced run target activations shall act as recovery
+       actions, taken by a state manager.
+
+.. comp_req:: Queue Run Target activations during recovery action
+    :id: comp_req__launch_man__ra_rt_queue
+    :reqtype: Functional
+    :security: NO
+    :safety: ASIL_B
+    :derived_from: feat_req__lifecycle__recovery_action_support[version==1]
+    :status: valid
+    :version: 1
+    :satisfied_by: comp__lifecycle_launch_manager
+
+    The :term:`Launch Manager` shall process the request as per
+    :need:`comp_req__launch_man__queue_rt_selection`.
+    if a **non-forced** :term:`Run Target` activation request arrives during a
+    :term:`Recovery Action`.
+
+    .. note::
+        **Rationale:** State manager is not aware of any ongoing
+        :term:`Recovery Actions<Recovery Action>`. The :term:`Recovery Action` shall bring the
+        system back into a configured state, so :term:`Launch Manager` can
+        resume processing any activations that were previously requested.
 
 .. comp_req:: Component failure
     :id: comp_req__launch_man__comp_failure
@@ -820,6 +942,7 @@ Recovery Actions
     :derived_from: feat_req__lifecycle__recovery_action_support[version==1]
     :status: valid
     :version: 1
+    :valid_from: v1.0.0
     :satisfied_by: comp__lifecycle_launch_manager
 
     The :term:`Launch Manager` shall be able to detect :term:`Component
@@ -834,6 +957,7 @@ Recovery Actions
     :derived_from: feat_req__lifecycle__liveliness_detection[version==1]
     :status: valid
     :version: 1
+    :valid_from: v1.0.0
     :satisfied_by: comp__lifecycle_launch_manager
 
     The :term:`Launch Manager` shall support reporting the liveliness of :term:`components <Component>` 
@@ -846,8 +970,8 @@ Recovery Actions
     :safety: ASIL_B
     :derived_from: feat_req__lifecycle__liveliness_detection[version==1]
     :status: valid
-    :valid_from: v2.0.0
     :version: 1
+    :valid_from: v2.0.0
     :satisfied_by: comp__lifecycle_launch_manager
 
     The :term:`Launch Manager` shall support reporting the failed liveliness of :term:`components <Component>` 
@@ -861,6 +985,7 @@ Recovery Actions
     :derived_from: feat_req__lifecycle__prog_lang[version==1]
     :status: valid
     :version: 1
+    :valid_from: v1.0.0
     :satisfied_by: comp__lifecycle_launch_manager
 
     The :term:`Launch Manager` shall support Rust and C++ applications to report their liveliness.
@@ -877,6 +1002,7 @@ Recovery Actions
     :derived_from: feat_req__lifecycle__recovery_action_support[version==1]
     :status: valid
     :version: 1
+    :valid_from: v1.0.0
     :satisfied_by: comp__lifecycle_launch_manager
 
     The :term:`Launch Manager` shall notify the State Manager of a recovery
@@ -891,6 +1017,7 @@ Recovery Actions
     :derived_from: feat_req__lifecycle__recovery_action_support[version==1]
     :status: valid
     :version: 1
+    :valid_from: v1.0.0
     :satisfied_by: comp__lifecycle_launch_manager
 
     The :term:`Launch Manager` shall perform a transition to the
@@ -903,8 +1030,8 @@ Recovery Actions
     :safety: ASIL_B
     :derived_from: feat_req__lifecycle__recovery_action_support[version==1]
     :status: valid
-    :valid_from: v2.0.0
     :version: 1
+    :valid_from: v2.0.0
     :satisfied_by: comp__lifecycle_launch_manager
 
     The :term:`Launch Manager` shall stop servicing the :term:`Watchdog`
@@ -921,6 +1048,7 @@ Component Recovery Actions
     :derived_from: feat_req__lifecycle__recovery_action_support[version==1]
     :status: valid
     :version: 1
+    :valid_from: v1.0.0
     :satisfied_by: comp__lifecycle_launch_manager
 
     The :term:`Launch Manager` shall support reacting to a
@@ -935,6 +1063,7 @@ Component Recovery Actions
     :derived_from: feat_req__lifecycle__recovery_action_support[version==1]
     :status: valid
     :version: 1
+    :valid_from: v1.0.0
     :satisfied_by: comp__lifecycle_launch_manager
 
     The :term:`Launch Manager` shall support reacting to a
@@ -950,6 +1079,7 @@ Component Recovery Actions
     :status: invalid
     :tags: unclear
     :version: 1
+    :valid_from: v2.0.0
     :satisfied_by: comp__lifecycle_launch_manager
 
     The :term:`Launch Manager` shall support reacting to a
@@ -965,6 +1095,7 @@ Component Recovery Actions
     :status: invalid
     :tags: unclear
     :version: 1
+    :valid_from: v2.0.0
     :satisfied_by: comp__lifecycle_launch_manager
 
     The :term:`Launch Manager` shall support reacting to a
@@ -998,6 +1129,7 @@ Run Target Recovery Actions
     :derived_from: feat_req__lifecycle__recovery_action_support[version==1]
     :status: valid
     :version: 1
+    :valid_from: v1.0.0
     :satisfied_by: comp__lifecycle_launch_manager
 
     The :term:`Launch Manager` shall support reacting to a
@@ -1016,6 +1148,7 @@ Watchdog
     :derived_from: feat_req__lifecycle__lm_self_health_check[version==1]
     :status: valid
     :version: 1
+    :valid_from: v1.0.0
     :satisfied_by: comp__lifecycle_launch_manager
 
     The :term:`Launch Manager` shall trigger a notification to an external
@@ -1029,6 +1162,7 @@ Watchdog
     :derived_from: feat_req__lifecycle__lm_self_health_check[version==1]
     :status: valid
     :version: 1
+    :valid_from: v1.0.0
     :satisfied_by: comp__lifecycle_launch_manager
 
     The :term:`Launch Manager` shall not trigger an external :term:`Watchdog`
@@ -1042,6 +1176,7 @@ Watchdog
     :derived_from: feat_req__lifecycle__lm_self_health_check[version==1]
     :status: valid
     :version: 1
+    :valid_from: v1.0.0
     :satisfied_by: comp__lifecycle_launch_manager
 
     The :term:`Launch Manager` shall support configuring the :term:`Interval` of
@@ -1059,6 +1194,7 @@ Logging
     :derived_from: feat_req__lifecycle__logging_support[version==1]
     :status: valid
     :version: 1
+    :valid_from: v1.0.0
     :satisfied_by: comp__lifecycle_launch_manager
 
     The :term:`Launch Manager` shall provide support for logging process launches,
@@ -1072,6 +1208,7 @@ Logging
     :derived_from: feat_req__lifecycle__logging_support[version==1]
     :status: valid
     :version: 1
+    :valid_from: v1.0.0
     :satisfied_by: comp__lifecycle_launch_manager
 
     The :term:`Launch Manager` shall provide the possibility to log the :term:`DAG`
@@ -1084,8 +1221,8 @@ Logging
     :safety: QM
     :derived_from: feat_req__lifecycle__deps_visualization[version==1]
     :status: valid
-    :valid_from: v2.0.0
     :version: 1
+    :valid_from: v2.0.0
     :satisfied_by: comp__lifecycle_launch_manager
 
     The :term:`Launch Manager` shall have the means to log the current dependencies in a format that can be visualized when requested.
@@ -1100,8 +1237,8 @@ Configuration file
     :safety: ASIL_B
     :derived_from: feat_req__lifecycle__config_file_support[version==1]
     :status: valid
-    :valid_from: v2.0.0
     :version: 1
+    :valid_from: v2.0.0
     :satisfied_by: comp__lifecycle_launch_manager
 
     The launch manager shall provide modular configuration file support to configure process attributes.
@@ -1114,6 +1251,7 @@ Configuration file
     :derived_from: feat_req__lifecycle__component_group_config[version==1]
     :status: valid
     :version: 1
+    :valid_from: v1.0.0
     :satisfied_by: comp__lifecycle_launch_manager
 
     The :term:`Launch Manager` shall be able to centrally define defaults for specific properties for the set of executables.
@@ -1126,6 +1264,7 @@ Configuration file
     :derived_from: feat_req__lifecycle__component_group_config[version==1]
     :status: valid
     :version: 1
+    :valid_from: v1.0.0
     :satisfied_by: comp__lifecycle_launch_manager
 
     The :term:`Launch Manager` shall check availability of executables in the filesystem only when the executable is required to be executed.
@@ -1139,6 +1278,7 @@ Configuration file
     :status: invalid
     :tags: unclear
     :version: 1
+    :valid_from: v2.0.0
     :satisfied_by: comp__lifecycle_launch_manager
 
     The :term:`Launch Manager` shall have a means to validate the configuration offline.

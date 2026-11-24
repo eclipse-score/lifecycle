@@ -46,6 +46,7 @@ cc_library(
         "//score/health_monitor/src/cpp/details:thread",
         "//score/health_monitor/src/cpp/heartbeat:heartbeat_monitor",
         "//score/health_monitor/src/cpp/logic:logic_monitor",
+        "@score_baselibs//score/language/futurecpp",
     ],
 )
 

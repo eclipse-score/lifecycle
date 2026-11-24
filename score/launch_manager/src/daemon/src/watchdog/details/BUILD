@@ -39,6 +39,7 @@ cc_library(
     visibility = ["//score/launch_manager/src/daemon/src/watchdog:__subpackages__"],
     deps = [
         ":device_if",
+        "@googletest//:gtest",
         "@googletest//:gtest_main",
     ],
 )
@@ -54,8 +55,9 @@ cc_library(
         ":device_if",
         ":watchdog",
         "//score/launch_manager/src/daemon/src/common:log",
-        "//score/launch_manager/src/daemon/src/configuration:config",
+        "//score/launch_manager/src/daemon/src/configuration:watchdog_config",
         "//score/launch_manager/src/daemon/src/watchdog:i_watchdog_if",
+        "@score_baselibs//score/bitmanipulation:bitmask_operators",
         "@score_baselibs//score/language/futurecpp",
         "@score_baselibs//score/os:fcntl",
         "@score_baselibs//score/os:unistd",
@@ -69,6 +71,7 @@ lm_cc_test(
         ":mock_device_if",
         ":watchdog",
         ":watchdog_impl",
+        "//score/launch_manager/src/daemon/src/configuration:watchdog_config",
         "@googletest//:gtest_main",
         "@score_baselibs//score/language/futurecpp",
         "@score_baselibs//score/os/mocklib:fcntl_mock",

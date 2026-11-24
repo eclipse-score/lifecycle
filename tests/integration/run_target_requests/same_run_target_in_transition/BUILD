@@ -28,11 +28,11 @@ cc_binary(
 integration_test(
     name = "same_run_target_in_transition",
     timeout = "short",
-    srcs = ["same_run_target_in_transition.py"],
+    srcs = ["test.py"],
     binaries = [
         ":control_client_test_driver",
         "//tests/utils/test_helper:gated_process",
         "//score/launch_manager",
     ],
-    config = ":same_run_target_in_transition.json",
+    config = ":config.json",
 )

@@ -14,34 +14,28 @@
 #ifndef SUPERVISIONMANAGER_HPP_INCLUDED
 #define SUPERVISIONMANAGER_HPP_INCLUDED
 
+#include <sys/types.h>
+#include <chrono>
+#include <cstddef>
+#include <memory>
+#include <vector>
+
 #include "score/mw/launch_manager/alive_monitor/details/factory/IAliveWorkerFactory.hpp"
 #include "score/mw/launch_manager/alive_monitor/details/ifappl/DataStructures.hpp"
+#include "score/mw/launch_manager/alive_monitor/details/ifappl/MonitorIfDaemon.hpp"
 #include "score/mw/launch_manager/alive_monitor/details/ifexm/ObservableEvent.hpp"
 #include "score/mw/launch_manager/alive_monitor/details/ifexm/ObservableEventReader.hpp"
-#include "score/mw/launch_manager/alive_monitor/details/timers/Timers_OsClock.hpp"
+#include "score/mw/launch_manager/alive_monitor/details/supervision/Alive.hpp"
+#include "score/mw/launch_manager/common/identifier_hash.hpp"
+#include "score/mw/launch_manager/configuration/component_config.hpp"
 #include "score/mw/launch_manager/configuration/config.hpp"
-#include <string>
-#include <vector>
+#include "score/mw/launch_manager/recovery_client/irecovery_client.h"
 
 namespace score::mw::lifecycle
 {
 
-class IRecoveryClient;
-
 namespace internal::saf
 {
-
-// Forward declarations
-namespace ifappl
-{
-class MonitorIfDaemon;
-struct Checkpoint;
-}  // namespace ifappl
-
-namespace supervision
-{
-class Alive;
-}  // namespace supervision
 
 // End Forward declarations
 
@@ -119,21 +113,22 @@ class SupervisionManager
     void evaluateSupervisions(const std::chrono::nanoseconds f_syncTimestamp);
 
     /// @brief Vector of Process states
-    std::vector<ifexm::ObservableEvent> processStates;
+    std::vector<ifexm::ObservableEvent> process_states_;
 
     /// @brief Vector of Alive Interface IPCs
-    std::vector<ifappl::CheckpointIpcServer> aliveIfIpcs;
+    std::vector<ifappl::CheckpointIpcServer> alive_if_ipcs_;
 
     /// @brief Vector of Alive Interfaces
-    std::vector<ifappl::MonitorIfDaemon> aliveInterfaces;
+    std::vector<ifappl::MonitorIfDaemon> alive_interfaces_;
 
     /// @brief Vector of Alive Supervisions
-    std::vector<supervision::Alive> aliveSupervisions;
-
-    std::unique_ptr<factory::IAliveWorkerFactory> flatCfgFactory;
+    std::vector<supervision::Alive> alive_supervisions_;
+    
+    /// @brief Factory used to construct alive supervision workers
+    std::unique_ptr<factory::IAliveWorkerFactory> flat_cfg_factory_;
 
     /// @brief The number of alive supervisions we expect to successfully construct
-    std::size_t capacity{0};
+    std::size_t capacity_{0};
 };
 
 }  // namespace daemon
