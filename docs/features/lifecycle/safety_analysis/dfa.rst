@@ -168,8 +168,7 @@ Unintended impacts to function due to various failures.
   * - UI_01_01
     - Memory miss-allocation and leaks
     - no
-    - Memory management of each element's own process is an intra-component concern, not a failure
-      caused by the *other* element; tracked at component level (see :need:`doc__health_monitor_dfa`).
+    - Not a specific lifecycle topic, therefore covered at platform DFA.
   * - UI_01_02
     - Read/Write access to memory allocated to another software element
     - yes
@@ -179,8 +178,7 @@ Unintended impacts to function due to various failures.
   * - UI_01_03
     - Stack/Buffer under-/overflow
     - no
-    - Not a cross-element dependent failure; this is an intra-component implementation concern,
-      covered by component-level FMEA/DFA and static analysis (:need:`gd_guidl__fault_models`).
+    - Not a specific lifecycle topic, therefore covered at platform DFA.
   * - UI_01_04
     - Deadlocks
     - no
@@ -212,9 +210,11 @@ Unintended impacts to function due to various failures.
   * - UI_01_09
     - Incorrect synchronization between software elements
     - yes
-    - A previous design issue allowed a stale process identifier in shared memory to be
-      misinterpreted, potentially associating data with the wrong process
-      (`#830 <https://github.com/eclipse-score/lifecycle/pull/830>`_).
+    - The Health Monitor (via the Alive client in the monitored application's process) and the Launch
+      Manager both access the shared-memory ring buffer of the Alive interface (see CO_01_02) under a
+      process-shared, non-robust ``pthread`` mutex. If the monitored application terminates or stalls
+      while holding this mutex, the Launch Manager's read access can block indefinitely, impairing
+      its supervision.
   * - UI_01_10
     - CPU time depletion
     - yes
@@ -227,11 +227,8 @@ Unintended impacts to function due to various failures.
       assumption/requirement for the Launch Manager's own scheduling.
   * - UI_01_11
     - Memory depletion
-    - yes
-    - Raised conservatively as a potential common-cause resource exhaustion affecting both elements on
-      the same target; no concrete historical incident is known for this specific failure mode at the
-      time of writing. Needs confirmation/refinement by the Safety Manager or system architect
-      (e.g. whether memory budgets are enforced per-process).
+    - no
+    - Not a specific lifecycle topic, therefore covered at platform DFA.
   * - UI_01_12
     - Other HW unavailability
     - yes
