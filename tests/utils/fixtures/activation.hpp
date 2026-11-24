@@ -45,17 +45,20 @@ class ActivationFixture : public ControlClientFixture
         }
     }
 
-    void BlockRunTargetActivation(score::mw::lifecycle::ILmControl& client) const
+    void BlockRunTargetActivation(
+        score::mw::lifecycle::ILmControl& client,
+        const score::mw::lifecycle::RunTargetName& blocking_run_target,
+        const std::string_view& ready_file) const
     {
-        const auto result = client.activate_run_target("run_target_gated", true);
+        const auto result = client.activate_run_target(blocking_run_target, true);
         ASSERT_TRUE(result.has_value()) << result.error().Message();
         ASSERT_TRUE(wait_for_activation_in_progress(client));
-        ASSERT_TRUE(wait_for_file(gatedStartedPath("gated")));
+        ASSERT_TRUE(wait_for_file(gatedStartedPath(ready_file)));
     }
 
-    void UnblockRunTargetActivation() const
+    void UnblockRunTargetActivation(const std::string_view run_target_name) const
     {
-        ASSERT_TRUE(touch_file(gatedReleasePath("gated")));
+        ASSERT_TRUE(touch_file(gatedReleasePath(run_target_name)));
     }
 
     void WaitForGatedProcessExit(std::string_view process_name)

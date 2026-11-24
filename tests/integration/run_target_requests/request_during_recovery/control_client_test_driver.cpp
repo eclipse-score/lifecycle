@@ -25,7 +25,19 @@ TEST_F(
          gatedStartedPath("fallback_gated"),
          gatedReleasePath("fallback_gated")}));
 
-    InitializeClient();
+    std::unique_ptr<ILmControl> client;
+
+    TEST_STEP("Initialize client")
+    {
+        auto maybe_client = InitializeClient();
+        ASSERT_TRUE(maybe_client.has_value());
+        client = std::move(maybe_client).value();
+    }
+
+    TEST_STEP("Report running")
+    {
+        report_running();
+    }
 
     TEST_STEP("Wait for Startup activation")
     {
@@ -36,19 +48,10 @@ TEST_F(
     // Test Case 1: Non-forced request during recovery (queues the request)
     // =========================================================================
 
-    TEST_STEP("TC1: Force activate run_target_with_failing_component")
+    TEST_STEP(
+        "TC1: Force activate run_target_with_failing_component and wait for the file signalling recovery action start")
     {
-        const auto result = client->activate_run_target("run_target_with_failing_component", true);
-        ASSERT_TRUE(result.has_value()) << result.error().Message();
-    }
-
-    TEST_STEP("TC1: Wait for recovery action to begin")
-    {
-        // The failing_component will not report running in time (ready_timeout_ms is 200ms)
-        // This will trigger a recovery action to switch to fallback_run_target
-        // Wait for the activation to be in progress
-        ASSERT_TRUE(wait_for_activation_in_progress(*client));
-        ASSERT_TRUE(wait_for_file(gatedStartedPath("fallback_gated")));
+        BlockRunTargetActivation(*client, "run_target_with_failing_component", "fallback_gated");
     }
 
     TEST_STEP("TC1: Send non-forced request for queued_run_target during recovery action")
@@ -60,7 +63,7 @@ TEST_F(
 
     TEST_STEP("TC1: Release fallback_gated to complete recovery action")
     {
-        ASSERT_TRUE(touch_file(gatedReleasePath("fallback_gated")));
+        UnblockRunTargetActivation("fallback_gated");
     }
 
     TEST_STEP("TC1: Wait for fallback_run_target activation (recovery action completes)")
@@ -84,18 +87,10 @@ TEST_F(
     // Test Case 2: Forced request during recovery (cancels recovery)
     // =========================================================================
 
-    TEST_STEP("TC2: Force activate run_target_with_failing_component again")
+    TEST_STEP(
+        "TC2: Force activate run_target_with_failing_component and wait for the file signalling recovery action start")
     {
-        const auto result = client->activate_run_target("run_target_with_failing_component", true);
-        ASSERT_TRUE(result.has_value()) << result.error().Message();
-    }
-
-    TEST_STEP("TC2: Wait for recovery action to begin")
-    {
-        // The failing_component will again fail to report running
-        // This will trigger another recovery action to switch to fallback_run_target
-        ASSERT_TRUE(wait_for_activation_in_progress(*client));
-        ASSERT_TRUE(wait_for_file(gatedStartedPath("fallback_gated")));
+        BlockRunTargetActivation(*client, "run_target_with_failing_component", "fallback_gated");
     }
 
     TEST_STEP("TC2: Send forced request for forced_run_target during recovery action")
