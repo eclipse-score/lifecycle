@@ -21,7 +21,7 @@
 //      `schema_test` fails while the checked-in schema differs from the generated one.
 //
 // Authoring rules:
-//   * Field names are the JSON keys, in camelCase.
+//   * Field names are the JSON keys, in snake_case.
 //   * Schema metadata that `flatc --jsonschema` cannot derive is written as `///` tokens,
 //     before the description lines:
 //         /// @title: <schema title>
@@ -35,32 +35,32 @@
 //   * A required string, table or vector is marked `(required)` and `@required`.
 //   * A scalar with a default keeps the same value in `@default` and in the FlatBuffers default.
 
-namespace score.mw.health.config;
+namespace score.mw.health.configuration.fb;
 
 file_identifier "HMCF";
 file_extension "bin";
 
 /// Scheduling policy of the worker thread.
-enum SchedulerPolicy : byte {
+enum SchedulingPolicy : byte {
   OTHER = 0,
   FIFO = 1,
-  ROUND_ROBIN = 2
+  RR = 2
 }
 
-/// @shared: timeRange
+/// @shared: time_range
 /// @title: Time Range
-/// Closed interval [minMs, maxMs] of whole milliseconds. minMs must not exceed maxMs.
+/// Closed interval [min_ms, max_ms] of whole milliseconds. min_ms must not exceed max_ms.
 table TimeRange {
   /// @title: Minimum
   /// @min: 0
   /// @required
   /// Lower bound in milliseconds.
-  minMs: uint32 = null;
+  min_ms: uint32 = null;
   /// @title: Maximum
   /// @min: 0
   /// @required
   /// Upper bound in milliseconds.
-  maxMs: uint32 = null;
+  max_ms: uint32 = null;
 }
 
 /// @title: Scheduler Parameters
@@ -69,7 +69,7 @@ table SchedulerParameters {
   /// @title: Policy
   /// @required
   /// Scheduling policy.
-  policy: SchedulerPolicy = null;
+  policy: SchedulingPolicy = null;
   /// @title: Priority
   /// @required
   /// Priority within the range the operating system accepts for the policy.
@@ -82,14 +82,14 @@ table SchedulerParameters {
 table ThreadParameters {
   /// @title: Scheduler Parameters
   /// Scheduling policy and priority. If not set, the worker inherits the scheduling of the thread that starts the health monitor.
-  schedulerParameters: SchedulerParameters;
+  scheduler_parameters: SchedulerParameters;
   /// @title: Affinity
   /// CPU indices the worker can run on, each below the CPU count. If empty or not set, the worker can run on any CPU.
   affinity: [uint32];
   /// @title: Stack Size
   /// @min: 0
   /// Stack size in bytes, not below the minimum of the operating system.
-  stackSize: uint64 = null;
+  stack_size: uint64 = null;
 }
 
 /// @title: Deadline
@@ -127,7 +127,7 @@ table HeartbeatMonitor {
   tag: string (required);
   /// @title: Heartbeat Range
   /// @required
-  /// Allowed time between two heartbeats. minMs must exceed half the internal processing cycle.
+  /// Allowed time between two heartbeats. min_ms must exceed half the internal processing cycle.
   range: TimeRange (required);
 }
 
@@ -142,7 +142,7 @@ table State {
   /// @required
   /// Tags of the states this state can move to. Each must be a state of the monitor.
   /// A state can move to itself only if this list contains it.
-  allowedStates: [string] (required);
+  allowed_states: [string] (required);
 }
 
 /// @title: Logic Monitor
@@ -155,7 +155,7 @@ table LogicMonitor {
   /// @title: Initial State
   /// @required
   /// Tag of the state before the first transition. It must be a state of the monitor.
-  initialState: string (required);
+  initial_state: string (required);
   /// @title: States
   /// @required
   /// States of the graph. At least one state is required.
@@ -170,30 +170,30 @@ table HealthMonitorConfig {
   /// @max: 1
   /// @required
   /// Version of this configuration schema.
-  schemaVersion: uint32 = null;
+  schema_version: uint32 = null;
   /// @title: Supervisor API Cycle
   /// @default: 500
   /// @min: 1
   /// Time in milliseconds between two alive notifications to the supervisor.
-  /// It must be an integer multiple of internalProcessingCycleMs.
-  supervisorApiCycleMs: uint32 = 500;
+  /// It must be an integer multiple of internal_processing_cycle_ms.
+  supervisor_api_cycle_ms: uint32 = 500;
   /// @title: Internal Processing Cycle
   /// @default: 100
   /// @min: 1
   /// Time in milliseconds between two checks of all monitors.
-  internalProcessingCycleMs: uint32 = 100;
+  internal_processing_cycle_ms: uint32 = 100;
   /// @title: Thread Parameters
   /// Scheduling, CPU affinity and stack size of the worker thread.
-  threadParameters: ThreadParameters;
+  thread_parameters: ThreadParameters;
   /// @title: Deadline Monitors
   /// Deadline monitors.
-  deadlineMonitors: [DeadlineMonitor];
+  deadline_monitors: [DeadlineMonitor];
   /// @title: Heartbeat Monitors
   /// Heartbeat monitors.
-  heartbeatMonitors: [HeartbeatMonitor];
+  heartbeat_monitors: [HeartbeatMonitor];
   /// @title: Logic Monitors
   /// Logic monitors.
-  logicMonitors: [LogicMonitor];
+  logic_monitors: [LogicMonitor];
 }
 
 root_type HealthMonitorConfig;
