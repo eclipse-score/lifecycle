@@ -446,6 +446,24 @@ void ProcessGroupManager::processGroupHandler(Graph& pg)
             SCORE_LANGUAGE_FUTURECPP_ASSERT_MESSAGE(started, "fallback Run Target node missing");
         }
     }
+    else if (GraphState::kInTransition == graph_state)
+    {
+        failTransitionIfTimedOut(pg);
+    }
+}
+
+// req-id: comp_req__launch_man__rt_activate_tout
+void ProcessGroupManager::failTransitionIfTimedOut(Graph& pg)
+{
+    if (!pg.hasExceededTransitionTimeout())
+    {
+        return;
+    }
+
+    LM_LOG_WARN() << "Activation of Run Target" << pg.getRequestedRunTarget()
+                  << "exceeded its configured transition timeout; failing the transition";
+
+    pg.cancel();
 }
 
 void ProcessGroupManager::handleGetActiveRunTarget(GetActiveRunTarget* event) const noexcept

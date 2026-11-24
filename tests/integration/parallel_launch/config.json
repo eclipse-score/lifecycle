@@ -80,6 +80,7 @@
             ]
         },
         "run_target_parallel_launch": {
+            "transition_timeout_ms": 10000,
             "depends_on": [
                 "control_client_test_driver",
                 "component_a",

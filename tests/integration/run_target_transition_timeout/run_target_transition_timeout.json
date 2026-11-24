@@ -1,0 +1,97 @@
+{
+    "schema_version": 2,
+    "defaults": {
+        "deployment_config": {
+            "bin_dir": "/tmp/tests/run_target_transition_timeout",
+            "ready_timeout_ms": 10000,
+            "shutdown_timeout_ms": 1000,
+            "recovery_action": {
+                "switch_run_target": {
+                    "run_target": "fallback_run_target"
+                }
+            },
+            "environmental_variables": {
+                "LD_LIBRARY_PATH": "/opt/lib"
+            },
+            "sandbox": {
+                "uid": 0,
+                "gid": 0,
+                "scheduling_policy": "SCHED_OTHER",
+                "scheduling_priority": 0
+            }
+        }
+    },
+    "components": {
+        "control_client_test_driver": {
+            "component_properties": {
+                "binary_name": "control_client_test_driver",
+                "application_profile": {
+                    "application_type": "State_Manager",
+                    "alive_supervision": {
+                        "min_indications": 0
+                    }
+                }
+            },
+            "deployment_config": {
+                "environmental_variables": {
+                    "PROCESSIDENTIFIER": "control_client_test_driver"
+                }
+            }
+        },
+        "slow_starting_process": {
+            "component_properties": {
+                "binary_name": "slow_starting_process",
+                "application_profile": {
+                    "application_type": "Reporting"
+                },
+                "process_arguments": [
+                    "3000"
+                ]
+            },
+            "deployment_config": {
+                "environmental_variables": {
+                    "PROCESSIDENTIFIER": "slow_starting_process"
+                }
+            }
+        },
+        "verification_component": {
+            "component_properties": {
+                "binary_name": "verification_process",
+                "process_arguments": [
+                    "fallback_run_target"
+                ],
+                "application_profile": {
+                    "application_type": "Native",
+                    "is_self_terminating": true
+                },
+                "ready_condition": {
+                    "process_state": "Terminated"
+                }
+            }
+        }
+    },
+    "run_targets": {
+        "Startup": {
+            "depends_on": [
+                "control_client_test_driver"
+            ]
+        },
+        "run_target_slow_activation": {
+            "transition_timeout_ms": 1000,
+            "depends_on": [
+                "control_client_test_driver",
+                "slow_starting_process"
+            ]
+        },
+        "Off": {
+            "depends_on": []
+        }
+    },
+    "initial_run_target": "Startup",
+    "fallback_run_target": {
+        "depends_on": [
+            "control_client_test_driver",
+            "verification_component"
+        ]
+    }
+}
