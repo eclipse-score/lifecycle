@@ -23,6 +23,9 @@
 class ActivationFixture : public ControlClientFixture
 {
   protected:
+    /// @brief Wait for the specified run target to send an activation event
+    /// @param[in] expected_source The expected source of the event
+    /// @param[in] expected_run_target The expected run target in the event
     void WaitForActivation(
         const score::mw::lifecycle::RunTargetActivationSource& expected_source,
         const score::mw::lifecycle::RunTargetName& expected_run_target) const
@@ -35,16 +38,23 @@ class ActivationFixture : public ControlClientFixture
             });
     }
 
+    /// @brief Fill the activation queue with run_target_a
+    /// @param[in] client Control client reference, used to add run targets to the queue
     void FillActivationQueue(score::mw::lifecycle::ILmControl& client) const
     {
         for (int i = 0; i < static_cast<int>(score::mw::lifecycle::internal::kPendingActivationQueueCapacity); ++i)
         {
-            const score::mw::lifecycle::RunTargetName run_target{(i % 2 == 0) ? "run_target_a" : "run_target_b"};
+            const score::mw::lifecycle::RunTargetName run_target{"run_target_a"};
             const auto result = client.activate_run_target(run_target, false);
             ASSERT_TRUE(result.has_value()) << "Request " << i << ": " << result.error().Message();
         }
     }
 
+    /// @brief Block run target activation by creating a gated process that does not report running until
+    /// signalled by file creation.
+    /// @param[in] client Control client reference, used to force activate a run target that starts a gated process
+    /// @param[in] blocking_run_target Name of the run target to start
+    /// @param[in] ready_file Partial name of the file that the gated process creates once it is started.
     void BlockRunTargetActivation(
         score::mw::lifecycle::ILmControl& client,
         const score::mw::lifecycle::RunTargetName& blocking_run_target,
@@ -56,9 +66,11 @@ class ActivationFixture : public ControlClientFixture
         ASSERT_TRUE(wait_for_file(gatedStartedPath(ready_file)));
     }
 
-    void UnblockRunTargetActivation(const std::string_view run_target_name) const
+    /// @brief Unblocks a gated process by creating a file
+    /// @param[in] ready_file Partial name of the file that should be created.
+    void UnblockRunTargetActivation(const std::string_view ready_file) const
     {
-        ASSERT_TRUE(touch_file(gatedReleasePath(run_target_name)));
+        ASSERT_TRUE(touch_file(gatedReleasePath(ready_file)));
     }
 
     void WaitForGatedProcessExit(std::string_view process_name)
