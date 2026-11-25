@@ -15,9 +15,8 @@
 
 Runtime sanitizer builds for launch_manager and health_monitor, using the
 shared runtime infrastructure (wrapper, suppression files, env templates) from
-`@score_cpp_policies//sanitizers`. This directory only holds the repo-specific
-Bazel configuration in `sanitizer.bazelrc`, which is imported from the root
-`.bazelrc`.
+`@score_cpp_policies//sanitizers`. The root `.bazelrc` imports the configurations
+from `score.bazelrc/score_toolchain.bazelrc` and supplies the local TSan flags.
 
 ## Usage
 
@@ -35,8 +34,8 @@ ThreadSanitizer (cannot be combined with ASan/LSan):
 bazel test --config=tsan --config=x86_64-linux //score/... //tests/...
 ```
 
-The `asan`, `ubsan` and `lsan` configs are convenience aliases that all resolve
-to `asan_ubsan_lsan`.
+The `asan`, `ubsan` and `lsan` configs each enable one sanitizer.
+The `tsan_ubsan` config enables ThreadSanitizer and UndefinedBehaviorSanitizer together.
 
 ## Notes
 
