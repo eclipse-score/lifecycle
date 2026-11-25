@@ -31,7 +31,7 @@
 
     <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=8f2a1f02" />
     <link rel="stylesheet" type="text/css" href="../../../_static/graphviz.css?v=4ae1632d" />
-    <link rel="stylesheet" type="text/css" href="../../../_static/css/score.css?v=d7d4a875" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/css/score.css?v=5737673c" />
     <link rel="stylesheet" type="text/css" href="../../../_static/css/score_needs.css?v=6a6a7ab0" />
     <link rel="stylesheet" type="text/css" href="../../../_static/css/score_design.css?v=f381fa98" />
     <link rel="stylesheet" type="text/css" href="../../../_static/sphinx-design.min.css?v=6a604523" />
@@ -527,6 +527,7 @@ supported for Components that have at least one Component depending on them.</p>
 <code class="docutils literal notranslate"><span class="pre">run_target</span></code> set to <code class="docutils literal notranslate"><span class="pre">fallback_run_target</span></code>.</p></li>
 <li><p>The <code class="docutils literal notranslate"><span class="pre">ready_timeout_ms</span></code> is used as the timeout until process state Running is
 reached, even in case the ReadyCondition is <code class="docutils literal notranslate"><span class="pre">process_state:Terminated</span></code>.</p></li>
+<li><p>The case where a process does not terminate in response to SIGKILL is not yet correctly handled. See <a class="github reference external" href="https://github.com/eclipse-score/lifecycle/issues/1079">eclipse-score/lifecycle#1079</a></p></li>
 </ul>
 </section>
 <section id="run-target">

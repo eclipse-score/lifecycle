@@ -31,7 +31,7 @@
 
     <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=8f2a1f02" />
     <link rel="stylesheet" type="text/css" href="../../../_static/graphviz.css?v=4ae1632d" />
-    <link rel="stylesheet" type="text/css" href="../../../_static/css/score.css?v=d7d4a875" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/css/score.css?v=5737673c" />
     <link rel="stylesheet" type="text/css" href="../../../_static/css/score_needs.css?v=6a6a7ab0" />
     <link rel="stylesheet" type="text/css" href="../../../_static/css/score_design.css?v=f381fa98" />
     <link rel="stylesheet" type="text/css" href="../../../_static/sphinx-design.min.css?v=6a604523" />
@@ -72,7 +72,7 @@
     <script>DOCUMENTATION_OPTIONS.search_as_you_type = false;</script>
     <link rel="index" title="Index" href="../../../genindex.html" />
     <link rel="search" title="Search" href="../../../search.html" />
-    <link rel="next" title="Implementation Inspection Checklist" href="chklst_impl_inspection.html" />
+    <link rel="next" title="Detailed comparison of fork()+execve() vs posix_spawn (QNX-only)" href="fork_vs_posix_spawn.html" />
     <link rel="prev" title="Detailed Design" href="index.html" />
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <meta name="color-scheme" content="light dark"/>
@@ -432,6 +432,7 @@
 <li class="toctree-l2"><a class="reference internal" href="../architecture/index.html">Component Architecture</a></li>
 <li class="toctree-l2 current active has-children"><a class="reference internal" href="index.html">Detailed Design</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul class="current">
 <li class="toctree-l3 current active"><a aria-current="page" class="current reference internal" href="#">Detailed Design for Component: Launch Manager, Graph Functionality</a></li>
+<li class="toctree-l3"><a class="reference internal" href="fork_vs_posix_spawn.html">Detailed comparison of fork()+execve() vs posix_spawn (QNX-only)</a></li>
 <li class="toctree-l3"><a class="reference internal" href="chklst_impl_inspection.html">Implementation Inspection Checklist</a></li>
 </ul>
 </details></li>
@@ -546,7 +547,7 @@ is only scheduled on a thread pool.</p>
 <p>The component activation sequence is executed synchronously on a worker thread.</p>
 <figure class="align-center">
 <p class="plantuml">
-<object data="../../../_images/plantuml-70b2b6441608d3317dbbc737dce8d5c48c6ee048.svg" type="image/svg+xml" style="width:2881px;height:2439px;background:#FFFFFF;"></object></p>
+<object data="../../../_images/plantuml-3b11c49a9626ecfdda2312a26ef62374194ac9dd.svg" type="image/svg+xml" style="width:2948px;height:2439px;background:#FFFFFF;"></object></p>
 </figure>
 </section>
 <section id="component-deactivation">
@@ -579,7 +580,7 @@ first gracefully up to the shutdown timeout, then forcefully terminating it.</p>
 </ul>
 <figure class="align-center">
 <p class="plantuml">
-<object data="../../../_images/plantuml-ae78f00221074266bfd42aac139b4c7e016431a4.svg" type="image/svg+xml" style="width:1109px;height:1073px;background:#FFFFFF;"></object></p>
+<object data="../../../_images/plantuml-b59e04018fda2c23f95e03267d1e2c4dfc9e6ef6.svg" type="image/svg+xml" style="width:1109px;height:1073px;background:#FFFFFF;"></object></p>
 </figure>
 </section>
 <section id="process-termination">
@@ -627,8 +628,31 @@ in a well-defined state.</p>
 may be safely cancelled.</p>
 <figure class="align-center">
 <p class="plantuml">
-<object data="../../../_images/plantuml-b8823de641909f87509788f19c63b3ee78bd3b31.svg" type="image/svg+xml" style="width:2629px;height:2679px;background:#FFFFFF;"></object></p>
+<object data="../../../_images/plantuml-377f647399503bf6c4fe036e1ac2918b2391cde5.svg" type="image/svg+xml" style="width:2558px;height:2518px;background:#FFFFFF;"></object></p>
 </figure>
+<p>A cancellation is observed at three points, each of which leaves the component
+in a state the next transition can reason about:</p>
+<ol class="arabic simple">
+<li><p><strong>Before the task is executed.</strong> A worker that picks up a task for which
+cancellation was already requested does not run it and reports it as skipped.
+The component keeps the state it had before the transition.</p></li>
+<li><p><strong>While waiting for the ready condition.</strong> Every ready condition is abortable:
+the wait for the Running report, a configured file, the termination of the
+process, or a sequence of these is interrupted and the startup attempt fails.
+Its process is stopped (SIGTERM, then SIGKILL after the shutdown timeout), no
+further attempt is started and the activation returns. The component is left
+stopped.</p></li>
+<li><p><strong>Between two startup attempts.</strong> Every failed attempt is stopped before the
+cancellation is checked. No further attempt is started and the activation
+returns. The component is left stopped.</p></li>
+</ol>
+<p>Stopping a process is not abortable, whether after a failed attempt or for a
+deactivation, and always runs to its end. The process may be writing its state
+to disk, so it always keeps its full shutdown timeout before SIGKILL follows.</p>
+<p>A component that reaches its ready condition despite the cancellation is
+reported as activated and left running. The next transition stops it if its
+target does not need it. The time a cancellation needs is therefore bounded by
+the shutdown timeouts of the components still in flight.</p>
 </section>
 </section>
 <section id="units-within-the-component">
@@ -668,11 +692,11 @@ This detailed design focuses on the central dependency graph logic and its inter
       </div>
     </a>
     <a class="right-next"
-       href="chklst_impl_inspection.html"
+       href="fork_vs_posix_spawn.html"
        title="next page">
       <div class="prev-next-info">
         <p class="prev-next-subtitle">next</p>
-        <p class="prev-next-title">Implementation Inspection Checklist</p>
+        <p class="prev-next-title">Detailed comparison of fork()+execve() vs posix_spawn (QNX-only)</p>
       </div>
       <i class="fa-solid fa-angle-right"></i>
     </a>
