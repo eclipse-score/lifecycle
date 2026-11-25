@@ -183,10 +183,6 @@ TEST_F(ProcessShutdownTest, GracefulShutdown_SendsSigtermThenSigkillAfterTimeout
 
     EXPECT_EQ(result, IComponent::RequestResult::kSuccess);
     EXPECT_GE(sigkill_time - sigterm_time, std::chrono::milliseconds{shutdown_timeout_ms});
-    // Check that SIGKILL fired promptly after the timeout, not arbitrarily late
-    // This check is proving problematic at the moment...
-    // EXPECT_LE(
-    //    sigkill_time - sigterm_time, std::chrono::milliseconds{shutdown_timeout_ms} + std::chrono::milliseconds{100});
     EXPECT_FALSE(node->active());
     EXPECT_EQ(node->getState(), score::mw::lifecycle::ProcessState::kIdle);
 }
