@@ -41,7 +41,10 @@ class IReadyCondition
     /// @param handle The resource to wait on.
     /// @param timeout The maximum duration to wait for the condition. A timeout of zero still
     ///                checks the condition once.
-    /// @return Whether the wait was successful, or failed with an error.
+    /// @return Nothing if the condition is met, otherwise one of these errors:
+    ///         - ExecErrc::kTimeout if the condition was not met within the timeout.
+    ///         - ExecErrc::kGeneralError if the wait was interrupted by a stop request or a termination
+    ///           which does not fulfil the condition, or if it failed for any other reason.
     virtual Result<void> wait(cpp::stop_token stop_token, const Handle& handle, std::chrono::milliseconds timeout)
         const = 0;
 

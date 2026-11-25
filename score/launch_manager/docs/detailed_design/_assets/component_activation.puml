@@ -34,9 +34,13 @@ participant "IForceStopAction" as ForceStopAction
 end box
 
 participant "SafeProcessMap" as Map
+
+box "OsHandler thread" #F4F0FA
+participant "OsHandler" as OsHandler
+end box
+
 participant "Alive Supervision" as Supervision
 participant "Operating System" as OS
-participant "OsHandler" as OsHandler
 
 note over Graph: graph is in state kInTransition
 
