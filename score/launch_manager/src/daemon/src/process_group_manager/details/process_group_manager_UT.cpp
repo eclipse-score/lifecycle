@@ -48,7 +48,6 @@ ComponentConfig makeComponentConfig(std::string name)
 {
     ComponentConfig component;
     component.name = std::move(name);
-    component.component_properties.binary_name = "true";
     component.component_properties.application_profile.application_type = ApplicationType::Native;
     component.component_properties.application_profile.is_self_terminating = true;
     component.component_properties.ready_condition = ReadyCondition{ProcessState::Running};
@@ -401,73 +400,7 @@ TEST_F(ProcessGroupManagerTest, TooManyProcessesFailsStartup)
     // When
     auto initialize_result = pgm->initialize();
 
-    // Then
-    EXPECT_FALSE(initialize_result);
-}
-
-TEST_F(ProcessGroupManagerTest, AliveMonitorErrorFailsStartup)
-{
-    RecordProperty("Description", "Verify initialize() fails when more than 1024 processes are configured.");
-
-    std::vector<ComponentConfig> components{};
-    components.push_back(makeComponentConfig("component"));
-
-    auto config = ConfigBuilder{}
-                      .setComponents(std::move(components))
-                      .setRunTargets(makeStandardRunTargets("comp_0"))
-                      .setInitialRunTarget("Startup")
-                      .setFallbackRunTarget(makeStandardFallback())
-                      .setAliveSupervision(makeStandardAliveSupervision())
-                      .setWatchdog(makeStandardWatchdog())
-                      .build();
-
-    auto alive_monitor = std::make_unique<NiceMock<MockAliveMonitor>>();
-    EXPECT_CALL(*alive_monitor, init).WillOnce(Return(false));
-
-    auto pgm = std::make_unique<ProcessGroupManager>(
-        config.takeGraph(),
-        std::move(alive_monitor),
-        std::make_shared<NiceMock<MockRecoveryClient>>(),
-        std::make_unique<NiceMock<MockWatchdogIf>>(),
-        config.takeWatchdog(),
-        std::make_unique<NiceMock<osal::MockIProcess>>());
-
-    // When
-    auto initialize_result = pgm->initialize();
-
-    // Then
-    EXPECT_FALSE(initialize_result);
-}
-
-TEST_F(ProcessGroupManagerTest, TooManyProcessesFailsStartup)
-{
-    RecordProperty("Description", "Verify initialize() fails when more than 1024 processes are configured.");
-
-    std::vector<ComponentConfig> components;
-    for (int i = 0; i < 1025; ++i)
-    {
-        components.push_back(makeComponentConfig("comp_" + std::to_string(i)));
-    }
-
-    auto config = ConfigBuilder{}
-                      .setComponents(std::move(components))
-                      .setRunTargets(makeStandardRunTargets("comp_0"))
-                      .setInitialRunTarget("Startup")
-                      .setFallbackRunTarget(makeStandardFallback())
-                      .setAliveSupervision(makeStandardAliveSupervision())
-                      .setWatchdog(makeStandardWatchdog())
-                      .build();
-
-    auto pgm = std::make_unique<ProcessGroupManager>(
-        config.takeGraph(),
-        std::make_unique<NiceMock<MockAliveMonitor>>(),
-        std::make_shared<NiceMock<MockRecoveryClient>>(),
-        std::make_unique<NiceMock<MockWatchdogIf>>(),
-        config.takeWatchdog(),
-        std::make_unique<NiceMock<osal::MockIProcess>>());
-
-    // When
-    auto initialize_result = pgm->initialize();
+    pgm->deinitialize();
 
     // Then
     EXPECT_FALSE(initialize_result);

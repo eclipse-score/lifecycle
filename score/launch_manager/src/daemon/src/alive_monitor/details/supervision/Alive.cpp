@@ -62,7 +62,8 @@ void Alive::updateData(const score::mw::lifecycle::internal::saf::ifappl::Checkp
         data_loss_reason_ = EDataLossReason::kSharedMemory;
         event_timestamp_ = last_sync_timestamp_;
     }
-    else if (!time_sorting_update_event_buffer_.push(CheckpointSnapshot{f_observable_r.timestamp}, f_observable_r.timestamp))
+    else if (!time_sorting_update_event_buffer_.push(
+                 CheckpointSnapshot{f_observable_r.timestamp}, f_observable_r.timestamp))
     {
         data_loss_reason_ = EDataLossReason::kBufferFull;
         event_timestamp_ = last_sync_timestamp_;
