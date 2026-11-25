@@ -5,7 +5,7 @@
       "CodeLinks": [
         {
           "file": "score/launch_manager/src/daemon/src/process_group_manager/details/transition.hpp",
-          "line": 255,
+          "line": 258,
           "tag": "// req-Id:",
           "need": "comp_req__launch_man__dep_based_startup_order",
           "full_line": "// req-Id: comp_req__launch_man__dep_based_startup_order",
@@ -580,29 +580,9 @@
       "TestLinks": [
         {
           "name": "test_request_during_recovery",
-          "file": "tests/integration/run_target_requests/request_during_recovery/test.py",
+          "file": "tests/integration/run_target_requests/request_during_recovery/non_forced/test.py",
           "line": 19,
           "need": "comp_req__launch_man__ra_rt_queue",
-          "verify_type": "fully",
-          "result": "passed",
-          "result_text": "",
-          "repo_name": "local_repo",
-          "hash": "",
-          "url": ""
-        }
-      ]
-    }
-  },
-  {
-    "need": "comp_req__launch_man__cancel_rt_force",
-    "links": {
-      "CodeLinks": [],
-      "TestLinks": [
-        {
-          "name": "test_request_during_recovery",
-          "file": "tests/integration/run_target_requests/request_during_recovery/test.py",
-          "line": 19,
-          "need": "comp_req__launch_man__cancel_rt_force",
           "verify_type": "fully",
           "result": "passed",
           "result_text": "",
@@ -620,9 +600,29 @@
       "TestLinks": [
         {
           "name": "test_request_during_recovery",
-          "file": "tests/integration/run_target_requests/request_during_recovery/test.py",
+          "file": "tests/integration/run_target_requests/request_during_recovery/non_forced/test.py",
           "line": 19,
           "need": "comp_req__launch_man__rt_queue",
+          "verify_type": "fully",
+          "result": "passed",
+          "result_text": "",
+          "repo_name": "local_repo",
+          "hash": "",
+          "url": ""
+        }
+      ]
+    }
+  },
+  {
+    "need": "comp_req__launch_man__cancel_rt_force",
+    "links": {
+      "CodeLinks": [],
+      "TestLinks": [
+        {
+          "name": "test_forced_request_during_recovery",
+          "file": "tests/integration/run_target_requests/request_during_recovery/forced/test.py",
+          "line": 19,
+          "need": "comp_req__launch_man__cancel_rt_force",
           "verify_type": "fully",
           "result": "passed",
           "result_text": "",
@@ -821,6 +821,30 @@
         {
           "name": "test_fallback_to_same_target_restarts",
           "file": "tests/integration/fallback_to_same_target_restarts/test.py",
+          "line": 19,
+          "need": "comp_req__launch_man__alive_failure",
+          "verify_type": "partially",
+          "result": "passed",
+          "result_text": "",
+          "repo_name": "local_repo",
+          "hash": "",
+          "url": ""
+        },
+        {
+          "name": "test_cpp_alive",
+          "file": "tests/integration/alive/cpp_alive/cpp_alive.py",
+          "line": 19,
+          "need": "comp_req__launch_man__alive_failure",
+          "verify_type": "partially",
+          "result": "passed",
+          "result_text": "",
+          "repo_name": "local_repo",
+          "hash": "",
+          "url": ""
+        },
+        {
+          "name": "test_rust_alive",
+          "file": "tests/integration/alive/rust_alive/rust_alive.py",
           "line": 19,
           "need": "comp_req__launch_man__alive_failure",
           "verify_type": "partially",
@@ -1499,6 +1523,70 @@
           "file": "tests/integration/smoke/test.py",
           "line": 19,
           "need": "comp_req__launch_man__start_named_run_target",
+          "verify_type": "partially",
+          "result": "passed",
+          "result_text": "",
+          "repo_name": "local_repo",
+          "hash": "",
+          "url": ""
+        }
+      ]
+    }
+  },
+  {
+    "need": "comp_req__launch_man__report_lang_support",
+    "links": {
+      "CodeLinks": [],
+      "TestLinks": [
+        {
+          "name": "test_cpp_alive",
+          "file": "tests/integration/alive/cpp_alive/cpp_alive.py",
+          "line": 19,
+          "need": "comp_req__launch_man__report_lang_support",
+          "verify_type": "partially",
+          "result": "passed",
+          "result_text": "",
+          "repo_name": "local_repo",
+          "hash": "",
+          "url": ""
+        },
+        {
+          "name": "test_rust_alive",
+          "file": "tests/integration/alive/rust_alive/rust_alive.py",
+          "line": 19,
+          "need": "comp_req__launch_man__report_lang_support",
+          "verify_type": "partially",
+          "result": "passed",
+          "result_text": "",
+          "repo_name": "local_repo",
+          "hash": "",
+          "url": ""
+        }
+      ]
+    }
+  },
+  {
+    "need": "comp_req__launch_man__report_liveliness",
+    "links": {
+      "CodeLinks": [],
+      "TestLinks": [
+        {
+          "name": "test_cpp_alive",
+          "file": "tests/integration/alive/cpp_alive/cpp_alive.py",
+          "line": 19,
+          "need": "comp_req__launch_man__report_liveliness",
+          "verify_type": "partially",
+          "result": "passed",
+          "result_text": "",
+          "repo_name": "local_repo",
+          "hash": "",
+          "url": ""
+        },
+        {
+          "name": "test_rust_alive",
+          "file": "tests/integration/alive/rust_alive/rust_alive.py",
+          "line": 19,
+          "need": "comp_req__launch_man__report_liveliness",
           "verify_type": "partially",
           "result": "passed",
           "result_text": "",
