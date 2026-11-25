@@ -106,7 +106,7 @@ def assert_test_results(target, remote_test_dir, test_output_dir):
         try:
             target.download("/tmp/LM.dlt", test_output_dir / "LM.dlt")
         except Exception:
-            print("Coulnd't download dlt lo")
+            print("ERROR: Couldn't download dlt log")
 
         search_dirs = [remote_test_dir, *additional_search_dirs]
         download_xml_results(target, search_dirs, test_output_dir)

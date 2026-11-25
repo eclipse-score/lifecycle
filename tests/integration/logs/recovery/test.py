@@ -46,7 +46,7 @@ def test_component_recovery_log(
         cwd=str(remote_test_dir),
     )
 
-    # not results should be made
+    # no xml results should be made
     assert_test_results(set())
 
     logs = parse_dlt_file(test_output_dir / "LM.dlt")
