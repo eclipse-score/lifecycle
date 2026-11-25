@@ -33,3 +33,4 @@ common:codeql --nouse_action_cache
 common:codeql --noremote_accept_cached
 common:codeql --noremote_upload_local_results
 common:codeql --disk_cache=
+common:codeql --skip_incompatible_explicit_targets

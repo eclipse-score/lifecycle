@@ -61,6 +61,27 @@ score::cpp::expected<TargetT, IConfigLoader::Error> requireScalarInRange(
     return validateRange<TargetT>(*value, field_name);
 }
 
+/// @brief Clamps @p priority to the range the OS supports for @p policy, logging a warning if it is changed.
+/// @details Done once at load time, so all process start implementations apply the same priority.
+std::int32_t clampSchedulingPriority(const std::int32_t policy, const std::int32_t priority)
+{
+    const std::int32_t min_priority = sched_get_priority_min(policy);
+    const std::int32_t max_priority = sched_get_priority_max(policy);
+    if (priority < min_priority)
+    {
+        LM_LOG_WARN() << "Scheduling priority" << priority << "is below minimum" << min_priority << "for policy"
+                      << policy << ", setting to minimum";
+        return min_priority;
+    }
+    if (priority > max_priority)
+    {
+        LM_LOG_WARN() << "Scheduling priority" << priority << "is above maximum" << max_priority << "for policy"
+                      << policy << ", setting to maximum";
+        return max_priority;
+    }
+    return priority;
+}
+
 template <typename T>
 std::optional<T> optionalScalarValue(const ::flatbuffers::Optional<T>& field)
 {
@@ -467,7 +488,7 @@ score::cpp::expected<Sandbox, IConfigLoader::Error> convertSandbox(const fb::San
                                  ? std::optional<std::string>{fb_sb->security_policy()->str()}
                                  : std::nullopt;
     result.scheduling_policy = *scheduling_policy;
-    result.scheduling_priority = *scheduling_priority;
+    result.scheduling_priority = clampSchedulingPriority(*scheduling_policy, *scheduling_priority);
     auto rlimits = convertRlimits(fb_sb->rlimits());
     if (!rlimits.has_value())
     {
