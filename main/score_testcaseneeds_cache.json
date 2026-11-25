@@ -15402,7 +15402,7 @@
   {
     "name": "test_examples",
     "file": "examples/demo_verification/test_examples.py",
-    "line": "61",
+    "line": "62",
     "result": "passed",
     "repo_name": "local_repo",
     "hash": "",
