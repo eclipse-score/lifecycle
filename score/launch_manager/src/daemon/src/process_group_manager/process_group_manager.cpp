@@ -244,10 +244,8 @@ void ProcessGroupManager::run()
             watchdog_->fireWatchdogReaction();
         }
 
-        if (graph_)
-        {
-            processGroupHandler(*graph_);
-        }
+        SCORE_LANGUAGE_FUTURECPP_ASSERT_DBG_MESSAGE(bool(graph), "Graph pointer must be valid during execution");
+        processGroupHandler(*graph_);
 
         watchdog_->serviceWatchdog();
     }
@@ -258,7 +256,7 @@ void ProcessGroupManager::run()
 
 void ProcessGroupManager::processComponentEvents()
 {
-    SCORE_LANGUAGE_FUTURECPP_ASSERT_MESSAGE(bool(graph_), "Graph not initialized");
+    SCORE_LANGUAGE_FUTURECPP_ASSERT_DBG_MESSAGE(bool(graph_), "Graph not initialized");
 
     while (auto event = event_queue_->getNextEvent())
     {
@@ -279,13 +277,13 @@ void ProcessGroupManager::processComponentEvents()
 
 void ProcessGroupManager::startInitialTransition()
 {
-    SCORE_LANGUAGE_FUTURECPP_ASSERT_MESSAGE(bool(graph_), "Graph not initialized");
+    SCORE_LANGUAGE_FUTURECPP_ASSERT_DBG_MESSAGE(bool(graph_), "Graph not initialized");
     graph_->startInitialTransition(IdentifierHash{configuration_.initial_run_target_});
 }
 
 void ProcessGroupManager::allProcessGroupsOff()
 {
-    SCORE_LANGUAGE_FUTURECPP_ASSERT_MESSAGE(bool(graph_), "Graph not initialized");
+    SCORE_LANGUAGE_FUTURECPP_ASSERT_DBG_MESSAGE(bool(graph_), "Graph not initialized");
 
     // Wait for process group state to change while actively draining shutdown events.
     // SupervisionFailure is intentionally ignored here so recovery transitions do not
