@@ -26,11 +26,11 @@ cc_binary(
 
 integration_test(
     name = "kterminated",
-    srcs = ["kterminated.py"],
+    srcs = ["test.py"],
     binaries = [
         ":control_client_test_driver",
         "//score/launch_manager",
         "//tests/utils/test_helper:waiting_process",
     ],
-    config = ":kterminated.json",
+    config = ":config.json",
 )

@@ -281,7 +281,7 @@ Module Documents Status
 For all the work product documents the status can be seen by following the "Link to WP".
 A summary of the status is also documented in the project's documentation management plan.
 
-See `Lifecycle module documents <https://eclipse-score.github.io/reference_integration/main/process_methods_tools/score_platform/platform_management_plan/documentation_management.html#documents-docs-features-lifecycle>`__
+See `Lifecycle module documents <https://eclipse-score.github.io/reference_integration/main/modules/functional_modules/score_platform/platform_management_plan/documentation_management.html#documents-docs-features-lifecycle>`__
 (the tables are filled in the reference integration build)
 
 Component Documents Status
@@ -290,7 +290,7 @@ Component Documents Status
 For all the work product documents the status can be seen by following the "Link to WP".
 A summary of the status is also documented in the project's documentation management plan.
 
-See `Lifecycle component documents <https://eclipse-score.github.io/reference_integration/main/process_methods_tools/score_platform/platform_management_plan/documentation_management.html#documents-docs-features-lifecycle>`__
+See `Lifecycle component documents <https://eclipse-score.github.io/reference_integration/main/modules/functional_modules/score_platform/platform_management_plan/documentation_management.html#documents-docs-features-lifecycle>`__
 (the tables are filled in the reference integration build)
 
 Component Requirements Status

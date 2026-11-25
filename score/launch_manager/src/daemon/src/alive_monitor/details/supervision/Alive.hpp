@@ -14,16 +14,19 @@
 #ifndef ALIVE_HPP_INCLUDED
 #define ALIVE_HPP_INCLUDED
 
+#include <chrono>
 #include <cstdint>
+#include <memory>
 #include <variant>
 
 #include "score/mw/launch_manager/alive_monitor/details/common/Observer.hpp"
 #include "score/mw/launch_manager/alive_monitor/details/common/TimeSortingBuffer.hpp"
 #include "score/mw/launch_manager/alive_monitor/details/ifappl/Checkpoint.hpp"
 #include "score/mw/launch_manager/alive_monitor/details/ifexm/ObservableEvent.hpp"
+#include "score/mw/launch_manager/alive_monitor/details/ifexm/supervision_event.hpp"
 #include "score/mw/launch_manager/alive_monitor/details/supervision/ISupervision.hpp"
-#include "score/mw/launch_manager/alive_monitor/details/timers/Timers_OsClock.hpp"
-#include "score/mw/launch_manager/configuration/config.hpp"
+#include "score/mw/launch_manager/common/identifier_hash.hpp"
+#include "score/mw/launch_manager/configuration/component_config.hpp"
 #include "score/mw/launch_manager/recovery_client/irecovery_client.h"
 
 namespace score::mw::lifecycle::internal::saf::supervision

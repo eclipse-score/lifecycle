@@ -12,8 +12,8 @@
  ********************************************************************************/
 
 #include "score/mw/launch_manager/common/identifier_hash.hpp"
+
 #include <score/hash.hpp>
-#include <cstdint>
 #include <mutex>
 #include <unordered_map>
 

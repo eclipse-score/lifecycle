@@ -28,11 +28,11 @@ cc_binary(
 integration_test(
     name = "replaced_activation",
     timeout = "short",
-    srcs = ["replaced_activation.py"],
+    srcs = ["test.py"],
     binaries = [
         ":control_client_test_driver",
         "//tests/utils/test_helper:gated_process",
         "//score/launch_manager",
     ],
-    config = ":replaced_activation.json",
+    config = ":config.json",
 )

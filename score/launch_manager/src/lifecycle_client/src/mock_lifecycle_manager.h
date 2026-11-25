@@ -14,14 +14,15 @@
 #ifndef SCORE_MW_LIFECYCLE_MOCKS_LIFECYCLEMANAGERMOCK_H_
 #define SCORE_MW_LIFECYCLE_MOCKS_LIFECYCLEMANAGERMOCK_H_
 
-#include "score/mw/lifecycle/application.h"
-#include "score/mw/lifecycle/mock_application_context.h"
-#include "score/os/utils/mocklib/signalmock.h"
-#include "score/os/utils/signal.h"
+#include "score/mw/lifecycle/mock_application_context.h"  // IWYU pragma: export
 
 #include <gmock/gmock.h>
-
+#include <cstdint>
 #include <functional>
+
+#include "gtest/gtest.h"
+#include "score/mw/lifecycle/application.h"
+#include "score/mw/lifecycle/applicationcontext.h"
 
 namespace score
 {

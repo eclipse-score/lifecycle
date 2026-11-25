@@ -13,16 +13,13 @@
 #ifndef CONFIG_HPP
 #define CONFIG_HPP
 
-#include <sys/types.h>
-#include <chrono>
 #include <cstdint>
 #include <optional>
 #include <string>
-#include <string_view>
-#include <variant>
 #include <vector>
 
 #include "score/mw/launch_manager/configuration/component_config.hpp"
+#include "score/mw/launch_manager/configuration/recovery_action_config.hpp"
 #include "score/mw/launch_manager/configuration/watchdog_config.hpp"
 
 namespace score::mw::lifecycle::internal::configuration
@@ -31,7 +28,6 @@ namespace score::mw::lifecycle::internal::configuration
 struct RunTargetConfig
 {
     std::string name;
-    std::string description;
     std::vector<std::string> depends_on;
     std::uint32_t transition_timeout_ms{};
     SwitchRunTargetAction recovery_action;
@@ -39,7 +35,6 @@ struct RunTargetConfig
 
 struct FallbackRunTargetConfig
 {
-    std::string description;
     std::vector<std::string> depends_on;
     std::uint32_t transition_timeout_ms{};
 };
@@ -61,8 +56,6 @@ struct AliveSupervisionConfig
 {
     std::uint32_t evaluation_cycle_ms{};
 };
-
-class ConfigBuilder;
 
 /// @brief Move-only value object holding the parsed launch-manager configuration.
 ///

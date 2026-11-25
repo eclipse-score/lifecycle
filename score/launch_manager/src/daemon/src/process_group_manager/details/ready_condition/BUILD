@@ -35,6 +35,7 @@ cc_library(
     visibility = ["//score/launch_manager/src/daemon/src/process_group_manager:__subpackages__"],
     deps = [
         ":iready_condition",
+        "@googletest//:gtest",
         "@googletest//:gtest_main",
     ],
 )
@@ -52,7 +53,10 @@ cc_library(
         "//score/launch_manager/src/daemon/src/configuration:component_config",
         "//score/launch_manager/src/daemon/src/osal:ifile_waiter",
         "//score/launch_manager/src/daemon/src/osal:return_types",
+        "//score/launch_manager/src/daemon/src/process_group_manager/details:handle",
+        "@score_baselibs//score/language/futurecpp",
         "@score_baselibs//score/language/safecpp/string_view:zstring_view",
+        "@score_baselibs//score/result",
     ],
 )
 
@@ -77,8 +81,13 @@ cc_library(
     deps = [
         ":iready_condition",
         "//score/launch_manager:error",
+        "//score/launch_manager/src/daemon/src/osal:ipc_comms",
         "//score/launch_manager/src/daemon/src/osal:return_types",
+        "//score/launch_manager/src/daemon/src/osal:semaphore",
         "//score/launch_manager/src/daemon/src/process_group_manager:iprocess",
+        "//score/launch_manager/src/daemon/src/process_group_manager/details:handle",
+        "@score_baselibs//score/language/futurecpp",
+        "@score_baselibs//score/result",
     ],
 )
 
@@ -100,7 +109,12 @@ cc_library(
     include_prefix = "score/mw/launch_manager/process_group_manager/details/ready_condition",
     strip_include_prefix = "/score/launch_manager/src/daemon/src/process_group_manager/details/ready_condition",
     visibility = ["//score/launch_manager/src/daemon/src/process_group_manager:__subpackages__"],
-    deps = [":iready_condition"],
+    deps = [
+        ":iready_condition",
+        "//score/launch_manager/src/daemon/src/process_group_manager/details:handle",
+        "@score_baselibs//score/language/futurecpp",
+        "@score_baselibs//score/result",
+    ],
 )
 
 lm_cc_test(
@@ -120,7 +134,8 @@ cc_library(
     strip_include_prefix = "/score/launch_manager/src/daemon/src/process_group_manager/details/ready_condition",
     visibility = ["//score/launch_manager/src/daemon/src/process_group_manager:__subpackages__"],
     deps = [
-        "@score_baselibs//score/concurrency/future",
+        "@score_baselibs//score/concurrency:condition_variable",
+        "@score_baselibs//score/language/futurecpp",
     ],
 )
 
@@ -144,7 +159,9 @@ cc_library(
         ":iready_condition",
         ":termination_waiter",
         "//score/launch_manager:error",
+        "//score/launch_manager/src/daemon/src/process_group_manager/details:handle",
         "@score_baselibs//score/language/futurecpp",
+        "@score_baselibs//score/result",
     ],
 )
 

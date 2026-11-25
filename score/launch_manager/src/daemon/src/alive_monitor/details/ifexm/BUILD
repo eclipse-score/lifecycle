@@ -23,7 +23,7 @@ cc_library(
     deps = [
         ":supervision_event",
         "//score/launch_manager/src/daemon/src/alive_monitor/details/common:observer",
-        "//score/launch_manager/src/daemon/src/alive_monitor/details/timers:timers_os_clock",
+        "//score/launch_manager/src/daemon/src/common:identifier_hash",
     ],
 )
 
@@ -65,8 +65,10 @@ cc_library(
         ":supervision_event_queue",
         "//score/launch_manager:error_event",
         "//score/launch_manager/src/daemon/src/alive_monitor/details/timers:time_conversion",
-        "//score/launch_manager/src/daemon/src/alive_monitor/details/timers:timers_os_clock",
+        "//score/launch_manager/src/daemon/src/common:identifier_hash",
         "//score/launch_manager/src/daemon/src/common:log",
+        "@score_baselibs//score/result",
+        "@score_baselibs//score/result:error",
     ],
 )
 

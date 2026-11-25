@@ -15,6 +15,7 @@
 #define SCORE_LCM_FILE_READY_CONDITION_HPP_INCLUDED
 
 #include "score/language/safecpp/string_view/zstring_view.h"
+#include "score/mw/launch_manager/configuration/component_config.hpp"
 #include "score/mw/launch_manager/osal/ifile_waiter.hpp"
 #include "score/mw/launch_manager/process_group_manager/details/handle.hpp"
 #include "score/mw/launch_manager/process_group_manager/details/ready_condition/iready_condition.hpp"

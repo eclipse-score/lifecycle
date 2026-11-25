@@ -21,16 +21,16 @@ cc_library(
     strip_include_prefix = "/score/launch_manager/src/daemon/src/alive_monitor/details/daemon",
     visibility = ["//score/launch_manager/src/daemon/src/alive_monitor:__subpackages__"],
     deps = [
-        "//score/launch_manager/src/daemon/src/alive_monitor/details/factory:alive_worker_factory",
-        "//score/launch_manager/src/daemon/src/alive_monitor/details/ifappl:checkpoint",
+        "//score/launch_manager/src/daemon/src/alive_monitor/details/factory:i_alive_worker_factory",
         "//score/launch_manager/src/daemon/src/alive_monitor/details/ifappl:data_structures",
         "//score/launch_manager/src/daemon/src/alive_monitor/details/ifappl:monitor_if_daemon",
         "//score/launch_manager/src/daemon/src/alive_monitor/details/ifexm:observable_event",
         "//score/launch_manager/src/daemon/src/alive_monitor/details/ifexm:observable_event_reader",
         "//score/launch_manager/src/daemon/src/alive_monitor/details/supervision:alive",
-        "//score/launch_manager/src/daemon/src/alive_monitor/details/timers:timers_os_clock",
-        "//score/launch_manager/src/daemon/src/common:log",
+        "//score/launch_manager/src/daemon/src/common:identifier_hash",
+        "//score/launch_manager/src/daemon/src/configuration:component_config",
         "//score/launch_manager/src/daemon/src/configuration:config",
+        "//score/launch_manager/src/daemon/src/recovery_client:irecovery_client",
     ],
 )
 
@@ -46,14 +46,14 @@ cc_library(
         "//score/launch_manager/src/daemon/src/alive_monitor:isupervision_factory",
         "//score/launch_manager/src/daemon/src/alive_monitor/details/common:einitcode",
         "//score/launch_manager/src/daemon/src/alive_monitor/details/factory:alive_worker_factory",
-        "//score/launch_manager/src/daemon/src/alive_monitor/details/ifappl:monitor_if_daemon",
+        "//score/launch_manager/src/daemon/src/alive_monitor/details/factory:i_alive_worker_factory",
         "//score/launch_manager/src/daemon/src/alive_monitor/details/ifexm:observable_event_reader",
         "//score/launch_manager/src/daemon/src/alive_monitor/details/ifexm:supervision_event_queue",
-        "//score/launch_manager/src/daemon/src/alive_monitor/details/supervision:alive",
         "//score/launch_manager/src/daemon/src/alive_monitor/details/timers:cycle_time_validator",
         "//score/launch_manager/src/daemon/src/alive_monitor/details/timers:cycle_timer",
         "//score/launch_manager/src/daemon/src/alive_monitor/details/timers:timers_os_clock",
         "//score/launch_manager/src/daemon/src/common:log",
+        "//score/launch_manager/src/daemon/src/configuration:config",
     ],
 )
 
@@ -67,6 +67,8 @@ cc_library(
     deps = [
         ":cyclic_executor",
         "//score/launch_manager/src/daemon/src/alive_monitor:i_alive_monitor",
+        "//score/launch_manager/src/daemon/src/alive_monitor/details/common:einitcode",
+        "//score/launch_manager/src/daemon/src/common:log",
         "//score/launch_manager/src/daemon/src/configuration:config",
         "@score_baselibs//score/language/futurecpp",
         "@score_baselibs//score/os/utils:thread",

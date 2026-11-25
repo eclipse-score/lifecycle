@@ -21,6 +21,7 @@ Lifecycle Module
    :security: YES
    :safety: ASIL_B
    :status: valid
+   :maturity: experimental
    :includes: comp__health_monitor[version==1], comp__lifecycle_launch_manager[version==1]
 
 

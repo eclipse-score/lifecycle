@@ -36,12 +36,12 @@ cc_binary(
 
 integration_test(
     name = "process_crash_monitoring",
-    srcs = ["process_crash_monitoring.py"],
+    srcs = ["test.py"],
     binaries = [
         ":control_client_test_driver",
         ":process_crashing_on_runtime",
         "//score/launch_manager",
         "//tests/utils/test_helper:verification_process",
     ],
-    config = ":process_crash_monitoring.json",
+    config = ":config.json",
 )

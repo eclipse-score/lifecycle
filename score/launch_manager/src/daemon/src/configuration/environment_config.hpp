@@ -13,6 +13,7 @@
 #ifndef ENVIROMENT_CONFIG_HPP
 #define ENVIROMENT_CONFIG_HPP
 
+#include <cstddef>
 #include <string>
 #include <string_view>
 #include <vector>

@@ -13,16 +13,21 @@
 
 #include "score/mw/lifecycle/lifecyclemanager.h"
 
-#include "score/mw/lifecycle/report_running.h"
-#include "score/mw/log/logging.h"
-#include "score/os/errno.h"
-#include "score/os/stdlib_impl.h"
-#include "score/os/utils/thread.h"
-#include <cstdlib>
-
+#include <score/expected.hpp>
 #include <score/utility.hpp>
+#include <cstdlib>
+#include <string>
 #include <string_view>
 #include <thread>
+#include <utility>
+#include <vector>
+
+#include "score/mw/lifecycle/report_running.h"
+#include "score/mw/log/log_stream.h"
+#include "score/mw/log/logging.h"
+#include "score/os/errno.h"
+#include "score/os/stdlib.h"
+#include "score/os/utils/thread.h"
 
 namespace
 {
