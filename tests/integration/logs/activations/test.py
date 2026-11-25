@@ -53,7 +53,9 @@ def test_component_activation_log(
     pid = get_testcase_property(test_output_dir / "logging_process.xml", "pid")
     logs = parse_dlt_file(test_output_dir / "LM.dlt")
 
-    start_pattern = re.compile(r"Name:\s*component_logging\s*,\s*PID:\s*-?\d+\s*startProcess done")
+    start_pattern = re.compile(
+        r"Name:\s*component_logging\s*,\s*PID:\s*-?\d+\s*startProcess done"
+    )
     termination_pattern = re.compile(
         r"Name:\s*component_logging\s*,\s*PID:\s*(\d+)\s*Process terminated with status\s*(-?\d+)"
     )
