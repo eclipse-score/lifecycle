@@ -31,7 +31,7 @@
 
     <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=8f2a1f02" />
     <link rel="stylesheet" type="text/css" href="../../../_static/graphviz.css?v=4ae1632d" />
-    <link rel="stylesheet" type="text/css" href="../../../_static/css/score.css?v=d7d4a875" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/css/score.css?v=5737673c" />
     <link rel="stylesheet" type="text/css" href="../../../_static/css/score_needs.css?v=6a6a7ab0" />
     <link rel="stylesheet" type="text/css" href="../../../_static/css/score_design.css?v=f381fa98" />
     <link rel="stylesheet" type="text/css" href="../../../_static/sphinx-design.min.css?v=6a604523" />
@@ -519,7 +519,7 @@
 <span id="lifecycle-design-decisions"></span><h1>Design Decisions<a class="headerlink" href="#design-decisions" title="Link to this heading">#</a></h1>
 <section id="in-process-health-monitor">
 <h2>In-Process Health Monitor<a class="headerlink" href="#in-process-health-monitor" title="Link to this heading">#</a></h2>
-<div class="need_container docutils container" id="SNCB-cecaf483">
+<div class="need_container docutils container" id="SNCB-811fb02e">
 <div class="pst-scrollable-table-container"><table class="need needs_grid_complex needs_layout_score needs_style_none needs_type_dec_rec table" id="dec_rec__lifecycle__in_process_health_monitor">
 <tbody>
 <tr class="head row-odd"><td class="head_left" colspan="2"><div class="needs_head_left line-block">
@@ -652,7 +652,7 @@ counter (or some more complex mathematical function), further checkpoints for de
 </section>
 <section id="launch-manager-starts-processes-on-a-thread-pool">
 <h2>Launch Manager starts processes on a thread pool<a class="headerlink" href="#launch-manager-starts-processes-on-a-thread-pool" title="Link to this heading">#</a></h2>
-<div class="need_container docutils container" id="SNCB-fee817f6">
+<div class="need_container docutils container" id="SNCB-30d8a6a5">
 <div class="pst-scrollable-table-container"><table class="need needs_grid_complex needs_layout_score needs_style_none needs_type_dec_rec table" id="dec_rec__lifecycle__thread_pool_process">
 <tbody>
 <tr class="head row-odd"><td class="head_left" colspan="2"><div class="needs_head_left line-block">
@@ -713,7 +713,7 @@ Fast startup is an important performance goal for the Launch Manager.</p>
 </section>
 <section id="launch-manager-alive-monitoring-is-polling-based">
 <h2>Launch Manager Alive Monitoring is polling-based<a class="headerlink" href="#launch-manager-alive-monitoring-is-polling-based" title="Link to this heading">#</a></h2>
-<div class="need_container docutils container" id="SNCB-fdd0af86">
+<div class="need_container docutils container" id="SNCB-13df595f">
 <div class="pst-scrollable-table-container"><table class="need needs_grid_complex needs_layout_score needs_style_none needs_type_dec_rec table" id="dec_rec__lifecycle__lm_alive_polling">
 <tbody>
 <tr class="head row-odd"><td class="head_left" colspan="2"><div class="needs_head_left line-block">
@@ -776,7 +776,7 @@ Configure the cycle time to balance the desired detection time against acceptabl
 </section>
 <section id="flatbuffer-configuration">
 <h2>Flatbuffer configuration<a class="headerlink" href="#flatbuffer-configuration" title="Link to this heading">#</a></h2>
-<div class="need_container docutils container" id="SNCB-547a03ad">
+<div class="need_container docutils container" id="SNCB-a0353f55">
 <div class="pst-scrollable-table-container"><table class="need needs_grid_complex needs_layout_score needs_style_none needs_type_dec_rec table" id="dec_rec__lifecycle__flatbuffer_config">
 <tbody>
 <tr class="head row-odd"><td class="head_left" colspan="2"><div class="needs_head_left line-block">
@@ -836,7 +836,7 @@ Compared with a textual format such as JSON, the FlatBuffers binary configuratio
 </section>
 <section id="kill-process-after-supervision-failure">
 <h2>Kill process after supervision failure<a class="headerlink" href="#kill-process-after-supervision-failure" title="Link to this heading">#</a></h2>
-<div class="need_container docutils container" id="SNCB-90861dfe">
+<div class="need_container docutils container" id="SNCB-c25a7bf9">
 <div class="pst-scrollable-table-container"><table class="need needs_grid_complex needs_layout_score needs_style_none needs_type_dec_rec table" id="dec_rec__lifecycle__kill_supervision_fail">
 <tbody>
 <tr class="head row-odd"><td class="head_left" colspan="2"><div class="needs_head_left line-block">
@@ -932,6 +932,133 @@ Applications must not rely on a graceful shutdown after a supervision failure.
 Data that has to survive such a failure must be persisted during normal operation.</p>
 </section>
 </section>
+<section id="launch-manager-uses-posix-spawn-to-start-processes-on-qnx">
+<h2>Launch Manager uses posix_spawn() to start processes on QNX<a class="headerlink" href="#launch-manager-uses-posix-spawn-to-start-processes-on-qnx" title="Link to this heading">#</a></h2>
+<div class="need_container docutils container" id="SNCB-2fb9b955">
+<div class="pst-scrollable-table-container"><table class="need needs_grid_complex needs_layout_score needs_style_none needs_type_dec_rec table" id="dec_rec__lifecycle__posix_spawn">
+<tbody>
+<tr class="head row-odd"><td class="head_left" colspan="2"><div class="needs_head_left line-block">
+<div class="line"><span><span class="needs_title"><span class="needs_data">posix_spawn on QNX</span></span></span></div>
+</div>
+</td>
+<td class="head_center" colspan="2"><div class="needs_head line-block">
+<div class="line"><span><span class="needs_status"><span class="needs_label">status: </span><span class="needs_data">accepted</span></span></span></div>
+<div class="line"><span></span></div>
+<div class="line"><span></span></div>
+</div>
+</td>
+<td class="head_right" colspan="2"><div class="needs_head_right line-block">
+<div class="line"><span><span class="needs needs_collapse" id="target__show__meta"><span class="needs collapsed"><svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-arrow-down-circle"><circle cx="12" cy="12" r="10"></circle><polyline points="8 12 12 16 16 12"></polyline><line x1="12" y1="8" x2="12" y2="16"></line></svg></span><span class="needs visible collapse_is_hidden"><svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-arrow-right-circle"><circle cx="12" cy="12" r="10"></circle><polyline points="12 16 16 12 12 8"></polyline><line x1="8" y1="12" x2="16" y2="12"></line></svg></span></span></span></div>
+</div>
+</td>
+</tr>
+<tr class="meta row-even"><td class="meta" colspan="3"><div class="needs_meta_left line-block">
+<div class="line"><span><span><div class="line"><span class="needs_consequences"><span class="needs_label">consequences: </span><span class="needs_data">Faster process starts on QNX, separate QNX and Linux implementations behind a common OSAL interface</span></span></div>
+<div class="line"><span class="needs_context"><span class="needs_label">context: </span><span class="needs_data">Architecture</span></span></div>
+<div class="line"><span class="needs_decision"><span class="needs_label">decision: </span><span class="needs_data">The Launch Manager uses posix_spawn() to start processes on QNX</span></span></div>
+<div class="line"><span class="needs_version"><span class="needs_label">version: </span>1</span></div>
+</span></span></div>
+<div class="line"><span><div class="line">affects: <span class="affects"><span><a class="reference internal" href="../../../components/launch_manager/architecture/component_architecture.html#comp__lifecycle_launch_manager" title="dec_rec__lifecycle__posix_spawn">comp__lifecycle_launch_manager</a></span></span></div>
+</span></div>
+</div>
+</td>
+<td class="meta" colspan="3"></td>
+</tr>
+<tr class="content row-odd"><td class="content" colspan="6"></td>
+</tr>
+<tr class="footer row-even"><td class="footer_left" colspan="2"><div class="needs_footer_left line-block">
+<div class="line"><span><span class="needs-id"><a class="reference internal" href="#dec_rec__lifecycle__posix_spawn" title="dec_rec__lifecycle__posix_spawn">dec_rec__lifecycle__posix_spawn</a></span></span></div>
+</div>
+</td>
+<td class="footer" colspan="2"><div class="needs_footer line-block">
+<div class="line"><span><span class="needs_type_name"><span class="needs_data">Decision Record</span></span></span></div>
+</div>
+</td>
+<td class="footer_right" colspan="2"></td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<section id="id9">
+<h3>Context<a class="headerlink" href="#id9" title="Link to this heading">#</a></h3>
+<p>The Launch Manager starts the processes of the system, which may include all processes during the startup of the machine.
+The time needed to start a process directly adds to the startup time, so starting processes has to be efficient.</p>
+<p>Before a new process executes its first instruction, the Launch Manager has to apply the configured attributes,
+e.g. user and group IDs, supplementary groups, scheduling policy and priority, CPU affinity, resource limits,
+working directory and process group.</p>
+<p>At the time of the decision the Launch Manager uses fork()+execve() for both Linux and QNX for process start.</p>
+</section>
+<section id="id10">
+<h3>Options Considered<a class="headerlink" href="#id10" title="Link to this heading">#</a></h3>
+<section id="option-a-continue-using-fork-execve-on-qnx-and-linux">
+<h4>Option A: Continue using fork() + execve() on QNX and Linux<a class="headerlink" href="#option-a-continue-using-fork-execve-on-qnx-and-linux" title="Link to this heading">#</a></h4>
+<p>Pros:</p>
+<ul class="simple">
+<li><p>One implementation for both platforms</p></li>
+<li><p>fork() is cheap on Linux due to copy-on-write</p></li>
+<li><p>All attributes can be applied in the child process between fork() and execve()</p></li>
+</ul>
+<p>Cons:</p>
+<ul class="simple">
+<li><p>fork() is considerably slower than posix_spawn() on QNX</p></li>
+<li><p>The code between fork() and execve() must only call async-signal-safe functions, which is difficult to guarantee</p></li>
+</ul>
+</section>
+<section id="option-b-use-posix-spawn-on-qnx-and-linux">
+<h4>Option B: Use posix_spawn() on QNX and Linux<a class="headerlink" href="#option-b-use-posix-spawn-on-qnx-and-linux" title="Link to this heading">#</a></h4>
+<p>Pros:</p>
+<ul class="simple">
+<li><p>posix_spawn() is considerably faster than fork() on QNX</p></li>
+<li><p>No code runs in the child process between process creation and execution of the new program</p></li>
+</ul>
+<p>Cons:</p>
+<ul class="simple">
+<li><p>The POSIX standard posix_spawn() cannot set most of the required attributes, e.g. user and group IDs,
+supplementary groups, CPU affinity and resource limits.
+QNX closes this gap with platform-specific extensions, Linux does not.</p></li>
+<li><p>Linux provides no way to start the process held, so the missing attributes cannot be applied afterwards
+before the new program runs.
+On Linux, a helper process would be required that sets the missing attributes before the new program runs.</p></li>
+</ul>
+</section>
+<section id="option-c-use-posix-spawn-on-qnx-and-fork-execve-on-linux">
+<h4>Option C: Use posix_spawn() on QNX and fork() + execve() on Linux<a class="headerlink" href="#option-c-use-posix-spawn-on-qnx-and-fork-execve-on-linux" title="Link to this heading">#</a></h4>
+<p>Pros:</p>
+<ul class="simple">
+<li><p>Fast process starts on QNX using posix_spawn() and its QNX-specific extensions</p></li>
+<li><p>Fast process starts on Linux using fork() + execve()</p></li>
+<li><p>All required attributes can be applied on both platforms</p></li>
+</ul>
+<p>Cons:</p>
+<ul class="simple">
+<li><p>Two implementations to maintain, one for QNX and one for Linux</p></li>
+<li><p>On Linux, the code between fork() and execve() must only call async-signal-safe functions,
+which is difficult to guarantee</p></li>
+</ul>
+</section>
+</section>
+<section id="evaluation">
+<h3>Evaluation<a class="headerlink" href="#evaluation" title="Link to this heading">#</a></h3>
+<p>Option A is ruled out, because the performance penalty of fork() on QNX is too high.</p>
+<p>Option B is ruled out, because posix_spawn() on Linux cannot apply the required process attributes.</p>
+<p>Option C provides the best performance on both platforms and supports all required attributes.</p>
+</section>
+<section id="id11">
+<h3>Decision<a class="headerlink" href="#id11" title="Link to this heading">#</a></h3>
+<p>Option C: The Launch Manager uses posix_spawn() to start processes on QNX-only.
+We accept the platform-specific implementations in exchange for the best performance on both platforms.</p>
+<p>Different alterantives for Linux other than fork()+execve() have not been evaluated here.</p>
+<p>See <a class="reference internal" href="../../../components/launch_manager/detailed_design/fork_vs_posix_spawn.html#lm-fork-vs-posix-spawn"><span class="std std-ref">Detailed comparison of fork()+execve() vs posix_spawn (QNX-only)</span></a> for a detailed comparison of the observable differences
+between fork() + execve() and posix_spawn() on QNX.</p>
+</section>
+<section id="id12">
+<h3>Consequences<a class="headerlink" href="#id12" title="Link to this heading">#</a></h3>
+<p>Processes are started differently on QNX and Linux.
+The difference is hidden behind a common interface in the OSAL layer of the Launch Manager,
+so the rest of the Launch Manager is not affected.</p>
+</section>
+</section>
 </section>
 
 
@@ -1015,6 +1142,19 @@ Data that has to survive such a failure must be persisted during normal operatio
 </li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#decision">Decision</a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id8">Consequences</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#launch-manager-uses-posix-spawn-to-start-processes-on-qnx">Launch Manager uses posix_spawn() to start processes on QNX</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id9">Context</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id10">Options Considered</a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#option-a-continue-using-fork-execve-on-qnx-and-linux">Option A: Continue using fork() + execve() on QNX and Linux</a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#option-b-use-posix-spawn-on-qnx-and-linux">Option B: Use posix_spawn() on QNX and Linux</a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#option-c-use-posix-spawn-on-qnx-and-fork-execve-on-linux">Option C: Use posix_spawn() on QNX and fork() + execve() on Linux</a></li>
+</ul>
+</li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#evaluation">Evaluation</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id11">Decision</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id12">Consequences</a></li>
 </ul>
 </li>
 </ul>
