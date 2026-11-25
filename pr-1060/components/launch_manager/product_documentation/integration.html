@@ -31,7 +31,7 @@
 
     <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=8f2a1f02" />
     <link rel="stylesheet" type="text/css" href="../../../_static/graphviz.css?v=4ae1632d" />
-    <link rel="stylesheet" type="text/css" href="../../../_static/css/score.css?v=d7d4a875" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/css/score.css?v=5737673c" />
     <link rel="stylesheet" type="text/css" href="../../../_static/css/score_needs.css?v=6a6a7ab0" />
     <link rel="stylesheet" type="text/css" href="../../../_static/css/score_design.css?v=f381fa98" />
     <link rel="stylesheet" type="text/css" href="../../../_static/sphinx-design.min.css?v=6a604523" />
@@ -835,7 +835,6 @@ decides to deactivate it.</p>
 <span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;signal.h&gt;</span>
 <span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;stdint.h&gt;</span>
 <span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;stdio.h&gt;</span>
-<span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;unistd.h&gt;</span>
 <span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;stdlib.h&gt;</span>
 <span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;time.h&gt;</span>
 
@@ -1009,10 +1008,11 @@ removes the boilerplate from a reporting process.</p>
 <span class="cm"> * SPDX-License-Identifier: Apache-2.0</span>
 <span class="cm"> ********************************************************************************/</span>
 
-<span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;cstdlib&gt;</span>
-
 <span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;score/mw/lifecycle/application.h&gt;</span>
 <span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;score/mw/lifecycle/runapplication.h&gt;</span>
+<span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;score/stop_token.hpp&gt;</span>
+<span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;cstdint&gt;</span>
+<span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;cstdlib&gt;</span>
 
 <span class="k">class</span><span class="w"> </span><span class="nc">LifecycleApp</span><span class="w"> </span><span class="k">final</span><span class="w"> </span><span class="o">:</span><span class="w"> </span><span class="k">public</span><span class="w"> </span><span class="n">score</span><span class="o">::</span><span class="n">mw</span><span class="o">::</span><span class="n">lifecycle</span><span class="o">::</span><span class="n">Application</span>
 <span class="p">{</span>
@@ -1074,18 +1074,27 @@ Manager ready, which can lead to errors.</p>
 <span class="cm"> * SPDX-License-Identifier: Apache-2.0</span>
 <span class="cm"> ********************************************************************************/</span>
 
+<span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;score/mw/lifecycle/ilm_control.hpp&gt;</span>
+<span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;score/mw/lifecycle/report_running.h&gt;</span>
+<span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;score/span.hpp&gt;</span>
 <span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;unistd.h&gt;</span>
+<span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;stdlib.h&gt;</span>
 <span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;atomic&gt;</span>
 <span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;chrono&gt;</span>
 <span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;csignal&gt;</span>
 <span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;iostream&gt;</span>
 <span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;memory&gt;</span>
+<span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;string_view&gt;</span>
 <span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;thread&gt;</span>
+<span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;utility&gt;</span>
+<span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;vector&gt;</span>
 
 <span class="cp">#include</span><span class="w"> </span><span class="cpf">"score/mw/com/runtime.h"</span>
+<span class="cp">#include</span><span class="w"> </span><span class="cpf">"score/mw/lifecycle/fixed_string.hpp"</span>
+<span class="cp">#include</span><span class="w"> </span><span class="cpf">"score/mw/lifecycle/run_target_activation_source.hpp"</span>
+<span class="cp">#include</span><span class="w"> </span><span class="cpf">"score/result/error.h"</span>
+<span class="cp">#include</span><span class="w"> </span><span class="cpf">"score/result/result.h"</span>
 <span class="cp">#include</span><span class="w"> </span><span class="cpf">"score/string_manipulation/arguments/arguments.h"</span>
-<span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;score/mw/lifecycle/ilm_control.hpp&gt;</span>
-<span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;score/mw/lifecycle/report_running.h&gt;</span>
 
 <span class="k">using</span><span class="w"> </span><span class="k">namespace</span><span class="w"> </span><span class="nn">std</span><span class="o">::</span><span class="nn">literals</span><span class="o">::</span><span class="nn">chrono_literals</span><span class="p">;</span>
 
