@@ -59,7 +59,8 @@ std::unique_ptr<IAliveSupervisionHandle> constructSupervision(
     }
 
     SCORE_LANGUAGE_FUTURECPP_ASSERT_DBG_MESSAGE(
-        config.component_properties.application_profile.alive_supervision.has_value(), "Supervised component did not have alive supervision config");
+        config.component_properties.application_profile.alive_supervision.has_value(),
+        "Supervised component did not have alive supervision config");
 
     LM_LOG_DEBUG() << "Setting up alive supervision for" << config.name;
     std::unique_ptr<IAliveSupervisionHandle> handle = supervision_factory.constructSupervision(

@@ -14,6 +14,7 @@
 #include "score/mw/launch_manager/process_group_manager/details/ready_condition/sequence_ready_condition.hpp"
 #include "score/mw/lifecycle/execution_error.h"
 #include <score/assert.hpp>
+#include <score/stop_token.hpp>
 #include <algorithm>
 #include <utility>
 

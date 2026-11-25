@@ -23,6 +23,7 @@
 #include "score/mw/launch_manager/process_group_manager/details/ready_condition/iready_condition.hpp"
 #include "score/mw/launch_manager/process_group_manager/details/start_action/istart_action.hpp"
 #include "score/mw/launch_manager/process_group_manager/details/stop_action/istop_action.hpp"
+#include "score/result/result.h"
 #include <score/stop_token.hpp>
 #include <chrono>
 #include <condition_variable>
