@@ -15,9 +15,7 @@
 
 using namespace score::mw::lifecycle;
 
-TEST_F(
-    ActivationFixture,
-    GivenAClientConnection_WhenRequestReceivedDuringRecovery_ThenForcedRequestCancelsRecoveryAndNonForcedRequestIsQueued)
+TEST_F(ActivationFixture, GivenAClientConnection_WhenRequestReceivedDuringRecovery_ThenNonForcedRequestIsQueued)
 {
     ASSERT_TRUE(check_clean(
         {gatedStartedPath("failing_component"),
@@ -44,73 +42,38 @@ TEST_F(
         WaitForActivation(RunTargetActivationSource::kInitialActivation, "Startup");
     }
 
-    // =========================================================================
-    // Test Case 1: Non-forced request during recovery (queues the request)
-    // =========================================================================
-
-    TEST_STEP(
-        "TC1: Force activate run_target_with_failing_component and wait for the file signalling recovery action start")
+    TEST_STEP("Force activate run_target_with_failing_component and wait for the file signalling recovery action start")
     {
         BlockRunTargetActivation(*client, "run_target_with_failing_component", "fallback_gated");
     }
 
-    TEST_STEP("TC1: Send non-forced request for queued_run_target during recovery action")
+    TEST_STEP("Send non-forced request for queued_run_target during recovery action")
     {
         const auto result = client->activate_run_target("queued_run_target", false);
         ASSERT_TRUE(result.has_value()) << "Non-forced request during recovery action should be queued: "
                                         << result.error().Message();
     }
 
-    TEST_STEP("TC1: Release fallback_gated to complete recovery action")
+    TEST_STEP("Release fallback_gated to complete recovery action")
     {
         UnblockRunTargetActivation("fallback_gated");
     }
 
-    TEST_STEP("TC1: Wait for fallback_run_target activation (recovery action completes)")
+    TEST_STEP("Wait for fallback_run_target activation (recovery action completes)")
     {
         WaitForActivation(RunTargetActivationSource::kRecoveryAction, "fallback_run_target");
     }
 
-    TEST_STEP("TC1: Wait for queued_run_target activation to be processed")
+    TEST_STEP("Wait for queued_run_target activation to be processed")
     {
         WaitForActivation(RunTargetActivationSource::kStateManagerRequest, "queued_run_target");
     }
 
-    TEST_STEP("TC1: Validate active run target")
+    TEST_STEP("Validate active run target")
     {
         const auto result = client->get_active_run_target();
         ASSERT_TRUE(result.has_value()) << result.error().Message();
         EXPECT_EQ(result.value(), "queued_run_target");
-    }
-
-    // =========================================================================
-    // Test Case 2: Forced request during recovery (cancels recovery)
-    // =========================================================================
-
-    TEST_STEP(
-        "TC2: Force activate run_target_with_failing_component and wait for the file signalling recovery action start")
-    {
-        BlockRunTargetActivation(*client, "run_target_with_failing_component", "fallback_gated");
-    }
-
-    TEST_STEP("TC2: Send forced request for forced_run_target during recovery action")
-    {
-        // This forced request should cancel the ongoing recovery action
-        const auto result = client->activate_run_target("forced_run_target", true);
-        ASSERT_TRUE(result.has_value()) << "Forced request during recovery action should be accepted: "
-                                        << result.error().Message();
-    }
-
-    TEST_STEP("TC2: Wait for forced_run_target activation (recovery cancelled)")
-    {
-        WaitForActivation(RunTargetActivationSource::kStateManagerRequest, "forced_run_target");
-    }
-
-    TEST_STEP("TC2: Validate active run target")
-    {
-        const auto result = client->get_active_run_target();
-        ASSERT_TRUE(result.has_value()) << result.error().Message();
-        EXPECT_EQ(result.value(), "forced_run_target");
     }
 }
 

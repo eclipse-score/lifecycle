@@ -58,7 +58,7 @@ class ActivationFixture : public ControlClientFixture
     void BlockRunTargetActivation(
         score::mw::lifecycle::ILmControl& client,
         const score::mw::lifecycle::RunTargetName& blocking_run_target,
-        const std::string_view& ready_file) const
+        std::string_view ready_file) const
     {
         const auto result = client.activate_run_target(blocking_run_target, true);
         ASSERT_TRUE(result.has_value()) << result.error().Message();

@@ -13,26 +13,7 @@
 load("@rules_cc//cc:cc_binary.bzl", "cc_binary")
 load("//tests/utils/bazel:integration.bzl", "integration_test")
 
-cc_binary(
-    name = "control_client_test_driver",
-    srcs = ["control_client_test_driver.cpp"],
-    deps = [
-        "//score/launch_manager:control_cc",
-        "//score/launch_manager:lifecycle_cc",
-        "//tests/utils/fixtures:activation",
-        "//tests/utils/test_helper",
-        "//tests/utils/test_helper:gated_process_helper",
-        "@googletest//:gtest_main",
-    ],
-)
-
-integration_test(
-    name = "request_during_recovery",
-    srcs = ["test.py"],
-    binaries = [
-        ":control_client_test_driver",
-        "//tests/utils/test_helper:gated_process",
-        "//score/launch_manager",
-    ],
-    config = ":config.json",
+exports_files(
+    ["config.json"],
+    visibility = ["//tests/integration/run_target_requests:__subpackages__"],
 )
