@@ -1874,6 +1874,82 @@ TEST(ComponentTest, SupervisionActivatedWhenReady)
     static_cast<void>(component.activate(cpp::stop_token{}));
 }
 
+/// @brief Configuration of a supervised, self-terminating component.
+std::shared_ptr<configuration::ComponentConfig> supervisedSelfTerminatingConfig()
+{
+    auto config = supervisedConfig();
+    config->component_properties.application_profile.is_self_terminating = true;
+    return config;
+}
+
+TEST(ComponentTest, SupervisionNotActivatedWhenProcessTerminatedWhileWaitingForReadyCondition)
+{
+    RecordProperty(
+        "Description",
+        "Given a supervised, self-terminating component waiting for its ready condition. "
+        "When its process exits with status 0 and the ready condition is met. "
+        "Then activation succeeds without activating supervision for the terminated process.");
+
+    NiceMock<MockSupervisionFactory> factory;
+    auto handle = std::make_unique<NiceMock<MockAliveSupervisionHandle>>();
+    auto* const supervision = handle.get();
+    provideSupervision(factory, std::move(handle));
+
+    auto start_action = std::make_unique<MockStartAction>();
+    EXPECT_CALL(*start_action, start(_, _)).WillOnce(kStartsProcess);
+
+    auto ready_condition = std::make_unique<NiceMock<MockReadyCondition>>();
+    auto* const ready_condition_ptr = ready_condition.get();
+
+    Component component(
+        std::move(start_action),
+        std::make_unique<StrictMock<MockStopAction>>(),
+        std::make_unique<StrictMock<MockForceStopAction>>(),
+        std::move(ready_condition),
+        factory,
+        supervisedSelfTerminatingConfig());
+
+    EXPECT_CALL(*ready_condition_ptr, wait(_, _, _))
+        .WillOnce(Invoke([&component](cpp::stop_token, const Handle&, std::chrono::milliseconds) {
+            EXPECT_EQ(terminateFromOtherThread(component, 0), IComponent::TerminationResult::kIgnore);
+            return Result<void>{};
+        }));
+    EXPECT_CALL(*supervision, activateSupervision(_)).Times(0);
+
+    EXPECT_EQ(component.activate(cpp::stop_token{}), IComponent::RequestResult::kSuccess);
+    EXPECT_TRUE(component.active());
+}
+
+TEST(ComponentTest, SupervisionNotActivatedWhenProcessTerminatedBeforeTracking)
+{
+    RecordProperty(
+        "Description",
+        "Given a supervised, self-terminating component whose process exits with status 0 before it is tracked. "
+        "When the component is activated and its ready condition is met. "
+        "Then activation succeeds without activating supervision for the terminated process.");
+
+    NiceMock<MockSupervisionFactory> factory;
+    auto handle = std::make_unique<NiceMock<MockAliveSupervisionHandle>>();
+    auto* const supervision = handle.get();
+    provideSupervision(factory, std::move(handle));
+
+    auto start_action = std::make_unique<MockStartAction>();
+    EXPECT_CALL(*start_action, start(_, _)).WillOnce(Return(Result<StartedResource>{StartedResource{mock_handle, 0}}));
+
+    Component component(
+        std::move(start_action),
+        std::make_unique<StrictMock<MockStopAction>>(),
+        std::make_unique<StrictMock<MockForceStopAction>>(),
+        std::make_unique<NiceMock<MockReadyCondition>>(),
+        factory,
+        supervisedSelfTerminatingConfig());
+
+    EXPECT_CALL(*supervision, activateSupervision(_)).Times(0);
+
+    EXPECT_EQ(component.activate(cpp::stop_token{}), IComponent::RequestResult::kSuccess);
+    EXPECT_TRUE(component.active());
+}
+
 TEST(ComponentTest, SupervisionActivationFailureStopsProcess)
 {
     RecordProperty(

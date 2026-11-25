@@ -159,7 +159,8 @@ class Component final : public IComponent
     {
         Handle handle_;
 
-        /// @brief Monotonic time at which supervision was activated, 0 if unsupervised.
+        /// @brief Monotonic time at which supervision was activated, 0 if unsupervised or if the
+        ///        resource had already terminated when it became ready.
         std::chrono::nanoseconds supervision_start_;
     };
 

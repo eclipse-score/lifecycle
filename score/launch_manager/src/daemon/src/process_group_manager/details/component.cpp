@@ -209,14 +209,19 @@ IComponent::RequestResult Component::completeActivation(const Result<void>& read
         return RequestResult::kFailure;
     }
 
-    const std::optional<std::chrono::nanoseconds> supervision_start = activateSupervision();
-    if (!supervision_start.has_value())
+    std::chrono::nanoseconds supervision_start{0};
+    if (isAlive(starting->handle_))
     {
-        return RequestResult::kFailure;
+        const std::optional<std::chrono::nanoseconds> started = activateSupervision();
+        if (!started.has_value())
+        {
+            return RequestResult::kFailure;
+        }
+        supervision_start = started.value();
     }
 
     const Handle handle = starting->handle_;
-    state_ = ReadyState{handle, supervision_start.value()};
+    state_ = ReadyState{handle, supervision_start};
     return RequestResult::kSuccess;
 }
 
