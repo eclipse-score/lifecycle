@@ -40,6 +40,14 @@ cc_library(
         "socket.hpp",
     ],
     include_prefix = "score/mw/launch_manager/alive_monitor/details/ipc",
+    linkopts = select({
+        "@platforms//os:qnx": [
+            "-lsocket",
+        ],
+        "@platforms//os:linux": [
+            "-lrt",
+        ],
+    }),
     strip_include_prefix = "/score/launch_manager/src/daemon/src/alive_monitor/details/ipc",
     visibility = [
         "//examples/control_application:__pkg__",
