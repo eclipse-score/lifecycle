@@ -972,6 +972,78 @@
     "url": ""
   },
   {
+    "name": "test_cpp_alive",
+    "file": "tests/integration/alive/cpp_alive/cpp_alive.py",
+    "line": 19,
+    "need": "comp_req__launch_man__report_lang_support",
+    "verify_type": "partially",
+    "result": "passed",
+    "result_text": "",
+    "repo_name": "local_repo",
+    "hash": "",
+    "url": ""
+  },
+  {
+    "name": "test_cpp_alive",
+    "file": "tests/integration/alive/cpp_alive/cpp_alive.py",
+    "line": 19,
+    "need": "comp_req__launch_man__alive_failure",
+    "verify_type": "partially",
+    "result": "passed",
+    "result_text": "",
+    "repo_name": "local_repo",
+    "hash": "",
+    "url": ""
+  },
+  {
+    "name": "test_cpp_alive",
+    "file": "tests/integration/alive/cpp_alive/cpp_alive.py",
+    "line": 19,
+    "need": "comp_req__launch_man__report_liveliness",
+    "verify_type": "partially",
+    "result": "passed",
+    "result_text": "",
+    "repo_name": "local_repo",
+    "hash": "",
+    "url": ""
+  },
+  {
+    "name": "test_rust_alive",
+    "file": "tests/integration/alive/rust_alive/rust_alive.py",
+    "line": 19,
+    "need": "comp_req__launch_man__report_lang_support",
+    "verify_type": "partially",
+    "result": "passed",
+    "result_text": "",
+    "repo_name": "local_repo",
+    "hash": "",
+    "url": ""
+  },
+  {
+    "name": "test_rust_alive",
+    "file": "tests/integration/alive/rust_alive/rust_alive.py",
+    "line": 19,
+    "need": "comp_req__launch_man__alive_failure",
+    "verify_type": "partially",
+    "result": "passed",
+    "result_text": "",
+    "repo_name": "local_repo",
+    "hash": "",
+    "url": ""
+  },
+  {
+    "name": "test_rust_alive",
+    "file": "tests/integration/alive/rust_alive/rust_alive.py",
+    "line": 19,
+    "need": "comp_req__launch_man__report_liveliness",
+    "verify_type": "partially",
+    "result": "passed",
+    "result_text": "",
+    "repo_name": "local_repo",
+    "hash": "",
+    "url": ""
+  },
+  {
     "name": "test_recovery_action_simple_rep_failure",
     "file": "tests/integration/process_simple_rep_failure/test.py",
     "line": 19,

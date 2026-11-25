@@ -12,7 +12,7 @@
           "CodeLinks": [
             {
               "file": "score/launch_manager/src/daemon/src/process_group_manager/details/transition.hpp",
-              "line": 255,
+              "line": 258,
               "tag": "// req-Id:",
               "need": "comp_req__launch_man__dep_based_startup_order",
               "full_line": "// req-Id: comp_req__launch_man__dep_based_startup_order"
@@ -614,6 +614,24 @@
               "verify_type": "partially",
               "result": "passed",
               "result_text": ""
+            },
+            {
+              "name": "test_cpp_alive",
+              "file": "tests/integration/alive/cpp_alive/cpp_alive.py",
+              "line": 19,
+              "need": "comp_req__launch_man__alive_failure",
+              "verify_type": "partially",
+              "result": "passed",
+              "result_text": ""
+            },
+            {
+              "name": "test_rust_alive",
+              "file": "tests/integration/alive/rust_alive/rust_alive.py",
+              "line": 19,
+              "need": "comp_req__launch_man__alive_failure",
+              "verify_type": "partially",
+              "result": "passed",
+              "result_text": ""
             }
           ]
         }
@@ -1164,6 +1182,58 @@
               "file": "tests/integration/smoke/test.py",
               "line": 19,
               "need": "comp_req__launch_man__start_named_run_target",
+              "verify_type": "partially",
+              "result": "passed",
+              "result_text": ""
+            }
+          ]
+        }
+      },
+      {
+        "need": "comp_req__launch_man__report_lang_support",
+        "links": {
+          "CodeLinks": [],
+          "TestLinks": [
+            {
+              "name": "test_cpp_alive",
+              "file": "tests/integration/alive/cpp_alive/cpp_alive.py",
+              "line": 19,
+              "need": "comp_req__launch_man__report_lang_support",
+              "verify_type": "partially",
+              "result": "passed",
+              "result_text": ""
+            },
+            {
+              "name": "test_rust_alive",
+              "file": "tests/integration/alive/rust_alive/rust_alive.py",
+              "line": 19,
+              "need": "comp_req__launch_man__report_lang_support",
+              "verify_type": "partially",
+              "result": "passed",
+              "result_text": ""
+            }
+          ]
+        }
+      },
+      {
+        "need": "comp_req__launch_man__report_liveliness",
+        "links": {
+          "CodeLinks": [],
+          "TestLinks": [
+            {
+              "name": "test_cpp_alive",
+              "file": "tests/integration/alive/cpp_alive/cpp_alive.py",
+              "line": 19,
+              "need": "comp_req__launch_man__report_liveliness",
+              "verify_type": "partially",
+              "result": "passed",
+              "result_text": ""
+            },
+            {
+              "name": "test_rust_alive",
+              "file": "tests/integration/alive/rust_alive/rust_alive.py",
+              "line": 19,
+              "need": "comp_req__launch_man__report_liveliness",
               "verify_type": "partially",
               "result": "passed",
               "result_text": ""
