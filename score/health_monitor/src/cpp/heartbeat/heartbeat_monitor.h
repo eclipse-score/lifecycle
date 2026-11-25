@@ -27,11 +27,11 @@ class HealthMonitorBuilder;
 namespace score::mw::health::heartbeat
 {
 
-/// Builder for `HeartbeatMonitor`.
+/// @brief Builder for `HeartbeatMonitor`.
 class HeartbeatMonitorBuilder final : public internal::RustDroppable<HeartbeatMonitorBuilder>
 {
   public:
-    /// Create a new `HeartbeatMonitorBuilder`.
+    /// @brief Create a new `HeartbeatMonitorBuilder`.
     ///
     /// - `range` - time range between heartbeats.
     HeartbeatMonitorBuilder(const TimeRange& range);

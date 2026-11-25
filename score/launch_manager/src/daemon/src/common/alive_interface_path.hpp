@@ -24,7 +24,7 @@
 namespace score::mw::lifecycle::internal
 {
 
-/// Returns the IPC socket path for the alive monitoring interface of a component.
+/// @brief Returns the IPC socket path for the alive monitoring interface of a component.
 inline std::string aliveInterfacePath(const IdentifierHash& component_name)
 {
     // digits10 is the number of digits that can be represented without change, the maximum value has one digit more

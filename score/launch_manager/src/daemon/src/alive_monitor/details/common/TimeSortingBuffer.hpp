@@ -23,8 +23,8 @@
 namespace score::mw::lifecycle::internal::saf::common
 {
 
-/// Time Sorting Buffer template class
-/// Sorts a given type (TimeSortedElementType) into a buffer with chronological order (oldest first),
+/// @brief Time Sorting Buffer template class
+/// @details Sorts a given type (TimeSortedElementType) into a buffer with chronological order (oldest first),
 /// with the help of a additional provided timestamp value.
 /// Elements are retrieved with getNextElement() from the beginning of the buffer (i.e. oldest first).
 /// The class uses dynamic memory allocation only during construction, after construction no further
@@ -43,7 +43,7 @@ class TimeSortingBuffer
         "Type must be nothrow move assignable");
 
   public:
-    /// Constructor
+    /// @brief Constructor
     /// @param [in] f_bufferSize    Number of available buffer elements
     explicit TimeSortingBuffer(uint16_t f_bufferSize) noexcept(false) : time_sorted_buffer_(f_bufferSize)
     {
@@ -58,8 +58,9 @@ class TimeSortingBuffer
     /// @brief Default move assignment
     TimeSortingBuffer& operator=(TimeSortingBuffer&&) noexcept(true) = default;
 
-    /// Push entry to buffer
-    /// Pushes an element of the given type (TimeSortingElement) to the buffer in chronological order (oldest first)
+    /// @brief Push entry to buffer
+    /// @details Pushes an element of the given type (TimeSortingElement) to the buffer in chronological order (oldest
+    /// first)
     /// @warning  If the input type (TimeSortedElementType) has a constructor that can throw then this function should
     /// be considered noexcept(false).  std::bad_alloc and std::length_error are not thrown here because it is fixed
     /// size vector. Extension or resizing are not done in fixed size vector.
@@ -80,8 +81,8 @@ class TimeSortingBuffer
         return isSuccess;
     }
 
-    /// Get next element
-    /// Returns the next element in chronological order each time the function is called
+    /// @brief Get next element
+    /// @details Returns the next element in chronological order each time the function is called
     /// First call:  oldest
     /// Second call: oldest + 1
     /// ...
@@ -109,7 +110,7 @@ class TimeSortingBuffer
         return element_p;
     }
 
-    /// Reset the time sorting history buffer
+    /// @brief Reset the time sorting history buffer
     void clear(void) noexcept(true)
     {
         sort_chain_start_ = nullptr;
@@ -119,8 +120,8 @@ class TimeSortingBuffer
     }
 
   private:
-    /// Sort Chain Element
-    /// Structure used for sorting the elements
+    /// @brief Sort Chain Element
+    /// @details Structure used for sorting the elements
     struct SortChainElement
     {
         SortChainElement* previous_p{
@@ -130,8 +131,8 @@ class TimeSortingBuffer
         std::chrono::nanoseconds timestamp{0U};  // Timestamp used for sorting the elements
     };
 
-    /// Sort elements
-    /// Sort elements into an chronological order (oldest first)
+    /// @brief Sort elements
+    /// @details Sort elements into an chronological order (oldest first)
     /// @param [in] f_newChainElement_r     Reference to new added element which needs to be sorted into the chain
     void sort(SortChainElement& f_newChainElement_r) noexcept(true)
     {
@@ -167,8 +168,8 @@ class TimeSortingBuffer
         }
     }
 
-    /// Push element to front of chain
-    /// Push element to front of chain chronological oldest element.
+    /// @brief Push element to front of chain
+    /// @details Push element to front of chain chronological oldest element.
     /// @param [in] f_newChainElement_r     Reference to new added element which needs to be sorted into the chain
     /// @param [in] f_firstChainElement_p   Pointer to first element of the sort chain (will be second element after the
     /// call)
@@ -185,7 +186,7 @@ class TimeSortingBuffer
         sort_chain_start_ = &f_newChainElement_r;
     }
 
-    /// Push element after a given element
+    /// @brief Push element after a given element
     /// @param [in] f_newChainElement_r  Reference to new added element which needs to be sorted into the chain
     /// @param [in] f_ChainElement_r     Reference to element after which the new element will be inserted
     void pushAfter(SortChainElement& f_newChainElement_r, SortChainElement& f_ChainElement_r) noexcept(true)
@@ -203,16 +204,16 @@ class TimeSortingBuffer
         }
     }
 
-    /// Vector of chain elements sorted based on timestamp
+    /// @brief Vector of chain elements sorted based on timestamp
     FixedSizeVector<SortChainElement> time_sorted_buffer_{};
 
-    /// Current sort chain start element (oldest)
+    /// @brief Current sort chain start element (oldest)
     SortChainElement* sort_chain_start_ = nullptr;
 
-    /// Current sort chain end element (newest)
+    /// @brief Current sort chain end element (newest)
     SortChainElement* sort_chain_end_ = nullptr;
 
-    /// Last reported element, used by getNextElement()
+    /// @brief Last reported element, used by getNextElement()
     SortChainElement* last_reported_element_ = nullptr;
 };
 

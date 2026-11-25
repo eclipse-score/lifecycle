@@ -36,18 +36,21 @@ class IWatchdogIf
 #ifdef __QNXNTO__
     /// @brief Minimum supported timeout value in ms for QNX target
     static constexpr std::uint16_t kTimeoutMinMillis{100U};
+
     /// @brief Only timeout values are valid where (timeout % resolution) == 0
     static constexpr std::uint16_t kTimeoutResolution{1U};
 #else
     /// @brief Minimum supported timeout value in ms for Linux target
     static constexpr std::uint16_t kTimeoutMinMillis{1000U};
+
     /// @brief Only timeout values are valid where (timeout % resolution) == 0
     static constexpr std::uint16_t kTimeoutResolution{1000U};
 #endif
+
     /// @brief Maximum supported timeout value in ms
     static constexpr std::uint16_t kTimeoutMaxMillis{30U /*seconds*/ * 1000U /*millis per second*/};
 
-    /// The main loop cycle time must be strictly less than the minimum watchdog timeout to ensure that
+    /// @brief The main loop cycle time must be strictly less than the minimum watchdog timeout to ensure that
     /// the watchdog timeout cannot expire during an unblocked run of the main loop.
     static_assert(
         score::mw::lifecycle::internal::kMainLoopCycleTimeMs < kTimeoutMinMillis,
@@ -122,9 +125,14 @@ class IWatchdogIf
     /// @brief Enumeration of Watchdog Interface library states
     enum class ELibState : uint8_t
     {
-        idle = 0U,       ///< No watchdog has been activated
-        activated = 1U,  ///< At least one watchdog is active
-        react = 2U       ///< Watchdog triggered, this state cannot be left
+        /// @brief No watchdog has been activated
+        idle = 0U,
+
+        /// @brief At least one watchdog is active
+        activated = 1U,
+
+        /// @brief Watchdog triggered, this state cannot be left
+        react = 2U
     };
 };
 

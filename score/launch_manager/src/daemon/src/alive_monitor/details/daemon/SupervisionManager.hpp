@@ -112,18 +112,19 @@ class SupervisionManager
     /// @param [in] f_syncTimestamp   Timestamp for cyclic synchronization
     void evaluateSupervisions(const std::chrono::nanoseconds f_syncTimestamp);
 
-    /// Vector of Process states
+    /// @brief Vector of Process states
     std::vector<ifexm::ObservableEvent> process_states_;
 
-    /// Vector of Alive Interface IPCs
+    /// @brief Vector of Alive Interface IPCs
     std::vector<ifappl::CheckpointIpcServer> alive_if_ipcs_;
 
-    /// Vector of Alive Interfaces
+    /// @brief Vector of Alive Interfaces
     std::vector<ifappl::MonitorIfDaemon> alive_interfaces_;
 
-    /// Vector of Alive Supervisions
+    /// @brief Vector of Alive Supervisions
     std::vector<supervision::Alive> alive_supervisions_;
 
+    /// @brief Factory used to construct alive supervision workers
     std::unique_ptr<factory::IAliveWorkerFactory> flat_cfg_factory_;
 
     /// @brief The number of alive supervisions we expect to successfully construct
