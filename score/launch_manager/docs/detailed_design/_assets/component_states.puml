@@ -47,9 +47,9 @@ Terminating -up-> Terminated : terminated
 ForcedShutdown -up[#red]-> Terminated : <color:red>kMaxSigKillDelay expired, giving up</color>
 
 legend bottom
-  A failed activation is retried up to activation_retry_attempts times; afterwards activate() fails.
-  A self-terminating resource exiting with 0 is expected and keeps the component Ready.
-  Every failure ends in Terminated, so the component can always be activated again.
+  A failed activation is retried up to //activation_retry_attempts// times; afterwards //activate()// fails.
+  A self-terminating resource exiting with 0 is expected and keeps the component **Ready**.
+  Every failure ends in **Terminated**, so the component can always be activated again.
 endlegend
 
 @enduml

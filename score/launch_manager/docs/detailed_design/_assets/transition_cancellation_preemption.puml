@@ -70,21 +70,10 @@ end note
 alt #F2FAF2 the task had not been started when the cancellation arrived
     Monitor -> Monitor: cancellation already requested
     Monitor -> EventQueue: job skipped
-    note right of Monitor
-      <b>Cancellation point 1</b>
-      The component is not touched at all and keeps the state it
-      had before the transition.
-    end note
 
 else #FFF8E8 Component Activation is waiting for its ready condition
     Monitor -> Component ++: activate
     Component -> Component: the cancellation interrupts the wait,\nthe startup attempt fails
-    note right of Component
-      <b>Cancellation point 2</b>
-      Every ready condition is abortable: the Running report, a
-      configured file, the termination of the process, and a
-      sequence of these.
-    end note
     Component -> OS ++: stop the process of the failed attempt\n(SIGTERM, then SIGKILL after the shutdown timeout)
     OS --> Component --: process terminated
     Component -> Component: no further attempt is started
@@ -100,14 +89,13 @@ else #FFF8E8 Component Activation is waiting for its ready condition
 else #FFF8E8 Component Activation is between two startup attempts
     Monitor -> Component ++: activate
     Component -> Component: no further attempt is started
-    Component --> Monitor: activation failed
-    Monitor -> EventQueue: component failed to activate
     note right of Monitor
-      <b>Cancellation point 3</b>
       The process of the failed attempt has already been stopped
       before the cancellation is checked. The component is left
       stopped.
     end note
+    Component --> Monitor: activation failed
+    Monitor -> EventQueue: component failed to activate
     deactivate Component
 
 else #Pink the component is stopping a process

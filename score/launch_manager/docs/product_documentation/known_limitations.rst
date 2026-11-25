@@ -28,7 +28,7 @@ Component
   ``run_target`` set to ``fallback_run_target``.
 * The ``ready_timeout_ms`` is used as the timeout until process state Running is
   reached, even in case the ReadyCondition is ``process_state:Terminated``.
-
+* The case where a process does not terminate in response to SIGKILL is not yet correctly handled. See https://github.com/eclipse-score/lifecycle/issues/1079
 
 Run Target
 ----------
