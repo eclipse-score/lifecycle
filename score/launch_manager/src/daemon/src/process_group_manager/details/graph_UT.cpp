@@ -28,6 +28,7 @@
 #include "score/mw/launch_manager/alive_monitor/mock_supervision_factory.hpp"
 #include "score/mw/launch_manager/configuration/config.hpp"
 #include "score/mw/launch_manager/osal/ipc_comms.hpp"
+#include "score/mw/launch_manager/osal/mock_ifile_waiter.hpp"
 #include "score/mw/launch_manager/process_group_manager/details/graph.hpp"
 #include "score/mw/launch_manager/process_group_manager/mock_iprocess.hpp"
 
@@ -70,7 +71,7 @@ class GraphTest : public ::testing::Test
             10U,
             graph_config_,
             job_queue_,
-            ProcessHandling{&process_interface_, mock_process_map_, nullptr, mock_factory_});
+            ProcessHandling{&process_interface_, mock_process_map_, &file_waiter_, mock_factory_});
     }
 
     void TearDown() override
@@ -222,6 +223,7 @@ class GraphTest : public ::testing::Test
     GraphConfig graph_config_{};
     std::shared_ptr<WorkerQueue> job_queue_ = std::make_shared<WorkerQueue>();
     StrictMock<osal::MockIProcess> process_interface_{};
+    StrictMock<osal::MockIFileWaiter> file_waiter_{};
     std::shared_ptr<MockProcessMap> mock_process_map_ = std::make_shared<MockProcessMap>();
     NiceMock<MockAliveSupervisionHandle> mock_alive_supervision_handle_{};
     MockSupervisionFactory mock_factory_{};

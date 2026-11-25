@@ -373,6 +373,7 @@ lm_cc_test(
         "//score/launch_manager/src/daemon/src/alive_monitor:mock_supervision_factory",
         "//score/launch_manager/src/daemon/src/configuration:config",
         "//score/launch_manager/src/daemon/src/osal:ipc_comms",
+        "//score/launch_manager/src/daemon/src/osal:mock_ifile_waiter",
         "//score/launch_manager/src/daemon/src/process_group_manager:mock_iprocess",
         "@googletest//:gtest_main",
     ],
