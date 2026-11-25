@@ -27,7 +27,7 @@ cc_binary(
 )
 
 integration_test(
-    name = "request_during_recovery",
+    name = "non_forced_request_during_recovery",
     srcs = ["test.py"],
     binaries = [
         ":control_client_test_driver",
