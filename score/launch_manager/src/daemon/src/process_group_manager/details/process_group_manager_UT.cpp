@@ -44,11 +44,12 @@ using namespace configuration;
 using namespace watchdog;
 using saf::daemon::MockAliveMonitor;
 
-Config makeMinimalConfig(ApplicationType application_type = ApplicationType::Native)
+ComponentConfig makeComponentConfig(std::string name)
 {
     ComponentConfig component;
-    component.name = "comp_a";
-    component.component_properties.application_profile.application_type = application_type;
+    component.name = std::move(name);
+    component.component_properties.binary_name = "true";
+    component.component_properties.application_profile.application_type = ApplicationType::Native;
     component.component_properties.application_profile.is_self_terminating = true;
     component.component_properties.ready_condition = ReadyCondition{ProcessState::Running};
     component.deployment_config.ready_timeout_ms = 500U;
@@ -59,29 +60,17 @@ Config makeMinimalConfig(ApplicationType application_type = ApplicationType::Nat
     component.deployment_config.sandbox.gid = getgid();
     component.deployment_config.sandbox.scheduling_policy = SCHED_OTHER;
     component.deployment_config.sandbox.scheduling_priority = 0;
+    return component;
+}
 
+std::vector<RunTargetConfig> makeStandardRunTargets(std::string_view first_depends_on)
+{
     RunTargetConfig startup;
     startup.name = "Startup";
-    startup.depends_on = {"comp_a"};
+    startup.depends_on = {std::string(first_depends_on)};
     startup.transition_timeout_ms = 5000U;
     startup.recovery_action.run_target = "fallback_run_target";
 
-    FallbackRunTargetConfig fallback;
-    fallback.transition_timeout_ms = 1500U;
-
-    AliveSupervisionConfig alive;
-    alive.evaluation_cycle_ms = 500U;
-
-    WatchdogConfig watchdog;
-    watchdog.device_file_path = "/dev/watchdog0";
-    watchdog.max_timeout_ms = 5000U;
-    watchdog.deactivate_on_shutdown = true;
-    watchdog.require_magic_close = false;
-
-    std::vector<ComponentConfig> components;
-    components.push_back(std::move(component));
-
-    // Shutdown always transitions to the "Off" Run Target, so the configuration must provide one.
     RunTargetConfig off;
     off.name = "Off";
     off.transition_timeout_ms = 5000U;
@@ -89,18 +78,52 @@ Config makeMinimalConfig(ApplicationType application_type = ApplicationType::Nat
     std::vector<RunTargetConfig> run_targets;
     run_targets.push_back(std::move(startup));
     run_targets.push_back(std::move(off));
+    return run_targets;
+}
+
+AliveSupervisionConfig makeStandardAliveSupervision()
+{
+    AliveSupervisionConfig alive;
+    alive.evaluation_cycle_ms = 500U;
+    return alive;
+}
+
+WatchdogConfig makeStandardWatchdog()
+{
+    WatchdogConfig watchdog;
+    watchdog.device_file_path = "/dev/watchdog0";
+    watchdog.max_timeout_ms = 5000U;
+    watchdog.deactivate_on_shutdown = true;
+    watchdog.require_magic_close = false;
+    return watchdog;
+}
+
+FallbackRunTargetConfig makeStandardFallback()
+{
+    FallbackRunTargetConfig fallback;
+    fallback.transition_timeout_ms = 1500U;
+    return fallback;
+}
+
+Config makeMinimalConfig(ApplicationType application_type = ApplicationType::Native)
+{
+    ComponentConfig component = makeComponentConfig("comp_a");
+    component.component_properties.application_profile.application_type = application_type;
+
+    std::vector<ComponentConfig> components;
+    components.push_back(std::move(component));
 
     return ConfigBuilder{}
         .setComponents(std::move(components))
-        .setRunTargets(std::move(run_targets))
+        .setRunTargets(makeStandardRunTargets("comp_a"))
         .setInitialRunTarget("Startup")
-        .setFallbackRunTarget(std::move(fallback))
-        .setAliveSupervision(alive)
-        .setWatchdog(watchdog)
+        .setFallbackRunTarget(makeStandardFallback())
+        .setAliveSupervision(makeStandardAliveSupervision())
+        .setWatchdog(makeStandardWatchdog())
         .build();
 }
 
-class ProcessGroupManagerWatchdogTest : public Test
+class ProcessGroupManagerTest : public Test
 {
   protected:
     static constexpr osal::ProcessID kMockPid = 100;
@@ -112,12 +135,9 @@ class ProcessGroupManagerWatchdogTest : public Test
         return ApplicationType::Native;
     }
 
-    void expectNormalStartup()
+    virtual std::unique_ptr<MockWatchdogIf> makeWatchdog()
     {
-        EXPECT_CALL(*alive_monitor_, init()).WillOnce(Return(true));
-        EXPECT_CALL(*alive_monitor_, startMonitoring());
-        EXPECT_CALL(*watchdog_, init(_, _)).WillOnce(Return(true));
-        EXPECT_CALL(*watchdog_, enable()).WillOnce(Return(true));
+        return std::make_unique<NiceMock<MockWatchdogIf>>();
     }
 
     void SetUp() override
@@ -143,7 +163,7 @@ class ProcessGroupManagerWatchdogTest : public Test
             return publisher;
         }));
 
-        auto watchdog = std::make_unique<StrictMock<MockWatchdogIf>>();
+        auto watchdog = makeWatchdog();
         watchdog_ = watchdog.get();
 
         // Mock the proc launcher calls
@@ -171,6 +191,14 @@ class ProcessGroupManagerWatchdogTest : public Test
         process_group_manager_->deinitialize();
     }
 
+    void expectNormalStartup()
+    {
+        EXPECT_CALL(*alive_monitor_, init()).WillOnce(Return(true));
+        EXPECT_CALL(*alive_monitor_, startMonitoring());
+        EXPECT_CALL(*watchdog_, init(_, _)).WillOnce(Return(true));
+        EXPECT_CALL(*watchdog_, enable()).WillOnce(Return(true));
+    }
+
     MockAliveMonitor* alive_monitor_{};
     MockRecoveryClient* recovery_client_{};
     IRecoveryClient::RecoveryRequestCallback recovery_callback_{};
@@ -180,7 +208,16 @@ class ProcessGroupManagerWatchdogTest : public Test
     std::unique_ptr<ProcessGroupManager> process_group_manager_;
 };
 
-TEST_F(ProcessGroupManagerWatchdogTest, GivenMinimalConfig_ExpectWatchdogMethodsCalledInSequence_WhenInitializeCalled)
+class WatchdogUseTest : public ProcessGroupManagerTest
+{
+  protected:
+    std::unique_ptr<MockWatchdogIf> makeWatchdog() override
+    {
+        return std::make_unique<StrictMock<MockWatchdogIf>>();
+    }
+};
+
+TEST_F(WatchdogUseTest, GivenMinimalConfig_ExpectWatchdogMethodsCalledInSequence_WhenInitializeCalled)
 {
     // Given
     // The minimal configuration is handed to the ProcessGroupManager on construction, in SetUp().
@@ -198,7 +235,7 @@ TEST_F(ProcessGroupManagerWatchdogTest, GivenMinimalConfig_ExpectWatchdogMethods
     EXPECT_TRUE(initialize_result);
 }
 
-TEST_F(ProcessGroupManagerWatchdogTest, GivenMinimalConfig_ExpectWatchdogServicePerCycle_WhenRunCalled)
+TEST_F(WatchdogUseTest, GivenMinimalConfig_ExpectWatchdogServicePerCycle_WhenRunCalled)
 {
     // Expected
     expectNormalStartup();
@@ -218,7 +255,7 @@ TEST_F(ProcessGroupManagerWatchdogTest, GivenMinimalConfig_ExpectWatchdogService
     EXPECT_TRUE(run_result);
 }
 
-TEST_F(ProcessGroupManagerWatchdogTest, GivenMinimalConfig_ExpectWatchdogFired_WhenRecoveryClientOverflowsDuringRunCall)
+TEST_F(WatchdogUseTest, GivenMinimalConfig_ExpectWatchdogFired_WhenRecoveryClientOverflowsDuringRunCall)
 {
     // Given
     // More than the component event queue can hold (capacity == number of OS processes * 3; makeMinimalConfig has a
@@ -252,7 +289,7 @@ TEST_F(ProcessGroupManagerWatchdogTest, GivenMinimalConfig_ExpectWatchdogFired_W
     EXPECT_TRUE(run_result);
 }
 
-TEST_F(ProcessGroupManagerWatchdogTest, GivenMinimalConfig_ExpectWatchdogDisabled_WhenDeinitializeCalled)
+TEST_F(WatchdogUseTest, GivenMinimalConfig_ExpectWatchdogDisabled_WhenDeinitializeCalled)
 {
     // Expected
     expectNormalStartup();
@@ -266,7 +303,7 @@ TEST_F(ProcessGroupManagerWatchdogTest, GivenMinimalConfig_ExpectWatchdogDisable
     process_group_manager_->deinitialize();
 }
 
-class ProcessGroupManagerReportingTest : public ProcessGroupManagerWatchdogTest
+class ProcessGroupManagerReportingTest : public ProcessGroupManagerTest
 {
   protected:
     ApplicationType applicationType() const override
@@ -313,7 +350,7 @@ TEST_F(ProcessGroupManagerReportingTest, GetActiveRunTargetAndSetRequestedRunTar
     run_thread.join();
 }
 
-TEST_F(ProcessGroupManagerWatchdogTest, GetActiveRunTargetWhenStoppedReturnsShuttingDownErrorPromptly)
+TEST_F(ProcessGroupManagerTest, GetActiveRunTargetWhenStoppedReturnsShuttingDownErrorPromptly)
 {
     RecordProperty(
         "Description",
@@ -332,6 +369,142 @@ TEST_F(ProcessGroupManagerWatchdogTest, GetActiveRunTargetWhenStoppedReturnsShut
     auto set_result = process_group_manager_->setRequestedRunTarget(IdentifierHash{"Startup"}, false);
     EXPECT_FALSE(set_result.has_value());
     EXPECT_EQ(set_result.error(), ExecErrc::kShuttingDown);
+}
+
+TEST_F(ProcessGroupManagerTest, TooManyProcessesFailsStartup)
+{
+    RecordProperty("Description", "Verify initialize() fails when more than 1024 processes are configured.");
+
+    std::vector<ComponentConfig> components;
+    for (int i = 0; i < 1025; ++i)
+    {
+        components.push_back(makeComponentConfig("comp_" + std::to_string(i)));
+    }
+
+    auto config = ConfigBuilder{}
+                      .setComponents(std::move(components))
+                      .setRunTargets(makeStandardRunTargets("comp_0"))
+                      .setInitialRunTarget("Startup")
+                      .setFallbackRunTarget(makeStandardFallback())
+                      .setAliveSupervision(makeStandardAliveSupervision())
+                      .setWatchdog(makeStandardWatchdog())
+                      .build();
+
+    auto pgm = std::make_unique<ProcessGroupManager>(
+        config.takeGraph(),
+        std::make_unique<NiceMock<MockAliveMonitor>>(),
+        std::make_shared<NiceMock<MockRecoveryClient>>(),
+        std::make_unique<NiceMock<MockWatchdogIf>>(),
+        config.takeWatchdog(),
+        std::make_unique<NiceMock<osal::MockIProcess>>());
+
+    // When
+    auto initialize_result = pgm->initialize();
+
+    // Then
+    EXPECT_FALSE(initialize_result);
+}
+
+TEST_F(ProcessGroupManagerTest, AliveMonitorErrorFailsStartup)
+{
+    RecordProperty("Description", "Verify initialize() fails when more than 1024 processes are configured.");
+
+    std::vector<ComponentConfig> components{};
+    components.push_back(makeComponentConfig("component"));
+
+    auto config = ConfigBuilder{}
+                      .setComponents(std::move(components))
+                      .setRunTargets(makeStandardRunTargets("comp_0"))
+                      .setInitialRunTarget("Startup")
+                      .setFallbackRunTarget(makeStandardFallback())
+                      .setAliveSupervision(makeStandardAliveSupervision())
+                      .setWatchdog(makeStandardWatchdog())
+                      .build();
+
+    auto alive_monitor = std::make_unique<NiceMock<MockAliveMonitor>>();
+    EXPECT_CALL(*alive_monitor, init).WillOnce(Return(false));
+
+    auto pgm = std::make_unique<ProcessGroupManager>(
+        config.takeGraph(),
+        std::move(alive_monitor),
+        std::make_shared<NiceMock<MockRecoveryClient>>(),
+        std::make_unique<NiceMock<MockWatchdogIf>>(),
+        config.takeWatchdog(),
+        std::make_unique<NiceMock<osal::MockIProcess>>());
+
+    // When
+    auto initialize_result = pgm->initialize();
+
+    // Then
+    EXPECT_FALSE(initialize_result);
+}
+
+TEST_F(ProcessGroupManagerTest, TooManyProcessesFailsStartup)
+{
+    RecordProperty("Description", "Verify initialize() fails when more than 1024 processes are configured.");
+
+    std::vector<ComponentConfig> components;
+    for (int i = 0; i < 1025; ++i)
+    {
+        components.push_back(makeComponentConfig("comp_" + std::to_string(i)));
+    }
+
+    auto config = ConfigBuilder{}
+                      .setComponents(std::move(components))
+                      .setRunTargets(makeStandardRunTargets("comp_0"))
+                      .setInitialRunTarget("Startup")
+                      .setFallbackRunTarget(makeStandardFallback())
+                      .setAliveSupervision(makeStandardAliveSupervision())
+                      .setWatchdog(makeStandardWatchdog())
+                      .build();
+
+    auto pgm = std::make_unique<ProcessGroupManager>(
+        config.takeGraph(),
+        std::make_unique<NiceMock<MockAliveMonitor>>(),
+        std::make_shared<NiceMock<MockRecoveryClient>>(),
+        std::make_unique<NiceMock<MockWatchdogIf>>(),
+        config.takeWatchdog(),
+        std::make_unique<NiceMock<osal::MockIProcess>>());
+
+    // When
+    auto initialize_result = pgm->initialize();
+
+    // Then
+    EXPECT_FALSE(initialize_result);
+}
+
+TEST_F(ProcessGroupManagerTest, AliveMonitorErrorFailsStartup)
+{
+    RecordProperty("Description", "Verify initialize() fails when more than 1024 processes are configured.");
+
+    std::vector<ComponentConfig> components{};
+    components.push_back(makeComponentConfig("component"));
+
+    auto config = ConfigBuilder{}
+                      .setComponents(std::move(components))
+                      .setRunTargets(makeStandardRunTargets("comp_0"))
+                      .setInitialRunTarget("Startup")
+                      .setFallbackRunTarget(makeStandardFallback())
+                      .setAliveSupervision(makeStandardAliveSupervision())
+                      .setWatchdog(makeStandardWatchdog())
+                      .build();
+
+    auto alive_monitor = std::make_unique<NiceMock<MockAliveMonitor>>();
+    EXPECT_CALL(*alive_monitor, init).WillOnce(Return(false));
+
+    auto pgm = std::make_unique<ProcessGroupManager>(
+        config.takeGraph(),
+        std::move(alive_monitor),
+        std::make_shared<NiceMock<MockRecoveryClient>>(),
+        std::make_unique<NiceMock<MockWatchdogIf>>(),
+        config.takeWatchdog(),
+        std::make_unique<NiceMock<osal::MockIProcess>>());
+
+    // When
+    auto initialize_result = pgm->initialize();
+
+    // Then
+    EXPECT_FALSE(initialize_result);
 }
 
 }  // namespace
