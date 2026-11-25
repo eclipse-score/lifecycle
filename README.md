@@ -50,7 +50,7 @@ The Health Monitoring library provides APIs for the following supervisions:
 
 These supervision results are translated to alive notifications that are sent to the Launch Manager via its *Alive API*.
 
-See the [C++ Supervised Example Application](examples/cpp_supervised_app) and [Rust Supervised Example Application](examples/rust_supervised_app).
+See the [C++ Supervised Example Application](examples/cpp_health_monitor_supervised_app) and [Rust Supervised Example Application](examples/rust_supervised_app).
 
 **Alive API**
 
@@ -73,7 +73,7 @@ Applications can report the *Running state* to the Launch Manager to signal that
 
 Applications may either use the higher-level [``score::mw::lifecycle::Application``](score/launch_manager/src/lifecycle_client/src/application.h) API or the lower-level [``score::mw::lifecycle::report_running``](score/launch_manager/src/lifecycle_client/src/report_running.h) function.
 
-See examples [Application Example](examples/cpp_lifecycle_app) and [report_running example](examples/cpp_supervised_app).
+See examples [Application Example](examples/cpp_lifecycle_app) and [report_running example](examples/cpp_health_monitor_supervised_app).
 
 **Control API**
 

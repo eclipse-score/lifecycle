@@ -1,5 +1,5 @@
 # *******************************************************************************
-# Copyright (c) 2025 Contributors to the Eclipse Foundation
+# Copyright (c) 2026 Contributors to the Eclipse Foundation
 #
 # See the NOTICE file(s) distributed with this work for additional
 # information regarding copyright ownership.
@@ -13,27 +13,11 @@
 load("@rules_cc//cc:defs.bzl", "cc_binary")
 
 cc_binary(
-    name = "cpp_supervised_app",
-    srcs = [
-        "main.cpp",
-    ],
-    copts = select({
-        "@platforms//os:qnx": [],
-        "@platforms//os:linux": [],
-    }),
-    linkopts = select({
-        "@platforms//os:qnx": [
-            "-lsocket",
-        ],
-        "@platforms//os:linux": [
-            "-lpthread",
-            "-lrt",
-        ],
-    }),
+    name = "cpp_alive_supervised_app",
+    srcs = ["main.cpp"],
     visibility = ["//visibility:public"],
     deps = [
-        "//score/health_monitor:health_monitoring_cc",
+        "//score/launch_manager:alive_cc",
         "//score/launch_manager:lifecycle_cc",
-        "@score_baselibs//score/log_rust/stdout_logger_cpp_init",
     ],
 )
