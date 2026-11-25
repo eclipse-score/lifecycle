@@ -16,6 +16,7 @@
 #include "score/mw/launch_manager/alive_monitor/mock_alive_monitor.hpp"
 #include "score/mw/launch_manager/alive_monitor/mock_alive_supervision_handle.hpp"
 #include "score/mw/launch_manager/alive_monitor/mock_supervision_factory.hpp"
+#include "score/mw/launch_manager/osal/ipc_comms.hpp"
 #include "score/mw/launch_manager/process_group_manager/mock_iprocess.hpp"
 #include "score/mw/launch_manager/recovery_client/mock_recovery_client.h"
 #include "score/mw/launch_manager/watchdog/mock_IWatchdogIf.hpp"
@@ -24,6 +25,8 @@
 #include <gtest/gtest.h>
 
 #include <sched.h>
+#include <array>
+#include <cstddef>
 #include <cstdint>
 #include <future>
 #include <memory>
@@ -146,11 +149,15 @@ class ProcessGroupManagerWatchdogTest : public Test
         auto watchdog = std::make_unique<StrictMock<MockWatchdogIf>>();
         watchdog_ = watchdog.get();
 
+        // A reporting component waits on and posts to the semaphore, so it must be initialised.
+        ASSERT_EQ(sync_->send_sync_.init(0U, false), osal::OsalReturnType::kSuccess);
+
         // Mock the proc launcher calls
         auto process_interface = std::make_unique<NiceMock<osal::MockIProcess>>();
         process_interface_ = process_interface.get();
         ON_CALL(*process_interface_, startProcess)
-            .WillByDefault(DoAll(SetArgReferee<0>(kMockPid), Return(osal::OsalReturnType::kSuccess)));
+            .WillByDefault(
+                DoAll(SetArgReferee<0>(kMockPid), SetArgReferee<1>(sync_), Return(osal::OsalReturnType::kSuccess)));
         ON_CALL(*process_interface_, waitForkRunning).WillByDefault(Return(osal::OsalReturnType::kSuccess));
         ON_CALL(*process_interface_, requestTermination).WillByDefault(Return(osal::OsalReturnType::kSuccess));
         ON_CALL(*process_interface_, forceTermination).WillByDefault(Return(osal::OsalReturnType::kFail));
@@ -169,8 +176,15 @@ class ProcessGroupManagerWatchdogTest : public Test
     void TearDown() override
     {
         process_group_manager_->deinitialize();
+        // The components share the semaphore, so they are destroyed before it is deinitialised.
+        process_group_manager_.reset();
+        static_cast<void>(sync_->send_sync_.deinit());
     }
 
+    /// @brief Shared memory of a started process. The launcher is mocked, so only the semaphore is used.
+    alignas(osal::IpcCommsSync) std::array<std::byte, sizeof(osal::IpcCommsSync)> sync_buffer_{};
+    const osal::IpcCommsP sync_{reinterpret_cast<osal::IpcCommsSync*>(sync_buffer_.data()), [](osal::IpcCommsSync*) {
+                                }};
     MockAliveMonitor* alive_monitor_{};
     MockRecoveryClient* recovery_client_{};
     IRecoveryClient::RecoveryRequestCallback recovery_callback_{};

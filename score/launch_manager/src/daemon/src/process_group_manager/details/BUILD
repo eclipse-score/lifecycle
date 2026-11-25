@@ -497,13 +497,12 @@ lm_cc_test(
 lm_cc_test(
     name = "process_group_manager_UT",
     srcs = ["process_group_manager_UT.cpp"],
-    # TODO: Adapt to Component and re-enable.
-    tags = ["manual"],
     deps = [
         "//score/launch_manager/src/daemon/src/alive_monitor:mock_alive_monitor",
         "//score/launch_manager/src/daemon/src/alive_monitor:mock_alive_supervision_handle",
         "//score/launch_manager/src/daemon/src/alive_monitor:mock_supervision_factory",
         "//score/launch_manager/src/daemon/src/configuration:config",
+        "//score/launch_manager/src/daemon/src/osal:ipc_comms",
         "//score/launch_manager/src/daemon/src/process_group_manager",
         "//score/launch_manager/src/daemon/src/process_group_manager:mock_iprocess",
         "//score/launch_manager/src/daemon/src/recovery_client:mock_recovery_client",
