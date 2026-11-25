@@ -129,10 +129,7 @@ bool ProcessGroupManager::initialize()
 
     createProcessComponentsObjects(total_processes);
 
-    if (!initializeProcessGroups())
-    {
-        return false;
-    }
+    initializeProcessGroups();
 
     alive_monitor_->startMonitoring();
 
@@ -179,7 +176,7 @@ void ProcessGroupManager::deinitialize()
     process_monitor_.reset();
 }
 
-bool ProcessGroupManager::initializeProcessGroups()
+void ProcessGroupManager::initializeProcessGroups()
 {
     graph_ = std::make_shared<Graph>(
         // size is +2 for fallback + off
@@ -190,7 +187,6 @@ bool ProcessGroupManager::initializeProcessGroups()
             process_interface_.get(), process_map_, &file_waiter_, alive_monitor_->getSupervisionFactory()});
 
     LM_LOG_DEBUG() << "Graph initialized successfully";
-    return true;
 }
 
 void ProcessGroupManager::createProcessComponentsObjects(std::size_t total_processes)
@@ -220,49 +216,44 @@ void ProcessGroupManager::createProcessComponentsObjects(std::size_t total_proce
         worker_jobs_, static_cast<uint32_t>(ProcessLimits::kNumWorkerThreads), *process_monitor_);
 }
 
-bool ProcessGroupManager::run()
+void ProcessGroupManager::run()
 {
     LM_LOG_DEBUG() << "run() at" << TIMESTAMP_MS();
 
-    bool result = startInitialTransition();
+    startInitialTransition();
     bool overflow_logged = false;
 
-    if (result)
+    while (!em_cancelled.load())
     {
-        while (!em_cancelled.load())
+        // Wait for something to happen...
+        // The wait is kept below the minimum watchdog timeout so that the wait plus per-iteration
+        // processing stays within budget for servicing the watchdog each cycle.
+
+        // Wait for a graph-relevant event (activation/deactivation completion or
+        // unexpected termination). All Graph state mutations happen here, on the main thread.
+        if (event_queue_->waitForEvents(
+                std::chrono::milliseconds(score::mw::lifecycle::internal::kMainLoopCycleTimeMs)))
         {
-            // Wait for something to happen...
-            // The wait is kept below the minimum watchdog timeout so that the wait plus per-iteration
-            // processing stays within budget for servicing the watchdog each cycle.
-
-            // Wait for a graph-relevant event (activation/deactivation completion or
-            // unexpected termination). All Graph state mutations happen here, on the main thread.
-            if (event_queue_->waitForEvents(
-                    std::chrono::milliseconds(score::mw::lifecycle::internal::kMainLoopCycleTimeMs)))
-            {
-                processComponentEvents();
-            }
-
-            if (event_queue_->getOverflow() && !overflow_logged)
-            {
-                LM_LOG_FATAL() << "ComponentEventQueue overflow - one or more events were lost";
-                overflow_logged = true;
-                watchdog_->fireWatchdogReaction();
-            }
-
-            if (graph_)
-            {
-                processGroupHandler(*graph_);
-            }
-
-            watchdog_->serviceWatchdog();
+            processComponentEvents();
         }
-        LM_LOG_INFO() << "ProcessGroupManager::run() - received SIGTERM, exiting";
+
+        if (event_queue_->getOverflow() && !overflow_logged)
+        {
+            LM_LOG_FATAL() << "ComponentEventQueue overflow - one or more events were lost";
+            overflow_logged = true;
+            watchdog_->fireWatchdogReaction();
+        }
+
+        if (graph_)
+        {
+            processGroupHandler(*graph_);
+        }
+
+        watchdog_->serviceWatchdog();
     }
+    LM_LOG_INFO() << "ProcessGroupManager::run() - received SIGTERM, exiting";
 
     allProcessGroupsOff();
-
-    return result;
 }
 
 void ProcessGroupManager::processComponentEvents()
@@ -286,11 +277,10 @@ void ProcessGroupManager::processComponentEvents()
     }
 }
 
-bool ProcessGroupManager::startInitialTransition()
+void ProcessGroupManager::startInitialTransition()
 {
     SCORE_LANGUAGE_FUTURECPP_ASSERT_MESSAGE(bool(graph_), "Graph not initialized");
     graph_->startInitialTransition(IdentifierHash{configuration_.initial_run_target_});
-    return true;
 }
 
 void ProcessGroupManager::allProcessGroupsOff()

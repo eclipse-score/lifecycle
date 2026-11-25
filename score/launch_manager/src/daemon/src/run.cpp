@@ -49,26 +49,6 @@
 namespace score::mw::lifecycle::internal
 {
 
-/// @brief Runs the LCM daemon.
-/// This function runs the LCM daemon by calling the run() method of the provided
-/// ProcessGroupManager object. It logs an information message if the run is successful,
-/// and an error message if it fails.
-/// @param process_group_manager The ProcessGroupManager object to run.
-/// @return True if the run succeeds, false otherwise.
-bool runLCMDaemon(ProcessGroupManager& process_group_manager)
-{
-    if (process_group_manager.run())
-    {
-        LM_LOG_DEBUG() << "LCM run successfully";
-        return true;
-    }
-    else
-    {
-        LM_LOG_ERROR() << "LCM run failed";
-        return false;
-    }
-}
-
 /// @brief Reserves a file descriptor.
 /// @param fd file descriptor to reserve.
 /// @warning This function can abort if system calls fail.
@@ -202,10 +182,7 @@ int run(int argc, const char* argv[])
             else
             {
                 control_provider = std::move(control_provider_result).value();
-                if (runLCMDaemon(*process_group_manager))
-                {
-                    exit_code = EXIT_SUCCESS;
-                }
+                process_group_manager->run();
             }
         }
 

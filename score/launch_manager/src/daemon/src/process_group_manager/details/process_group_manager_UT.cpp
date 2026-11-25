@@ -140,6 +140,11 @@ class ProcessGroupManagerTest : public Test
         return std::make_unique<NiceMock<MockWatchdogIf>>();
     }
 
+    virtual Config makeConfig()
+    {
+        return makeMinimalConfig(applicationType());
+    }
+
     void SetUp() override
     {
         RecordProperty("TestType", "unit-test");
@@ -148,6 +153,7 @@ class ProcessGroupManagerTest : public Test
         auto alive_monitor = std::make_unique<NiceMock<MockAliveMonitor>>();
         alive_monitor_ = alive_monitor.get();
         ON_CALL(*alive_monitor_, getSupervisionFactory).WillByDefault(ReturnRef(factory_));
+        ON_CALL(*alive_monitor_, init).WillByDefault(Return(true));
 
         auto recovery_client = std::make_shared<NiceMock<MockRecoveryClient>>();
         recovery_client_ = recovery_client.get();
@@ -175,7 +181,7 @@ class ProcessGroupManagerTest : public Test
         ON_CALL(*process_interface_, requestTermination).WillByDefault(Return(osal::OsalReturnType::kSuccess));
         ON_CALL(*process_interface_, forceTermination).WillByDefault(Return(osal::OsalReturnType::kFail));
 
-        auto config = makeMinimalConfig(applicationType());
+        auto config = makeConfig();
 
         process_group_manager_ = std::make_unique<ProcessGroupManager>(
             config.takeGraph(),
@@ -249,10 +255,7 @@ TEST_F(WatchdogUseTest, GivenMinimalConfig_ExpectWatchdogServicePerCycle_WhenRun
 
     // When
     ASSERT_TRUE(process_group_manager_->initialize());
-    auto run_result = process_group_manager_->run();
-
-    // Then
-    EXPECT_TRUE(run_result);
+    process_group_manager_->run();
 }
 
 TEST_F(WatchdogUseTest, GivenMinimalConfig_ExpectWatchdogFired_WhenRecoveryClientOverflowsDuringRunCall)
@@ -283,10 +286,7 @@ TEST_F(WatchdogUseTest, GivenMinimalConfig_ExpectWatchdogFired_WhenRecoveryClien
         recovery_callback_(IdentifierHash{"comp_a"}, std::chrono::nanoseconds{0});
     }
 
-    auto run_result = process_group_manager_->run();
-
-    // Then
-    EXPECT_TRUE(run_result);
+    process_group_manager_->run();
 }
 
 TEST_F(WatchdogUseTest, GivenMinimalConfig_ExpectWatchdogDisabled_WhenDeinitializeCalled)
@@ -478,6 +478,65 @@ TEST_F(ProcessGroupManagerTest, AliveMonitorErrorFailsStartup)
     RecordProperty("Description", "Verify initialize() fails when more than 1024 processes are configured.");
 
     EXPECT_CALL(*alive_monitor_, init).WillOnce(Return(false));
+
+    // When
+    auto initialize_result = process_group_manager_->initialize();
+
+    // Then
+    EXPECT_FALSE(initialize_result);
+}
+
+class NoWatchdogConfigurationTest : public ProcessGroupManagerTest
+{
+  protected:
+    Config makeConfig() override
+    {
+        ComponentConfig component = makeComponentConfig("comp_a");
+        component.component_properties.application_profile.application_type = applicationType();
+
+        std::vector<ComponentConfig> components;
+        components.push_back(std::move(component));
+
+        return ConfigBuilder{}
+            .setComponents(std::move(components))
+            .setRunTargets(makeStandardRunTargets("comp_a"))
+            .setInitialRunTarget("Startup")
+            .setFallbackRunTarget(makeStandardFallback())
+            .setAliveSupervision(makeStandardAliveSupervision())
+            .build();
+    }
+};
+
+TEST_F(NoWatchdogConfigurationTest, InitSucceedsWithoutWatchdog)
+{
+    RecordProperty("Description", "Verify initialize() succeeds even if no watchdog is configured.");
+
+    // When
+    auto initialize_result = process_group_manager_->initialize();
+
+    // Then
+    EXPECT_TRUE(initialize_result);
+}
+
+TEST_F(ProcessGroupManagerTest, WatchdogInitFailFailsPGMInit)
+{
+    RecordProperty("Description", "Verify that failing to initialise the watchdog fails pgm initialisation");
+
+    EXPECT_CALL(*watchdog_, init).WillOnce(Return(false));
+
+    // When
+    auto initialize_result = process_group_manager_->initialize();
+
+    // Then
+    EXPECT_FALSE(initialize_result);
+}
+
+TEST_F(ProcessGroupManagerTest, WatchdogEnableFailFailsPGMInit)
+{
+    RecordProperty("Description", "Verify that failing to enable the watchdog fails pgm initialisation");
+
+    EXPECT_CALL(*watchdog_, init).WillOnce(Return(true));
+    EXPECT_CALL(*watchdog_, enable).WillOnce(Return(false));
 
     // When
     auto initialize_result = process_group_manager_->initialize();
