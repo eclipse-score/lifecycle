@@ -117,6 +117,22 @@ jobs:
     with:
       fail-on-findings: "true"
 
+  dwyu:
+    name: Bazel dependency check (DWYU)
+    permissions:
+      contents: read
+    uses: eclipse-score/cicd-workflows/.github/workflows/bazel.yml@69812f9210f4f910e562a786dc56e199c3df5248 # main (2026-11-11)
+    with:
+      build-targets: //score/...
+      bazel-configs: x86_64-linux dwyu
+      cache-key: dwyu
+
+  iwyu:
+    name: Include check (IWYU)
+    uses: ./.github/workflows/_iwyu.yml
+    permissions:
+      contents: read
+
   docs-check:
     name: Check documentation
     uses: eclipse-score/cicd-workflows/.github/workflows/docs-verify.yml@8d80e8df150cae21d53cbc8031d0f970648f7a67 # v0.0.3
@@ -181,6 +197,8 @@ jobs:
       - clippy
       - coverage
       - codeql
+      - dwyu
+      - iwyu
       - gitlint
     runs-on: ubuntu-slim
     permissions: {}

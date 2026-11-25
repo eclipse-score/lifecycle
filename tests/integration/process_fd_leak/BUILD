@@ -61,12 +61,12 @@ cc_binary(
 
 integration_test(
     name = "process_fd_leak",
-    srcs = ["process_fd_leak.py"],
+    srcs = ["test.py"],
     binaries = [
         ":control_client_test_driver",
         ":native",
         ":reporting",
         "//score/launch_manager",
     ],
-    config = ":process_fd_leak.json",
+    config = ":config.json",
 )

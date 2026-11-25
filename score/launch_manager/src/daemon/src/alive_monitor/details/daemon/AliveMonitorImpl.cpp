@@ -10,13 +10,20 @@
  *
  * SPDX-License-Identifier: Apache-2.0
  ********************************************************************************/
-#include <sys/types.h>
-#include <iostream>
-
 #include <score/assert.hpp>
+#include <atomic>
+#include <cstddef>
+#include <exception>
+#include <iostream>
+#include <memory>
+#include <string>
+#include <thread>
 
+#include "score/mw/launch_manager/alive_monitor/details/common/EInitCode.hpp"
 #include "score/mw/launch_manager/alive_monitor/details/daemon/AliveMonitorImpl.hpp"
 #include "score/mw/launch_manager/alive_monitor/details/daemon/CyclicExecutor.hpp"
+#include "score/mw/launch_manager/common/log.hpp"
+#include "score/mw/launch_manager/configuration/config.hpp"
 #include "score/os/utils/thread.h"
 
 namespace score::mw::lifecycle::internal::saf::daemon

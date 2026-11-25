@@ -14,7 +14,7 @@
 #ifndef CYCLETIMEVALIDATOR_HPP_INCLUDED
 #define CYCLETIMEVALIDATOR_HPP_INCLUDED
 
-#include <iostream>
+#include <chrono>
 
 #include "score/mw/launch_manager/alive_monitor/details/timers/OsClockInterface.hpp"
 

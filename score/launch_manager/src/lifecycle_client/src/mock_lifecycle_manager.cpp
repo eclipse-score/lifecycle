@@ -12,9 +12,13 @@
  ********************************************************************************/
 
 #include "score/mw/lifecycle/mock_lifecycle_manager.h"
-#include "score/mw/lifecycle/lifecyclemanager.h"
 
 #include <functional>
+#include <memory>
+#include <utility>
+
+#include "score/mw/lifecycle/lifecyclemanager.h"
+#include "score/os/utils/signal.h"
 
 namespace
 {

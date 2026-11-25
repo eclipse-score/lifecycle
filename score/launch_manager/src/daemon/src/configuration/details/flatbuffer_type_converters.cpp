@@ -13,17 +13,20 @@
 
 #include "score/launch_manager/src/daemon/src/configuration/details/flatbuffer_type_converters.hpp"
 
-#include "score/launch_manager/src/daemon/src/configuration/details/lm_flatcfg_generated.h"
-
-#include "score/mw/launch_manager/common/log.hpp"
-
 #include <sched.h>
 #include <score/assert.hpp>
 #include <sys/resource.h>
 #include <sys/types.h>
+#include <chrono>
 #include <cstdint>
 #include <string>
+#include <utility>
 #include <vector>
+
+#include "flatbuffers/stl_emulation.h"
+#include "score/launch_manager/src/daemon/src/configuration/details/lm_flatcfg_generated.h"
+#include "score/mw/launch_manager/common/log.hpp"
+#include "score/mw/launch_manager/configuration/process_command.hpp"
 
 namespace score::mw::lifecycle::internal::configuration
 {
@@ -56,6 +59,27 @@ score::cpp::expected<TargetT, IConfigLoader::Error> requireScalarInRange(
         return score::cpp::make_unexpected(value.error());
     }
     return validateRange<TargetT>(*value, field_name);
+}
+
+/// @brief Clamps @p priority to the range the OS supports for @p policy, logging a warning if it is changed.
+/// @details Done once at load time, so all process start implementations apply the same priority.
+std::int32_t clampSchedulingPriority(const std::int32_t policy, const std::int32_t priority)
+{
+    const std::int32_t min_priority = sched_get_priority_min(policy);
+    const std::int32_t max_priority = sched_get_priority_max(policy);
+    if (priority < min_priority)
+    {
+        LM_LOG_WARN() << "Scheduling priority" << priority << "is below minimum" << min_priority << "for policy"
+                      << policy << ", setting to minimum";
+        return min_priority;
+    }
+    if (priority > max_priority)
+    {
+        LM_LOG_WARN() << "Scheduling priority" << priority << "is above maximum" << max_priority << "for policy"
+                      << policy << ", setting to maximum";
+        return max_priority;
+    }
+    return priority;
 }
 
 template <typename T>
@@ -464,7 +488,7 @@ score::cpp::expected<Sandbox, IConfigLoader::Error> convertSandbox(const fb::San
                                  ? std::optional<std::string>{fb_sb->security_policy()->str()}
                                  : std::nullopt;
     result.scheduling_policy = *scheduling_policy;
-    result.scheduling_priority = *scheduling_priority;
+    result.scheduling_priority = clampSchedulingPriority(*scheduling_policy, *scheduling_priority);
     auto rlimits = convertRlimits(fb_sb->rlimits());
     if (!rlimits.has_value())
     {
@@ -546,7 +570,6 @@ score::cpp::expected<ComponentConfig, IConfigLoader::Error> convertComponent(con
             fb_comp->deployment_config(),
             "Component::deployment_config must never be nullptr as it is required in the schema");
         result.name = fb_comp->name()->str();
-        result.description = safeString(fb_comp->description());
         auto component_properties = convertComponentProperties(fb_comp->component_properties());
         if (!component_properties.has_value())
         {
@@ -588,7 +611,6 @@ score::cpp::expected<RunTargetConfig, IConfigLoader::Error> convertRunTarget(con
             return score::cpp::make_unexpected(transition_timeout.error());
         }
         result.name = fb_rt->name()->str();
-        result.description = safeString(fb_rt->description());
         result.depends_on = convertStringVector(fb_rt->depends_on());
         result.transition_timeout_ms = *transition_timeout;
         result.recovery_action = convertRequiredSwitchRunTargetAction(fb_rt->recovery_action());
@@ -608,7 +630,6 @@ score::cpp::expected<FallbackRunTargetConfig, IConfigLoader::Error> convertFallb
         {
             return score::cpp::make_unexpected(transition_timeout.error());
         }
-        result.description = safeString(fb_frt->description());
         result.depends_on = convertStringVector(fb_frt->depends_on());
         result.transition_timeout_ms = *transition_timeout;
     }

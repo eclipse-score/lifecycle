@@ -12,7 +12,7 @@
  ********************************************************************************/
 #include <grp.h>
 #include <sys/types.h>
-#include <unistd.h>
+#include <stddef.h>
 
 #include "score/mw/launch_manager/osal/set_groups.hpp"
 

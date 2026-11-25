@@ -22,7 +22,7 @@
 #include <string>
 #include <utility>
 
-#include "score/mw/launch_manager/configuration/config.hpp"
+#include "score/mw/launch_manager/configuration/watchdog_config.hpp"
 #include "score/mw/launch_manager/watchdog/details/Watchdog.hpp"
 #include "score/mw/launch_manager/watchdog/details/WatchdogImpl.hpp"
 #include "score/mw/launch_manager/watchdog/details/mock_DeviceIf.hpp"

@@ -26,10 +26,10 @@ cc_binary(
 
 integration_test(
     name = "incorrect_config_non_reporting",
-    srcs = ["test_incorrect_config_non_reporting.py"],
+    srcs = ["test.py"],
     binaries = [
         ":non_reporting_process",
         "//score/launch_manager",
     ],
-    config = ":non_reporting_config.json",
+    config = ":config.json",
 )

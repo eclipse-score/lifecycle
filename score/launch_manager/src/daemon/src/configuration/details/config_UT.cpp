@@ -325,7 +325,7 @@ TEST_F(ConfigTest, MoveAssignmentTransfersState)
 {
     RecordProperty("Description", "A move-assigned Config holds the state of the moved-from Config.");
 
-    const RunTargetConfig off{"Off", "", {}, 10U, {}};
+    const RunTargetConfig off{"Off", {}, 10U, {}};
     Config source = ConfigBuilder{}.setInitialRunTarget("Startup").setRunTargets({off}).build();
     Config target = ConfigBuilder{}.setInitialRunTarget("Other").build();
 

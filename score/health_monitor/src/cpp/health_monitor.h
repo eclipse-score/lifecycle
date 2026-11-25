@@ -13,18 +13,23 @@
 #ifndef SCORE_HM_HEALTH_MONITOR_H
 #define SCORE_HM_HEALTH_MONITOR_H
 
+#include <score/expected.hpp>
+#include <stdint.h>
+#include <chrono>
+#include <optional>
+#include <utility>
+
 #include "score/mw/health/common.h"
 #include "score/mw/health/deadline_monitor.h"
 #include "score/mw/health/heartbeat_monitor.h"
 #include "score/mw/health/logic_monitor.h"
 #include "score/mw/health/tag.h"
 #include "score/mw/health/thread.h"
-#include <utility>
 
 namespace score::mw::health
 {
 
-class HealthMonitor;
+class HealthMonitor;  // IWYU pragma: keep
 
 ///
 /// Builder for HealthMonitor instances.

@@ -14,36 +14,38 @@
 #include <string_view>
 
 #include <fcntl.h>
-#include <grp.h>
-#include <libgen.h>
-#include <sys/mman.h>
+#include <sched.h>
 #include <sys/resource.h>
+#include <sys/types.h>
 #include <sys/wait.h>
 #include <unistd.h>
-#include <limits.h>
 #include <signal.h>
+#include <stdint.h>
 
 #include "score/mw/launch_manager/common/log.hpp"
 #include "score/mw/launch_manager/common/signal_safe_log.hpp"
+#include "score/mw/launch_manager/configuration/component_config.hpp"
+#include "score/mw/launch_manager/configuration/environment_config.hpp"
+#include "score/mw/launch_manager/configuration/process_command.hpp"
 #include "score/mw/launch_manager/osal/ipc_comms.hpp"
+#include "score/mw/launch_manager/osal/return_types.hpp"
 #include "score/mw/launch_manager/osal/security_policy.hpp"
+#include "score/mw/launch_manager/osal/semaphore.hpp"
 #include "score/mw/launch_manager/osal/set_affinity.hpp"
 #include "score/mw/launch_manager/osal/set_groups.hpp"
 #include "score/mw/launch_manager/osal/shm_open_anon.hpp"
 #include "score/mw/launch_manager/osal/sys_exit.hpp"
 #include "score/mw/launch_manager/process_group_manager/details/process_launcher.hpp"
 #include "score/mw/launch_manager/process_group_manager/iprocess.hpp"
-#include <charconv>
 #include <score/assert.hpp>
-#include <array>
-#include <cassert>
 #include <cerrno>
-#include <csignal>
+#include <chrono>
 #include <cstdio>
 #include <cstdlib>
-#include <cstring>
-#include <iterator>
+#include <memory>
 #include <optional>
+#include <string>
+#include <vector>
 
 constexpr int kPidZero = 0;  // This value is used to check if the process ID (uses pid_t) is valid or not.
 constexpr int kPosixSuccess = 0;
@@ -301,31 +303,10 @@ OsalReturnType ProcessLauncher::setSchedulingAndSecurity(const configuration::Sa
         static_cast<void>(signal_safe_log_errno(errno, "setpgid() failed"));
         retval = OsalReturnType::kFail;
     }
-    // Set scheduling policy with sched_setscheduler
+    // Set scheduling policy with sched_setscheduler.
+    // The priority was clamped to the valid range of the policy when the configuration was loaded.
     sched_param sch_param{};
-
     sch_param.sched_priority = config.scheduling_priority;
-
-    if (sch_param.sched_priority < sched_get_priority_min(config.scheduling_policy))
-    {
-        static_cast<void>(signal_safe_log(
-            "Scheduling priority ",
-            sch_param.sched_priority,
-            " is below minimum for policy ",
-            config.scheduling_policy,
-            ", setting to minimum"));
-        sch_param.sched_priority = sched_get_priority_min(config.scheduling_policy);
-    }
-    else if (sch_param.sched_priority > sched_get_priority_max(config.scheduling_policy))
-    {
-        static_cast<void>(signal_safe_log(
-            "Scheduling priority ",
-            sch_param.sched_priority,
-            " is above maximum for policy ",
-            config.scheduling_policy,
-            ", setting to maximum"));
-        sch_param.sched_priority = sched_get_priority_max(config.scheduling_policy);
-    }
 
     if (-1 == sched_setscheduler(0, config.scheduling_policy, &sch_param))
     {

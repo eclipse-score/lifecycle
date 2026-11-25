@@ -12,6 +12,9 @@
  ********************************************************************************/
 
 #include "score/mw/launch_manager/process_group_manager/details/start_action/empty_start_action.hpp"
+#include "score/mw/launch_manager/process_group_manager/details/handle.hpp"
+#include <score/stop_token.hpp>
+#include <optional>
 
 namespace score::mw::lifecycle::internal
 {

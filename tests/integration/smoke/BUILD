@@ -38,11 +38,11 @@ cc_binary(
 
 integration_test(
     name = "smoke",
-    srcs = ["smoke.py"],
+    srcs = ["test.py"],
     binaries = [
         ":control_client_test_driver",
         ":gtest_process",
         "//score/launch_manager",
     ],
-    config = ":lifecycle_smoketest.json",
+    config = ":config.json",
 )

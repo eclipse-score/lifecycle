@@ -13,13 +13,15 @@
 #ifndef FLATBUFFER_CONFIG_LOADER_HPP
 #define FLATBUFFER_CONFIG_LOADER_HPP
 
-#include "score/mw/launch_manager/configuration/config.hpp"
-#include "score/mw/launch_manager/configuration/config_loader.hpp"
-
-#include "score/flatbuffers/load_buffer.hpp"
-
+#include <score/expected.hpp>
 #include <cstdint>
 #include <vector>
+
+#include "score/filesystem/path.h"
+#include "score/flatbuffers/load_buffer.hpp"
+#include "score/mw/launch_manager/configuration/config.hpp"
+#include "score/mw/launch_manager/configuration/config_loader.hpp"
+#include "score/os/errno.h"
 
 namespace score::mw::lifecycle::internal::configuration
 {

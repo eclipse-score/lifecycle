@@ -524,46 +524,6 @@ TEST_F(SetSchedulingAndSecurityTest, setschedFails)
     EXPECT_THROW(static_cast<void>(process_launcher_->startProcess(pid_, sync_, config_)), SysExitException);
 }
 
-TEST_F(SetSchedulingAndSecurityTest, setschedClampedUpper)
-{
-    RecordProperty(
-        "Description", "Verify that if the configured priority is higher than the OS supports, it is clamped");
-
-    config_.deployment_config.sandbox.scheduling_policy = SCHED_FIFO;
-    const int too_high = 1000;
-    config_.deployment_config.sandbox.scheduling_priority = too_high;
-
-    EXPECT_CALL(*g_syscall_mock, setpgid).WillOnce(Return(0));
-    EXPECT_CALL(*g_syscall_mock, setgid).WillOnce(Return(0));
-    EXPECT_CALL(*g_syscall_mock, setuid).WillOnce(Return(0));
-    EXPECT_CALL(*g_syscall_mock, setgroups).WillOnce(Return(0));
-
-    EXPECT_CALL(*g_syscall_mock, sched_setscheduler(_, _, Field(&sched_param::sched_priority, Lt(too_high))))
-        .WillOnce(Return(0));
-
-    EXPECT_THROW(static_cast<void>(process_launcher_->startProcess(pid_, sync_, config_)), ExecveSuccess);
-}
-
-TEST_F(SetSchedulingAndSecurityTest, setschedClampedLower)
-{
-    RecordProperty(
-        "Description", "Verify that if the configured priority is lower than the OS supports, it is clamped");
-
-    config_.deployment_config.sandbox.scheduling_policy = SCHED_FIFO;
-    const int too_low = -10;
-    config_.deployment_config.sandbox.scheduling_priority = too_low;
-
-    EXPECT_CALL(*g_syscall_mock, setpgid).WillOnce(Return(0));
-    EXPECT_CALL(*g_syscall_mock, setgid).WillOnce(Return(0));
-    EXPECT_CALL(*g_syscall_mock, setuid).WillOnce(Return(0));
-    EXPECT_CALL(*g_syscall_mock, setgroups).WillOnce(Return(0));
-
-    EXPECT_CALL(*g_syscall_mock, sched_setscheduler(_, _, Field(&sched_param::sched_priority, Gt(too_low))))
-        .WillOnce(Return(0));
-
-    EXPECT_THROW(static_cast<void>(process_launcher_->startProcess(pid_, sync_, config_)), ExecveSuccess);
-}
-
 TEST_F(SetSchedulingAndSecurityTest, setgroupsFails)
 {
     RecordProperty("Description", "Verify that if setting supplementary gids fails, the forked process exits");

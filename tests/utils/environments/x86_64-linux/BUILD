@@ -26,15 +26,10 @@ pkg_tar(
     srcs = [":ecu_logging_config_files"],
 )
 
-# Sanitizer runtimes from the hermetic GCC toolchain, so sanitizer builds can run in the container.
+# Sanitizer runtimes from the resolved GCC toolchain, so sanitizer builds can run in the container.
 pkg_files(
     name = "sanitizer_runtime_files",
-    srcs = [
-        "@score_gcc_x86_64_toolchain_pkg//:x86_64-unknown-linux-gnu/sysroot/lib/libasan.so.8",
-        "@score_gcc_x86_64_toolchain_pkg//:x86_64-unknown-linux-gnu/sysroot/lib/liblsan.so.0",
-        "@score_gcc_x86_64_toolchain_pkg//:x86_64-unknown-linux-gnu/sysroot/lib/libtsan.so.2",
-        "@score_gcc_x86_64_toolchain_pkg//:x86_64-unknown-linux-gnu/sysroot/lib/libubsan.so.1",
-    ],
+    srcs = ["@score_cpp_policies//sanitizers:runtime_libs"],
     attributes = pkg_attributes(mode = "0755"),
     prefix = "usr/lib/x86_64-linux-gnu",
 )

@@ -34,6 +34,7 @@ The detailed design is split by functionality:
    .. toctree::
 
       detailed_design_graph
+      fork_vs_posix_spawn
 
 Inspection Checklist
 --------------------
