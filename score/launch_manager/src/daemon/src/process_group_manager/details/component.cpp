@@ -260,10 +260,16 @@ bool Component::stopAndWait(std::unique_lock<std::mutex>& lock, const Handle& ha
         return true;
     }
 
-    // If no stop request reached the resource, no termination can be waited for, and a forced stop is
-    // not tried either.
+    // A stop request also fails if the resource has already terminated, but its termination is not
+    // handled yet, e.g. because it waits for state_mutex_. So the termination is still waited for
+    // briefly before giving up. A forced stop is not tried, since no stop request reached the resource.
     if (!stopped.has_value() || (stopped.value() != RequestResult::kSuccess))
     {
+        if (waitUntilTerminated(lock, kMaxSigKillDelay))
+        {
+            return true;
+        }
+
         LM_LOG_ERROR() << config_->name << ": failed to request the resource to stop";
         state_ = TerminatedState{};
         return false;
@@ -276,13 +282,22 @@ bool Component::stopAndWait(std::unique_lock<std::mutex>& lock, const Handle& ha
 
     LM_LOG_WARN() << config_->name << ": did not terminate within the shutdown timeout, stopping it forcefully";
     const Result<RequestResult> forced = force_stop_action_->forceStop(cpp::stop_token{}, handle);
-    if (forced.has_value() && (forced.value() == RequestResult::kSuccess) &&
-        waitUntilTerminated(lock, kMaxSigKillDelay))
+
+    // Like the stop request, a forced stop also fails if the resource has terminated in the meantime,
+    // so the termination is waited for in either case.
+    if (waitUntilTerminated(lock, kMaxSigKillDelay))
     {
         return true;
     }
 
-    LM_LOG_ERROR() << config_->name << ": failed to stop the resource forcefully";
+    if (!forced.has_value() || (forced.value() != RequestResult::kSuccess))
+    {
+        LM_LOG_ERROR() << config_->name << ": failed to stop the resource forcefully";
+    }
+    else
+    {
+        LM_LOG_ERROR() << config_->name << ": did not terminate after being stopped forcefully";
+    }
     state_ = TerminatedState{};
     return false;
 }
@@ -308,7 +323,8 @@ IComponent::RequestResult Component::deactivate(cpp::stop_token /*stop_token*/)
         ready != nullptr, "Cannot deactivate component while it is activating or deactivating");
     const Handle handle = ready->handle_;
 
-    // A failure to deactivate supervision must not prevent stopping the resource.
+    // TODO: Failure to deactivate the supervision leaves the supervision expired
+    // also on next restart. Failure must be escalated
     static_cast<void>(deactivateSupervision());
 
     return stopAndWait(lock, handle) ? RequestResult::kSuccess : RequestResult::kFailure;
