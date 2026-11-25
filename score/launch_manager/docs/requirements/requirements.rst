@@ -1210,7 +1210,7 @@ Logging
     :version: 1
     :satisfied_by: comp__lifecycle_launch_manager
 
-    The :term:`Launch Manager` shall log interactions with an external
+    The :term:`Launch Manager` shall log servicing an external
     :term:`Watchdog`.
 
 .. comp_req:: Logging DAG
