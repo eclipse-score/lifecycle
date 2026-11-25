@@ -34,7 +34,6 @@
 #include "score/mw/launch_manager/process_group_manager/details/component_task.hpp"
 #include "score/mw/launch_manager/process_group_manager/details/dependency_graph.hpp"
 #include "score/mw/launch_manager/process_group_manager/details/process_handling.hpp"
-#include "score/mw/launch_manager/process_group_manager/details/process_info_node.hpp"
 #include "score/mw/launch_manager/process_group_manager/details/run_target.hpp"
 #include "score/mw/launch_manager/process_group_manager/details/transition.hpp"
 #include "score/mw/launch_manager/process_group_manager/iprocess.hpp"
@@ -127,7 +126,7 @@ struct PendingTransition
 
 /// @brief Manages the processes and state transitions for a single process group.
 ///
-/// Each Graph holds a set of ProcessInfoNode instances (one per process) arranged in a
+/// Each Graph holds a set of Component instances (one per process) arranged in a
 /// dependency graph. During a state transition the Graph stops processes that are no longer
 /// needed and starts the ones required for the new state, respecting dependency order. If
 /// the transition completes without errors the graph enters kSuccess. Otherwise it enters
@@ -136,10 +135,9 @@ class Graph final
 {
   public:
     /// @brief All currently supported component implementations.
-    /// @details A Component cannot be moved, so it is held by pointer. Which of ProcessInfoNode and
-    ///          Component is used for processes is selected with the Bazel flag --//config:use_component.
+    /// @details A Component cannot be moved, so it is held by pointer.
     ///          Inside Graph, the class must be named internal::Component, because this alias hides it.
-    using Component = std::variant<ProcessInfoNode, std::unique_ptr<internal::Component>, RunTarget>;
+    using Component = std::variant<std::unique_ptr<internal::Component>, RunTarget>;
 
     static constexpr std::string_view off_state_name{"Off"};
     static constexpr std::string_view recovery_state_name{"fallback_run_target"};
@@ -271,7 +269,7 @@ class Graph final
     void tryQueueNode(ComponentTask task);
 
     /// @brief Every node that is ready to execute is either executed in place (RunTarget) or queued for execution
-    /// (ProcessInfoNode, Component).
+    /// (Component).
     void queueReadyNodes();
 
     /// @brief Executes a RunTarget's activation/deactivation in place

@@ -318,50 +318,6 @@ cc_library(
 )
 
 cc_library(
-    name = "process_info_node",
-    srcs = ["process_info_node.cpp"],
-    hdrs = ["process_info_node.hpp"],
-    include_prefix = "score/mw/launch_manager/process_group_manager/details",
-    strip_include_prefix = "/score/launch_manager/src/daemon/src/process_group_manager/details",
-    visibility = ["//score/launch_manager/src/daemon/src/process_group_manager:__pkg__"],
-    deps = [
-        ":icomponent",
-        ":process_handling",
-        ":safe_process_map",
-        "//score/launch_manager/src/daemon/src/alive_monitor:ialive_supervision_handle",
-        "//score/launch_manager/src/daemon/src/alive_monitor:isupervision_factory",
-        "//score/launch_manager/src/daemon/src/common:constants",
-        "//score/launch_manager/src/daemon/src/common:identifier_hash",
-        "//score/launch_manager/src/daemon/src/common:log",
-        "//score/launch_manager/src/daemon/src/configuration:component_config",
-        "//score/launch_manager/src/daemon/src/configuration:environment_config",
-        "//score/launch_manager/src/daemon/src/configuration:process_command",
-        "//score/launch_manager/src/daemon/src/osal:ifile_waiter",
-        "//score/launch_manager/src/daemon/src/osal:ipc_comms",
-        "//score/launch_manager/src/daemon/src/osal:return_types",
-        "//score/launch_manager/src/daemon/src/osal:semaphore",
-        "//score/launch_manager/src/daemon/src/process_group_manager:iprocess",
-        "//score/launch_manager/src/daemon/src/process_group_manager:process_state",
-        "//score/launch_manager/src/daemon/src/process_group_manager/details/ready_condition:termination_waiter",
-        "@score_baselibs//score/language/futurecpp",
-    ],
-)
-
-lm_cc_test(
-    name = "process_info_node_UT",
-    srcs = ["process_info_node_UT.cpp"],
-    deps = [
-        ":process_info_node",
-        ":safe_process_map",
-        "//score/launch_manager/src/daemon/src/alive_monitor:mock_alive_supervision_handle",
-        "//score/launch_manager/src/daemon/src/alive_monitor:mock_supervision_factory",
-        "//score/launch_manager/src/daemon/src/osal:mock_ifile_waiter",
-        "//score/launch_manager/src/daemon/src/process_group_manager:mock_iprocess",
-        "@googletest//:gtest_main",
-    ],
-)
-
-cc_library(
     name = "run_target",
     hdrs = ["run_target.hpp"],
     include_prefix = "score/mw/launch_manager/process_group_manager/details",
@@ -377,10 +333,6 @@ cc_library(
     srcs = ["graph.cpp"],
     hdrs = ["graph.hpp"],
     include_prefix = "score/mw/launch_manager/process_group_manager/details",
-    local_defines = select({
-        "//config:lm_use_component": ["LC_USE_COMPONENT"],
-        "//conditions:default": [],
-    }),
     strip_include_prefix = "/score/launch_manager/src/daemon/src/process_group_manager/details",
     visibility = [
         "//score/launch_manager/src/daemon/src/process_group_manager:__pkg__",
@@ -395,7 +347,6 @@ cc_library(
         ":dependency_graph",
         ":icomponent",
         ":process_handling",
-        ":process_info_node",
         ":run_target",
         ":transition",
         "//score/launch_manager:error",
@@ -420,7 +371,7 @@ cc_library(
 lm_cc_test(
     name = "graph_UT",
     srcs = ["graph_UT.cpp"],
-    # TODO: Adapt to Component (--//config:use_component) and re-enable.
+    # TODO: Adapt to Component and re-enable.
     tags = ["manual"],
     deps = [
         ":graph",
@@ -457,7 +408,6 @@ cc_library(
     deps = [
         ":component",
         ":icomponent",
-        ":process_info_node",
         ":run_target",
     ],
 )
@@ -552,7 +502,7 @@ lm_cc_test(
 lm_cc_test(
     name = "process_group_manager_UT",
     srcs = ["process_group_manager_UT.cpp"],
-    # TODO: Adapt to Component (--//config:use_component) and re-enable.
+    # TODO: Adapt to Component and re-enable.
     tags = ["manual"],
     deps = [
         "//score/launch_manager/src/daemon/src/alive_monitor:mock_alive_monitor",

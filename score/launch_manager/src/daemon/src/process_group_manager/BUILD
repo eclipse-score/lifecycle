@@ -68,7 +68,6 @@ cc_library(
         "//score/launch_manager/src/daemon/src/process_group_manager/details:graph",
         "//score/launch_manager/src/daemon/src/process_group_manager/details:os_handler",
         "//score/launch_manager/src/daemon/src/process_group_manager/details:process_handling",
-        "//score/launch_manager/src/daemon/src/process_group_manager/details:process_info_node",
         "//score/launch_manager/src/daemon/src/process_group_manager/details:process_launcher",
         "//score/launch_manager/src/daemon/src/process_group_manager/details:process_monitor",
         "//score/launch_manager/src/daemon/src/process_group_manager/details:safe_process_map",

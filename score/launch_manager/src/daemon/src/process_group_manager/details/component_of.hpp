@@ -15,7 +15,6 @@
 
 #include "score/mw/launch_manager/process_group_manager/details/component.hpp"
 #include "score/mw/launch_manager/process_group_manager/details/icomponent.hpp"
-#include "score/mw/launch_manager/process_group_manager/details/process_info_node.hpp"
 #include "score/mw/launch_manager/process_group_manager/details/run_target.hpp"
 
 #include <memory>
@@ -28,7 +27,7 @@ namespace score::mw::lifecycle::internal
 /// @brief Returns the IComponent reference from a variant type
 /// @details All types in the variant must implement the IComponent interface. A Component is held by
 ///          pointer, because it cannot be moved.
-inline IComponent& componentOf(std::variant<ProcessInfoNode, std::unique_ptr<Component>, RunTarget>& node)
+inline IComponent& componentOf(std::variant<std::unique_ptr<Component>, RunTarget>& node)
 {
     return std::visit(
         [](auto& component) -> IComponent& {

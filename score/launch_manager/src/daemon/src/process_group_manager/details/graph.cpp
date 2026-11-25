@@ -73,14 +73,11 @@ void CreateDependencyGraph(
     std::vector<std::pair<IdentifierHash, std::vector<std::string>>> pending_dependencies;
     pending_dependencies.reserve(graph.capacity());
 
-#ifdef LC_USE_COMPONENT
-    // Component is used instead of ProcessInfoNode, selected with --//config:use_component.
     const ComponentFactory factory{
         *process_handling.process_interface_,
         *process_handling.process_map_,
         *process_handling.file_waiter_,
         process_handling.supervision_factory};
-#endif
 
     // add all comps
     for (auto& component_config : config.components_)
@@ -88,7 +85,6 @@ void CreateDependencyGraph(
         const auto name = component_config.name;
         auto depends_on = std::move(component_config.component_properties.depends_on);
 
-#ifdef LC_USE_COMPONENT
         Result<std::unique_ptr<internal::Component>> component =
             factory.create(std::make_shared<configuration::ComponentConfig>(std::move(component_config)));
         SCORE_LANGUAGE_FUTURECPP_ASSERT_MESSAGE(component.has_value(), "Failed to create component");
@@ -96,10 +92,6 @@ void CreateDependencyGraph(
             IdentifierHash{name},
             std::in_place_type<std::unique_ptr<internal::Component>>,
             std::move(component).value());
-#else
-        const auto index = graph.try_emplace(
-            IdentifierHash{name}, std::in_place_type<ProcessInfoNode>, std::move(component_config), process_handling);
-#endif
 
         LM_LOG_DEBUG() << "Creating component node:" << name;
         pending_dependencies.emplace_back(index, std::move(depends_on));
@@ -401,16 +393,6 @@ void Graph::handleComponentEvent(const ComponentEvent& event)
 
                 setState(GraphState::kAborting);
 
-#ifndef LC_USE_COMPONENT
-                // Need to clean up any leftover resources. Only needed for ProcessInfoNode: a Component has
-                // already cleaned up itself, and a task for it may still be running, so it must not be
-                // deactivated here. Remove together with ProcessInfoNode.
-                if (ProcessInfoNode* const process = std::get_if<ProcessInfoNode>(&nodes_[data.node_identifier]))
-                {
-                    static_cast<void>(process->deactivate({}));
-                }
-#endif
-
                 if (jobs_in_progress_ == 0)
                 {
                     handleNonTransitionExecution();
@@ -520,23 +502,10 @@ void Graph::forceKillProcesses()
 {
     for (const auto [id, component] : nodes_)
     {
-#ifdef LC_USE_COMPONENT
         if (const auto* const process_component = std::get_if<std::unique_ptr<internal::Component>>(&component))
         {
             (*process_component)->forceStop();
         }
-#else
-        // Remove together with ProcessInfoNode.
-        if (const ProcessInfoNode* process = std::get_if<ProcessInfoNode>(&component))
-        {
-            osal::ProcessID pid = process->getPid();
-            if (pid > 0)
-            {
-                // forceTermination already handles errors appropriately, so we can ignore its result.
-                static_cast<void>(process_handling_.process_interface_->forceTermination(pid));
-            }
-        }
-#endif
     }
 }
 

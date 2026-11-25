@@ -29,7 +29,6 @@
 #include "score/mw/launch_manager/process_group_manager/details/component_event_queue.hpp"
 #include "score/mw/launch_manager/process_group_manager/details/graph.hpp"
 #include "score/mw/launch_manager/process_group_manager/details/os_handler.hpp"
-#include "score/mw/launch_manager/process_group_manager/details/process_info_node.hpp"
 #include "score/mw/launch_manager/process_group_manager/details/process_launcher.hpp"
 #include "score/mw/launch_manager/process_group_manager/details/process_monitor.hpp"
 #include "score/mw/launch_manager/process_group_manager/details/safe_process_map.hpp"
@@ -196,16 +195,16 @@ class ProcessGroupManager final : public IRunTargetControl
     /// @brief The process interface object associated with the ProcessGroupManager.
     std::unique_ptr<osal::IProcess> process_interface_;
 
-    /// @brief Waits for FileState ready conditions; injected into ProcessInfoNode via ProcessHandling.
+    /// @brief Waits for FileState ready conditions; injected into Component via ProcessHandling.
     osal::FileWaiter file_waiter_;
 
     /// @brief Shared pointer to the SafeProcessMap object.
     std::shared_ptr<SafeProcessMap> process_map_;
 
-    /// @brief Unique pointer to the worker threads handling ProcessInfoNode jobs.
+    /// @brief Unique pointer to the worker threads handling Component jobs.
     std::unique_ptr<ThreadPool<ComponentTask>> thread_pool_;
 
-    /// @brief Shared pointer to the job queue for ProcessInfoNode jobs.
+    /// @brief Shared pointer to the job queue for Component jobs.
     std::shared_ptr<WorkerQueue> worker_jobs_;
 
     /// @brief Pointer to the gaph.
