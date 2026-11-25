@@ -1,0 +1,97 @@
+{
+  "schema_version": 1,
+  "supervisor_api_cycle_ms": 100,
+  "internal_processing_cycle_ms": 50,
+  "thread_parameters": {
+    "scheduler_parameters": {
+      "policy": "FIFO",
+      "priority": 20
+    },
+    "affinity": [
+      0,
+      1
+    ],
+    "stack_size": 262144
+  },
+  "deadline_monitors": [
+    {
+      "tag": "ControlLoopDeadlines",
+      "deadlines": [
+        {
+          "tag": "ReadInputs",
+          "range": {
+            "min_ms": 1,
+            "max_ms": 5
+          }
+        },
+        {
+          "tag": "PublishOutputs",
+          "range": {
+            "min_ms": 2,
+            "max_ms": 10
+          }
+        }
+      ]
+    },
+    {
+      "tag": "CommunicationDeadlines",
+      "deadlines": [
+        {
+          "tag": "Receive",
+          "range": {
+            "min_ms": 1,
+            "max_ms": 3
+          }
+        },
+        {
+          "tag": "Transmit",
+          "range": {
+            "min_ms": 2,
+            "max_ms": 8
+          }
+        }
+      ]
+    }
+  ],
+  "heartbeat_monitors": [
+    {
+      "tag": "PlannerHeartbeat",
+      "range": {
+        "min_ms": 90,
+        "max_ms": 110
+      }
+    },
+    {
+      "tag": "WorkerHeartbeat",
+      "range": {
+        "min_ms": 40,
+        "max_ms": 60
+      }
+    }
+  ],
+  "logic_monitors": [
+    {
+      "tag": "OperationModeFlow",
+      "initial_state": "Init",
+      "states": [
+        {
+          "tag": "Init",
+          "allowed_states": [
+            "Run",
+            "Deinit"
+          ]
+        },
+        {
+          "tag": "Run",
+          "allowed_states": [
+            "Deinit"
+          ]
+        },
+        {
+          "tag": "Deinit",
+          "allowed_states": []
+        }
+      ]
+    }
+  ]
+}

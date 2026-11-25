@@ -15,6 +15,9 @@ load("@rules_python//python:defs.bzl", "py_binary")
 load("@score_lifecycle_pip//:requirements.bzl", "requirement")
 
 exports_files([
+    "generate_health_monitor_schema.py",
+    "health_monitor_config.py",
+    "health_monitor_tests.py",
     "integration_tests.py",
     "unit_tests.py",
     "lifecycle_config.py",
@@ -25,6 +28,31 @@ py_binary(
     srcs = ["lifecycle_config.py"],
     visibility = ["//visibility:public"],
     deps = [requirement("jsonschema")],
+)
+
+py_binary(
+    name = "health_monitor_config",
+    srcs = ["health_monitor_config.py"],
+    visibility = ["//visibility:public"],
+    deps = [requirement("jsonschema")],
+)
+
+# Regenerates the checked-in health monitor JSON schema from health_monitor_config.fbs.
+#   bazel run //scripts/config_mapping:generate_health_monitor_schema
+# --output takes a workspace-relative path, not a label, so the target works when the schema file does not exist.
+py_binary(
+    name = "generate_health_monitor_schema",
+    srcs = ["generate_health_monitor_schema.py"],
+    args = [
+        "--in",
+        "$(location //score/health_monitor/configuration:health_monitor_config_postproc_schema)",
+        "--output",
+        "score/health_monitor/configuration/health_monitor_config_schema.json",
+    ],
+    data = [
+        "//score/health_monitor/configuration:health_monitor_config_postproc_schema",
+    ],
+    target_compatible_with = ["@platforms//os:linux"],
 )
 
 filegroup(
