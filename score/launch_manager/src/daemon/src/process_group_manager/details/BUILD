@@ -75,7 +75,6 @@ cc_library(
         ":component",
         ":icomponent",
         ":safe_process_map",
-        "//score/launch_manager:error",
         "//score/launch_manager/src/daemon/src/alive_monitor:isupervision_factory",
         "//score/launch_manager/src/daemon/src/configuration:component_config",
         "//score/launch_manager/src/daemon/src/osal:ifile_waiter",
@@ -94,7 +93,6 @@ cc_library(
         "//score/launch_manager/src/daemon/src/process_group_manager/details/stop_action:process_stop_action",
         "@score_baselibs//score/language/futurecpp",
         "@score_baselibs//score/result",
-        "@score_baselibs//score/result:error",
     ],
 )
 
@@ -340,7 +338,6 @@ cc_library(
     deps = [
         ":component",
         ":component_event",
-        ":component_event_queue",
         ":component_factory",
         ":component_of",
         ":component_task",
@@ -357,7 +354,6 @@ cc_library(
         "//score/launch_manager/src/daemon/src/common/concurrency:mpmc_concurrent_queue",
         "//score/launch_manager/src/daemon/src/configuration:component_config",
         "//score/launch_manager/src/daemon/src/configuration:config",
-        "//score/launch_manager/src/daemon/src/osal:return_types",
         "//score/launch_manager/src/daemon/src/osal:semaphore",
         "//score/launch_manager/src/daemon/src/process_group_manager:iprocess",
         "//score/launch_manager/src/daemon/src/process_group_manager:irun_target_control",
