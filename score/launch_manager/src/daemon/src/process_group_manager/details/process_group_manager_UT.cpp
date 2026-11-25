@@ -477,31 +477,10 @@ TEST_F(ProcessGroupManagerTest, AliveMonitorErrorFailsStartup)
 {
     RecordProperty("Description", "Verify initialize() fails when more than 1024 processes are configured.");
 
-    std::vector<ComponentConfig> components{};
-    components.push_back(makeComponentConfig("component"));
-
-    auto config = ConfigBuilder{}
-                      .setComponents(std::move(components))
-                      .setRunTargets(makeStandardRunTargets("comp_0"))
-                      .setInitialRunTarget("Startup")
-                      .setFallbackRunTarget(makeStandardFallback())
-                      .setAliveSupervision(makeStandardAliveSupervision())
-                      .setWatchdog(makeStandardWatchdog())
-                      .build();
-
-    auto alive_monitor = std::make_unique<NiceMock<MockAliveMonitor>>();
-    EXPECT_CALL(*alive_monitor, init).WillOnce(Return(false));
-
-    auto pgm = std::make_unique<ProcessGroupManager>(
-        config.takeGraph(),
-        std::move(alive_monitor),
-        std::make_shared<NiceMock<MockRecoveryClient>>(),
-        std::make_unique<NiceMock<MockWatchdogIf>>(),
-        config.takeWatchdog(),
-        std::make_unique<NiceMock<osal::MockIProcess>>());
+    EXPECT_CALL(*alive_monitor_, init).WillOnce(Return(false));
 
     // When
-    auto initialize_result = pgm->initialize();
+    auto initialize_result = process_group_manager_->initialize();
 
     // Then
     EXPECT_FALSE(initialize_result);
