@@ -55,9 +55,9 @@
                 }
             }
         },
-        "cpp_supervised_app": {
+        "cpp_health_monitor_supervised_app": {
             "component_properties": {
-                "binary_name": "cpp_supervised_app",
+                "binary_name": "cpp_health_monitor_supervised_app",
                 "application_profile": {
                     "application_type": "Reporting_And_Supervised"
                 },
@@ -67,9 +67,20 @@
             },
             "deployment_config": {
                 "environmental_variables": {
-                    "PROCESSIDENTIFIER": "cpp_supervised_app",
-                    "IDENTIFIER": "cpp_supervised_app"
+                    "PROCESSIDENTIFIER": "cpp_health_monitor_supervised_app",
+                    "IDENTIFIER": "cpp_health_monitor_supervised_app"
                 }
+            }
+        },
+        "cpp_alive_supervised_app": {
+            "component_properties": {
+                "binary_name": "cpp_alive_supervised_app",
+                "application_profile": {
+                    "application_type": "Reporting_And_Supervised"
+                },
+                "process_arguments": [
+                    "-s50"
+                ]
             }
         },
         "rust_supervised_app": {
@@ -128,7 +139,8 @@
         "Running": {
             "depends_on": [
                 "control_daemon",
-                "cpp_supervised_app",
+                "cpp_health_monitor_supervised_app",
+                "cpp_alive_supervised_app",
                 "rust_supervised_app",
                 "c_supervised_app",
                 "lifecycle_app"

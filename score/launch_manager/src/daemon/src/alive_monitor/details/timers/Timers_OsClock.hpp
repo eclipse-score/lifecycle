@@ -18,24 +18,24 @@
 namespace score::mw::lifecycle::internal::saf::timers
 {
 
-/// Operating system clock interface
-/// The OsClock class provides methods to interact with the operating system
+/// @brief Operating system clock interface
+/// @details The OsClock class provides methods to interact with the operating system
 /// specific clock interfaces.
 class OsClock
 {
   public:
-    /// Constructor
+    /// @brief Constructor
     OsClock() = default;
-    /// Copy and Move operations on the class objects are
+    /// @brief Copy and Move operations on the class objects are
     /// not allowed!
     OsClock(const OsClock&) = delete;
     OsClock& operator=(const OsClock&) = delete;
     OsClock(OsClock&&) = delete;
     OsClock& operator=(OsClock&&) = delete;
-    /// Destructor
+    /// @brief Destructor
     virtual ~OsClock() = default;
 
-    /// Get monotonic increasing system Clock
+    /// @brief Get monotonic increasing system Clock
     /// @return System clock in nanoseconds or error indicator.
     /// @retval 0 in case of an error.
     static std::chrono::nanoseconds getMonotonicSystemClock(void) noexcept(true);

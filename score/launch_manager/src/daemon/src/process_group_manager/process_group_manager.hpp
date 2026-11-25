@@ -14,19 +14,18 @@
 #ifndef PROCESSGROUPMANAGER_HPP_INCLUDED
 #define PROCESSGROUPMANAGER_HPP_INCLUDED
 
-#include <cstdint>
-#include <ctime>
-#include <memory>
-
 #include "score/mw/launch_manager/alive_monitor/IAliveMonitor.hpp"
 #include "score/mw/launch_manager/common/concurrency/mpmc_concurrent_queue.hpp"
+#include "score/mw/launch_manager/common/concurrency/mpsc_bounded_queue.hpp"
 #include "score/mw/launch_manager/common/concurrency/thread_pool.hpp"
 #include "score/mw/launch_manager/common/constants.hpp"
 #include "score/mw/launch_manager/common/identifier_hash.hpp"
 #include "score/mw/launch_manager/configuration/config.hpp"
+#include "score/mw/launch_manager/configuration/watchdog_config.hpp"
 #include "score/mw/launch_manager/osal/wait_for_file.hpp"
 #include "score/mw/launch_manager/process_group_manager/details/component_event.hpp"
 #include "score/mw/launch_manager/process_group_manager/details/component_event_queue.hpp"
+#include "score/mw/launch_manager/process_group_manager/details/component_task.hpp"
 #include "score/mw/launch_manager/process_group_manager/details/graph.hpp"
 #include "score/mw/launch_manager/process_group_manager/details/os_handler.hpp"
 #include "score/mw/launch_manager/process_group_manager/details/process_launcher.hpp"
@@ -34,9 +33,13 @@
 #include "score/mw/launch_manager/process_group_manager/details/safe_process_map.hpp"
 #include "score/mw/launch_manager/process_group_manager/iprocess.hpp"
 #include "score/mw/launch_manager/process_group_manager/irun_target_control.hpp"
-#include "score/mw/launch_manager/recovery_client/recovery_client.hpp"
+#include "score/mw/launch_manager/recovery_client/irecovery_client.h"
 #include "score/mw/launch_manager/watchdog/IWatchdogIf.hpp"
-#include "score/mw/lifecycle/details/lm_control_service.h"
+#include "score/result/result.h"
+#include <ctime>
+#include <memory>
+#include <optional>
+#include <string_view>
 
 namespace score::mw::lifecycle::internal
 {

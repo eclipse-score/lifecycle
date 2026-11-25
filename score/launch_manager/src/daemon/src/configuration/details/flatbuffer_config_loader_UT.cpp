@@ -43,7 +43,7 @@ using ::testing::VariantWith;
 
 const score::filesystem::Path kTestPath{"/tmp/test_config.bin"};
 
-/// Name of the Run Target the loader appends when the configuration does not provide it.
+/// @brief Name of the Run Target the loader appends when the configuration does not provide it.
 constexpr const char* kOffRunTargetName = "Off";
 
 std::vector<uint8_t> finishBuffer(

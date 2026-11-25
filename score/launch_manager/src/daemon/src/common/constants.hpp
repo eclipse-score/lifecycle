@@ -23,25 +23,35 @@
 namespace score::mw::lifecycle::internal
 {
 
-constexpr std::size_t kMaxEnv = 100U;  ///< Maximum number of env variables
-constexpr std::size_t kEnvArraySize =
-    kMaxEnv + 1U;  ///< As required by posix we need extra space in envp_ for NULL pointer
+/// @brief Maximum number of env variables
+constexpr std::size_t kMaxEnv = 100U;
 
-constexpr std::chrono::milliseconds kMaxQueueDelay{
-    500};  ///< The maximum time to wait trying to add items to, or get items from, a queue
-constexpr std::chrono::milliseconds kGraphTimeout{10000};   ///< Timeout duration for graph operations.
-constexpr std::chrono::milliseconds kMaxSigKillDelay{500};  ///< The maximum time to wait for a process termination
+/// @brief As required by posix we need extra space in envp_ for NULL pointer
+constexpr std::size_t kEnvArraySize = kMaxEnv + 1U;
 
-constexpr std::chrono::milliseconds kDefaultOffStateTransitionTimeout{
-    3000};  ///< Default timeout for Off state transition
+/// @brief The maximum time to wait trying to add items to, or get items from, a queue
+constexpr std::chrono::milliseconds kMaxQueueDelay{500};
 
-constexpr std::int64_t kMainLoopCycleTimeMs{50};  ///< The period at which the main loop services the watchdog
+/// @brief Timeout duration for graph operations.
+constexpr std::chrono::milliseconds kGraphTimeout{10000};
+
+/// @brief The maximum time to wait for a process termination
+constexpr std::chrono::milliseconds kMaxSigKillDelay{500};
+
+/// @brief Default timeout for Off state transition
+constexpr std::chrono::milliseconds kDefaultOffStateTransitionTimeout{3000};
+
+/// @brief The period at which the main loop services the watchdog
+constexpr std::int64_t kMainLoopCycleTimeMs{50};
 constexpr std::int64_t kMainLoopCycleTimeNs{kMainLoopCycleTimeMs * 1'000'000LL};
 
 enum class ProcessLimits : std::uint32_t
 {
-    kMaxProcesses = 1024U,    ///< Maximum number of processes allowed
-    kNumWorkerThreads = 16U,  ///< Size of the used thread pool
+    /// @brief Maximum number of processes allowed
+    kMaxProcesses = 1024U,
+
+    /// @brief Size of the used thread pool
+    kNumWorkerThreads = 16U,
 };
 
 /// @brief Stack size of each worker thread in the thread pool, in bytes.

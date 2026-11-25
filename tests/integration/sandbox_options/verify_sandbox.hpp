@@ -41,7 +41,7 @@ namespace sandbox_options
 /// an option unset (e.g. no working directory) without the verification flagging it.
 struct AffinityExpectation
 {
-    /// Special case for "all", as this depends on the number of CPU cores
+    /// @brief Special case for "all", as this depends on the number of CPU cores
     /// of the machine executing the test
     bool all_cpus;
     std::uint64_t mask;

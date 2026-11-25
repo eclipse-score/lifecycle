@@ -11,19 +11,7 @@
  * SPDX-License-Identifier: Apache-2.0
  ********************************************************************************/
 
-#include <stdint.h>
-#include <atomic>
-#include <chrono>
-#include <csignal>
-#include <cstddef>
-#include <memory>
-#include <optional>
-#include <string>
-#include <string_view>
-#include <utility>
-#include <variant>
-#include <vector>
-
+#include "score/mw/launch_manager/process_group_manager/process_group_manager.hpp"
 #include "score/mw/launch_manager/alive_monitor/IAliveMonitor.hpp"
 #include "score/mw/launch_manager/common/concurrency/concurrency_error_domain.hpp"
 #include "score/mw/launch_manager/common/concurrency/thread_pool.hpp"
@@ -45,7 +33,6 @@
 #include "score/mw/launch_manager/process_group_manager/details/safe_process_map.hpp"
 #include "score/mw/launch_manager/process_group_manager/iprocess.hpp"
 #include "score/mw/launch_manager/process_group_manager/irun_target_control.hpp"
-#include "score/mw/launch_manager/process_group_manager/process_group_manager.hpp"
 #include "score/mw/launch_manager/recovery_client/irecovery_client.h"
 #include "score/mw/launch_manager/watchdog/IWatchdogIf.hpp"
 #include "score/mw/lifecycle/execution_error.h"
@@ -53,6 +40,18 @@
 #include "score/result/error.h"
 #include "score/result/result.h"
 #include <score/assert.hpp>
+#include <stdint.h>
+#include <algorithm>
+#include <atomic>
+#include <chrono>
+#include <csignal>
+#include <memory>
+#include <optional>
+#include <string>
+#include <string_view>
+#include <utility>
+#include <variant>
+#include <vector>
 
 namespace score::mw::lifecycle::internal
 {
@@ -301,7 +300,10 @@ void ProcessGroupManager::allProcessGroupsOff()
     // Wait for process group state to change while actively draining shutdown events.
     // SupervisionFailure is intentionally ignored here so recovery transitions do not
     // fight the forced transition to Off.
-    auto waitForStateCompletion = [this](GraphState state_to_be_completed, int32_t max_wait_ms) -> bool {
+    // Returns the time waited, or std::nullopt if the state did not complete within max_wait_ms.
+    auto waitForStateCompletion = [this](
+                                      GraphState state_to_be_completed,
+                                      std::chrono::milliseconds max_wait) -> std::optional<std::chrono::milliseconds> {
         constexpr int32_t kMaxSleepIntervalMs = 10;
 
         auto has_state = [this, state_to_be_completed]() {
@@ -309,7 +311,8 @@ void ProcessGroupManager::allProcessGroupsOff()
         };
 
         // We cannot rely on the kMaxSleepIntervalMs delay actually elapsing, so we check the clock each iteration
-        const auto deadline = std::chrono::steady_clock::now() + std::chrono::milliseconds{max_wait_ms};
+        const auto start = std::chrono::steady_clock::now();
+        const auto deadline = start + max_wait;
         while (has_state() && (std::chrono::steady_clock::now() < deadline))
         {
             static_cast<void>(event_queue_->waitForEvents(std::chrono::milliseconds(kMaxSleepIntervalMs)));
@@ -333,10 +336,18 @@ void ProcessGroupManager::allProcessGroupsOff()
             }
         }
 
-        return !has_state();
+        if (has_state())
+        {
+            return std::nullopt;
+        }
+        return std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::steady_clock::now() - start);
     };
 
     clearQueuedActivations("shutdown");
+
+    bool off_fails{false};
+    auto remaining_off_transition_timeout = std::chrono::duration_cast<std::chrono::milliseconds>(
+        graph_->getOffStateTransitionTimeout() + kMaxSigKillDelay);
 
     // First, check if we're already transitioning to Off - if so, no need to cancel
     if (!graph_->isTransitioningToOff())
@@ -345,13 +356,16 @@ void ProcessGroupManager::allProcessGroupsOff()
         graph_->cancel();
 
         LM_LOG_DEBUG() << "Wait for transition cancellation";
-        if (!waitForStateCompletion(GraphState::kAborting, 2000))
+        const auto cancel_wait = waitForStateCompletion(GraphState::kAborting, remaining_off_transition_timeout);
+        if (!cancel_wait.has_value())
         {
             LM_LOG_ERROR() << "NOTE: Cancellation timed out";
         }
+        remaining_off_transition_timeout = std::max(
+            std::chrono::milliseconds{0}, remaining_off_transition_timeout - cancel_wait.value_or(kMaxSigKillDelay));
 
         LM_LOG_DEBUG() << "Start transitioning to Off Run Target";
-        (void)graph_->startTransitionToOffState();
+        off_fails = !graph_->startTransitionToOffState();
     }
     else
     {
@@ -360,9 +374,7 @@ void ProcessGroupManager::allProcessGroupsOff()
 
     LM_LOG_DEBUG() << "Wait for transition completion";
 
-    const auto overall_off_transition_timeout = graph_->getOffStateTransitionTimeout() + kMaxSigKillDelay;
-    if (!waitForStateCompletion(
-            GraphState::kInTransition, static_cast<int32_t>(overall_off_transition_timeout.count())))
+    if (off_fails || !waitForStateCompletion(GraphState::kInTransition, remaining_off_transition_timeout).has_value())
     {
         // Last resort: a process ignored even SIGKILL within its budget. Force-kill
         // whatever is left and tear down the worker pool so shutdown can still proceed.

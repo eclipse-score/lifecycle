@@ -123,7 +123,7 @@ class Observable
     }
 
   private:
-    /// Observers attached to the observable object
+    /// @brief Observers attached to the observable object
     std::vector<Observer<Type_Observable>*> observers_{};
 };
 

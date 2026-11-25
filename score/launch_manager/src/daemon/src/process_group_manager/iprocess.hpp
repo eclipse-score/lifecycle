@@ -32,10 +32,14 @@ namespace score::mw::lifecycle::internal::osal
 /// @brief Struct to hold configuration parameters for the child process.
 struct ChildProcessConfig
 {
-    const score::mw::lifecycle::internal::configuration::ComponentConfig&
-        config;              ///< child process startup configurations
-    int fd;                  ///< fd File descriptor of the shared memory segment.
-    IpcCommsP shared_block;  ///< sync Pointer to the shared memory block.
+    /// @brief child process startup configurations
+    const score::mw::lifecycle::internal::configuration::ComponentConfig& config;
+
+    /// @brief fd file descriptor of the shared memory segment.
+    int fd;
+
+    /// @brief sync Pointer to the shared memory block
+    IpcCommsP shared_block;
 };
 
 ///@brief This interface provides functionality that is needed to manage child processes.

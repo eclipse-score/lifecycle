@@ -118,7 +118,7 @@ class IdentifierHash final
     /// @param A raw ID.
     explicit IdentifierHash(std::size_t hash_id);
 
-    /// internal representation of the ID, that was passed in constructor
+    /// @brief internal representation of the ID, that was passed in constructor
     std::size_t hash_id_ = 0;
 };
 
