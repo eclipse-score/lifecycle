@@ -482,15 +482,48 @@ TEST_F(ProcessGroupManagerTest, WatchdogEnableFailFailsPGMInit)
     EXPECT_FALSE(initialize_result);
 }
 
-class AllProcessGroupsOffTest : public NoWatchdogConfigurationTest
+class AllProcessGroupsOffTest : public ProcessGroupManagerTest
 {
   protected:
+    const std::chrono::milliseconds off_state_transition_timeout_{1000};
+
+    Config makeConfig() override
+    {
+        // Config without a watchdog and enough components to store all the events we want to test (queue size is based
+        // on number of processes)
+        std::vector<ComponentConfig> components;
+        for (int i = 0; i < 10; i++)
+        {
+            ComponentConfig component = makeComponentConfig("comp_a");
+            component.component_properties.application_profile.application_type = applicationType();
+
+            components.push_back(std::move(component));
+        }
+
+        return ConfigBuilder{}
+            .setComponents(std::move(components))
+            .setRunTargets(makeStandardRunTargets("comp_a"))
+            .setInitialRunTarget("Startup")
+            .setFallbackRunTarget(makeStandardFallback())
+            .setAliveSupervision(makeStandardAliveSupervision())
+            .build();
+    }
+
     void SetUp() override
     {
         ProcessGroupManagerTest::SetUp();
 
+        ON_CALL(*g_mock_graph, getOffStateTransitionTimeout).WillByDefault(Return(off_state_transition_timeout_));
+
         EXPECT_TRUE(process_group_manager_->initialize());
         process_group_manager_->cancel();  // Skip most of run(), go straight to allProcessGroupsOff()
+    }
+
+    template <typename... Ts, typename F>
+    void apply_for_each_variant_type(const std::variant<Ts...>* /* unused */, F f)
+    {
+        using VariantType = std::variant<Ts...>;
+        (f(VariantType(std::in_place_type<Ts>)), ...);
     }
 };
 
@@ -499,9 +532,24 @@ TEST_F(AllProcessGroupsOffTest, DrainsAllGraphEvents)
     RecordProperty("Description", "Verify that all kinds of graph event are drained during a shutdown");
 
     ASSERT_TRUE(g_mock_process_monitor->event_queue_);
+    // Push one of each component event type into the event queue
+    apply_for_each_variant_type(static_cast<ComponentEvent*>(nullptr), [](ComponentEvent&& event) {
+        static_cast<void>(g_mock_process_monitor->event_queue_->push(std::move(event)));
+    });
 
-    // TODO: needs graph mock
-    SUCCEED();
+    ASSERT_FALSE(g_mock_process_monitor->event_queue_->getOverflow());
+
+    EXPECT_CALL(*g_mock_graph, getState).WillRepeatedly(Return(GraphState::kAborting));
+    // Graph needs to unblock request events
+    EXPECT_CALL(*g_mock_graph, unblockComponentEvent(VariantWith<GetActiveRunTarget>(_), ExecErrc::kShuttingDown));
+    EXPECT_CALL(*g_mock_graph, unblockComponentEvent(VariantWith<SetRequestedRunTarget>(_), ExecErrc::kShuttingDown));
+    // Graph should not handle supervision failures
+    EXPECT_CALL(*g_mock_graph, unblockComponentEvent(VariantWith<SupervisionFailure>(_), _)).Times(0);
+    EXPECT_CALL(*g_mock_graph, handleComponentEvent(VariantWith<SupervisionFailure>(_))).Times(0);
+    // Graph should handle the rest of the events to get out of its transition
+    EXPECT_CALL(*g_mock_graph, handleComponentEvent(_)).Times(AtLeast(1));
+
+    process_group_manager_->run();
 }
 
 TEST_F(AllProcessGroupsOffTest, GraphAlreadyTransitioningToOff)
@@ -510,24 +558,60 @@ TEST_F(AllProcessGroupsOffTest, GraphAlreadyTransitioningToOff)
         "Description",
         "Verify that if the graph is already transitioning to off during a shutdown, that transition is not cancelled");
 
-    // TODO: needs graph mock
-    SUCCEED();
+    EXPECT_CALL(*g_mock_graph, isTransitioningToOff).WillOnce(Return(true));
+    EXPECT_CALL(*g_mock_graph, getState).WillRepeatedly(Return(GraphState::kSuccess));
+
+    EXPECT_CALL(*g_mock_graph, cancel).Times(0);
+    EXPECT_CALL(*g_mock_graph, forceKillProcesses)
+        .Times(0);  // We simulate the transition completing instantly, shutdown should be graceful.
+
+    process_group_manager_->run();
 }
 
 TEST_F(AllProcessGroupsOffTest, CancellationTimesOut)
 {
     RecordProperty("Description", "Verify that if cancelling a transition times out, shutdown is forced");
 
-    // TODO: needs graph mock
-    SUCCEED();
+    std::chrono::time_point<std::chrono::steady_clock> transition_to_off_start, force_kill_time;
+
+    EXPECT_CALL(*g_mock_graph, isTransitioningToOff).WillOnce([&transition_to_off_start]() {
+        transition_to_off_start = std::chrono::steady_clock::now();
+        return false;
+    });
+
+    // Given: a stuck transition
+    EXPECT_CALL(*g_mock_graph, getState).WillRepeatedly(Return(GraphState::kAborting));
+    // Then: after the timeout, processes are force killed
+    EXPECT_CALL(*g_mock_graph, forceKillProcesses).WillOnce([&force_kill_time]() {
+        force_kill_time = std::chrono::steady_clock::now();
+    });
+
+    process_group_manager_->run();
+
+    EXPECT_GT(force_kill_time - transition_to_off_start, off_state_transition_timeout_);
 }
 
 TEST_F(AllProcessGroupsOffTest, TransitionToOffTimesOut)
 {
     RecordProperty("Description", "Verify that if transitioning to off times out, shutdown is forced");
 
-    // TODO: needs graph mock
-    SUCCEED();
+    std::chrono::time_point<std::chrono::steady_clock> transition_to_off_start, force_kill_time;
+
+    EXPECT_CALL(*g_mock_graph, isTransitioningToOff).WillOnce([&transition_to_off_start]() {
+        transition_to_off_start = std::chrono::steady_clock::now();
+        return true;
+    });
+
+    // Given: a stuck off transition
+    EXPECT_CALL(*g_mock_graph, getState).WillRepeatedly(Return(GraphState::kInTransition));
+    // Then: after the timeout, processes are force killed
+    EXPECT_CALL(*g_mock_graph, forceKillProcesses).WillOnce([&force_kill_time]() {
+        force_kill_time = std::chrono::steady_clock::now();
+    });
+
+    process_group_manager_->run();
+
+    EXPECT_GT(force_kill_time - transition_to_off_start, off_state_transition_timeout_);
 }
 
 }  // namespace
