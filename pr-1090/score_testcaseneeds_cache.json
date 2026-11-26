@@ -234,8 +234,8 @@
     "TestType": "requirements-based",
     "DerivationTechnique": "requirements-analysis",
     "result_text": "",
-    "PartiallyVerifies": "feat_req__lifecycle__launch_support, comp_req__launch_man__stop_process_dependents, feat_req__lifecycle__termination_dependency",
-    "FullyVerifies": "comp_req__launch_man__dep_based_startup_order"
+    "PartiallyVerifies": "feat_req__lifecycle__launch_support, feat_req__lifecycle__termination_dependency",
+    "FullyVerifies": "comp_req__launch_man__dep_based_startup_order, comp_req__launch_man__stop_process_dependents"
   },
   {
     "name": "test_recovery_action_complex_rep_failure",
@@ -318,13 +318,13 @@
     "TestType": "requirements-based",
     "DerivationTechnique": "requirements-analysis",
     "result_text": "",
-    "PartiallyVerifies": "comp_req__launch_man__uid_gid_support, comp_req__launch_man__scheduling_policy, comp_req__launch_man__supplementary_groups, comp_req__launch_man__process_rlimit_support",
+    "PartiallyVerifies": "comp_req__launch_man__uid_gid_support, comp_req__launch_man__scheduling_policy, comp_req__launch_man__supplementary_groups, comp_req__launch_man__process_rlimit_support, comp_req__launch_man__secpol_non_root",
     "FullyVerifies": null
   },
   {
     "name": "test_bad_sandbox_options_non_root",
     "file": "tests/integration/sandbox_options/non_root/test.py",
-    "line": "96",
+    "line": "97",
     "result": "passed",
     "repo_name": null,
     "hash": null,
@@ -445,7 +445,7 @@
     "DerivationTechnique": "requirements-analysis",
     "result_text": "",
     "PartiallyVerifies": null,
-    "FullyVerifies": null
+    "FullyVerifies": "comp_req__launch_man__ra_rt_sm_notify"
   },
   {
     "name": "test_crash_ignores_dependents",
