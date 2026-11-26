@@ -45,7 +45,6 @@ build --experimental_retain_test_configuration_across_testonly #https://github.c
 
 # Common test flags for all platforms
 test --test_output=errors
-test --@score_baselibs//score/json:base_library=nlohmann
 
 # Code coverage configuration (LLVM source-based). See //quality/coverage.
 import %workspace%/quality/coverage/coverage.bazelrc
@@ -62,7 +61,6 @@ import %workspace%/quality/iwyu/iwyu.bazelrc
 
 # Common Lifecycle Toolchain flags for build (do not use it in case of system toolchains!)
 build:stub --@score_baselibs//score/mw/log/flags:KRemote_Logging=False
-build:stub --@score_baselibs//score/json:base_library=nlohmann
 
 # Target configuration for running tests on localhost
 build:host --//config:integration_mode=host

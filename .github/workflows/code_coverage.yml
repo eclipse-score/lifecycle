@@ -33,7 +33,7 @@ on:
 jobs:
   coverage:
     name: Coverage
-    uses: eclipse-score/cicd-workflows/.github/workflows/bazel.yml@69812f9210f4f910e562a786dc56e199c3df5248 # main (2026-11-11)
+    uses: eclipse-score/cicd-workflows/.github/workflows/bazel.yml@ff883cfc550bfdf775a7f988ec343d5c17595dc7 # main (2026-11-11)
     permissions:
       contents: read
     with:
