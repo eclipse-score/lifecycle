@@ -28,7 +28,7 @@ class ReplacedActivationFixture : public ActivationFixture
 
 TEST_F(ReplacedActivationFixture, ReplacedActivation)
 {
-    ASSERT_TRUE(check_clean({gatedStartedPath("gated"), gatedReleasePath("gated")}));
+    ASSERT_TRUE(check_clean({gatedStartedPath("gated"), gatedReleasePath("gated"), gatedExitingPath("gated")}));
     std::unique_ptr<ILmControl> client;
 
     TEST_STEP("Create client")

@@ -40,12 +40,13 @@ void log(std::string msg)
     std::cout << "[" << component_name << "]: " << msg << "\n";
 }
 
-/// @brief Signal handler to guarantee cleanup file creation on signal termination
+/// @brief Signal handler to guarantee file creation on exit
 void signal_handler(int)
 {
     exit_requested = true;
 }
 
+/// @brief Registers signal handlers
 void register_signal_handlers()
 {
     std::signal(SIGTERM, signal_handler);
@@ -61,6 +62,8 @@ void register_signal_handlers()
 int main()
 {
     store_component_name();
+    log("Started");
+
     register_signal_handlers();
 
     log("Signal start");
@@ -82,6 +85,7 @@ int main()
     }
     else
     {
+        log("Released");
         log("Report running");
         score::mw::lifecycle::report_running();
 
