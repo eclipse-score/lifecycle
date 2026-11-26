@@ -11,7 +11,7 @@
  * SPDX-License-Identifier: Apache-2.0
  ********************************************************************************/
 
-#include <fcntl.h>
+#include <sys/types.h>
 #include <sys/wait.h>
 #include <unistd.h>
 #include <signal.h>
@@ -20,16 +20,19 @@
 #include "score/mw/launch_manager/common/log.hpp"
 #include "score/mw/launch_manager/common/signal_safe_log.hpp"
 #include "score/mw/launch_manager/configuration/component_config.hpp"
+#include "score/mw/launch_manager/configuration/process_command.hpp"
 #include "score/mw/launch_manager/osal/ipc_comms.hpp"
 #include "score/mw/launch_manager/osal/return_types.hpp"
+#include "score/mw/launch_manager/osal/semaphore.hpp"
 #include "score/mw/launch_manager/osal/shm_open_anon.hpp"
 #include "score/mw/launch_manager/osal/start_process.hpp"
 #include "score/mw/launch_manager/process_group_manager/details/process_launcher.hpp"
-#include "score/mw/launch_manager/process_group_manager/iprocess.hpp"
 #include <score/assert.hpp>
 #include <cerrno>
 #include <chrono>
 #include <cstdio>
+#include <memory>
+#include <string>
 
 constexpr int kPidZero = 0;  // This value is used to check if the process ID (uses pid_t) is valid or not.
 constexpr int kPosixSuccess = 0;

@@ -11,17 +11,19 @@
  * SPDX-License-Identifier: Apache-2.0
  ********************************************************************************/
 
-#include <string_view>
-
 #include <fcntl.h>
 #include <sched.h>
 #include <sys/resource.h>
-#include <sys/types.h>
 #include <unistd.h>
 #include <signal.h>
 
 #include "score/mw/launch_manager/common/log.hpp"
 #include "score/mw/launch_manager/common/signal_safe_log.hpp"
+#include "score/mw/launch_manager/configuration/component_config.hpp"
+#include "score/mw/launch_manager/configuration/environment_config.hpp"
+#include "score/mw/launch_manager/configuration/process_command.hpp"
+#include "score/mw/launch_manager/osal/ipc_comms.hpp"
+#include "score/mw/launch_manager/osal/return_types.hpp"
 #include "score/mw/launch_manager/osal/security_policy.hpp"
 #include "score/mw/launch_manager/osal/set_affinity.hpp"
 #include "score/mw/launch_manager/osal/set_groups.hpp"
@@ -30,6 +32,10 @@
 #include <score/assert.hpp>
 #include <cerrno>
 #include <cstdlib>
+#include <optional>
+#include <string>
+#include <string_view>
+#include <vector>
 
 namespace score::mw::lifecycle::internal::osal
 {

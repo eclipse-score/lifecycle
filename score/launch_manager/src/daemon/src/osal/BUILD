@@ -222,6 +222,8 @@ cc_library(
             ":set_groups",
             ":sys_exit",
             "//score/launch_manager/src/daemon/src/common:signal_safe_log",
+            "//score/launch_manager/src/daemon/src/configuration:environment_config",
+            "//score/launch_manager/src/daemon/src/configuration:process_command",
             "@score_baselibs//score/language/futurecpp",
         ],
         "@platforms//os:qnx": [
