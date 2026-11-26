@@ -417,6 +417,7 @@ cc_library(
     strip_include_prefix = "/score/launch_manager/src/daemon/src/process_group_manager/details",
     visibility = ["//score/launch_manager/src/daemon/src/process_group_manager:__subpackages__"],
     deps = [
+        ":handle",
         ":icomponent",
         ":icomponent_controller",
         "//score/launch_manager/src/daemon/src/common:init_only_resource",
@@ -462,6 +463,7 @@ cc_library(
     deps = [
         ":component_event",
         ":component_task",
+        ":handle",
         ":icomponent",
         ":icomponent_controller",
         ":icomponent_event_publisher_consumer",

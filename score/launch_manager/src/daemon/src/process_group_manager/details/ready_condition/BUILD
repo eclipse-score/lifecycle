@@ -184,7 +184,6 @@ cc_library(
     visibility = ["//score/launch_manager/src/daemon/src/process_group_manager:__subpackages__"],
     deps = [
         ":iready_condition",
-        "//score/launch_manager:error",
         "//score/launch_manager/src/daemon/src/process_group_manager/details:handle",
         "@score_baselibs//score/language/futurecpp",
         "@score_baselibs//score/result",
