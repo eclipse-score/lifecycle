@@ -68,11 +68,12 @@ class ProcessShutdownTest : public ::testing::Test
         RecordProperty("DerivationTechnique", "equivalence-classes");
         RecordProperty(
             "FullyVerifies", "comp_req__launch_man__graceful_p_shutd, comp_req__launch_man__instant_p_shutd");
+        RecordProperty("PartiallyVerifies", "feat_req__lifecycle__process_termination");
 
         g_syscall_mock = std::make_unique<SyscallMock>();
 
-        // Route clock_gettime to the real implementation so time measurements works as expected.
-        ON_CALL(*g_syscall_mock, clock_gettime).WillByDefault(Invoke(__real_clock_gettime));
+        // Route clock_gettime to the real implementation so that time measurements work as expected.
+        EXPECT_CALL(*g_syscall_mock, clock_gettime).WillRepeatedly(Invoke(__real_clock_gettime));
     }
 
     void TearDown() override
