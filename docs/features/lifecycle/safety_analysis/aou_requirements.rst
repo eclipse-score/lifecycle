@@ -75,6 +75,11 @@ Feature AoU
       :need:`dec_rec__lifecycle__in_process_health_monitor`. It is the bound used by FEAT_FMEA_001 of
       :need:`doc__lifecycle_fmea`.
 
+   .. note:: This assumption covers every supervised process, including the ones supervised only by the
+      alive supervision of the Launch Manager. For the processes that use the Health Monitor, it is
+      detailed by :need:`aou_req__health_monitor__ftti_budget` (the time budget to show) and
+      :need:`aou_req__health_monitor__cfg_derivation` (how the monitoring rules are derived).
+
 .. aou_req:: Process isolation of the platform
    :id: aou_req__lifecycle__process_isolation
    :reqtype: Process
@@ -89,7 +94,8 @@ Feature AoU
    .. note:: The isolation keeps other processes from writing into the monitoring data of the Health
       Monitor. It does not cover the shared region used for the messages between the Health Monitor and
       the Launch Manager, which is shared by design. That gap is FEAT_FMEA_003 of
-      :need:`doc__lifecycle_fmea`.
+      :need:`doc__lifecycle_fmea`. The freedom from interference inside the process that hosts the
+      Health Monitor is :need:`aou_req__health_monitor__host_integrity`.
 
 .. needextend:: c.this_doc() and is_external == False
    :+tags: lifecycle
