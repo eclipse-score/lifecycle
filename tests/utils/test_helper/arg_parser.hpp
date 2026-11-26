@@ -35,8 +35,10 @@ inline const char* FindArg(int argc, char** argv, std::string_view name)
         }
         // --name=value
         const bool flag_is_substr = arg.size() > name.size() && arg.substr(0, name.size()) == name;
-        const bool eq_at_end = arg[name.size()] == '=';
-        if (flag_is_substr && eq_at_end)
+        // The short-circuit is load bearing: indexing at name.size() is only in bounds once `arg`
+        // is known to be longer than `name` (std::string_view::operator[] at size() is UB).
+        const bool eq_at_end = flag_is_substr && arg[name.size()] == '=';
+        if (eq_at_end)
         {
             return argv[i] + name.size() + 1;
         }
