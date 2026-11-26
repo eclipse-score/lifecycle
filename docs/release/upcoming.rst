@@ -44,7 +44,8 @@ Changes to the Module
 New Features
 ~~~~~~~~~~~~
 
-- Non-forced activation requests are now queued, allowing multiple requests in quick succession to be accepted.
+- **Activation Queue**: Non-forced activation requests are now queued, allowing multiple requests in quick succession to be accepted
+  (See `#643 <https://github.com/eclipse-score/lifecycle/pull/643>`_).
 
 Improvements
 ~~~~~~~~~~~~
