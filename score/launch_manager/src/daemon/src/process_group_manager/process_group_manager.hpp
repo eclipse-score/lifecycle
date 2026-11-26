@@ -105,8 +105,7 @@ class ProcessGroupManager final : public IRunTargetControl
     /// `processGroupHandler()` methods until SIGINT or SIGTERM is received, then transitions all the
     /// process groups to the "Off" state before returning. Each time a piece of work is serviced, wait on
     /// the semaphore so as not to consume cpu cycles unduly.
-    /// @return Returns true if the process group manager ran successfully, false otherwise.
-    bool run();
+    void run();
 
     /// @brief Cancels processGroupManager main routine as though SIGTERM had been sent
     void cancel();
@@ -135,8 +134,7 @@ class ProcessGroupManager final : public IRunTargetControl
     /// the value of not null and a graph for a process group with the correct name exists the
     /// transistion of that process group to the required state is started by calling the graph's
     /// `startInitialTransition()` method.
-    /// @return true if the initial transition was started, false otherwise
-    bool startInitialTransition();
+    void startInitialTransition();
 
     /// @brief Process a state transition request
     void processStateTransition();
@@ -170,8 +168,8 @@ class ProcessGroupManager final : public IRunTargetControl
     void allProcessGroupsOff();
 
     /// @brief Initializes the process groups.
-    /// @return Returns true if initialization was successful, false otherwise.
-    bool initializeProcessGroups();
+    /// @note In future, we may wish to make this return a result if process group construction can fail.
+    void initializeProcessGroups();
 
     /// @brief Creates process component objects, including the job queue and worker threads.
     void createProcessComponentsObjects(std::size_t total_processes);
