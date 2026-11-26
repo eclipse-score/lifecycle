@@ -63,7 +63,7 @@ namespace
 /// @param run_target_map Map to keep the translation between IDHash to Index
 /// @return A populated dependency graph with all components and Run Targets.
 void CreateDependencyGraph(
-    DependencyGraph<IdentifierHash, Graph::Component>& graph,
+    DependencyGraph<IdentifierHash, Graph::Node>& graph,
     configuration::GraphConfig& config,
     ProcessHandling process_handling,
     std::chrono::milliseconds& off_state_transition_timeout)
@@ -85,13 +85,11 @@ void CreateDependencyGraph(
         const auto name = component_config.name;
         auto depends_on = std::move(component_config.component_properties.depends_on);
 
-        Result<std::unique_ptr<internal::Component>> component =
+        Result<std::unique_ptr<Component>> component =
             factory.create(std::make_shared<configuration::ComponentConfig>(std::move(component_config)));
         SCORE_LANGUAGE_FUTURECPP_ASSERT_MESSAGE(component.has_value(), "Failed to create component");
         const auto index = graph.try_emplace(
-            IdentifierHash{name},
-            std::in_place_type<std::unique_ptr<internal::Component>>,
-            std::move(component).value());
+            IdentifierHash{name}, std::in_place_type<std::unique_ptr<Component>>, std::move(component).value());
 
         LM_LOG_DEBUG() << "Creating component node:" << name;
         pending_dependencies.emplace_back(index, std::move(depends_on));
@@ -231,7 +229,7 @@ void Graph::queueReadyNodes()
         LM_LOG_DEBUG() << "Node" << node << "is ready for"
                        << (task_type == ComponentTaskType::kActivate ? std::string_view("activation")
                                                                      : std::string_view("deactivation"));
-        Graph::Component& graph_node = nodes_[node];
+        Graph::Node& graph_node = nodes_[node];
         if (RunTarget* const run_target = std::get_if<RunTarget>(&graph_node))
         {
             updateRunTargetInPlace(*run_target, task_type);
@@ -500,9 +498,9 @@ void Graph::cancel()
 
 void Graph::forceKillProcesses()
 {
-    for (const auto [id, component] : nodes_)
+    for (const auto [id, node] : nodes_)
     {
-        if (const auto* const process_component = std::get_if<std::unique_ptr<internal::Component>>(&component))
+        if (const auto* const process_component = std::get_if<std::unique_ptr<Component>>(&node))
         {
             (*process_component)->forceStop();
         }

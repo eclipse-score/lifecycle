@@ -63,8 +63,7 @@ class ComponentFactory final
     /// @param config Configuration of the component; must not be null. The returned component
     ///               shares ownership of it. If the component is supervised, the alive supervision
     ///               connection is added to its environment variables.
-    /// @return The new, inactive component. Every supported configuration currently succeeds; the
-    ///         Result leaves room for configurations which cannot be supported.
+    /// @return The created component instance.
     ///         The concrete type is returned, because the graph needs Component::forceStop().
     [[nodiscard]] Result<std::unique_ptr<Component>> create(
         std::shared_ptr<configuration::ComponentConfig> config) const;
