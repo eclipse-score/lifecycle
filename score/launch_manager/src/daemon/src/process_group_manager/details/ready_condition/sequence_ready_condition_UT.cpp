@@ -134,25 +134,68 @@ TEST_F(SequenceReadyConditionTest, FailingStageStopsTheSequenceWithItsError)
     EXPECT_EQ(result.error(), ExecErrc::kNotImplemented);
 }
 
-TEST_F(SequenceReadyConditionTest, StopRequestedDuringStageStopsTheSequence)
+TEST_F(SequenceReadyConditionTest, StopRequestedDuringStageStillChecksLaterStages)
 {
     RecordProperty("DerivationTechnique", "error-guessing");
     RecordProperty(
         "Description",
         "Given a sequence of two ready conditions. "
-        "When a stop is requested while the first stage is waited for, and the first stage succeeds anyway. "
-        "Then the second stage is not waited for and the wait fails.");
+        "When a stop is requested while the first stage is waited for, the first stage succeeds anyway, and the "
+        "second stage is already fulfilled. "
+        "Then the second stage is still checked with the stopped token and the wait succeeds.");
 
     cpp::stop_source stop_source;
+    const InSequence in_sequence;
     EXPECT_CALL(*first_, wait(_, _, _)).WillOnce(Invoke([&stop_source](auto&&...) {
         static_cast<void>(stop_source.request_stop());
         return Result<void>{};
     }));
+    EXPECT_CALL(*second_, wait(Property(&cpp::stop_token::stop_requested, true), IsTestHandle(), _))
+        .WillOnce(Return(Result<void>{}));
+
+    EXPECT_TRUE(sequence_->wait(stop_source.get_token(), kHandle, 200ms).has_value());
+}
+
+TEST_F(SequenceReadyConditionTest, StopRequestedDuringStageFailsWithErrorOfUnfulfilledStage)
+{
+    RecordProperty("DerivationTechnique", "error-guessing");
+    RecordProperty(
+        "Description",
+        "Given a sequence of two ready conditions. "
+        "When a stop is requested while the first stage is waited for, and the second stage is not fulfilled. "
+        "Then the wait fails with the error of the second stage.");
+
+    cpp::stop_source stop_source;
+    const InSequence in_sequence;
+    EXPECT_CALL(*first_, wait(_, _, _)).WillOnce(Invoke([&stop_source](auto&&...) {
+        static_cast<void>(stop_source.request_stop());
+        return Result<void>{};
+    }));
+    EXPECT_CALL(*second_, wait(_, _, _)).WillOnce(Return(Result<void>{MakeUnexpected(ExecErrc::kGeneralError)}));
 
     const Result<void> result = sequence_->wait(stop_source.get_token(), kHandle, 200ms);
 
     ASSERT_FALSE(result.has_value());
     EXPECT_EQ(result.error(), ExecErrc::kGeneralError);
+}
+
+TEST_F(SequenceReadyConditionTest, StopRequestedBeforeWaitSucceedsIfAllStagesFulfilled)
+{
+    RecordProperty("DerivationTechnique", "error-guessing");
+    RecordProperty(
+        "Description",
+        "Given a sequence of two ready conditions and an already stopped stop token. "
+        "When both stages are already fulfilled. "
+        "Then every stage is checked and the wait succeeds, since a stop only interrupts waiting.");
+
+    cpp::stop_source stop_source;
+    static_cast<void>(stop_source.request_stop());
+
+    const InSequence in_sequence;
+    EXPECT_CALL(*first_, wait(_, _, _)).WillOnce(Return(Result<void>{}));
+    EXPECT_CALL(*second_, wait(_, _, _)).WillOnce(Return(Result<void>{}));
+
+    EXPECT_TRUE(sequence_->wait(stop_source.get_token(), kHandle, 200ms).has_value());
 }
 
 TEST_F(SequenceReadyConditionTest, PrepareReachesAllStages)

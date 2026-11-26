@@ -49,9 +49,9 @@ class FileReadyCondition final : public IReadyCondition
     void prepare() const override;
 
     /// @brief Wait until the file has reached the desired state.
-    /// @details A reported termination ends the wait. The file is then checked once more, because the
-    ///          process may have changed it just before it exited. A stop request on the token ends the
-    ///          wait without this final check.
+    /// @details A reported termination or a stop request ends the wait. The file is then checked once
+    ///          more, because the wait may have ended before the file was checked, or the process may have
+    ///          changed it just before it exited. The wait succeeds if the file has reached its state.
     /// @param stop_token Token which can be used to interrupt the wait.
     /// @param handle The resource to wait on.
     /// @param timeout The maximum duration to wait for the file condition.

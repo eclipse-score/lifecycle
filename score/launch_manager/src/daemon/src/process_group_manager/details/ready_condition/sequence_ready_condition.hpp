@@ -43,9 +43,9 @@ class SequenceReadyCondition final : public IReadyCondition
     void prepare() const override;
 
     /// @brief Wait for every stage in order, until all of them are fulfilled.
-    /// @details Fails as soon as a stage fails, with the error of that stage. Also fails before
-    ///          starting the next stage if a stop was requested, because not every stage reacts
-    ///          to the stop token.
+    /// @details Fails as soon as a stage fails, with the error of that stage. A stop request only
+    ///          interrupts waiting: every remaining stage is still checked once, so the sequence
+    ///          succeeds if all of them are already fulfilled.
     /// @param stop_token Token which can be used to interrupt the wait.
     /// @param handle The resource to wait on.
     /// @param timeout The maximum duration to wait for all stages together.

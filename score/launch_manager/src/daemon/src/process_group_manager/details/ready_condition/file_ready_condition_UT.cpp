@@ -207,13 +207,14 @@ TEST(FileReadyConditionTest, TerminationDuringWaitEndsWait)
     EXPECT_EQ(result.error(), ExecErrc::kGeneralError);
 }
 
-TEST(FileReadyConditionTest, StopRequestDoesNotCheckFileAgain)
+TEST(FileReadyConditionTest, StopRequestedBeforeWaitSucceedsIfFileReachedState)
 {
     RecordProperty(
         "Description",
         "Given an already stopped stop token. "
-        "When wait is called. "
-        "Then the file wait fails, the file is not checked again and wait returns kGeneralError.");
+        "When wait is called and the file has already reached its state. "
+        "Then the file is checked once more without waiting and wait returns success, since a stop only "
+        "interrupts the wait.");
 
     StrictMock<osal::MockIFileWaiter> file_waiter;
     const FileReadyCondition file_ready_condition(
@@ -221,7 +222,43 @@ TEST(FileReadyConditionTest, StopRequestDoesNotCheckFileAgain)
     cpp::stop_source stop_source;
     static_cast<void>(stop_source.request_stop());
 
-    EXPECT_CALL(file_waiter, waitForFile(_, _, _, _, _)).WillOnce(Invoke(blockUntilStopped));
+    {
+        const InSequence in_sequence;
+        EXPECT_CALL(file_waiter, waitForFile(_, _, Eq(kNeverExpires), _, _)).WillOnce(Invoke(blockUntilStopped));
+        EXPECT_CALL(
+            file_waiter, waitForFile(Eq(kFilePath), Eq(configuration::FileExistenceState::Exists), Eq(0ms), _, _))
+            .WillOnce(Invoke([](auto, auto, auto, auto, const cpp::stop_token& token) {
+                EXPECT_FALSE(token.stop_possible());
+                return osal::OsalReturnType::kSuccess;
+            }));
+    }
+
+    file_ready_condition.prepare();
+    const Result<void> result =
+        file_ready_condition.wait(stop_source.get_token(), ProcessHandle{42, nullptr}, kNeverExpires);
+
+    EXPECT_TRUE(result.has_value());
+}
+
+TEST(FileReadyConditionTest, StopRequestedBeforeWaitFailsIfFileDidNotReachState)
+{
+    RecordProperty(
+        "Description",
+        "Given an already stopped stop token. "
+        "When wait is called and the file has not reached its state. "
+        "Then the final check fails and wait returns kGeneralError, not kTimeout.");
+
+    StrictMock<osal::MockIFileWaiter> file_waiter;
+    const FileReadyCondition file_ready_condition(
+        file_waiter, kFilePath, configuration::FileExistenceState::Exists, 5ms);
+    cpp::stop_source stop_source;
+    static_cast<void>(stop_source.request_stop());
+
+    {
+        const InSequence in_sequence;
+        EXPECT_CALL(file_waiter, waitForFile(_, _, Eq(kNeverExpires), _, _)).WillOnce(Invoke(blockUntilStopped));
+        EXPECT_CALL(file_waiter, waitForFile(_, _, Eq(0ms), _, _)).WillOnce(Return(osal::OsalReturnType::kTimeout));
+    }
 
     file_ready_condition.prepare();
     const Result<void> result =
@@ -229,6 +266,38 @@ TEST(FileReadyConditionTest, StopRequestDoesNotCheckFileAgain)
 
     ASSERT_FALSE(result.has_value());
     EXPECT_EQ(result.error(), ExecErrc::kGeneralError);
+}
+
+TEST(FileReadyConditionTest, StopRequestedDuringWaitSucceedsIfFileReachedState)
+{
+    RecordProperty(
+        "Description",
+        "Given a wait for a file. "
+        "When a stop is requested while waiting and the file has reached its state by then. "
+        "Then the final check succeeds and wait returns success.");
+
+    StrictMock<osal::MockIFileWaiter> file_waiter;
+    const FileReadyCondition file_ready_condition(
+        file_waiter, kFilePath, configuration::FileExistenceState::Exists, 5ms);
+    cpp::stop_source stop_source;
+
+    {
+        const InSequence in_sequence;
+        EXPECT_CALL(file_waiter, waitForFile(_, _, Eq(kNeverExpires), _, _))
+            .WillOnce(Invoke([&stop_source](auto, auto, auto, auto, const cpp::stop_token& token) {
+                static_cast<void>(stop_source.request_stop());
+                // The stop request reaches the file wait.
+                EXPECT_TRUE(token.stop_requested());
+                return osal::OsalReturnType::kFail;
+            }));
+        EXPECT_CALL(file_waiter, waitForFile(_, _, Eq(0ms), _, _)).WillOnce(Return(osal::OsalReturnType::kSuccess));
+    }
+
+    file_ready_condition.prepare();
+    const Result<void> result =
+        file_ready_condition.wait(stop_source.get_token(), ProcessHandle{42, nullptr}, kNeverExpires);
+
+    EXPECT_TRUE(result.has_value());
 }
 
 TEST(FileReadyConditionTest, PrepareDiscardsTerminationOfPreviousActivation)

@@ -86,13 +86,8 @@ SequenceReadyCondition::wait(cpp::stop_token stop_token, const Handle& handle, s
         // Set before the stage starts, so that a termination reported from now on reaches it.
         current_stage_.store(stage);
 
-        // Not every stage reacts to the stop token, so a stop which was requested during the
-        // previous stage is checked here.
-        if (stop_token.stop_requested())
-        {
-            return MakeUnexpected(ExecErrc::kGeneralError);
-        }
-
+        // Every stage is checked even if a stop was requested: a stop only interrupts waiting, so each
+        // stage returns at once with a stopped token, succeeding only if it is already met.
         const Result<void> result = stages_[stage]->wait(stop_token, handle, remaining);
         if (!result.has_value())
         {

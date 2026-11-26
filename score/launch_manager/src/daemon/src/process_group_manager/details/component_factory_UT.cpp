@@ -353,6 +353,38 @@ TEST_P(ComponentFactoryReportingTest, FileStateComponentWaitsForkRunningAndThenF
     EXPECT_EQ(component->activate(cpp::stop_token{}), IComponent::RequestResult::kSuccess);
 }
 
+TEST_P(ComponentFactoryReportingTest, FileStateComponentIsActivatedDespiteStopRequestWhenAlreadyReady)
+{
+    RecordProperty("TestType", "interface-test");
+    RecordProperty("DerivationTechnique", "error-guessing");
+    RecordProperty(
+        "Description",
+        "Given a component created from a reporting configuration with a FileState ready condition, and an already "
+        "stopped activation token. "
+        "When the process has already reported kRunning and the file already exists. "
+        "Then every stage is still checked and activation succeeds, since a stop only interrupts waiting.");
+
+    const auto component = createComponent(makeReportingFileStateConfig());
+    ASSERT_NE(component, nullptr);
+
+    cpp::stop_source stop_source;
+    static_cast<void>(stop_source.request_stop());
+
+    expectProcessStarted(sync_);
+    {
+        const InSequence in_sequence;
+        EXPECT_CALL(launcher_, waitForkRunning(sync_, _)).WillOnce(Return(osal::OsalReturnType::kSuccess));
+        // The stopped token ends the file wait at once, then the file is checked once more without waiting.
+        EXPECT_CALL(file_waiter_, waitForFile(_, _, _, _, Property(&cpp::stop_token::stop_requested, true)))
+            .WillOnce(Return(osal::OsalReturnType::kFail));
+        EXPECT_CALL(file_waiter_, waitForFile(_, _, Eq(0ms), _, Property(&cpp::stop_token::stop_requested, false)))
+            .WillOnce(Return(osal::OsalReturnType::kSuccess));
+    }
+
+    EXPECT_EQ(component->activate(stop_source.get_token()), IComponent::RequestResult::kSuccess);
+    EXPECT_TRUE(component->active());
+}
+
 TEST_P(ComponentFactoryReportingTest, FileStateComponentFailsWithoutWaitingForFileWhenkRunningIsNotReported)
 {
     RecordProperty("TestType", "fault-injection");

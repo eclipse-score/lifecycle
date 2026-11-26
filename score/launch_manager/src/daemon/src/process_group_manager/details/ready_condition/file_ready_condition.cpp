@@ -52,9 +52,9 @@ Result<void> FileReadyCondition::wait(
     osal::OsalReturnType result =
         file_waiter_.waitForFile(file_path_, state_, timeout, interval_, wait_stop.get_token());
 
-    if ((result != osal::OsalReturnType::kSuccess) && terminated.stop_requested() && !stop_token.stop_requested())
+    if ((result != osal::OsalReturnType::kSuccess) && (terminated.stop_requested() || stop_token.stop_requested()))
     {
-        // The process may have reached the file state just before it exited, so check it once more.
+        // The wait was ended early, possibly before the file was checked at all. Check once more.
         result =
             file_waiter_.waitForFile(file_path_, state_, std::chrono::milliseconds{0}, interval_, cpp::stop_token{});
         if (result == osal::OsalReturnType::kSuccess)
