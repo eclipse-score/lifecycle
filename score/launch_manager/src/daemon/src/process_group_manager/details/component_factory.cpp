@@ -23,6 +23,7 @@
 #include "score/mw/launch_manager/process_group_manager/details/start_action/process_start_action.hpp"
 #include "score/mw/launch_manager/process_group_manager/details/stop_action/process_stop_action.hpp"
 #include <score/assert.hpp>
+#include <type_traits>
 #include <utility>
 #include <variant>
 #include <vector>
@@ -72,41 +73,48 @@ std::unique_ptr<const IReadyCondition> createReadyCondition(
 {
     const bool reporting = isReporting(config);
 
-    if (const auto* const file_state =
-            std::get_if<configuration::FileState>(&config.component_properties.ready_condition))
-    {
-        // req-id: comp_req__launch_man__rc_file_state
-        auto file_ready_condition = std::make_unique<const FileReadyCondition>(
-            file_waiter, file_state->file_path, file_state->state, file_state->polling_interval);
-        if (reporting)
-        {
-            return afterReportedRunning(launcher, std::move(file_ready_condition));
-        }
-        return file_ready_condition;
-    }
-
-    switch (std::get<configuration::ProcessState>(config.component_properties.ready_condition))
-    {
-        case configuration::ProcessState::Running:
-            if (reporting)
+    return std::visit(
+        [reporting, &launcher, &file_waiter](const auto& ready_condition) -> std::unique_ptr<const IReadyCondition> {
+            using T = std::decay_t<decltype(ready_condition)>;
+            if constexpr (std::is_same_v<T, configuration::FileState>)
             {
-                return std::make_unique<const ReportRunningReadyCondition>(launcher);
+                // req-id: comp_req__launch_man__rc_file_state
+                auto file_ready_condition = std::make_unique<const FileReadyCondition>(
+                    file_waiter, ready_condition.file_path, ready_condition.state, ready_condition.polling_interval);
+                if (reporting)
+                {
+                    return afterReportedRunning(launcher, std::move(file_ready_condition));
+                }
+                return file_ready_condition;
             }
-            // A native process is ready as soon as it has started.
-            return std::make_unique<const EmptyReadyCondition>();
-
-        case configuration::ProcessState::Terminated:
-        {
-            auto terminated_ready_condition = std::make_unique<const ProcessTerminatedReadyCondition>();
-            if (reporting)
+            else
             {
-                return afterReportedRunning(launcher, std::move(terminated_ready_condition));
-            }
-            return terminated_ready_condition;
-        }
-    }
+                static_assert(std::is_same_v<T, configuration::ProcessState>, "Unhandled ready condition type");
+                switch (ready_condition)
+                {
+                    case configuration::ProcessState::Running:
+                        if (reporting)
+                        {
+                            return std::make_unique<const ReportRunningReadyCondition>(launcher);
+                        }
+                        // A native process is ready as soon as it has started.
+                        return std::make_unique<const EmptyReadyCondition>();
 
-    SCORE_LANGUAGE_FUTURECPP_UNREACHABLE_MESSAGE("All possible cases are covered");
+                    case configuration::ProcessState::Terminated:
+                    {
+                        auto terminated_ready_condition = std::make_unique<const ProcessTerminatedReadyCondition>();
+                        if (reporting)
+                        {
+                            return afterReportedRunning(launcher, std::move(terminated_ready_condition));
+                        }
+                        return terminated_ready_condition;
+                    }
+                }
+
+                SCORE_LANGUAGE_FUTURECPP_UNREACHABLE_MESSAGE("All possible cases are covered");
+            }
+        },
+        config.component_properties.ready_condition);
 }
 
 }  // namespace
