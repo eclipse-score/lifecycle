@@ -36,6 +36,20 @@
 namespace score::mw::lifecycle::internal
 {
 
+/// @brief Identifies a process in log messages in the same way, as "Name: <name> , PID: <pid>".
+struct ProcId
+{
+    const IdentifierHash& name;
+    osal::ProcessID pid;
+};
+
+template <class Stream>
+Stream& operator<<(Stream& stream, const ProcId& proc_id)
+{
+    stream << "Name:" << proc_id.name << ", PID:" << proc_id.pid;
+    return stream;
+}
+
 /// @brief Represents both a process and a component in the graph.
 /// @details A ProcessInfoNode is a node in the dependency graph that represents an OS process and its associated
 /// component. It manages the lifecycle of the process, including activation, deactivation, and state reporting. The
