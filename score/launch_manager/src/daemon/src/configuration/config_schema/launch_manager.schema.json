@@ -244,9 +244,9 @@
         },
         "shutdown_timeout_ms": {
           "type": "integer",
-          "exclusiveMinimum": 0,
+          "minimum": 0,
           "maximum": 4294967295,
-          "description": "Specifies the maximum time, in milliseconds, allowed for the component to terminate after it receives a SIGTERM signal from the Launch Manager. The timeout is measured from when the Launch Manager sends the SIGTERM signal until the Operating System notifies the Launch Manager that the child process has terminated."
+          "description": "Specifies the maximum time, in milliseconds, allowed for the component to terminate after it receives a SIGTERM signal. The timeout is measured from when the Launch Manager sends the SIGTERM signal until the Operating System notifies the Launch Manager that the child process has terminated. If set to 0, the Launch Manager sends SIGKILL instead of SIGTERM, terminating the component immediately."
         },
         "environmental_variables": {
           "type": "object",
