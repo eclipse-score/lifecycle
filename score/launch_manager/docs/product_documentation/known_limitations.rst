@@ -21,8 +21,6 @@ Configuration
 Component
 ---------
 
-* For ReadyCondition ``process_state:Terminated``, the mapping is only
-  supported for Components that have at least one Component depending on them.
 * The ``activation_retry_delay_ms`` is currently not evaluated by the Launch Manager.
 * The ``recovery_action`` only supports ``switch_run_target`` with the
   ``run_target`` set to ``fallback_run_target``.
