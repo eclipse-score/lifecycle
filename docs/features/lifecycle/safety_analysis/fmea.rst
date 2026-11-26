@@ -145,7 +145,9 @@ is named; the assumptions of use of the feature are in :need:`doc__lifecycle_fea
         | **Reaction:** the supervision failure is handled by the recovery actions, see
           :need:`feat_arc_dyn__lifecycle__sup_failure`.
         | The reaction time is bounded by the configured interval and grace period. The bound is an
-          assumption of use of the integrator.
+          assumption of use of the integrator: :need:`aou_req__health_monitor__ftti_budget` for the
+          processes that use the Health Monitor, and ``aou_req__lifecycle__reaction_time`` for the
+          feature (proposed in pull request #985).
       - yes, with the assumption of use for the reaction time
     * - FEAT_FMEA_002
       - MF_01_02, MF_01_03, EX_01_02, EX_01_03 (checkpoints and deadlines late, early or too frequent)
@@ -162,11 +164,14 @@ is named; the assumptions of use of the feature are in :need:`doc__lifecycle_fea
     * - FEAT_FMEA_003
       - MF_01_05, MF_01_07 (corrupted or unintended message in the shared monitoring data)
       - A corrupted message hides a failure, or a spurious one triggers a recovery action of a healthy
-        process. A stale process identifier in shared memory was such a defect (``UI_01_09`` in the
-        feature DFA draft of pull request #902). The fix is pull request #830, which is not yet merged.
+        process. A related defect was the weak identification of the shared memory: the client checked
+        a process identifier to make sure it had opened the shared memory of the Launch Manager
+        (``CO_01_02`` in the feature DFA draft of pull request #902). Pull request #830 replaced it with
+        an explicit bit pattern; it does not check the message content.
       - | **Detection:** none on the message content yet. The Health Monitor's protection of its own data
-          structures (``HM_FMEA_003`` in :need:`doc__health_monitor_fmea`) does not cover the messages
-          of the Launch Manager.
+          structures (``HM_FMEA_003`` in :need:`doc__health_monitor_fmea`, measure
+          :need:`comp_req__health_monitor__mem_guard_pages`) does not cover the messages of the Launch
+          Manager.
         | **Open point:** a mitigation for the message content, owner: Janis, trigger: review of this
           document by the Safety Manager. No mitigation issue exists yet.
       - no
@@ -174,11 +179,17 @@ is named; the assumptions of use of the feature are in :need:`doc__lifecycle_fea
       - CO_01_01, CO_01_02 (configured values outside their limits)
       - A configuration value outside its valid range leads to false supervision failures, or exhausts
         resources.
-      - | **Detection and mitigation:** the configuration is checked when it is parsed, and the
-          configuration tests (``//scripts/config_mapping/tests:lifecycle_config_tests``) cover this.
-        | **Open point:** the limits of the Launch Manager JSON schema are incomplete, see
-          eclipse-score/lifecycle#953. Owner: Janis, who follows up on #953; trigger: its merge.
-      - no, until the limits are complete
+      - | **Detection and mitigation:** the configuration is checked against the Launch Manager JSON
+          schema when it is converted at build time (``scripts/config_mapping``), and the configuration
+          tests (``//scripts/config_mapping/tests:lifecycle_config_tests``) cover this. The schema limits
+          every numeric value with a minimum and a maximum (eclipse-score/lifecycle#953).
+        | **Open point:** the schema does not limit the number of components and run targets, nor the
+          length of the ``depends_on``, ``process_arguments`` and ``supplementary_group_ids`` lists.
+          The code has its own limits, for example ``kMaxProcesses`` in
+          ``score/launch_manager/src/daemon/src/common/constants.hpp``; it is not yet shown that the
+          configuration is checked against them. Owner: Janis, trigger: review of this document by the
+          Safety Manager.
+      - no, until the number limits are checked
     * - FEAT_FMEA_005
       - EX_01_04, EX_01_06 (loss or blocking of execution of the Launch Manager or of the Health Monitor)
       - The Health Monitor stops its alive notifications, or the Launch Manager stops supervising. The
@@ -187,7 +198,10 @@ is named; the assumptions of use of the feature are in :need:`doc__lifecycle_fea
           the Health Monitor, and the analysis in :need:`doc__health_monitor_fmea` (``HM_FMEA_002``).
         | **Detection and mitigation for the Launch Manager:** the Launch Manager's self-supervision and
           the external watchdog, see :need:`feat_arc_dyn__lifecycle__watch`. The watchdog is outside the
-          feature; its existence is an assumption of use of the integrator.
+          feature; its existence is an assumption of use of the integrator
+          (``aou_req__lifecycle__external_monitor`` and ``aou_req__lifecycle__watchdog_proxy``, proposed
+          in pull request #985). A blocking of the Launch Manager through the shared mutex of the Alive
+          interface is ``UI_01_09`` in the feature DFA draft of pull request #902.
       - yes, with the assumption of use for the external watchdog
     * - FEAT_FMEA_006
       - EX_01_01 (wrong run target transition or recovery action)
