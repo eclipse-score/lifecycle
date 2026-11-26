@@ -179,7 +179,7 @@ class Component final : public IComponent
     /// @brief Protects the state from concurrent modifications.
     mutable std::mutex state_mutex_;
 
-    /// @brief Notified after a termination was handled.
+    /// @brief Notified when a termination ends TerminatingState, which is what waitUntilTerminated() waits for.
     std::condition_variable termination_handled_;
 
     /// @brief The current state of the component.

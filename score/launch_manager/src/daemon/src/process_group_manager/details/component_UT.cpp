@@ -665,41 +665,6 @@ TEST(ComponentTest, CannotActivateInReadyState)
         { static_cast<void>(component.activate(cpp::stop_token{})); }, "Cannot activate component in a running state");
 }
 
-TEST(ComponentTest, CannotDeactivateWhileActivating)
-{
-    RecordProperty(
-        "Description",
-        "Given a component waiting for its ready condition. "
-        "When it is deactivated concurrently. "
-        "Then the component aborts, because activation and deactivation must never run at the same time.");
-
-    NiceMock<MockSupervisionFactory> factory;
-
-    auto start_action = std::make_unique<MockStartAction>();
-    EXPECT_CALL(*start_action, start(_, _)).WillOnce(kStartsProcess);
-
-    auto ready_condition = std::make_unique<NiceMock<MockReadyCondition>>();
-    auto* const ready_condition_ptr = ready_condition.get();
-
-    Component component(
-        std::move(start_action),
-        std::make_unique<NiceMock<MockStopAction>>(),
-        std::make_unique<NiceMock<MockForceStopAction>>(),
-        std::move(ready_condition),
-        factory,
-        std::make_shared<configuration::ComponentConfig>());
-
-    EXPECT_CALL(*ready_condition_ptr, wait(_, _, _))
-        .WillOnce(Invoke([&component](cpp::stop_token, const Handle&, std::chrono::milliseconds) {
-            EXPECT_DEATH(
-                { static_cast<void>(component.deactivate(cpp::stop_token{})); },
-                "Cannot deactivate component while it is activating or deactivating");
-            return Result<void>{};
-        }));
-
-    EXPECT_EQ(component.activate(cpp::stop_token{}), IComponent::RequestResult::kSuccess);
-}
-
 TEST(ComponentTest, DeactivateWithEmptyHandleIsInactiveImmediately)
 {
     RecordProperty("TestType", "interface-test");

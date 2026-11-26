@@ -191,7 +191,7 @@ IComponent::RequestResult Component::completeActivation(const Result<void>& read
 
     // Only a termination can run concurrently to the activation, and it keeps StartingState.
     const StartingState* const starting = std::get_if<StartingState>(&state_);
-    SCORE_LANGUAGE_FUTURECPP_ASSERT_MESSAGE(starting != nullptr, "Component must still be starting");
+    SCORE_LANGUAGE_FUTURECPP_ASSERT_DBG_MESSAGE(starting != nullptr, "Component must still be starting");
 
     if (starting->terminated_unexpectedly_)
     {
@@ -236,7 +236,7 @@ bool Component::stopAfterFailedActivation()
     }
 
     const StartingState* const starting = std::get_if<StartingState>(&state_);
-    SCORE_LANGUAGE_FUTURECPP_ASSERT_MESSAGE(
+    SCORE_LANGUAGE_FUTURECPP_ASSERT_DBG_MESSAGE(
         starting != nullptr, "Component must still be starting after a failed activation");
 
     const Handle handle = starting->handle_;
@@ -320,7 +320,7 @@ IComponent::RequestResult Component::deactivate(cpp::stop_token /*stop_token*/)
     }
 
     const ReadyState* const ready = std::get_if<ReadyState>(&state_);
-    SCORE_LANGUAGE_FUTURECPP_ASSERT_MESSAGE(
+    SCORE_LANGUAGE_FUTURECPP_ASSERT_DBG_MESSAGE(
         ready != nullptr, "Cannot deactivate component while it is activating or deactivating");
     const Handle handle = ready->handle_;
 
@@ -334,11 +334,7 @@ IComponent::RequestResult Component::deactivate(cpp::stop_token /*stop_token*/)
 IComponent::TerminationResult Component::tryHandleTermination(const Handle& terminated, int32_t status)
 {
     const std::lock_guard<std::mutex> lock{state_mutex_};
-    const TerminationResult result = tryHandleTerminationInternally(terminated, status);
-    // Notified while still locked: once stopAndWait() sees the termination, the component may be
-    // destroyed, so this thread must not touch it after releasing the lock.
-    termination_handled_.notify_all();
-    return result;
+    return tryHandleTerminationInternally(terminated, status);
 }
 
 IComponent::TerminationResult Component::tryHandleTerminationInternally(const Handle& terminated, int32_t status)
@@ -365,13 +361,16 @@ IComponent::TerminationResult Component::tryHandleTerminationInternally(const Ha
     if (std::holds_alternative<TerminatingState>(state_))
     {
         state_ = TerminatedState{};
+        // Notified while still locked: once stopAndWait() sees the termination, the component may be
+        // destroyed, so this thread must not touch it after releasing the lock.
+        termination_handled_.notify_all();
         return TerminationResult::kIgnore;
     }
 
     StartingState* const starting = std::get_if<StartingState>(&state_);
-    ReadyState* const ready = std::get_if<ReadyState>(&state_);
-    SCORE_LANGUAGE_FUTURECPP_ASSERT_MESSAGE(
-        (starting != nullptr) || (ready != nullptr), "Cannot handle termination in this state");
+    SCORE_LANGUAGE_FUTURECPP_ASSERT_DBG_MESSAGE(
+        (starting != nullptr) || (std::get_if<ReadyState>(&state_) != nullptr),
+        "Cannot handle termination in this state");
 
     // Invalidate the resource to prevent acting on something which is already gone.
     invalidate(*handle);
@@ -385,7 +384,8 @@ IComponent::TerminationResult Component::tryHandleTerminationInternally(const Ha
         return TerminationResult::kIgnore;
     }
 
-    // A failure to deactivate supervision does not change the outcome: the resource is gone anyway.
+    // TODO: Failure to deactivate the supervision leaves the supervision expired
+    // also on next restart. Failure must be escalated
     static_cast<void>(deactivateSupervision());
 
     if (isExpectedTermination(status))

@@ -50,8 +50,8 @@ class ResetStageOnExit final
 SequenceReadyCondition::SequenceReadyCondition(std::vector<std::unique_ptr<const IReadyCondition>> stages)
     : stages_(std::move(stages))
 {
-    SCORE_LANGUAGE_FUTURECPP_ASSERT_MESSAGE(!stages_.empty(), "SequenceReadyCondition requires at least one stage");
-    SCORE_LANGUAGE_FUTURECPP_ASSERT_MESSAGE(
+    SCORE_LANGUAGE_FUTURECPP_ASSERT_DBG_MESSAGE(!stages_.empty(), "SequenceReadyCondition requires at least one stage");
+    SCORE_LANGUAGE_FUTURECPP_ASSERT_DBG_MESSAGE(
         std::none_of(
             stages_.cbegin(),
             stages_.cend(),

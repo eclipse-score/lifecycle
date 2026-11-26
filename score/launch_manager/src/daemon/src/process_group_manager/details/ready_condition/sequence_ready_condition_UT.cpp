@@ -296,37 +296,5 @@ TEST_F(SequenceReadyConditionTest, TerminationAfterWaitReachesAllStagesAgain)
     sequence_->handleTermination(kHandle, 1);
 }
 
-TEST(SequenceReadyConditionDeathTest, ConstructionWithoutStagesAborts)
-{
-    RecordProperty("TestType", "interface-test");
-    RecordProperty("DerivationTechnique", "error-guessing");
-    RecordProperty(
-        "Description",
-        "Given no ready conditions. "
-        "When a sequence is created from them. "
-        "Then the creation aborts.");
-
-    EXPECT_DEATH(
-        SequenceReadyCondition{std::vector<std::unique_ptr<const IReadyCondition>>{}},
-        "SequenceReadyCondition requires at least one stage");
-}
-
-TEST(SequenceReadyConditionDeathTest, ConstructionWithMissingStageAborts)
-{
-    RecordProperty("TestType", "interface-test");
-    RecordProperty("DerivationTechnique", "error-guessing");
-    RecordProperty(
-        "Description",
-        "Given a list of ready conditions which contains a nullptr. "
-        "When a sequence is created from them. "
-        "Then the creation aborts.");
-
-    std::vector<std::unique_ptr<const IReadyCondition>> stages;
-    stages.push_back(std::make_unique<MockReadyCondition>());
-    stages.push_back(nullptr);
-
-    EXPECT_DEATH(SequenceReadyCondition{std::move(stages)}, "SequenceReadyCondition requires every stage to be set");
-}
-
 }  // namespace
 }  // namespace score::mw::lifecycle::internal

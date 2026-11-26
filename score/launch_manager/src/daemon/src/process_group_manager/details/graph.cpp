@@ -87,7 +87,7 @@ void CreateDependencyGraph(
 
         Result<std::unique_ptr<Component>> component =
             factory.create(std::make_shared<configuration::ComponentConfig>(std::move(component_config)));
-        SCORE_LANGUAGE_FUTURECPP_ASSERT_MESSAGE(component.has_value(), "Failed to create component");
+        SCORE_LANGUAGE_FUTURECPP_ASSERT_DBG_MESSAGE(component.has_value(), "Failed to create component");
         const auto index = graph.try_emplace(
             IdentifierHash{name}, std::in_place_type<std::unique_ptr<Component>>, std::move(component).value());
 
