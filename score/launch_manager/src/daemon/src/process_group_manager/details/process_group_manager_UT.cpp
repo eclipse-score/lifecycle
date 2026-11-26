@@ -37,6 +37,8 @@ using namespace testing;
 
 namespace score::mw::lifecycle::internal
 {
+std::unique_ptr<MockGraph> g_mock_graph;
+
 namespace
 {
 
@@ -139,6 +141,11 @@ class ProcessGroupManagerTest : public Test
         return std::make_unique<NiceMock<MockWatchdogIf>>();
     }
 
+    virtual std::unique_ptr<MockGraph> makeGraph()
+    {
+        return std::make_unique<NiceMock<MockGraph>>();
+    }
+
     virtual Config makeConfig()
     {
         return makeMinimalConfig(applicationType());
@@ -182,6 +189,8 @@ class ProcessGroupManagerTest : public Test
 
         auto config = makeConfig();
 
+        g_mock_graph = makeGraph();
+
         process_group_manager_ = std::make_unique<ProcessGroupManager>(
             config.takeGraph(),
             std::move(alive_monitor),
@@ -194,6 +203,7 @@ class ProcessGroupManagerTest : public Test
     void TearDown() override
     {
         process_group_manager_->deinitialize();
+        g_mock_graph.reset();
     }
 
     void expectNormalStartup()
@@ -320,15 +330,7 @@ TEST_F(ProcessGroupManagerReportingTest, GetActiveRunTargetAndSetRequestedRunTar
     EXPECT_CALL(*watchdog_, serviceWatchdog()).Times(AtLeast(1));
     EXPECT_CALL(*watchdog_, disable()).Times(1);
     EXPECT_CALL(*alive_monitor_, stopMonitoring()).Times(1);
-
-    // mocks the waitForkRunning and waits inside so that code while PGM is
-    // in transition can be tested
-    std::promise<void> release_running;
-    auto release_future = release_running.get_future().share();
-    ON_CALL(*process_interface_, waitForkRunning).WillByDefault([release_future](auto&&...) {
-        release_future.wait();
-        return osal::OsalReturnType::kSuccess;
-    });
+    EXPECT_CALL(*g_mock_graph, getState).WillRepeatedly(Return(GraphState::kInTransition));
 
     ASSERT_TRUE(process_group_manager_->initialize());
 
@@ -344,7 +346,6 @@ TEST_F(ProcessGroupManagerReportingTest, GetActiveRunTargetAndSetRequestedRunTar
     EXPECT_FALSE(set_result.has_value());
     EXPECT_EQ(set_result.error(), ExecErrc::kRunTargetDoesntExist);
 
-    release_running.set_value();
     process_group_manager_->cancel();
     run_thread.join();
 }
@@ -476,6 +477,52 @@ TEST_F(ProcessGroupManagerTest, WatchdogEnableFailFailsPGMInit)
 
     // Then
     EXPECT_FALSE(initialize_result);
+}
+
+class AllProcessGroupsOffTest : public ProcessGroupManagerTest
+{
+  protected:
+    void SetUp() override
+    {
+        ProcessGroupManagerTest::SetUp();
+
+        EXPECT_TRUE(process_group_manager_->initialize());
+        process_group_manager_->cancel();  // Skip most of run(), go straight to allProcessGroupsOff()
+    }
+};
+
+TEST_F(AllProcessGroupsOffTest, DrainsAllGraphEvents)
+{
+    RecordProperty("Description", "Verify that all kinds of graph event are drained during a shutdown");
+
+    // TODO: needs graph mock
+    SUCCEED();
+}
+
+TEST_F(AllProcessGroupsOffTest, GraphAlreadyTransitioningToOff)
+{
+    RecordProperty(
+        "Description",
+        "Verify that if the graph is already transitioning to off during a shutdown, that transition is not cancelled");
+
+    // TODO: needs graph mock
+    SUCCEED();
+}
+
+TEST_F(AllProcessGroupsOffTest, CancellationTimesOut)
+{
+    RecordProperty("Description", "Verify that if cancelling a transition times out, shutdown is forced");
+
+    // TODO: needs graph mock
+    SUCCEED();
+}
+
+TEST_F(AllProcessGroupsOffTest, TransitionToOffTimesOut)
+{
+    RecordProperty("Description", "Verify that if transitioning to off times out, shutdown is forced");
+
+    // TODO: needs graph mock
+    SUCCEED();
 }
 
 }  // namespace

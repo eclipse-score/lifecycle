@@ -247,7 +247,7 @@ cc_library(
     hdrs = ["component_event.hpp"],
     include_prefix = "score/mw/launch_manager/process_group_manager/details",
     strip_include_prefix = "/score/launch_manager/src/daemon/src/process_group_manager/details",
-    visibility = ["//score/launch_manager/src/daemon/src/process_group_manager:__pkg__"],
+    visibility = ["//score/launch_manager/src/daemon/src/process_group_manager:__subpackages__"],
     deps = [
         ":completion_slot",
         ":icomponent",
@@ -261,7 +261,7 @@ cc_library(
     hdrs = ["component_event_queue.hpp"],
     include_prefix = "score/mw/launch_manager/process_group_manager/details",
     strip_include_prefix = "/score/launch_manager/src/daemon/src/process_group_manager/details",
-    visibility = ["//score/launch_manager/src/daemon/src/process_group_manager:__pkg__"],
+    visibility = ["//score/launch_manager/src/daemon/src/process_group_manager:__subpackages__"],
     deps = [
         ":component_event",
         ":icomponent_event_publisher_consumer",
@@ -275,7 +275,7 @@ cc_library(
     hdrs = ["icomponent_event_publisher_consumer.hpp"],
     include_prefix = "score/mw/launch_manager/process_group_manager/details",
     strip_include_prefix = "/score/launch_manager/src/daemon/src/process_group_manager/details",
-    visibility = ["//score/launch_manager/src/daemon/src/process_group_manager:__pkg__"],
+    visibility = ["//score/launch_manager/src/daemon/src/process_group_manager:__subpackages__"],
     deps = [":component_event"],
 )
 
@@ -304,7 +304,7 @@ cc_library(
     hdrs = ["process_handling.hpp"],
     include_prefix = "score/mw/launch_manager/process_group_manager/details",
     strip_include_prefix = "/score/launch_manager/src/daemon/src/process_group_manager/details",
-    visibility = ["//score/launch_manager/src/daemon/src/process_group_manager:__pkg__"],
+    visibility = ["//score/launch_manager/src/daemon/src/process_group_manager:__subpackages__"],
     deps = [
         ":safe_process_map",
         "//score/launch_manager/src/daemon/src/alive_monitor:isupervision_factory",
@@ -319,7 +319,7 @@ cc_library(
     hdrs = ["process_info_node.hpp"],
     include_prefix = "score/mw/launch_manager/process_group_manager/details",
     strip_include_prefix = "/score/launch_manager/src/daemon/src/process_group_manager/details",
-    visibility = ["//score/launch_manager/src/daemon/src/process_group_manager:__pkg__"],
+    visibility = ["//score/launch_manager/src/daemon/src/process_group_manager:__subpackages__"],
     deps = [
         ":icomponent",
         ":process_handling",
@@ -362,7 +362,7 @@ cc_library(
     hdrs = ["run_target.hpp"],
     include_prefix = "score/mw/launch_manager/process_group_manager/details",
     strip_include_prefix = "/score/launch_manager/src/daemon/src/process_group_manager/details",
-    visibility = ["//score/launch_manager/src/daemon/src/process_group_manager:__pkg__"],
+    visibility = ["//score/launch_manager/src/daemon/src/process_group_manager:__subpackages__"],
     deps = [
         ":icomponent",
     ],
@@ -375,7 +375,7 @@ cc_library(
     include_prefix = "score/mw/launch_manager/process_group_manager/details",
     strip_include_prefix = "/score/launch_manager/src/daemon/src/process_group_manager/details",
     visibility = [
-        "//score/launch_manager/src/daemon/src/process_group_manager:__pkg__",
+        "//score/launch_manager/src/daemon/src/process_group_manager:__subpackages__",
     ],
     deps = [
         ":component_event",
@@ -424,7 +424,7 @@ cc_library(
     hdrs = ["transition.hpp"],
     include_prefix = "score/mw/launch_manager/process_group_manager/details",
     strip_include_prefix = "/score/launch_manager/src/daemon/src/process_group_manager/details",
-    visibility = ["//score/launch_manager/src/daemon/src/process_group_manager:__pkg__"],
+    visibility = ["//score/launch_manager/src/daemon/src/process_group_manager:__subpackages__"],
     deps = [
         ":component_of",
         ":dependency_graph",
@@ -440,7 +440,7 @@ cc_library(
     hdrs = ["component_of.hpp"],
     include_prefix = "score/mw/launch_manager/process_group_manager/details",
     strip_include_prefix = "/score/launch_manager/src/daemon/src/process_group_manager/details",
-    visibility = ["//score/launch_manager/src/daemon/src/process_group_manager:__pkg__"],
+    visibility = ["//score/launch_manager/src/daemon/src/process_group_manager:__subpackages__"],
     deps = [
         ":icomponent",
         ":process_info_node",
@@ -481,7 +481,7 @@ cc_library(
     hdrs = ["os_handler.hpp"],
     include_prefix = "score/mw/launch_manager/process_group_manager/details",
     strip_include_prefix = "/score/launch_manager/src/daemon/src/process_group_manager/details",
-    visibility = ["//score/launch_manager/src/daemon/src/process_group_manager:__pkg__"],
+    visibility = ["//score/launch_manager/src/daemon/src/process_group_manager:__subpackages__"],
     deps = [
         ":safe_process_map",
         "//score/launch_manager/src/daemon/src/common:log",
@@ -497,7 +497,7 @@ cc_library(
     hdrs = ["process_monitor.hpp"],
     include_prefix = "score/mw/launch_manager/process_group_manager/details",
     strip_include_prefix = "/score/launch_manager/src/daemon/src/process_group_manager/details",
-    visibility = ["//score/launch_manager/src/daemon/src/process_group_manager:__pkg__"],
+    visibility = ["//score/launch_manager/src/daemon/src/process_group_manager:__subpackages__"],
     deps = [
         ":component_event",
         ":component_task",
@@ -543,8 +543,8 @@ lm_cc_test(
         "//score/launch_manager/src/daemon/src/alive_monitor:mock_alive_supervision_handle",
         "//score/launch_manager/src/daemon/src/alive_monitor:mock_supervision_factory",
         "//score/launch_manager/src/daemon/src/configuration:config",
-        "//score/launch_manager/src/daemon/src/process_group_manager",
         "//score/launch_manager/src/daemon/src/process_group_manager:mock_iprocess",
+        "//score/launch_manager/src/daemon/src/process_group_manager:mockable_process_group_manager",
         "//score/launch_manager/src/daemon/src/recovery_client:mock_recovery_client",
         "//score/launch_manager/src/daemon/src/watchdog:mock_i_watchdog_if",
         "@googletest//:gtest_main",
@@ -622,7 +622,7 @@ cc_library(
     ],
     include_prefix = "score/mw/launch_manager/process_group_manager/details",
     strip_include_prefix = "/score/launch_manager/src/daemon/src/process_group_manager/details",
-    visibility = ["//score/launch_manager/src/daemon/src/process_group_manager:__pkg__"],
+    visibility = ["//score/launch_manager/src/daemon/src/process_group_manager:__subpackages__"],
     deps = [
         "//score/launch_manager/src/daemon/src/common/concurrency:fixed_size_queue",
         "@score_baselibs//score/language/futurecpp",
