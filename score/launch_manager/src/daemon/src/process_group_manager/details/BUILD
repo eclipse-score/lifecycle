@@ -142,6 +142,7 @@ cc_library(
     strip_include_prefix = "/score/launch_manager/src/daemon/src/process_group_manager/details",
     visibility = ["//score:__subpackages__"],
     deps = [
+        ":handle",
         "//score/launch_manager/src/daemon/src/common:identifier_hash",
         "@score_baselibs//score/language/futurecpp",
     ],
@@ -163,7 +164,7 @@ cc_library(
     hdrs = ["handle.hpp"],
     include_prefix = "score/mw/launch_manager/process_group_manager/details",
     strip_include_prefix = "/score/launch_manager/src/daemon/src/process_group_manager/details",
-    visibility = ["//score/launch_manager/src/daemon/src/process_group_manager:__subpackages__"],
+    visibility = ["//score:__subpackages__"],
     deps = ["//score/launch_manager/src/daemon/src/osal:ipc_comms"],
 )
 

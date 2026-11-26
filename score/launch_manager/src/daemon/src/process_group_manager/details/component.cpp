@@ -179,7 +179,7 @@ std::optional<Handle> Component::beginActivation(cpp::stop_token stop_token)
     // The resource may have terminated directly after startup, in which case its termination is handled immediately.
     if (started.exit_status.has_value())
     {
-        static_cast<void>(tryHandleTerminationInternally(started.exit_status.value()));
+        static_cast<void>(tryHandleTerminationInternally(started.handle, started.exit_status.value()));
     }
 
     return started.handle;
@@ -298,6 +298,7 @@ bool Component::stopAndWait(std::unique_lock<std::mutex>& lock, const Handle& ha
     {
         LM_LOG_ERROR() << config_->name << ": did not terminate after being stopped forcefully";
     }
+
     state_ = TerminatedState{};
     return false;
 }
@@ -330,18 +331,35 @@ IComponent::RequestResult Component::deactivate(cpp::stop_token /*stop_token*/)
     return stopAndWait(lock, handle) ? RequestResult::kSuccess : RequestResult::kFailure;
 }
 
-IComponent::TerminationResult Component::tryHandleTermination(int32_t status)
+IComponent::TerminationResult Component::tryHandleTermination(const Handle& terminated, int32_t status)
 {
     const std::lock_guard<std::mutex> lock{state_mutex_};
-    const TerminationResult result = tryHandleTerminationInternally(status);
+    const TerminationResult result = tryHandleTerminationInternally(terminated, status);
     // Notified while still locked: once stopAndWait() sees the termination, the component may be
     // destroyed, so this thread must not touch it after releasing the lock.
     termination_handled_.notify_all();
     return result;
 }
 
-IComponent::TerminationResult Component::tryHandleTerminationInternally(int32_t status)
+IComponent::TerminationResult Component::tryHandleTerminationInternally(const Handle& terminated, int32_t status)
 {
+    Handle* const handle = currentHandle();
+
+    // The component already gave up on the resource, e.g. after a failed cleanup.
+    if (handle == nullptr)
+    {
+        LM_LOG_DEBUG() << config_->name << ": ignoring termination of a resource which is no longer tracked";
+        return TerminationResult::kIgnore;
+    }
+
+    // The termination belongs to a resource the component gave up on, e.g. a previous instance which did
+    // not terminate in time after being stopped forcefully, and has been started again since then.
+    if (!isSameResource(*handle, terminated))
+    {
+        LM_LOG_DEBUG() << config_->name << ": ignoring termination of a previous instance of the resource";
+        return TerminationResult::kIgnore;
+    }
+
     // If we are waiting for termination, mark it as done. We do not care
     // about the exit code.
     if (std::holds_alternative<TerminatingState>(state_))
@@ -350,27 +368,19 @@ IComponent::TerminationResult Component::tryHandleTerminationInternally(int32_t 
         return TerminationResult::kIgnore;
     }
 
-    // The component already gave up on the resource, e.g. after a failed cleanup.
-    if (std::holds_alternative<TerminatedState>(state_))
-    {
-        LM_LOG_DEBUG() << config_->name << ": ignoring termination of a resource which is no longer tracked";
-        return TerminationResult::kIgnore;
-    }
-
     StartingState* const starting = std::get_if<StartingState>(&state_);
     ReadyState* const ready = std::get_if<ReadyState>(&state_);
     SCORE_LANGUAGE_FUTURECPP_ASSERT_MESSAGE(
         (starting != nullptr) || (ready != nullptr), "Cannot handle termination in this state");
-    Handle& handle = (starting != nullptr) ? starting->handle_ : ready->handle_;
 
     // Invalidate the resource to prevent acting on something which is already gone.
-    invalidate(handle);
+    invalidate(*handle);
 
     if (starting != nullptr)
     {
         // The ready condition decides whether its wait succeeds, the component decides whether the
         // termination is expected. activate() reports the outcome, so there is only one event.
-        ready_condition_->handleTermination(handle, status);
+        ready_condition_->handleTermination(*handle, status);
         starting->terminated_unexpectedly_ = !isExpectedTermination(status);
         return TerminationResult::kIgnore;
     }
@@ -421,24 +431,28 @@ void Component::handleSupervisionFailure(std::chrono::nanoseconds failure_timest
     static_cast<void>(force_stop_action_->forceStop(cpp::stop_token{}, ready->handle_));
 }
 
+Handle* Component::currentHandle()
+{
+    if (StartingState* const starting = std::get_if<StartingState>(&state_))
+    {
+        return &starting->handle_;
+    }
+    if (ReadyState* const ready = std::get_if<ReadyState>(&state_))
+    {
+        return &ready->handle_;
+    }
+    if (TerminatingState* const terminating = std::get_if<TerminatingState>(&state_))
+    {
+        return &terminating->handle_;
+    }
+    return nullptr;
+}
+
 void Component::forceStop()
 {
     const std::lock_guard<std::mutex> lock{state_mutex_};
 
-    const Handle* handle = nullptr;
-    if (const StartingState* const starting = std::get_if<StartingState>(&state_))
-    {
-        handle = &starting->handle_;
-    }
-    else if (const ReadyState* const ready = std::get_if<ReadyState>(&state_))
-    {
-        handle = &ready->handle_;
-    }
-    else if (const TerminatingState* const terminating = std::get_if<TerminatingState>(&state_))
-    {
-        handle = &terminating->handle_;
-    }
-
+    const Handle* const handle = currentHandle();
     if ((handle != nullptr) && isAlive(*handle))
     {
         static_cast<void>(force_stop_action_->forceStop(cpp::stop_token{}, *handle));

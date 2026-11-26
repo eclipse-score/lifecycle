@@ -95,11 +95,15 @@ class Component final : public IComponent
     /// @brief Notify the component that its resource has terminated.
     /// @details A termination during startup is reported to the ready condition and always ignored here;
     ///          activate() reports the outcome of the activation instead.
+    ///          A termination of a resource other than the currently tracked one, e.g. a late termination of
+    ///          a previous instance which could not be stopped in time, is ignored.
+    /// @param terminated Identifies the resource which terminated. Only used for comparison.
     /// @param status Exit code of the process.
     /// @note This method is invoked from the central OS Handler thread and must not block.
-    /// @return kIgnore if the termination is expected or handled by an ongoing activation/deactivation task,
+    /// @return kIgnore if the termination is expected, handled by an ongoing activation/deactivation task, or
+    ///         belongs to a resource which is not tracked anymore,
     ///         kFailure if the termination is unexpected and not handled by an ongoing activation/deactivation task.
-    TerminationResult tryHandleTermination(int32_t status) override;
+    TerminationResult tryHandleTermination(const Handle& terminated, int32_t status) override;
 
     /// @brief Notify the component that its alive supervision has failed.
     /// @details Stops the resource forcefully if the component is ready and the failure belongs to the
@@ -224,9 +228,16 @@ class Component final : public IComponent
 
     /// @brief Handle the termination of the resource.
     /// @pre The state must be locked by the caller.
+    /// @param terminated Identifies the resource which terminated. Terminations of other resources than the
+    ///        currently tracked one are ignored.
     /// @param status Exit code of the resource.
     /// @return Whether the termination is ignored or means the component failed.
-    TerminationResult tryHandleTerminationInternally(int32_t status);
+    TerminationResult tryHandleTerminationInternally(const Handle& terminated, int32_t status);
+
+    /// @brief Return the handle of the currently tracked resource.
+    /// @pre The state must be locked by the caller.
+    /// @return The handle in StartingState, ReadyState or TerminatingState, nullptr in TerminatedState.
+    [[nodiscard]] Handle* currentHandle();
 
     /// @brief Return whether a termination with the given exit status is expected.
     /// @param status Exit code of the resource.

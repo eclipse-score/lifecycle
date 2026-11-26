@@ -90,7 +90,9 @@ class ComponentFactoryTest : public Test
     {
         EXPECT_CALL(launcher_, requestTermination(kPid)).WillOnce(Invoke([this, &component, status](osal::ProcessID) {
             termination_thread_ = std::thread([&component, status] {
-                EXPECT_EQ(component.tryHandleTermination(status), IComponent::TerminationResult::kIgnore);
+                EXPECT_EQ(
+                    component.tryHandleTermination(ProcessHandle{kPid, nullptr}, status),
+                    IComponent::TerminationResult::kIgnore);
             });
             return osal::OsalReturnType::kSuccess;
         }));
@@ -394,7 +396,9 @@ TEST_P(ComponentFactoryReportingTest, TerminatedComponentWaitsForkRunningAndThen
     EXPECT_CALL(launcher_, waitForkRunning(sync_, std::chrono::milliseconds{kReadyTimeoutMs}))
         .WillOnce(Invoke([this, &component](osal::IpcCommsP, std::chrono::milliseconds) {
             termination_thread_ = std::thread([&component] {
-                EXPECT_EQ(component->tryHandleTermination(0), IComponent::TerminationResult::kIgnore);
+                EXPECT_EQ(
+                    component->tryHandleTermination(ProcessHandle{kPid, nullptr}, 0),
+                    IComponent::TerminationResult::kIgnore);
             });
             return osal::OsalReturnType::kSuccess;
         }));

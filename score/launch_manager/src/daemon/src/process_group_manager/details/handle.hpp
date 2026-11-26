@@ -48,6 +48,15 @@ void invalidate(Handle& handle);
 /// @return False for an EmptyHandle and for a handle which was invalidated, true otherwise.
 bool isAlive(const Handle& handle);
 
+/// @brief Checks whether two handles refer to the same resource.
+/// @details Only the identity of the resource is compared (e.g. the pid of a process).
+/// An EmptyHandle or an invalidated handle never
+/// refers to the same resource as any other handle, since it does not refer to a resource at all.
+/// @param lhs The first handle to compare.
+/// @param rhs The second handle to compare.
+/// @return True if both handles refer to the same resource.
+bool isSameResource(const Handle& lhs, const Handle& rhs);
+
 }  // namespace score::mw::lifecycle::internal
 
 #endif  // SCORE_LCM_HANDLE_HPP_INCLUDED

@@ -114,10 +114,10 @@ void ProcessMonitor::doWork(ComponentTask&& task)
     }
 }
 
-void ProcessMonitor::terminated(IComponent& component, int32_t status)
+void ProcessMonitor::terminated(IComponent& component, const Handle& terminated, int32_t status)
 {
     bool push_res = true;
-    switch (component.tryHandleTermination(status))
+    switch (component.tryHandleTermination(terminated, status))
     {
         case IComponent::TerminationResult::kFailure:
             push_res = event_queue_.push(UnexpectedTermination{component.getIdentifier()});

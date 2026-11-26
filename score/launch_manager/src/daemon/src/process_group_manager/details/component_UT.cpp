@@ -44,6 +44,9 @@ using namespace ::testing;
 
 const ProcessHandle mock_handle = ProcessHandle{42, nullptr};
 
+/// @brief Handle of the resource after the component was started again.
+const ProcessHandle restarted_handle = ProcessHandle{43, nullptr};
+
 /// @brief A timeout which never expires during a test run. Tests which must not time out use it
 ///        and check the result instead of measuring time, so they cannot become flaky on slow machines.
 ///        An unwanted wait shows up as a hanging test, never as a flake.
@@ -57,14 +60,15 @@ void expect_mock_handle(const Handle handle)
     EXPECT_EQ(std::get<ProcessHandle>(handle).pid, mock_handle.pid);
 }
 
-IComponent::TerminationResult terminateFromOtherThread(Component& component, const int32_t status)
+IComponent::TerminationResult
+terminateFromOtherThread(Component& component, const int32_t status, const Handle& terminated = mock_handle)
 {
     // Termination notifications come from another thread in reality, so
     // replacate it in the test to catch concurrency problems.
 
     IComponent::TerminationResult result;
-    std::thread termination_thread([&component, &result, status]() {
-        result = component.tryHandleTermination(status);
+    std::thread termination_thread([&component, &result, &terminated, status]() {
+        result = component.tryHandleTermination(terminated, status);
     });
     termination_thread.join();
     return result;
@@ -105,8 +109,8 @@ void provideSupervision(MockSupervisionFactory& factory, std::unique_ptr<NiceMoc
         .WillByDefault(Return(ByMove(std::unique_ptr<IAliveSupervisionHandle>{std::move(handle)})));
 }
 
-/// @brief A stop or force stop action which succeeds and reports the termination with @p status from
-///        another thread.
+/// @brief A stop or force stop action which succeeds and reports the termination of the resource it was
+///        called with, with @p status, from another thread.
 /// @details The reporting thread blocks until the component releases its lock while it waits for the
 ///          termination, like the OsHandler thread does.
 auto reportTerminationLater(
@@ -115,16 +119,17 @@ auto reportTerminationLater(
     IComponent::RequestResult action_result = IComponent::RequestResult::kSuccess,
     int32_t status = 0)
 {
-    return [&component, &thread, action_result, status](cpp::stop_token, const Handle&) {
+    return [&component, &thread, action_result, status](cpp::stop_token, const Handle& handle) {
         // Assigning joins a thread started by a previous call.
-        thread = cpp::jthread{[&component, status] {
-            EXPECT_EQ(component.tryHandleTermination(status), IComponent::TerminationResult::kIgnore);
+        thread = cpp::jthread{[&component, status, handle] {
+            EXPECT_EQ(component.tryHandleTermination(handle, status), IComponent::TerminationResult::kIgnore);
         }};
         return Result<IComponent::RequestResult>{action_result};
     };
 }
 
 const auto kStartsProcess = Return(Result<StartedResource>{StartedResource{mock_handle}});
+const auto kRestartsProcess = Return(Result<StartedResource>{StartedResource{restarted_handle}});
 
 /// @brief Expects one stop of an already terminated process, which must not be asked to terminate again.
 void expectStopOfDeadProcess(MockStopAction& stop_action)
@@ -589,7 +594,7 @@ TEST(ComponentTest, TerminationDuringStartWaitsUntilComponentIsStarting)
     EXPECT_CALL(*start_action_ptr, start(_, _)).WillOnce(Invoke([&](cpp::stop_token, IComponent&) {
         // Like the OsHandler thread reporting the termination right after the insertion.
         termination_thread = std::thread([&component, &termination_handled]() {
-            EXPECT_EQ(component.tryHandleTermination(1), IComponent::TerminationResult::kIgnore);
+            EXPECT_EQ(component.tryHandleTermination(mock_handle, 1), IComponent::TerminationResult::kIgnore);
             termination_handled.store(true);
         });
         std::this_thread::sleep_for(std::chrono::milliseconds(10));
@@ -843,7 +848,7 @@ TEST(ComponentTest, DeactivateOfRunningProcessWaitsForTermination)
     EXPECT_CALL(*stop_action_ptr, stop(_, _)).WillOnce(Invoke([&](cpp::stop_token, const Handle&) {
         termination_thread = cpp::jthread{[&] {
             termination_reported.store(true);
-            EXPECT_EQ(component.tryHandleTermination(0), IComponent::TerminationResult::kIgnore);
+            EXPECT_EQ(component.tryHandleTermination(mock_handle, 0), IComponent::TerminationResult::kIgnore);
         }};
         return Result<IComponent::RequestResult>{IComponent::RequestResult::kSuccess};
     }));
@@ -2163,7 +2168,7 @@ TEST(ComponentTest, SupervisionDeactivatedImmediatelyOnTermination)
         std::move(config));
 
     static_cast<void>(component.activate(cpp::stop_token{}));
-    static_cast<void>(component.tryHandleTermination(1));
+    static_cast<void>(component.tryHandleTermination(mock_handle, 1));
 
     // deactivate() is never called because there is nothing reading the event queue
 }
@@ -2667,6 +2672,144 @@ TEST(ComponentTest, SelfTerminatingExitWhileReadyDoesNotBlockReactivation)
     EXPECT_FALSE(component.active());
 
     EXPECT_EQ(component.activate(cpp::stop_token{}), IComponent::RequestResult::kSuccess);
+}
+
+TEST(ComponentTest, LateTerminationOfPreviousInstanceIsIgnoredWhileReady)
+{
+    RecordProperty(
+        "Description",
+        "Given a component whose process did not terminate after being stopped forcefully, and which was activated "
+        "again with a new process. "
+        "When the termination of the previous process is reported late. "
+        "Then it is ignored and the component stays active, while a termination of the new process is a failure.");
+
+    NiceMock<MockSupervisionFactory> factory;
+
+    auto start_action = std::make_unique<MockStartAction>();
+    EXPECT_CALL(*start_action, start(_, _)).WillOnce(kStartsProcess).WillOnce(kRestartsProcess);
+
+    auto stop_action = std::make_unique<MockStopAction>();
+    EXPECT_CALL(*stop_action, stop(_, _)).WillOnce(Return(IComponent::RequestResult::kSuccess));
+
+    // The forced stop reaches the process, but it does not terminate in time.
+    auto force_stop_action = std::make_unique<StrictMock<MockForceStopAction>>();
+    EXPECT_CALL(*force_stop_action, forceStop(_, _)).WillOnce(Return(IComponent::RequestResult::kSuccess));
+
+    Component component(
+        std::move(start_action),
+        std::move(stop_action),
+        std::move(force_stop_action),
+        std::make_unique<NiceMock<MockReadyCondition>>(),
+        factory,
+        configWithShutdownTimeout(std::chrono::milliseconds{0}));
+
+    ASSERT_EQ(component.activate(cpp::stop_token{}), IComponent::RequestResult::kSuccess);
+    ASSERT_EQ(component.deactivate(cpp::stop_token{}), IComponent::RequestResult::kFailure);
+    ASSERT_EQ(component.activate(cpp::stop_token{}), IComponent::RequestResult::kSuccess);
+
+    EXPECT_EQ(terminateFromOtherThread(component, 1, mock_handle), IComponent::TerminationResult::kIgnore);
+    EXPECT_TRUE(component.active());
+
+    EXPECT_EQ(terminateFromOtherThread(component, 1, restarted_handle), IComponent::TerminationResult::kFailure);
+    EXPECT_FALSE(component.active());
+}
+
+TEST(ComponentTest, LateTerminationOfPreviousInstanceDoesNotCompleteDeactivation)
+{
+    RecordProperty(
+        "Description",
+        "Given a component which gave up on its previous process, and which was activated again with a new process. "
+        "When the new process is deactivated and the termination of the previous process is reported meanwhile. "
+        "Then the component keeps waiting for the termination of the new process.");
+
+    NiceMock<MockSupervisionFactory> factory;
+
+    auto start_action = std::make_unique<MockStartAction>();
+    EXPECT_CALL(*start_action, start(_, _)).WillOnce(kStartsProcess).WillOnce(kRestartsProcess);
+
+    auto stop_action = std::make_unique<MockStopAction>();
+    auto* const stop_action_ptr = stop_action.get();
+
+    auto force_stop_action = std::make_unique<StrictMock<MockForceStopAction>>();
+    auto* const force_stop_action_ptr = force_stop_action.get();
+
+    Component component(
+        std::move(start_action),
+        std::move(stop_action),
+        std::move(force_stop_action),
+        std::make_unique<NiceMock<MockReadyCondition>>(),
+        factory,
+        configWithShutdownTimeout(kNeverExpires));
+
+    cpp::jthread late_termination_thread;
+    cpp::jthread termination_thread;
+
+    // The previous process cannot be asked to stop, so the component gives up on it.
+    EXPECT_CALL(*stop_action_ptr, stop(_, _))
+        .WillOnce(Return(IComponent::RequestResult::kFailure))
+        .WillOnce(Invoke([&component, &late_termination_thread](cpp::stop_token, const Handle& handle) {
+            EXPECT_TRUE(isSameResource(handle, restarted_handle));
+            late_termination_thread = cpp::jthread{[&component] {
+                EXPECT_EQ(component.tryHandleTermination(mock_handle, 0), IComponent::TerminationResult::kIgnore);
+                // Only a component which still waits for the termination stops its resource forcefully.
+                component.forceStop();
+            }};
+            return Result<IComponent::RequestResult>{IComponent::RequestResult::kSuccess};
+        }));
+
+    EXPECT_CALL(*force_stop_action_ptr, forceStop(_, Truly([](const Handle& handle) {
+                                                      return isSameResource(handle, restarted_handle);
+                                                  })))
+        .WillOnce(Invoke(reportTerminationLater(component, termination_thread)));
+
+    ASSERT_EQ(component.activate(cpp::stop_token{}), IComponent::RequestResult::kSuccess);
+    ASSERT_EQ(component.deactivate(cpp::stop_token{}), IComponent::RequestResult::kFailure);
+    ASSERT_EQ(component.activate(cpp::stop_token{}), IComponent::RequestResult::kSuccess);
+
+    EXPECT_EQ(component.deactivate(cpp::stop_token{}), IComponent::RequestResult::kSuccess);
+    EXPECT_FALSE(component.active());
+}
+
+TEST(ComponentTest, LateTerminationOfPreviousInstanceIsIgnoredWhileStarting)
+{
+    RecordProperty(
+        "Description",
+        "Given a component which gave up on its previous process, and which is activated again with a new process. "
+        "When the termination of the previous process is reported while waiting for the ready condition. "
+        "Then it is not reported to the ready condition and the activation succeeds.");
+
+    NiceMock<MockSupervisionFactory> factory;
+
+    auto start_action = std::make_unique<MockStartAction>();
+    EXPECT_CALL(*start_action, start(_, _)).WillOnce(kStartsProcess).WillOnce(kRestartsProcess);
+
+    auto stop_action = std::make_unique<MockStopAction>();
+    EXPECT_CALL(*stop_action, stop(_, _)).WillOnce(Return(IComponent::RequestResult::kFailure));
+
+    auto ready_condition = std::make_unique<NiceMock<MockReadyCondition>>();
+    auto* const ready_condition_ptr = ready_condition.get();
+
+    Component component(
+        std::move(start_action),
+        std::move(stop_action),
+        std::make_unique<StrictMock<MockForceStopAction>>(),
+        std::move(ready_condition),
+        factory,
+        configWithShutdownTimeout(kNeverExpires));
+
+    EXPECT_CALL(*ready_condition_ptr, handleTermination(_, _)).Times(0);
+    EXPECT_CALL(*ready_condition_ptr, wait(_, _, _))
+        .WillOnce(Return(Result<void>{}))
+        .WillOnce(Invoke([&component](cpp::stop_token, const Handle&, std::chrono::milliseconds) {
+            EXPECT_EQ(terminateFromOtherThread(component, 1, mock_handle), IComponent::TerminationResult::kIgnore);
+            return Result<void>{};
+        }));
+
+    ASSERT_EQ(component.activate(cpp::stop_token{}), IComponent::RequestResult::kSuccess);
+    ASSERT_EQ(component.deactivate(cpp::stop_token{}), IComponent::RequestResult::kFailure);
+
+    EXPECT_EQ(component.activate(cpp::stop_token{}), IComponent::RequestResult::kSuccess);
+    EXPECT_TRUE(component.active());
 }
 
 }  // namespace

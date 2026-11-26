@@ -39,6 +39,9 @@ using namespace testing;
 using namespace configuration;
 using namespace std::chrono_literals;
 
+/// @brief Pid of every process started by the tests.
+constexpr osal::ProcessID kPid = 100;
+
 class MockProcessMap : public SafeProcessMapInserter
 {
   public:
@@ -142,10 +145,9 @@ class GraphTest : public ::testing::Test
         IComponent::RequestResult res;
         if (job.type == ComponentTaskType::kActivate)
         {
-            const osal::ProcessID pid = 100;
             EXPECT_CALL(process_interface_, startProcess)
                 .WillOnce(
-                    DoAll(SetArgReferee<0>(pid), SetArgReferee<1>(sync_), Return(osal::OsalReturnType::kSuccess)));
+                    DoAll(SetArgReferee<0>(kPid), SetArgReferee<1>(sync_), Return(osal::OsalReturnType::kSuccess)));
             EXPECT_CALL(*mock_process_map_, insertIfNotTerminated)
                 .WillOnce(Return(SafeProcessMapInsertResult{SafeProcessMapReturnType::kInserted}));
             res = job.component.get().activate(job.stop_token);
@@ -159,7 +161,8 @@ class GraphTest : public ::testing::Test
                 .WillOnce(DoAll(
                     InvokeWithoutArgs([job, &termination] {
                         termination = std::async(std::launch::async, [job] {
-                            static_cast<void>(job.component.get().tryHandleTermination(0));
+                            static_cast<void>(
+                                job.component.get().tryHandleTermination(ProcessHandle{kPid, nullptr}, 0));
                         });
                     }),
                     Return(osal::OsalReturnType::kSuccess)));
@@ -792,7 +795,8 @@ TEST_F(GraphHandleComponentEventTest, unexpectedTerminationDuringSuccess)
     auto* const component = findActivatedComponent(IdentifierHash{process_name(0)});
     ASSERT_NE(component, nullptr);
 
-    EXPECT_EQ(component->tryHandleTermination(134), IComponent::TerminationResult::kFailure);
+    EXPECT_EQ(
+        component->tryHandleTermination(ProcessHandle{kPid, nullptr}, 134), IComponent::TerminationResult::kFailure);
 
     graph_->handleComponentEvent(UnexpectedTermination{component->getIdentifier()});
 
@@ -815,7 +819,8 @@ TEST_F(GraphHandleComponentEventTest, unexpectedTerminationDuringTransition)
 
     auto* const component = &first_job.value()->component.get();
 
-    EXPECT_EQ(component->tryHandleTermination(134), IComponent::TerminationResult::kFailure);
+    EXPECT_EQ(
+        component->tryHandleTermination(ProcessHandle{kPid, nullptr}, 134), IComponent::TerminationResult::kFailure);
 
     graph_->handleComponentEvent(UnexpectedTermination{component_index});
 

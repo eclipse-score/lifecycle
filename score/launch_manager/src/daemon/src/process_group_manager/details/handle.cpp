@@ -30,4 +30,16 @@ bool isAlive(const Handle& handle)
     return (process_handle != nullptr) && (process_handle->pid != -1);
 }
 
+bool isSameResource(const Handle& lhs, const Handle& rhs)
+{
+    const ProcessHandle* const lhs_process = std::get_if<ProcessHandle>(&lhs);
+    const ProcessHandle* const rhs_process = std::get_if<ProcessHandle>(&rhs);
+    if ((lhs_process == nullptr) || (rhs_process == nullptr))
+    {
+        return false;
+    }
+    // An invalidated handle no longer refers to a resource, so it cannot refer to the same one as another handle.
+    return (lhs_process->pid != -1) && (lhs_process->pid == rhs_process->pid);
+}
+
 }  // namespace score::mw::lifecycle::internal
