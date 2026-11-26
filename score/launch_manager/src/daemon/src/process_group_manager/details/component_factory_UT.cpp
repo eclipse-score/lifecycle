@@ -278,10 +278,27 @@ class ComponentFactoryReportingTest : public ComponentFactoryTest,
                                       public WithParamInterface<configuration::ApplicationType>
 {
   protected:
+    void SetUp() override
+    {
+        // A termination makes ReportRunningReadyCondition post the semaphore, so it must be initialised.
+        ASSERT_EQ(sync_->send_sync_.init(0U, false), osal::OsalReturnType::kSuccess);
+    }
+
+    void TearDown() override
+    {
+        static_cast<void>(sync_->send_sync_.deinit());
+    }
+
     std::shared_ptr<configuration::ComponentConfig> makeReportingFileStateConfig()
     {
         const configuration::FileState file_state{"/tmp/ready", configuration::FileExistenceState::Exists, 5ms};
-        auto config = makeConfig(GetParam(), file_state);
+        return makeReportingConfig(file_state);
+    }
+
+    std::shared_ptr<configuration::ComponentConfig> makeReportingConfig(
+        const configuration::ReadyCondition ready_condition)
+    {
+        auto config = makeConfig(GetParam(), ready_condition);
 
         // Supervised application types need alive supervision, which is not the subject of these tests.
         config->component_properties.application_profile.alive_supervision = configuration::ComponentAliveSupervision{};
@@ -294,6 +311,11 @@ class ComponentFactoryReportingTest : public ComponentFactoryTest,
             }));
         return config;
     }
+
+    /// @brief Shared memory of the started process, with an initialised semaphore.
+    alignas(osal::IpcCommsSync) std::array<std::byte, sizeof(osal::IpcCommsSync)> sync_buffer_{};
+    const osal::IpcCommsP sync_{reinterpret_cast<osal::IpcCommsSync*>(sync_buffer_.data()), [](osal::IpcCommsSync*) {
+                                }};
 };
 
 TEST_P(ComponentFactoryReportingTest, FileStateComponentWaitsForkRunningAndThenForFile)
@@ -346,6 +368,64 @@ TEST_P(ComponentFactoryReportingTest, FileStateComponentFailsWithoutWaitingForFi
     expectProcessStarted(mock_sync);
     EXPECT_CALL(launcher_, waitForkRunning(_, _)).WillOnce(Return(osal::OsalReturnType::kFail));
     expectProcessStopped(*component);
+
+    EXPECT_EQ(component->activate(cpp::stop_token{}), IComponent::RequestResult::kFailure);
+    EXPECT_FALSE(component->active());
+}
+
+TEST_P(ComponentFactoryReportingTest, TerminatedComponentWaitsForkRunningAndThenForTermination)
+{
+    RecordProperty("TestType", "interface-test");
+    RecordProperty("DerivationTechnique", "equivalence-classes");
+    RecordProperty(
+        "Description",
+        "Given a component created from a self-terminating reporting configuration with ready condition "
+        "Terminated. "
+        "When the component is activated, its process reports kRunning and then terminates with status 0. "
+        "Then kRunning is waited for first, then the termination, and activation succeeds.");
+
+    auto config = makeReportingConfig(configuration::ProcessState::Terminated);
+    config->component_properties.application_profile.is_self_terminating = true;
+    const auto component = createComponent(config);
+    ASSERT_NE(component, nullptr);
+
+    expectProcessStarted(sync_);
+    // The process terminates once it has reported kRunning, reported from another thread like the OsHandler.
+    EXPECT_CALL(launcher_, waitForkRunning(sync_, std::chrono::milliseconds{kReadyTimeoutMs}))
+        .WillOnce(Invoke([this, &component](osal::IpcCommsP, std::chrono::milliseconds) {
+            termination_thread_ = std::thread([&component] {
+                EXPECT_EQ(component->tryHandleTermination(0), IComponent::TerminationResult::kIgnore);
+            });
+            return osal::OsalReturnType::kSuccess;
+        }));
+
+    EXPECT_EQ(component->activate(cpp::stop_token{}), IComponent::RequestResult::kSuccess);
+    EXPECT_TRUE(component->active());
+    termination_thread_.join();
+}
+
+TEST_P(ComponentFactoryReportingTest, TerminatedComponentFailsWhenProcessTerminatesWithoutkRunning)
+{
+    RecordProperty("TestType", "fault-injection");
+    RecordProperty("DerivationTechnique", "error-guessing");
+    RecordProperty(
+        "Description",
+        "Given a component created from a self-terminating reporting configuration with ready condition "
+        "Terminated. "
+        "When the component is activated and its process terminates with status 0 without reporting kRunning. "
+        "Then activation fails, since a successful termination alone does not fulfil the ready condition.");
+
+    auto config = makeReportingConfig(configuration::ProcessState::Terminated);
+    config->component_properties.application_profile.is_self_terminating = true;
+    const auto component = createComponent(config);
+    ASSERT_NE(component, nullptr);
+
+    // The process has already terminated when it is tracked, so the termination is handled during start.
+    expectProcessStarted(sync_);
+    EXPECT_CALL(process_map_, insertIfNotTerminated(kPid, component.get()))
+        .WillOnce(Return(SafeProcessMapInsertResult{SafeProcessMapReturnType::kMatched, 0}));
+    // Woken up by the termination, but the process never reported kRunning.
+    EXPECT_CALL(launcher_, waitForkRunning(sync_, _)).WillOnce(Return(osal::OsalReturnType::kFail));
 
     EXPECT_EQ(component->activate(cpp::stop_token{}), IComponent::RequestResult::kFailure);
     EXPECT_FALSE(component->active());
@@ -452,12 +532,12 @@ TEST_F(ComponentFactoryTest, TerminatedComponentIsReadyOnceProcessTerminatedSucc
     RecordProperty("DerivationTechnique", "equivalence-classes");
     RecordProperty(
         "Description",
-        "Given a component created from a self-terminating reporting configuration with ready condition "
+        "Given a component created from a self-terminating native configuration with ready condition "
         "Terminated. "
         "When the component is activated and its process terminates with status 0. "
         "Then kRunning is not waited for, and activation succeeds.");
 
-    auto config = makeConfig(configuration::ApplicationType::Reporting, configuration::ProcessState::Terminated);
+    auto config = makeConfig(configuration::ApplicationType::Native, configuration::ProcessState::Terminated);
     config->component_properties.application_profile.is_self_terminating = true;
     const auto component = createComponent(config);
     ASSERT_NE(component, nullptr);

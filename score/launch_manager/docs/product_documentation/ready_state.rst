@@ -95,6 +95,10 @@ File State
 
 The component is considered ready once the file specified in ``file_path``
 reaches the desired state (``Exists`` or ``NotExisting``).
+For a component whose process reports via the lifecycle API (application types
+``Reporting``, ``Reporting_And_Supervised`` and ``State_Manager``), the process
+must first report ``kRunning``; only then is the file state waited for.
+Both share the ``ready_timeout_ms``.
 
 The Launch Manager polls for the existence or deletion of the file with the
 configured ``polling_interval``.

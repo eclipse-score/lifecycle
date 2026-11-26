@@ -52,47 +52,61 @@ bool isReporting(const configuration::ComponentConfig& config) noexcept
     SCORE_LANGUAGE_FUTURECPP_UNREACHABLE_MESSAGE("All possible cases are covered");
 }
 
+/// @brief Create a ready condition which first waits for the kRunning report of the process, and only
+///        then for @p condition. Both share the ready timeout.
+std::unique_ptr<const IReadyCondition> afterReportedRunning(
+    osal::IProcess& launcher,
+    std::unique_ptr<const IReadyCondition> condition)
+{
+    std::vector<std::unique_ptr<const IReadyCondition>> stages;
+    stages.push_back(std::make_unique<const ReportRunningReadyCondition>(launcher));
+    stages.push_back(std::move(condition));
+    return std::make_unique<const SequenceReadyCondition>(std::move(stages));
+}
+
 /// @brief Choose the ready condition for a component from its configuration.
+/// @details A reporting process must report kRunning before any other ready condition is waited for.
+///          A native process never reports kRunning.
 /// @return The ready condition.
 std::unique_ptr<const IReadyCondition> createReadyCondition(
     const configuration::ComponentConfig& config,
     osal::IProcess& launcher,
     const osal::IFileWaiter& file_waiter)
 {
+    const bool reporting = isReporting(config);
+
     if (const auto* const file_state =
             std::get_if<configuration::FileState>(&config.component_properties.ready_condition))
     {
         // req-id: comp_req__launch_man__rc_file_state
         auto file_ready_condition = std::make_unique<const FileReadyCondition>(
             file_waiter, file_state->file_path, file_state->state, file_state->polling_interval);
-
-        if (!isReporting(config))
+        if (reporting)
         {
-            return file_ready_condition;
+            return afterReportedRunning(launcher, std::move(file_ready_condition));
         }
-
-        // A reporting process first reports kRunning, and only then the file is waited for. Both
-        // share the ready timeout.
-        std::vector<std::unique_ptr<const IReadyCondition>> stages;
-        stages.push_back(std::make_unique<const ReportRunningReadyCondition>(launcher));
-        stages.push_back(std::move(file_ready_condition));
-        return std::make_unique<const SequenceReadyCondition>(std::move(stages));
+        return file_ready_condition;
     }
 
     switch (std::get<configuration::ProcessState>(config.component_properties.ready_condition))
     {
         case configuration::ProcessState::Running:
-            if (!isReporting(config))
+            if (reporting)
             {
-                // A native process never reports kRunning, so it is ready as soon as it has started.
-                return std::make_unique<const EmptyReadyCondition>();
+                return std::make_unique<const ReportRunningReadyCondition>(launcher);
             }
-            return std::make_unique<const ReportRunningReadyCondition>(launcher);
+            // A native process is ready as soon as it has started.
+            return std::make_unique<const EmptyReadyCondition>();
 
         case configuration::ProcessState::Terminated:
-            // Only the termination is waited for, for every application type. A reporting process
-            // is not waited for to report kRunning.
-            return std::make_unique<const ProcessTerminatedReadyCondition>();
+        {
+            auto terminated_ready_condition = std::make_unique<const ProcessTerminatedReadyCondition>();
+            if (reporting)
+            {
+                return afterReportedRunning(launcher, std::move(terminated_ready_condition));
+            }
+            return terminated_ready_condition;
+        }
     }
 
     SCORE_LANGUAGE_FUTURECPP_UNREACHABLE_MESSAGE("All possible cases are covered");
