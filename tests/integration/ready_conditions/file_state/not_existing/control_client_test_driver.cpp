@@ -34,7 +34,7 @@ TEST(FileStateNotExistng, ControlClientTestDriver)
 
     TEST_STEP("Register callback")
     {
-        const auto result = client->register_run_target_activation_callback(push_event);
+        const auto result = client->register_run_target_activation_callback(activation_received_callback);
         ASSERT_TRUE(result.has_value());
     }
 
@@ -48,7 +48,7 @@ TEST(FileStateNotExistng, ControlClientTestDriver)
         report_running();
     }
 
-    pop_event([](RunTargetActivationSource source, RunTargetName target) {
+    wait_for_activation([](RunTargetActivationSource source, RunTargetName target) {
         TEST_STEP("Callback for Run Target Startup")
         {
             EXPECT_EQ(source, RunTargetActivationSource::kInitialActivation);
@@ -62,7 +62,7 @@ TEST(FileStateNotExistng, ControlClientTestDriver)
         EXPECT_TRUE(result.has_value()) << result.error().Message();
     }
 
-    pop_event([](RunTargetActivationSource source, RunTargetName target) {
+    wait_for_activation([](RunTargetActivationSource source, RunTargetName target) {
         TEST_STEP("Callback for Run Target working")
         {
             EXPECT_EQ(source, RunTargetActivationSource::kStateManagerRequest);
@@ -76,7 +76,7 @@ TEST(FileStateNotExistng, ControlClientTestDriver)
         EXPECT_TRUE(result.has_value()) << result.error().Message();
     }
 
-    pop_event([](RunTargetActivationSource source, RunTargetName target) {
+    wait_for_activation([](RunTargetActivationSource source, RunTargetName target) {
         TEST_STEP("Callback for Run Target fallback")
         {
             EXPECT_EQ(source, RunTargetActivationSource::kRecoveryAction);

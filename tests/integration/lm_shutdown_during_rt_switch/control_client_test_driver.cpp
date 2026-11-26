@@ -47,7 +47,7 @@ TEST(LmShutdownDuringRtSwitch, ControlClient)
 
     TEST_STEP("Register callback")
     {
-        const auto result = client->register_run_target_activation_callback(push_event);
+        const auto result = client->register_run_target_activation_callback(activation_received_callback);
         ASSERT_TRUE(result.has_value());
     }
 
@@ -61,7 +61,7 @@ TEST(LmShutdownDuringRtSwitch, ControlClient)
         report_running();
     }
 
-    pop_event([](RunTargetActivationSource source, RunTargetName target) {
+    wait_for_activation([](RunTargetActivationSource source, RunTargetName target) {
         TEST_STEP("Callback for Run Target Startup")
         {
             EXPECT_EQ(source, RunTargetActivationSource::kInitialActivation);
@@ -75,7 +75,7 @@ TEST(LmShutdownDuringRtSwitch, ControlClient)
         EXPECT_TRUE(result.has_value()) << result.error().Message();
     }
 
-    pop_event([](RunTargetActivationSource source, RunTargetName target) {
+    wait_for_activation([](RunTargetActivationSource source, RunTargetName target) {
         TEST_STEP("Callback for Run Target run_target_a")
         {
             EXPECT_EQ(source, RunTargetActivationSource::kStateManagerRequest);

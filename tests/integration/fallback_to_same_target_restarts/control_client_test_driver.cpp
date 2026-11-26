@@ -70,7 +70,7 @@ TEST(FallbackToSameTargetRestarts, ControlClientTestDriver)
 
     TEST_STEP("Register callback")
     {
-        const auto result = client->register_run_target_activation_callback(push_event);
+        const auto result = client->register_run_target_activation_callback(activation_received_callback);
         ASSERT_TRUE(result.has_value());
     }
 
@@ -84,7 +84,7 @@ TEST(FallbackToSameTargetRestarts, ControlClientTestDriver)
         report_running();
     }
 
-    pop_event([](RunTargetActivationSource source, RunTargetName target) {
+    wait_for_activation([](RunTargetActivationSource source, RunTargetName target) {
         TEST_STEP("Callback for Run Target Startup")
         {
             EXPECT_EQ(source, RunTargetActivationSource::kInitialActivation);
@@ -98,7 +98,7 @@ TEST(FallbackToSameTargetRestarts, ControlClientTestDriver)
         EXPECT_TRUE(result.has_value()) << result.error().Message();
     }
 
-    pop_event([](RunTargetActivationSource source, RunTargetName target) {
+    wait_for_activation([](RunTargetActivationSource source, RunTargetName target) {
         TEST_STEP("Callback for Run Target run_target_crashing_app_on_runtime")
         {
             EXPECT_EQ(source, RunTargetActivationSource::kStateManagerRequest);
@@ -106,7 +106,7 @@ TEST(FallbackToSameTargetRestarts, ControlClientTestDriver)
         }
     });
 
-    pop_event([](RunTargetActivationSource source, RunTargetName target) {
+    wait_for_activation([](RunTargetActivationSource source, RunTargetName target) {
         TEST_STEP("Callback for Run Target fallback")
         {
             EXPECT_EQ(source, RunTargetActivationSource::kRecoveryAction);
@@ -125,7 +125,7 @@ TEST(FallbackToSameTargetRestarts, ControlClientTestDriver)
         EXPECT_TRUE(result.has_value()) << result.error().Message();
     }
 
-    pop_event([](RunTargetActivationSource source, RunTargetName target) {
+    wait_for_activation([](RunTargetActivationSource source, RunTargetName target) {
         TEST_STEP("Callback for Run Target supervision_failure")
         {
             EXPECT_EQ(source, RunTargetActivationSource::kStateManagerRequest);
@@ -146,7 +146,7 @@ TEST(FallbackToSameTargetRestarts, ControlClientTestDriver)
         EXPECT_EQ(kill(first_pid, SIGUSR1), 0);
     }
 
-    pop_event([](RunTargetActivationSource source, RunTargetName target) {
+    wait_for_activation([](RunTargetActivationSource source, RunTargetName target) {
         TEST_STEP("Callback for Run Target fallback after supervision failure")
         {
             EXPECT_EQ(source, RunTargetActivationSource::kRecoveryAction);

@@ -108,7 +108,7 @@ testing::AssertionResult wait_for_file(const std::string_view file, const std::c
     return wait_for_files({file}, timeout);
 }
 
-void push_event(RunTargetActivationSource source, RunTargetName target)
+void activation_received_callback(RunTargetActivationSource source, RunTargetName target)
 {
     {
         std::cout << __FUNCTION__ << "Locking" << std::endl;
@@ -124,7 +124,7 @@ void push_event(RunTargetActivationSource source, RunTargetName target)
     event_condition.notify_one();
 }
 
-void pop_event(
+void wait_for_activation(
     std::function<void(RunTargetActivationSource source, RunTargetName target)> callback,
     const std::chrono::milliseconds timeout)
 {
@@ -146,7 +146,7 @@ void pop_event(
         event_received = false;
     }
     event_condition.notify_one();
-    // Invoked without holding the mutex so the callback may block or call push_event/pop_event.
+    // Invoked without holding the mutex so the callback may block or call activation_received_callback/wait_for_activation.
     callback(source, target);
 }
 

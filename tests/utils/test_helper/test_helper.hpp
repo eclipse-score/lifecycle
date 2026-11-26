@@ -70,11 +70,11 @@ using score::mw::lifecycle::RunTargetName;
 
 /// @brief Hands one activation event over from the activation callback to the test thread (single-slot queue).
 /// Blocks while the previous event has not been popped yet.
-void push_event(RunTargetActivationSource source, RunTargetName target);
+void activation_received_callback(RunTargetActivationSource source, RunTargetName target);
 
 /// @brief Blocks until an event is available, then passes it to `callback` and frees the slot.
 /// If no event arrives within `timeout`, a non-fatal test failure is recorded and `callback` is not invoked.
-void pop_event(
+void wait_for_activation(
     std::function<void(RunTargetActivationSource source, RunTargetName target)> callback,
     std::chrono::milliseconds timeout = std::chrono::seconds(10));
 
