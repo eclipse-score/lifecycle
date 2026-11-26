@@ -36,8 +36,10 @@ following tables. For all applicable failure initiators, the DFA has to be perfo
     :need:`doc__lifecycle_module_architecture`) and the Health Monitor FMEA (:need:`doc__health_monitor_fmea`).
     It has **not yet been formally reviewed/accepted**. The structured ``feat_saf_dfa`` entries for the
     applicable rows are intentionally not yet added, as a proper ``mitigated_by`` link requires real,
-    reviewed feature/component requirements, which are not yet available for all affected areas (see
-    the deviations tracked in :need:`doc__lifecycle_safety_plan`). This is planned as a follow-up once
+    reviewed feature requirements or feature AoU. The Health Monitor component requirements
+    (:need:`doc__health_monitor_requirements`) and AoU (:need:`doc__health_monitor_comp_aou`) are
+    available, the feature AoU (:need:`doc__lifecycle_feat_aou`) are not yet filled in (see the
+    deviations tracked in :need:`doc__lifecycle_safety_plan`). This is planned as a follow-up once
     those requirements exist.
 
 The "two elements" referred to below are this feature's two components, the :need:`comp__health_monitor`
@@ -200,8 +202,8 @@ Unintended impacts to function due to various failures.
     - If the monitored application's (and thereby the Health Monitor's) scheduling parameters are
       misconfigured, the background supervision thread may not be scheduled correctly, affecting
       timely reporting to the Launch Manager. Already identified as ``HM_FMEA_001`` in
-      :need:`doc__health_monitor_fmea`; the corresponding AoU ``aou_req__health_monitor__cpu_scheduling``
-      is in :need:`doc__health_monitor_comp_aou`.
+      :need:`doc__health_monitor_fmea`; the corresponding AoU is
+      :need:`aou_req__health_monitor__thread_sched`.
   * - UI_01_08
     - Incorrect execution flow
     - no
