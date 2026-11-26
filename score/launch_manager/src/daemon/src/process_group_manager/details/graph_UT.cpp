@@ -90,6 +90,8 @@ class GraphTest : public ::testing::Test
             config.name = process_name(i);
             // ProcessInfoNode requires a ready condition to decide when an activation is complete.
             config.component_properties.ready_condition = ReadyCondition{configuration::ProcessState::Running};
+            // Graceful termination requires shutdown_timeout_ms to be greater than zero.
+            config.deployment_config.shutdown_timeout_ms = 1U;
             components.push_back(std::move(config));
         }
         return components;
