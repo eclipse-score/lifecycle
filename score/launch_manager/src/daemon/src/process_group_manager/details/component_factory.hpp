@@ -18,12 +18,10 @@
 #include "score/mw/launch_manager/configuration/component_config.hpp"
 #include "score/mw/launch_manager/osal/ifile_waiter.hpp"
 #include "score/mw/launch_manager/process_group_manager/details/component.hpp"
-#include "score/mw/launch_manager/process_group_manager/details/icomponent.hpp"
 #include "score/mw/launch_manager/process_group_manager/details/safe_process_map.hpp"
 #include "score/mw/launch_manager/process_group_manager/iprocess.hpp"
 #include "score/result/result.h"
 #include <memory>
-#include <string>
 
 namespace score::mw::lifecycle::internal
 {
@@ -42,8 +40,6 @@ namespace score::mw::lifecycle::internal
 ///          - \c Running for any other application type: ReportRunningReadyCondition.
 ///          - \c Terminated: ProcessTerminatedReadyCondition, for every application type. A
 ///            reporting process is not waited for to report kRunning.
-///
-///          Run Targets are created with createRunTarget(), using only empty actions.
 ///
 ///          Each returned component owns its actions and shares ownership of its configuration,
 ///          so it stays valid without the factory. It still refers to the dependencies given to
@@ -72,14 +68,6 @@ class ComponentFactory final
     ///         The concrete type is returned, because the graph needs Component::forceStop().
     [[nodiscard]] Result<std::unique_ptr<Component>> create(
         std::shared_ptr<configuration::ComponentConfig> config) const;
-
-    /// @brief Create a component for a Run Target.
-    /// @details A Run Target does not manage any resource. It only exists to depend on other
-    ///          components, so all of its actions and its ready condition are empty. It is active
-    ///          as soon as it is activated, and inactive as soon as it is deactivated.
-    /// @param name Name of the Run Target, used as the component's identifier.
-    /// @return The new, inactive component.
-    [[nodiscard]] std::unique_ptr<IComponent> createRunTarget(const std::string& name) const;
 
   private:
     /// @brief Used by the process actions to start, stop and wait for POSIX processes.
