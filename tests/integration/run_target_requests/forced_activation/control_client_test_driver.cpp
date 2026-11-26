@@ -67,6 +67,11 @@ TEST_F(
         UnblockRunTargetActivation();
     }
 
+    TEST_STEP("Wait for gated process to terminate")
+    {
+        WaitForGatedProcessExit("gated");
+    }
+
     TEST_STEP("Callback for Run Target Startup")
     {
         WaitForActivation(RunTargetActivationSource::kStateManagerRequest, "Startup");

@@ -21,7 +21,11 @@
 
 using namespace score::mw::lifecycle;
 
-TEST(RunTargetRequests, SameRunTargetInTransition)
+class SameRunTargetInTransitionFixture : public ActivationFixture
+{
+}
+
+TEST_F(SameRunTargetInTransitionFixture, SameRunTargetInTransition)
 {
     ASSERT_TRUE(check_clean({gatedStartedPath("gated"), gatedReleasePath("gated")}));
     std::unique_ptr<ILmControl> client;
@@ -75,6 +79,11 @@ TEST(RunTargetRequests, SameRunTargetInTransition)
     TEST_STEP("Release gated")
     {
         ASSERT_TRUE(touch_file(gatedReleasePath("gated")));
+    }
+
+    TEST_STEP("Wait for gated process to terminate")
+    {
+        WaitForGatedProcessExit("gated");
     }
 
     pop_event([](RunTargetActivationSource source, RunTargetName target) {

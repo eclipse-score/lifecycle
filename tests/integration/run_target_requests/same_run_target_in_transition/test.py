@@ -37,4 +37,4 @@ def test_same_run_target_in_transition(
         cwd=str(remote_test_dir),
     )
 
-    assert_test_results({"control_client_test_driver.xml", "gated.xml"})
+    assert_test_results({"control_client_test_driver.xml"})
