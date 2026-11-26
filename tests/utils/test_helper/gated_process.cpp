@@ -10,68 +10,94 @@
  *
  * SPDX-License-Identifier: Apache-2.0
  ********************************************************************************/
-#include <gtest/gtest.h>
-#include <unistd.h>
-
-#include <chrono>
+#include "tests/utils/test_helper/gated_process.hpp"
+#include "tests/utils/test_helper/test_helper.hpp"
+#include <score/mw/lifecycle/report_running.h>
+#include <csignal>
 #include <cstdlib>
 #include <filesystem>
 #include <string>
 #include <thread>
 
-#include "tests/utils/test_helper/gated_process.hpp"
-#include "tests/utils/test_helper/test_helper.hpp"
-#include "tests/utils/test_helper/test_runner.hpp"
-#include <score/mw/lifecycle/report_running.h>
-
 namespace
 {
+/// @brief Component name
+std::string component_name{""};
+
+/// @brief Flag signalling exit was requested by signal
+bool exit_requested{false};
+
 /// @return The component this binary is deployed as (PROCESSIDENTIFIER).
-std::string component_name()
+void store_component_name()
 {
     const char* process_id = std::getenv("PROCESSIDENTIFIER");
-    return process_id ? std::string{process_id} : std::string{"gated_process"};
+    component_name = process_id ? std::string{process_id} : std::string{"gated_process"};
+}
+
+/// @brief Log a message to stdout, including the component name
+void log(std::string msg)
+{
+    std::cout << "[" << component_name << "]: " << msg << "\n";
+}
+
+/// @brief Signal handler to guarantee cleanup file creation on signal termination
+void signal_handler(int)
+{
+    exit_requested = true;
+}
+
+void register_signal_handlers()
+{
+    std::signal(SIGTERM, signal_handler);
+    std::signal(SIGINT, signal_handler);
 }
 }  // namespace
 
-// Creates gatedStartedPath() on start, then reports running only once the test
+/// @brief Creates gatedStartedPath() on start, then reports running only once the test
 // creates gatedReleasePath(). This keeps the activation of its Run Target in
 // progress for as long as the test needs. If the launch manager stops it before it
 // is released, it exits without reporting running.
-TEST(GatedProcess, ReportsRunningOnRelease)
+// On exit, we create gatedExitingPath(), so a test can wait for this process to exit.
+int main()
 {
-    const std::string name = component_name();
+    store_component_name();
+    register_signal_handlers();
 
-    TEST_STEP("Signal start")
+    log("Signal start");
+    if (!touch_file(gatedStartedPath(component_name)))
     {
-        EXPECT_TRUE(touch_file(gatedStartedPath(name)));
+        log("Failed to touch start file");
+        return EXIT_FAILURE;
     }
 
-    TEST_STEP("Wait for release")
+    log("Wait for release");
+    while (!exit_requested && !std::filesystem::exists(gatedReleasePath(component_name)))
     {
-        while (!TestRunner::g_exit_requested && !std::filesystem::exists(gatedReleasePath(name)))
+        std::this_thread::sleep_for(std::chrono::milliseconds(10));
+    }
+
+    if (exit_requested)
+    {
+        log("Exit requested whilst waiting for release");
+    }
+    else
+    {
+        log("Report running");
+        score::mw::lifecycle::report_running();
+
+        log("Wait for termination");
+        while (!exit_requested)
         {
             std::this_thread::sleep_for(std::chrono::milliseconds(10));
         }
     }
 
-    if (TestRunner::g_exit_requested)
+    log("Signal exiting");
+    if (!touch_file(gatedExitingPath(component_name)))
     {
-        return;
+        log("Failed to touch exiting file");
+        return EXIT_FAILURE;
     }
 
-    TEST_STEP("Report running")
-    {
-        score::mw::lifecycle::report_running();
-    }
-
-    TestRunner::WaitForTermination();
-}
-
-int main()
-{
-    // Name the XML result after the deployed component so multiple deployments of this
-    // shared binary don't collide.
-    TestRunner::Init(component_name().c_str());
-    return TestRunner::RunTests();
+    return EXIT_SUCCESS;
 }

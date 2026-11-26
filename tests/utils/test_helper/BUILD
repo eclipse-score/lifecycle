@@ -69,7 +69,6 @@ cc_library(
     visibility = ["//tests:__subpackages__"],
     deps = [
         "//score/launch_manager/src/lm_control",
-        "@googletest//:gtest_main",
     ],
 )
 
@@ -128,8 +127,7 @@ cc_binary(
     deps = [
         ":gated_process_helper",
         ":test_helper",
-        "//score/launch_manager:lifecycle_cc",
-        "@googletest//:gtest_main",
+        "//score/launch_manager/src/lifecycle_client:report_running",
     ],
 )
 
