@@ -52,3 +52,22 @@ cc_library(
         "@score_baselibs//score/result:error",
     ],
 )
+
+cc_library(
+    name = "mock_process_monitor",
+    testonly = True,
+    hdrs = ["process_monitor.hpp"],
+    include_prefix = "score/mw/launch_manager/process_group_manager/details",
+    strip_include_prefix = "/score/launch_manager/src/daemon/src/process_group_manager/details/injection_mocks",
+    visibility = ["//score/launch_manager/src/daemon/src/process_group_manager:__subpackages__"],
+    deps = [
+        "//score/launch_manager/src/daemon/src/common:identifier_hash",
+        "//score/launch_manager/src/daemon/src/common:log",
+        "//score/launch_manager/src/daemon/src/process_group_manager/details:component_event",
+        "//score/launch_manager/src/daemon/src/process_group_manager/details:component_task",
+        "//score/launch_manager/src/daemon/src/process_group_manager/details:icomponent",
+        "//score/launch_manager/src/daemon/src/process_group_manager/details:icomponent_controller",
+        "//score/launch_manager/src/daemon/src/process_group_manager/details:icomponent_event_publisher_consumer",
+        "@score_baselibs//score/language/futurecpp",
+    ],
+)

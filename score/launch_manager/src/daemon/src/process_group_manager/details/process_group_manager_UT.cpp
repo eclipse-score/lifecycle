@@ -38,6 +38,7 @@ using namespace testing;
 namespace score::mw::lifecycle::internal
 {
 std::unique_ptr<MockGraph> g_mock_graph;
+std::unique_ptr<MockProcessMonitor> g_mock_process_monitor;
 
 namespace
 {
@@ -190,6 +191,7 @@ class ProcessGroupManagerTest : public Test
         auto config = makeConfig();
 
         g_mock_graph = makeGraph();
+        g_mock_process_monitor = std::make_unique<NiceMock<MockProcessMonitor>>();
 
         process_group_manager_ = std::make_unique<ProcessGroupManager>(
             config.takeGraph(),
@@ -204,6 +206,7 @@ class ProcessGroupManagerTest : public Test
     {
         process_group_manager_->deinitialize();
         g_mock_graph.reset();
+        g_mock_process_monitor.reset();
     }
 
     void expectNormalStartup()
@@ -479,7 +482,7 @@ TEST_F(ProcessGroupManagerTest, WatchdogEnableFailFailsPGMInit)
     EXPECT_FALSE(initialize_result);
 }
 
-class AllProcessGroupsOffTest : public ProcessGroupManagerTest
+class AllProcessGroupsOffTest : public NoWatchdogConfigurationTest
 {
   protected:
     void SetUp() override
@@ -494,6 +497,8 @@ class AllProcessGroupsOffTest : public ProcessGroupManagerTest
 TEST_F(AllProcessGroupsOffTest, DrainsAllGraphEvents)
 {
     RecordProperty("Description", "Verify that all kinds of graph event are drained during a shutdown");
+
+    ASSERT_TRUE(g_mock_process_monitor->event_queue_);
 
     // TODO: needs graph mock
     SUCCEED();
