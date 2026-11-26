@@ -22,6 +22,7 @@
 #include <optional>
 #include <string>
 #include <string_view>
+#include <thread>
 #include <utility>
 
 #include "score/concurrency/condition_variable.h"
@@ -136,6 +137,11 @@ class BasicLmControlImpl final : public ILmControl
             }
 
             find_handle_ = start_result.value();
+
+            // Started during initialization, so that discovering the service later allocates nothing.
+            poll_thread_ = std::thread{[this]() noexcept {
+                pollActivationResults();
+            }};
             return {};
         }
         catch (const std::exception& ex)
@@ -152,6 +158,17 @@ class BasicLmControlImpl final : public ILmControl
 
     ~BasicLmControlImpl() noexcept override
     {
+        // Stopped first, so the polling thread cannot touch proxy_ while it is torn down.
+        {
+            std::lock_guard<std::mutex> lock{poll_mutex_};
+            stop_polling_ = true;
+        }
+        poll_cv_.notify_all();
+        if (poll_thread_.joinable())
+        {
+            poll_thread_.join();
+        }
+
         // Calling StopFindService() first makes sure not further invocation of onServiceFound() can happen
         if (find_handle_.has_value())
         {
@@ -167,8 +184,6 @@ class BasicLmControlImpl final : public ILmControl
 
         if (proxy_.has_value())
         {
-            // Unsubscribe waits for any currently running receive handler to finish before unsubscribing.
-            // Unsubscribe also unsets the receive handler, no need for explicit UnsetReceiveHandler() call.
             proxy_->activation_result.Unsubscribe();
         }
     }
@@ -215,8 +230,7 @@ class BasicLmControlImpl final : public ILmControl
             callback_ = std::move(callback);
         }
 
-        // Check for any pending events from before the handler was installed. Only possible once connected;
-        // until then the receive handler, installed on connection, takes care of the samples.
+        // Read what is already pending instead of waiting for the next poll. Only possible once connected.
         if (connectedProxy() != nullptr)
         {
             onActivationResult();
@@ -266,8 +280,6 @@ class BasicLmControlImpl final : public ILmControl
             }
         }
 
-        // Must run without mutex_ held, it takes the lock itself.
-        awaitNotificationRegistration();
         return {};
     }
 
@@ -289,30 +301,8 @@ class BasicLmControlImpl final : public ILmControl
     /// @brief Allow to read small number of samples at once
     static constexpr std::size_t kActivationResultSampleCount = 4U;
 
-    /// @brief Waits until the Launch Manager (LM) has processed our receive handler registration.
-    /// @details SetReceiveHandler() only queues a registration message to the LM and returns without waiting for it
-    ///          to be handled.
-    ///          An event the LM sends before it handles that message is stored, but no
-    ///          notification is sent for it, so the receive handler never runs for it and it stays unread until the
-    ///          next event. The LM handles the messages of one client connection in the order they were sent, and
-    ///          method calls use the same connection, so the reply to a method call proves that the earlier
-    ///          registration has been handled. Anything sent after that is notified, anything sent before is
-    ///          picked up by the drain that must follow this call.
-    /// @pre The proxy has been set up; proxy_ is never reset once wait_for_connection() has observed it.
-    /// @note The result of the method call is irrelevant. This is best effort: on failure we fall back to
-    ///       relying on notifications alone.
-    void awaitNotificationRegistration() noexcept
-    {
-        auto* const proxy = connectedProxy();
-        SCORE_LANGUAGE_FUTURECPP_ASSERT_MESSAGE(proxy != nullptr, "must only be called once connected");
-
-        const auto result = proxy->get_active_run_target();
-        if (!result.has_value())
-        {
-            LM_LOG_WARN() << "LmControl: could not confirm the activation_result notification registration:"
-                          << result.error();
-        }
-    }
+    /// @brief How often the activation_result event is polled for new samples.
+    static constexpr std::chrono::milliseconds kActivationResultPollInterval{20};
 
     /// @brief Returns the proxy instance or nullptr if not connected
     ProxyType* connectedProxy() noexcept
@@ -357,7 +347,7 @@ class BasicLmControlImpl final : public ILmControl
         return true;
     }
 
-    /// @brief Subscribe to the activation_result event and install the receive handler.
+    /// @brief Subscribe to the activation_result event.
     /// @pre Caller holds mutex_ and proxy_ has a value.
     /// @return true on success; on failure proxy_ is reset so we stay unconnected.
     bool subscribeToActivationResults() noexcept
@@ -372,23 +362,12 @@ class BasicLmControlImpl final : public ILmControl
             return false;
         }
 
-        const auto receivehandler_result = proxy_->activation_result.SetReceiveHandler([this]() {
-            onActivationResult();
-        });
-        if (!receivehandler_result.has_value())
-        {
-            LM_LOG_ERROR() << "LmControl: activation_result.SetReceiveHandler failed with error:"
-                           << receivehandler_result.error();
-            proxy_.reset();
-            return false;
-        }
         return true;
     }
 
-    /// @brief mw::com receive handler for the activation_result event.
-    /// @details mw::com may invoke this concurrently with itself. Since proxy-event
-    ///          API calls must not run concurrently on the same event, the handler
-    ///          is serialized against itself
+    /// @brief Reads the activation_result samples that are pending.
+    /// @details Called from the polling thread and from register_run_target_activation_callback(),
+    ///          so it is serialized against itself; proxy-event API calls on a single event must not overlap.
     /// @note Deliberately a separate mutex from mutex_, not a reuse of it: this path invokes the
     ///       user activation callback, which is free to call back into activate_run_target() and
     ///       therefore into mutex_. Guarding both with one non-recursive mutex would deadlock.
@@ -398,24 +377,42 @@ class BasicLmControlImpl final : public ILmControl
         readActivationEvents();
     }
 
+    /// @brief Polls the activation_result event until the destructor requests a stop.
+    void pollActivationResults() noexcept
+    {
+        for (;;)
+        {
+            {
+                std::unique_lock<std::mutex> lock{poll_mutex_};
+                if (poll_cv_.wait_for(lock, kActivationResultPollInterval, [this]() {
+                        return stop_polling_;
+                    }))
+                {
+                    return;
+                }
+            }
+
+            // Reading a sample consumes it, so nothing is read before there is a callback to
+            // forward it to; register_run_target_activation_callback() drains what accumulated.
+            if ((connectedProxy() != nullptr) && hasCallback())
+            {
+                onActivationResult();
+            }
+        }
+    }
+
     /// @brief Ready and forwards all pending activation-result samples.
     /// @pre The caller holds sample_processing_mutex_ and proxy_ has a value.
     void readActivationEvents()
     {
         SCORE_LANGUAGE_FUTURECPP_ASSERT_MESSAGE(proxy_.has_value(), "proxy must not be null");
 
-        const ActivationCallback callback = currentCallback();
-        if (!callback)
-        {
-            LM_LOG_WARN() << "LmControl: activation_result: no callback registered — samples dropped";
-        }
-
         std::size_t processed = 0U;
         for (;;)
         {
             const auto get_result = proxy_->activation_result.GetNewSamples(
-                [&callback](const SamplePtr<ActivationResult>& sample) noexcept {
-                    forwardSample(callback, sample);
+                [this](const SamplePtr<ActivationResult>& sample) noexcept {
+                    forwardSample(currentCallback(), sample);
                 },
                 kActivationResultSampleCount);
             if (!get_result.has_value())
@@ -433,7 +430,17 @@ class BasicLmControlImpl final : public ILmControl
             }
         }
 
-        LM_LOG_DEBUG() << "LmControl: GetNewSamples: processed" << processed << "sample(s)";
+        if (processed > 0U)
+        {
+            LM_LOG_DEBUG() << "LmControl: GetNewSamples: processed" << processed << "sample(s)";
+        }
+    }
+
+    /// @brief Returns whether a callback is registered, without copying it.
+    bool hasCallback() noexcept
+    {
+        std::lock_guard<std::mutex> lock{callback_mutex_};
+        return static_cast<bool>(callback_);
     }
 
     /// @brief Returns a copy of the currently registered callback, empty if there is none.
@@ -449,14 +456,15 @@ class BasicLmControlImpl final : public ILmControl
     /// @brief Forwards a single activation-result sample to the given callback.
     /// @param[in] callback The callback to invoke, may be empty in which case the sample is dropped.
     /// @param[in] sample   The received activation result.
-    /// @note Exceptions from the user callback are caught and logged: this runs on an
-    ///       mw::com dispatch thread, so letting one escape would terminate the process.
+    /// @note Exceptions from the user callback are caught and logged.
+    ///       Samples may be processed by the polling thread or synchronously during callback registration.
     static void forwardSample(const ActivationCallback& callback, const SamplePtr<ActivationResult>& sample) noexcept
     {
         LM_LOG_DEBUG() << "LmControl: activation_result received: run_target=" << sample->activated_run_target
                        << "source=" << sample->activation_source;
         if (!callback)
         {
+            LM_LOG_WARN() << "LmControl: activation_result: no callback registered - sample dropped";
             return;
         }
 
@@ -504,10 +512,22 @@ class BasicLmControlImpl final : public ILmControl
     // Guards callback_
     std::mutex callback_mutex_;
 
-    /// @brief Serializes onActivationResult() against itself: mw::com may
-    ///        dispatch the receive handler concurrently, but proxy-event API
-    ///        calls on a single event must not overlap.
+    /// @brief Serializes onActivationResult() against itself: the polling thread and
+    ///        register_run_target_activation_callback() both read the event, but proxy-event
+    ///        API calls on a single event must not overlap.
     std::mutex sample_processing_mutex_;
+
+    /// @brief Polls the activation_result event, created by init() and joined by the destructor.
+    std::thread poll_thread_;
+
+    /// @brief Guards stop_polling_
+    std::mutex poll_mutex_;
+
+    /// @brief Wakes the polling thread when the destructor requests a stop.
+    std::condition_variable poll_cv_;
+
+    /// @brief Set by the destructor to end the polling thread.
+    bool stop_polling_{false};
 };
 
 /// @brief Production alias: BasicLmControlImpl wired to the real mw::com proxy.
