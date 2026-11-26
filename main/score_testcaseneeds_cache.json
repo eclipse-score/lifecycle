@@ -14,7 +14,7 @@
     "FullyVerifies": "comp_req__launch_man__retries_configurable"
   },
   {
-    "name": "test_lm_shutdown",
+    "name": "test_lm_shutdown_during_rt_switch",
     "file": "tests/integration/lm_shutdown_during_rt_switch/test.py",
     "line": "19",
     "result": "passed",
@@ -168,7 +168,7 @@
     "FullyVerifies": "comp_req__launch_man__rc_lifecycle, comp_req__launch_man__rt_comp_dep"
   },
   {
-    "name": "test_lm_shutdown",
+    "name": "test_lm_shutdown_during_switch_to_off",
     "file": "tests/integration/lm_shutdown_during_switch_to_off/test.py",
     "line": "19",
     "result": "passed",
