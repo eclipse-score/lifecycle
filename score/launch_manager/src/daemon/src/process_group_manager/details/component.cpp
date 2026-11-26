@@ -149,7 +149,7 @@ std::optional<Handle> Component::beginActivation(cpp::stop_token stop_token)
 {
     const std::lock_guard<std::mutex> lock{state_mutex_};
 
-    SCORE_LANGUAGE_FUTURECPP_ASSERT_MESSAGE(
+    SCORE_LANGUAGE_FUTURECPP_ASSERT_DBG_MESSAGE(
         std::holds_alternative<TerminatedState>(state_), "Cannot activate component in a running state");
 
     if (isSupervised(config_->component_properties.application_profile.application_type) && !supervision_handle_)

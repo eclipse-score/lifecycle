@@ -84,18 +84,23 @@ TEST_F(SequenceReadyConditionTest, LaterStageGetsRemainingTimeout)
     RecordProperty("DerivationTechnique", "boundary-values");
     RecordProperty(
         "Description",
-        "Given a sequence of two ready conditions and a timeout of 200ms. "
+        "Given a sequence of two ready conditions and a timeout of 10s. "
         "When the first stage takes 50ms. "
-        "Then the second stage is waited for with at most the remaining 150ms.");
+        "Then the second stage is waited for with the remaining timeout, which is reduced by at least 50ms "
+        "and still positive.");
+
+    // Far longer than the first stage takes, even on a slow emulated target, so that the remaining
+    // timeout stays positive. The mocks do not wait, so the timeout costs nothing.
+    constexpr std::chrono::milliseconds kTimeout{std::chrono::seconds{10}};
 
     const InSequence in_sequence;
-    EXPECT_CALL(*first_, wait(_, _, 200ms)).WillOnce(Invoke([](auto&&...) {
+    EXPECT_CALL(*first_, wait(_, _, kTimeout)).WillOnce(Invoke([](auto&&...) {
         std::this_thread::sleep_for(50ms);
         return Result<void>{};
     }));
-    EXPECT_CALL(*second_, wait(_, _, AllOf(Le(150ms), Gt(0ms)))).WillOnce(Return(Result<void>{}));
+    EXPECT_CALL(*second_, wait(_, _, AllOf(Le(kTimeout - 50ms), Gt(0ms)))).WillOnce(Return(Result<void>{}));
 
-    EXPECT_TRUE(sequence_->wait(cpp::stop_token{}, kHandle, 200ms).has_value());
+    EXPECT_TRUE(sequence_->wait(cpp::stop_token{}, kHandle, kTimeout).has_value());
 }
 
 TEST_F(SequenceReadyConditionTest, LaterStageIsCheckedOnceWhenTimeoutIsUsedUp)
