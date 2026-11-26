@@ -72,15 +72,21 @@ std::unique_ptr<const IReadyCondition> createReadyCondition(
     const osal::IFileWaiter& file_waiter)
 {
     const bool reporting = isReporting(config);
+    const bool is_self_terminating = config.component_properties.application_profile.is_self_terminating;
 
     return std::visit(
-        [reporting, &launcher, &file_waiter](const auto& ready_condition) -> std::unique_ptr<const IReadyCondition> {
+        [reporting, is_self_terminating, &launcher, &file_waiter](
+            const auto& ready_condition) -> std::unique_ptr<const IReadyCondition> {
             using T = std::decay_t<decltype(ready_condition)>;
             if constexpr (std::is_same_v<T, configuration::FileState>)
             {
                 // req-id: comp_req__launch_man__rc_file_state
                 auto file_ready_condition = std::make_unique<const FileReadyCondition>(
-                    file_waiter, ready_condition.file_path, ready_condition.state, ready_condition.polling_interval);
+                    file_waiter,
+                    ready_condition.file_path,
+                    ready_condition.state,
+                    ready_condition.polling_interval,
+                    is_self_terminating);
                 if (reporting)
                 {
                     return afterReportedRunning(launcher, std::move(file_ready_condition));

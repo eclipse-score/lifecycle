@@ -50,9 +50,12 @@ class IReadyCondition
 
     /// @brief Notify the ready condition that the component has already terminated.
     /// @details Called after prepare(), possibly before, during or after wait() of the same activation.
-    ///          A wait() which has not returned yet must then return without waiting for its timeout:
-    ///          successfully if the termination fulfils the condition, with an error otherwise.
-    ///          Only a ready condition whose wait() does not block may ignore terminations.
+    ///          Each ready condition decides how a termination affects a wait() which has not returned yet:
+    ///          it may end the wait, successfully if the termination fulfils the condition or with an error
+    ///          otherwise, or it may keep waiting if the condition can still be met after the resource is
+    ///          gone. In the latter case, the wait still ends at the latest when its timeout expires or a
+    ///          stop is requested. A ready condition which can no longer be met once the resource is gone
+    ///          must end the wait, so that it does not wait for its timeout in vain.
     /// @param handle The component that terminated.
     /// @param status Exit code of the component.
     // FIXME: This should be a more generic event which makes sense for any

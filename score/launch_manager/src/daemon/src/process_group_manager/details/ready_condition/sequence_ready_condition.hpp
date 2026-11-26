@@ -56,10 +56,11 @@ class SequenceReadyCondition final : public IReadyCondition
     /// @brief Notify the stages which are not fulfilled yet that the process has terminated.
     /// @details The termination is forwarded to the stage currently waited for and to all following
     ///          stages, since each of them still depends on the process. Stages which are already
-    ///          fulfilled are not notified. Each notified stage ends its own wait, so the sequence
-    ///          ends without waiting for its timeout: a stage which is not fulfilled by the
-    ///          termination fails, and a following stage already knows about the termination when
-    ///          it is waited for.
+    ///          fulfilled are not notified. Each notified stage decides itself how the termination
+    ///          affects its wait, and a following stage already knows about the termination when it is
+    ///          waited for. If a stage ends its wait with an error because of the termination, the
+    ///          sequence ends without waiting for its timeout. A stage which can still be fulfilled
+    ///          after the termination keeps waiting, and the sequence continues with it.
     /// @param handle The process that terminated.
     /// @param status Exit code of the process.
     void handleTermination(const Handle& handle, int32_t status) const override;

@@ -103,7 +103,7 @@ SequenceReadyCondition::wait(cpp::stop_token stop_token, const Handle& handle, s
 
 void SequenceReadyCondition::handleTermination(const Handle& handle, int32_t status) const
 {
-    // Every stage which is not fulfilled yet is notified: each of them has to end its wait.
+    // Every stage which is not fulfilled yet is notified.
     for (std::size_t stage = current_stage_.load(); stage < stages_.size(); ++stage)
     {
         stages_[stage]->handleTermination(handle, status);

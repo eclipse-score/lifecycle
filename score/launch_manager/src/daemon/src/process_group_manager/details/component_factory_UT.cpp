@@ -498,6 +498,36 @@ TEST_F(ComponentFactoryTest, FileStateComponentFailsWhenFileWaitFails)
     EXPECT_FALSE(component->active());
 }
 
+TEST_F(ComponentFactoryTest, SelfTerminatingFileStateComponentKeepsWaitingAfterExitWithZero)
+{
+    RecordProperty("TestType", "interface-test");
+    RecordProperty("DerivationTechnique", "equivalence-classes");
+    RecordProperty(
+        "Description",
+        "Given a component created from a native self-terminating configuration with a FileState ready condition. "
+        "When its process exits with status 0 before the file has reached its state. "
+        "Then the file is still waited for with the complete ready timeout, and activation succeeds once the file "
+        "has reached its state.");
+
+    const configuration::FileState file_state{"/tmp/ready", configuration::FileExistenceState::Exists, 5ms};
+    auto config = makeConfig(configuration::ApplicationType::Native, file_state);
+    config->component_properties.application_profile.is_self_terminating = true;
+    const auto component = createComponent(config);
+    ASSERT_NE(component, nullptr);
+
+    // The process has already exited with 0 when it is tracked.
+    expectProcessStarted(nullptr);
+    EXPECT_CALL(process_map_, insertIfNotTerminated(kPid, _))
+        .WillOnce(Return(SafeProcessMapInsertResult{SafeProcessMapReturnType::kMatched, 0}));
+    EXPECT_CALL(
+        file_waiter_,
+        waitForFile(
+            _, _, std::chrono::milliseconds{kReadyTimeoutMs}, _, Property(&cpp::stop_token::stop_requested, false)))
+        .WillOnce(Return(osal::OsalReturnType::kSuccess));
+
+    EXPECT_EQ(component->activate(cpp::stop_token{}), IComponent::RequestResult::kSuccess);
+}
+
 TEST_F(ComponentFactoryTest, DeactivateRequestsProcessTermination)
 {
     RecordProperty("TestType", "interface-test");

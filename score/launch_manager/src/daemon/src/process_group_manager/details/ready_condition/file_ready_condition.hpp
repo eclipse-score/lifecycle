@@ -38,20 +38,24 @@ class FileReadyCondition final : public IReadyCondition
     /// @param file_path The path to the file to wait for.
     /// @param state The desired state of the file.
     /// @param interval How often to poll for the file.
+    /// @param is_self_terminating Whether the process is expected to exit on its own. Its successful exit
+    ///                            then does not end the wait, see handleTermination().
     explicit FileReadyCondition(
         const osal::IFileWaiter& file_waiter,
         score::safecpp::zstring_view file_path,
         configuration::FileExistenceState state,
-        std::chrono::milliseconds interval);
+        std::chrono::milliseconds interval,
+        bool is_self_terminating);
 
     /// @brief Prepare the ready condition for a new activation.
     /// @details Discards a termination left over from a previous activation.
     void prepare() const override;
 
     /// @brief Wait until the file has reached the desired state.
-    /// @details A reported termination or a stop request ends the wait. The file is then checked once
-    ///          more, because the wait may have ended before the file was checked, or the process may have
-    ///          changed it just before it exited. The wait succeeds if the file has reached its state.
+    /// @details A termination which ends the wait (see handleTermination()) or a stop request ends the
+    ///          wait early. The file is then checked once more, because the wait may have ended before the
+    ///          file was checked, or the process may have changed it just before it exited. The wait
+    ///          succeeds if the file has reached its state.
     /// @param stop_token Token which can be used to interrupt the wait.
     /// @param handle The resource to wait on.
     /// @param timeout The maximum duration to wait for the file condition.
@@ -60,7 +64,10 @@ class FileReadyCondition final : public IReadyCondition
         const override;
 
     /// @brief Notify the ready condition that the component has already terminated.
-    /// @details Ends a running wait(), see wait().
+    /// @details Ends a running wait(), see wait(), unless the process is self-terminating and exited with
+    ///          status 0. Such an expected exit does not prevent the file from reaching its state, e.g. if
+    ///          the file is created by another process, so the wait continues until the file has reached
+    ///          its state, the timeout expires or a stop is requested.
     /// @param handle The component that terminated.
     /// @param status Exit code of the component.
     void handleTermination(const Handle& handle, int32_t status) const override;
@@ -77,6 +84,9 @@ class FileReadyCondition final : public IReadyCondition
 
     /// @brief How often to poll for the file.
     const std::chrono::milliseconds interval_;
+
+    /// @brief Whether a successful exit of the process is expected, and therefore does not end the wait.
+    const bool is_self_terminating_;
 
     /// @brief Stopped once the resource of the current activation has terminated.
     /// @note Mutable because the IReadyCondition API is const. It is only replaced in prepare(), while

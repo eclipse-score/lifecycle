@@ -23,8 +23,13 @@ FileReadyCondition::FileReadyCondition(
     const osal::IFileWaiter& file_waiter,
     score::safecpp::zstring_view file_path,
     configuration::FileExistenceState state,
-    std::chrono::milliseconds interval)
-    : file_waiter_(file_waiter), file_path_(file_path), state_(state), interval_(interval)
+    std::chrono::milliseconds interval,
+    bool is_self_terminating)
+    : file_waiter_(file_waiter),
+      file_path_(file_path),
+      state_(state),
+      interval_(interval),
+      is_self_terminating_(is_self_terminating)
 {
 }
 
@@ -77,8 +82,13 @@ Result<void> FileReadyCondition::wait(
     return MakeUnexpected(ExecErrc::kGeneralError);
 }
 
-void FileReadyCondition::handleTermination(const Handle& /*handle*/, int32_t /*status*/) const
+void FileReadyCondition::handleTermination(const Handle& /*handle*/, int32_t status) const
 {
+    // An expected exit does not prevent the file from reaching its state, so the wait continues.
+    if (is_self_terminating_ && (status == 0))
+    {
+        return;
+    }
     static_cast<void>(terminated_.request_stop());
 }
 
