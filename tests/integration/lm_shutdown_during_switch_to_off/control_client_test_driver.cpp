@@ -15,6 +15,7 @@
 #include <filesystem>
 
 #include "common.hpp"
+#include "tests/utils/fixtures/activation.hpp"
 #include "tests/utils/test_helper/test_helper.hpp"
 #include "tests/utils/test_helper/test_runner.hpp"
 #include <score/mw/lifecycle/ilm_control.hpp>
@@ -36,27 +37,18 @@ using namespace score::mw::lifecycle;
 // shutdown must simply let that in-progress switch to Off continue to completion
 // - it must NOT cancel the explicit switch to Off and redo it. Either way the
 // launch manager must end up stopping everything it owns and exit cleanly.
-TEST(LmShutdownDuringSwitchToOff, ControlClient)
+using LmShutdownDuringSwitchToOff = ActivationFixture;
+
+TEST_F(LmShutdownDuringSwitchToOff, ControlClient)
 {
     ASSERT_TRUE(check_clean({a_started, a_terminating}));
     std::unique_ptr<ILmControl> client;
 
-    TEST_STEP("Create client")
+    TEST_STEP("Initialize client")
     {
-        auto client_result = ILmControl::Create("StateManager/LaunchManager/Instance");
-        ASSERT_TRUE(client_result.has_value()) << client_result.error().Message();
-        client = std::move(client_result).value();
-    }
-
-    TEST_STEP("Register callback")
-    {
-        const auto result = client->register_run_target_activation_callback(push_event);
-        ASSERT_TRUE(result.has_value());
-    }
-
-    TEST_STEP("Wait for client connection")
-    {
-        ASSERT_TRUE(client->wait_for_connection().has_value());
+        auto maybe_client = InitializeClient();
+        ASSERT_TRUE(maybe_client.has_value()) << maybe_client.error().Message();
+        client = std::move(maybe_client).value();
     }
 
     TEST_STEP("Report running")
@@ -64,13 +56,10 @@ TEST(LmShutdownDuringSwitchToOff, ControlClient)
         report_running();
     }
 
-    pop_event([](RunTargetActivationSource source, RunTargetName target) {
-        TEST_STEP("Callback for Run Target Startup")
-        {
-            EXPECT_EQ(source, RunTargetActivationSource::kInitialActivation);
-            EXPECT_EQ(target, "Startup");
-        }
-    });
+    TEST_STEP("Callback for Run Target Startup")
+    {
+        WaitForActivation(RunTargetActivationSource::kInitialActivation, "Startup");
+    }
 
     TEST_STEP("Activate run_target_a")
     {
@@ -78,13 +67,10 @@ TEST(LmShutdownDuringSwitchToOff, ControlClient)
         EXPECT_TRUE(result.has_value()) << result.error().Message();
     }
 
-    pop_event([](RunTargetActivationSource source, RunTargetName target) {
-        TEST_STEP("Callback for Run Target run_target_a")
-        {
-            EXPECT_EQ(source, RunTargetActivationSource::kStateManagerRequest);
-            EXPECT_EQ(target, "run_target_a");
-        }
-    });
+    TEST_STEP("Callback for Run Target run_target_a")
+    {
+        WaitForActivation(RunTargetActivationSource::kStateManagerRequest, "run_target_a");
+    }
 
     TEST_STEP("Verify activation of run_target_a")
     {

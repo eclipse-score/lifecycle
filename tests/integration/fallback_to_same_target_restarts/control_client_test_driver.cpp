@@ -12,6 +12,7 @@
  ********************************************************************************/
 #include <gtest/gtest.h>
 
+#include "tests/utils/fixtures/activation.hpp"
 #include "tests/utils/test_helper/test_helper.hpp"
 #include "tests/utils/test_helper/test_runner.hpp"
 #include <fcntl.h>
@@ -52,7 +53,9 @@ pid_t read_pid(const std::string& pidfile)
 }
 }  // namespace
 
-TEST(FallbackToSameTargetRestarts, ControlClientTestDriver)
+using FallbackToSameTargetRestarts = ActivationFixture;
+
+TEST_F(FallbackToSameTargetRestarts, ControlClientTestDriver)
 {
     const std::string_view process_file = "process_started_normally";
     const std::string pidfile = "supervised_app.pid";
@@ -61,22 +64,11 @@ TEST(FallbackToSameTargetRestarts, ControlClientTestDriver)
 
     std::unique_ptr<ILmControl> client;
 
-    TEST_STEP("Create client")
+    TEST_STEP("Initialize client")
     {
-        auto client_result = ILmControl::Create("StateManager/LaunchManager/Instance");
-        ASSERT_TRUE(client_result.has_value()) << client_result.error().Message();
-        client = std::move(client_result).value();
-    }
-
-    TEST_STEP("Register callback")
-    {
-        const auto result = client->register_run_target_activation_callback(push_event);
-        ASSERT_TRUE(result.has_value());
-    }
-
-    TEST_STEP("Wait for client connection")
-    {
-        ASSERT_TRUE(client->wait_for_connection().has_value());
+        auto maybe_client = InitializeClient();
+        ASSERT_TRUE(maybe_client.has_value()) << maybe_client.error().Message();
+        client = std::move(maybe_client).value();
     }
 
     TEST_STEP("Report running")
@@ -84,13 +76,10 @@ TEST(FallbackToSameTargetRestarts, ControlClientTestDriver)
         report_running();
     }
 
-    pop_event([](RunTargetActivationSource source, RunTargetName target) {
-        TEST_STEP("Callback for Run Target Startup")
-        {
-            EXPECT_EQ(source, RunTargetActivationSource::kInitialActivation);
-            EXPECT_EQ(target, "Startup");
-        }
-    });
+    TEST_STEP("Callback for Run Target Startup")
+    {
+        WaitForActivation(RunTargetActivationSource::kInitialActivation, "Startup");
+    }
 
     TEST_STEP("Start crashing process")
     {
@@ -98,21 +87,15 @@ TEST(FallbackToSameTargetRestarts, ControlClientTestDriver)
         EXPECT_TRUE(result.has_value()) << result.error().Message();
     }
 
-    pop_event([](RunTargetActivationSource source, RunTargetName target) {
-        TEST_STEP("Callback for Run Target run_target_crashing_app_on_runtime")
-        {
-            EXPECT_EQ(source, RunTargetActivationSource::kStateManagerRequest);
-            EXPECT_EQ(target, "run_target_crashing_app_on_runtime");
-        }
-    });
+    TEST_STEP("Callback for Run Target run_target_crashing_app_on_runtime")
+    {
+        WaitForActivation(RunTargetActivationSource::kStateManagerRequest, "run_target_crashing_app_on_runtime");
+    }
 
-    pop_event([](RunTargetActivationSource source, RunTargetName target) {
-        TEST_STEP("Callback for Run Target fallback")
-        {
-            EXPECT_EQ(source, RunTargetActivationSource::kRecoveryAction);
-            EXPECT_EQ(target, "fallback_run_target");
-        }
-    });
+    TEST_STEP("Callback for Run Target fallback")
+    {
+        WaitForActivation(RunTargetActivationSource::kRecoveryAction, "fallback_run_target");
+    }
 
     TEST_STEP("Verify process was restarted")
     {
@@ -125,13 +108,10 @@ TEST(FallbackToSameTargetRestarts, ControlClientTestDriver)
         EXPECT_TRUE(result.has_value()) << result.error().Message();
     }
 
-    pop_event([](RunTargetActivationSource source, RunTargetName target) {
-        TEST_STEP("Callback for Run Target supervision_failure")
-        {
-            EXPECT_EQ(source, RunTargetActivationSource::kStateManagerRequest);
-            EXPECT_EQ(target, "supervision_failure");
-        }
-    });
+    TEST_STEP("Callback for Run Target supervision_failure")
+    {
+        WaitForActivation(RunTargetActivationSource::kStateManagerRequest, "supervision_failure");
+    }
 
     pid_t first_pid{-1};
     TEST_STEP("Read pid of supervised process")
@@ -146,13 +126,10 @@ TEST(FallbackToSameTargetRestarts, ControlClientTestDriver)
         EXPECT_EQ(kill(first_pid, SIGUSR1), 0);
     }
 
-    pop_event([](RunTargetActivationSource source, RunTargetName target) {
-        TEST_STEP("Callback for Run Target fallback after supervision failure")
-        {
-            EXPECT_EQ(source, RunTargetActivationSource::kRecoveryAction);
-            EXPECT_EQ(target, "fallback_run_target");
-        }
-    });
+    TEST_STEP("Callback for Run Target fallback after supervision failure")
+    {
+        WaitForActivation(RunTargetActivationSource::kRecoveryAction, "fallback_run_target");
+    }
 
     TEST_STEP("Verify supervised process was restarted")
     {

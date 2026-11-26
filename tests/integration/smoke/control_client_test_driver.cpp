@@ -15,6 +15,7 @@
 #include <csignal>
 #include <iostream>
 
+#include "tests/utils/fixtures/activation.hpp"
 #include "tests/utils/test_helper/test_helper.hpp"
 #include "tests/utils/test_helper/test_runner.hpp"
 #include <score/mw/lifecycle/ilm_control.hpp>
@@ -22,26 +23,17 @@
 
 using namespace score::mw::lifecycle;
 
-TEST(Smoke, Daemon)
+using Smoke = ActivationFixture;
+
+TEST_F(Smoke, Daemon)
 {
     std::unique_ptr<ILmControl> client;
 
-    TEST_STEP("Create client")
+    TEST_STEP("Initialize client")
     {
-        auto client_result = ILmControl::Create("StateManager/LaunchManager/Instance");
-        ASSERT_TRUE(client_result.has_value()) << client_result.error().Message();
-        client = std::move(client_result).value();
-    }
-
-    TEST_STEP("Register callback")
-    {
-        const auto result = client->register_run_target_activation_callback(push_event);
-        ASSERT_TRUE(result.has_value());
-    }
-
-    TEST_STEP("Wait for client connection")
-    {
-        ASSERT_TRUE(client->wait_for_connection().has_value());
+        auto maybe_client = InitializeClient();
+        ASSERT_TRUE(maybe_client.has_value()) << maybe_client.error().Message();
+        client = std::move(maybe_client).value();
     }
 
     TEST_STEP("Validate active Run Target")
@@ -56,13 +48,10 @@ TEST(Smoke, Daemon)
         report_running();
     }
 
-    pop_event([](RunTargetActivationSource source, RunTargetName target) {
-        TEST_STEP("Callback for Run Target Startup")
-        {
-            EXPECT_EQ(source, RunTargetActivationSource::kInitialActivation);
-            EXPECT_EQ(target, "Startup");
-        }
-    });
+    TEST_STEP("Callback for Run Target Startup")
+    {
+        WaitForActivation(RunTargetActivationSource::kInitialActivation, "Startup");
+    }
 
     TEST_STEP("Validate active Run Target")
     {
@@ -77,13 +66,10 @@ TEST(Smoke, Daemon)
         EXPECT_TRUE(result.has_value()) << result.error().Message();
     }
 
-    pop_event([](RunTargetActivationSource source, RunTargetName target) {
-        TEST_STEP("Callback for Run Target Running")
-        {
-            EXPECT_EQ(source, RunTargetActivationSource::kStateManagerRequest);
-            EXPECT_EQ(target, "Running");
-        }
-    });
+    TEST_STEP("Callback for Run Target Running")
+    {
+        WaitForActivation(RunTargetActivationSource::kStateManagerRequest, "Running");
+    }
 
     TEST_STEP("Validate active Run Target")
     {
@@ -98,13 +84,10 @@ TEST(Smoke, Daemon)
         EXPECT_TRUE(result.has_value()) << result.error().Message();
     }
 
-    pop_event([](RunTargetActivationSource source, RunTargetName target) {
-        TEST_STEP("Callback for Run Target Startup")
-        {
-            EXPECT_EQ(source, RunTargetActivationSource::kStateManagerRequest);
-            EXPECT_EQ(target, "Startup");
-        }
-    });
+    TEST_STEP("Callback for Run Target Startup")
+    {
+        WaitForActivation(RunTargetActivationSource::kStateManagerRequest, "Startup");
+    }
 
     TEST_STEP("Validate active Run Target")
     {

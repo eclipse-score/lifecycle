@@ -15,6 +15,7 @@
 #include <filesystem>
 #include <string_view>
 
+#include "tests/utils/fixtures/activation.hpp"
 #include "tests/utils/test_helper/test_helper.hpp"
 #include "tests/utils/test_helper/test_runner.hpp"
 #include <score/mw/lifecycle/ilm_control.hpp>
@@ -41,7 +42,9 @@ using namespace score::mw::lifecycle;
 // process has actually exited. Without the fix, graph accounting for such a node happens as soon as
 // the process is *started*, so ActivateRunTarget(...).Get() returns while the script is still
 // running and its marker file has not been written yet.
-TEST(RtRunningWhenProcessExits, ControlClientTestDriver)
+using RtRunningWhenProcessExits = ActivationFixture;
+
+TEST_F(RtRunningWhenProcessExits, ControlClientTestDriver)
 {
     // kSlowSetupOutput is checked too: its later presence must be a reliable signal that
     // the slow setup component terminated during *this* run, not leftover from a previous one.
@@ -49,22 +52,11 @@ TEST(RtRunningWhenProcessExits, ControlClientTestDriver)
 
     std::unique_ptr<ILmControl> client;
 
-    TEST_STEP("Create client")
+    TEST_STEP("Initialize client")
     {
-        auto client_result = ILmControl::Create("StateManager/LaunchManager/Instance");
-        ASSERT_TRUE(client_result.has_value()) << client_result.error().Message();
-        client = std::move(client_result).value();
-    }
-
-    TEST_STEP("Register callback")
-    {
-        const auto result = client->register_run_target_activation_callback(push_event);
-        ASSERT_TRUE(result.has_value());
-    }
-
-    TEST_STEP("Wait for client connection")
-    {
-        ASSERT_TRUE(client->wait_for_connection().has_value());
+        auto maybe_client = InitializeClient();
+        ASSERT_TRUE(maybe_client.has_value()) << maybe_client.error().Message();
+        client = std::move(maybe_client).value();
     }
 
     TEST_STEP("Report running")
@@ -72,13 +64,10 @@ TEST(RtRunningWhenProcessExits, ControlClientTestDriver)
         report_running();
     }
 
-    pop_event([](RunTargetActivationSource source, RunTargetName target) {
-        TEST_STEP("Callback for Run Target Startup")
-        {
-            EXPECT_EQ(source, RunTargetActivationSource::kInitialActivation);
-            EXPECT_EQ(target, "Startup");
-        }
-    });
+    TEST_STEP("Callback for Run Target Startup")
+    {
+        WaitForActivation(RunTargetActivationSource::kInitialActivation, "Startup");
+    }
 
     // The with-dependents case: filesystem_reader asserts on the prepared file and on the setup
     // script process being gone, so the ordering is checked there.
@@ -88,13 +77,10 @@ TEST(RtRunningWhenProcessExits, ControlClientTestDriver)
         EXPECT_TRUE(result.has_value()) << result.error().Message();
     }
 
-    pop_event([](RunTargetActivationSource source, RunTargetName target) {
-        TEST_STEP("Callback for Run Target run_target_reader")
-        {
-            EXPECT_EQ(source, RunTargetActivationSource::kStateManagerRequest);
-            EXPECT_EQ(target, "run_target_reader");
-        }
-    });
+    TEST_STEP("Callback for Run Target run_target_reader")
+    {
+        WaitForActivation(RunTargetActivationSource::kStateManagerRequest, "run_target_reader");
+    }
 
     // The no-dependents case: activation must only complete once the slow setup component has terminated.
     TEST_STEP("Activate Run Target with a terminated-ready component that has NO dependent")
@@ -103,13 +89,10 @@ TEST(RtRunningWhenProcessExits, ControlClientTestDriver)
         EXPECT_TRUE(result.has_value()) << result.error().Message();
     }
 
-    pop_event([](RunTargetActivationSource source, RunTargetName target) {
-        TEST_STEP("Callback for Run Target run_target_slow_setup")
-        {
-            EXPECT_EQ(source, RunTargetActivationSource::kStateManagerRequest);
-            EXPECT_EQ(target, "run_target_slow_setup");
-        }
-    });
+    TEST_STEP("Callback for Run Target run_target_slow_setup")
+    {
+        WaitForActivation(RunTargetActivationSource::kStateManagerRequest, "run_target_slow_setup");
+    }
 
     TEST_STEP("Verify the slow setup component had terminated before activation completed")
     {

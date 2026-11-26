@@ -15,6 +15,7 @@
 #include <memory>
 #include <string>
 
+#include "tests/utils/fixtures/activation.hpp"
 #include "tests/utils/test_helper/shm_counter.hpp"
 #include "tests/utils/test_helper/test_helper.hpp"
 #include "tests/utils/test_helper/test_runner.hpp"
@@ -31,7 +32,9 @@ constexpr std::string_view kStopCounterName = "/component_stop_order_counter";
 
 }  // namespace
 
-TEST(ComponentOrder, ControlClientTestDriver)
+using ComponentOrder = ActivationFixture;
+
+TEST_F(ComponentOrder, ControlClientTestDriver)
 {
     // clean the counters
     test::ShmCounter::unlink(kStartCounterName);
@@ -40,22 +43,11 @@ TEST(ComponentOrder, ControlClientTestDriver)
 
     std::unique_ptr<ILmControl> client;
 
-    TEST_STEP("Create client")
+    TEST_STEP("Initialize client")
     {
-        auto client_result = ILmControl::Create("StateManager/LaunchManager/Instance");
-        ASSERT_TRUE(client_result.has_value()) << client_result.error();
-        client = std::move(client_result).value();
-    }
-
-    TEST_STEP("Register callback")
-    {
-        const auto result = client->register_run_target_activation_callback(push_event);
-        ASSERT_TRUE(result.has_value());
-    }
-
-    TEST_STEP("Wait for client connection")
-    {
-        ASSERT_TRUE(client->wait_for_connection().has_value());
+        auto maybe_client = InitializeClient();
+        ASSERT_TRUE(maybe_client.has_value()) << maybe_client.error().Message();
+        client = std::move(maybe_client).value();
     }
 
     TEST_STEP("Report running")
@@ -63,13 +55,10 @@ TEST(ComponentOrder, ControlClientTestDriver)
         report_running();
     }
 
-    pop_event([](RunTargetActivationSource source, RunTargetName target) {
-        TEST_STEP("Callback for Run Target Startup")
-        {
-            EXPECT_EQ(source, RunTargetActivationSource::kInitialActivation);
-            EXPECT_EQ(target, "Startup");
-        }
-    });
+    TEST_STEP("Callback for Run Target Startup")
+    {
+        WaitForActivation(RunTargetActivationSource::kInitialActivation, "Startup");
+    }
 
     TEST_STEP("Launch Run Target A")
     {
@@ -77,13 +66,10 @@ TEST(ComponentOrder, ControlClientTestDriver)
         EXPECT_TRUE(result.has_value()) << result.error();
     }
 
-    pop_event([](RunTargetActivationSource source, RunTargetName target) {
-        TEST_STEP("Callback for Run Target run_target_a")
-        {
-            EXPECT_EQ(source, RunTargetActivationSource::kStateManagerRequest);
-            EXPECT_EQ(target, "run_target_a");
-        }
-    });
+    TEST_STEP("Callback for Run Target run_target_a")
+    {
+        WaitForActivation(RunTargetActivationSource::kStateManagerRequest, "run_target_a");
+    }
 
     TEST_STEP("Launch Run Target B, which depends on Run Target A")
     {
@@ -91,13 +77,10 @@ TEST(ComponentOrder, ControlClientTestDriver)
         EXPECT_TRUE(result.has_value()) << result.error();
     }
 
-    pop_event([](RunTargetActivationSource source, RunTargetName target) {
-        TEST_STEP("Callback for Run Target run_target_b")
-        {
-            EXPECT_EQ(source, RunTargetActivationSource::kStateManagerRequest);
-            EXPECT_EQ(target, "run_target_b");
-        }
-    });
+    TEST_STEP("Callback for Run Target run_target_b")
+    {
+        WaitForActivation(RunTargetActivationSource::kStateManagerRequest, "run_target_b");
+    }
 
     TEST_STEP("Wait for components to finish their tests")
     {
@@ -117,13 +100,10 @@ TEST(ComponentOrder, ControlClientTestDriver)
         EXPECT_TRUE(result.has_value()) << result.error();
     }
 
-    pop_event([](RunTargetActivationSource source, RunTargetName target) {
-        TEST_STEP("Callback for Run Target run_target_a")
-        {
-            EXPECT_EQ(source, RunTargetActivationSource::kStateManagerRequest);
-            EXPECT_EQ(target, "run_target_a");
-        }
-    });
+    TEST_STEP("Callback for Run Target run_target_a")
+    {
+        WaitForActivation(RunTargetActivationSource::kStateManagerRequest, "run_target_a");
+    }
 
     TEST_STEP("Only c has stopped, and it was the first")
     {
@@ -136,13 +116,10 @@ TEST(ComponentOrder, ControlClientTestDriver)
         EXPECT_TRUE(result.has_value()) << result.error();
     }
 
-    pop_event([](RunTargetActivationSource source, RunTargetName target) {
-        TEST_STEP("Callback for Run Target Startup")
-        {
-            EXPECT_EQ(source, RunTargetActivationSource::kStateManagerRequest);
-            EXPECT_EQ(target, "Startup");
-        }
-    });
+    TEST_STEP("Callback for Run Target Startup")
+    {
+        WaitForActivation(RunTargetActivationSource::kStateManagerRequest, "Startup");
+    }
 
     TEST_STEP("b stopped before a: all three stopped in the right order")
     {

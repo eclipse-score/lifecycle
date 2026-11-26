@@ -26,6 +26,7 @@ cc_binary(
         ":lm_shutdown_common",
         "//score/launch_manager:control_cc",
         "//score/launch_manager:lifecycle_cc",
+        "//tests/utils/fixtures:activation",
         "//tests/utils/test_helper",
         "@googletest//:gtest_main",
     ],
