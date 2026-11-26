@@ -18,7 +18,7 @@ _NON_ROOT_ID = "1000"
 
 expand_template(
     name = "sandbox_options_non_root_config",
-    out = "sandbox_options_non_root.json",
+    out = "config.json",
     substitutions = {
         '"uid": 0,': '"uid": {},'.format(_NON_ROOT_ID),
         '"gid": 0,': '"gid": {},'.format(_NON_ROOT_ID),
@@ -27,13 +27,13 @@ expand_template(
         # The test is installed under its own name, so paths into the install directory change too.
         '/tmp/tests/sandbox_options"': '/tmp/tests/sandbox_options_non_root"',
     },
-    template = "//tests/integration/sandbox_options:sandbox_options.in.json",
+    template = "//tests/integration/sandbox_options:config.in.json",
 )
 
 integration_test(
     name = "sandbox_options_non_root",
     timeout = "short",
-    srcs = ["sandbox_options_non_root.py"],
+    srcs = ["test.py"],
     binaries = [
         "//tests/integration/sandbox_options:sandbox_options_process_a",
         "//tests/integration/sandbox_options:sandbox_options_process_b",
@@ -42,7 +42,12 @@ integration_test(
         "//tests/utils/test_helper:fail_test",
         "//tests/utils/test_helper:verification_process",
     ],
-    config = ":sandbox_options_non_root.json",
+    config = ":config.json",
     env = {"NON_ROOT_ID": _NON_ROOT_ID},
-    target_compatible_with = ["@platforms//os:linux"],
+    # Sanitizers cannot reserve their shadow memory under the RLIMIT_AS configured for the processes.
+    target_compatible_with = [
+        "@platforms//os:linux",
+        "@score_cpp_policies//sanitizers/constraints:no_asan",
+        "@score_cpp_policies//sanitizers/constraints:no_tsan",
+    ],
 )

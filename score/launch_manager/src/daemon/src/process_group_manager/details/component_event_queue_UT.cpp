@@ -104,7 +104,8 @@ TEST_F(ComponentEventQueueTest, GetNextEventReturnsSetRequestedRunTargetWithPayl
         "intact.");
     CompletionSlot<Result<void>> slot;
     const IdentifierHash target{"RunTargetA"};
-    EXPECT_TRUE(queue_.push(SetRequestedRunTarget{target, &slot}));
+    constexpr bool FORCE_ACTIVATION = true;
+    EXPECT_TRUE(queue_.push(SetRequestedRunTarget{target, &slot, FORCE_ACTIVATION}));
 
     auto event = queue_.getNextEvent();
     ASSERT_TRUE(event.has_value());
@@ -112,6 +113,7 @@ TEST_F(ComponentEventQueueTest, GetNextEventReturnsSetRequestedRunTargetWithPayl
     const auto& set_target = std::get<SetRequestedRunTarget>(*event);
     EXPECT_EQ(set_target.run_target, target);
     EXPECT_EQ(set_target.completion, &slot);
+    EXPECT_EQ(set_target.forced, FORCE_ACTIVATION);
 }
 
 TEST_F(ComponentEventQueueTest, GetOverflowStaysFalseUnderNormalUsage)

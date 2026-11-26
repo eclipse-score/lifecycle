@@ -14,35 +14,38 @@
 #include <string_view>
 
 #include <fcntl.h>
-#include <grp.h>
-#include <libgen.h>
-#include <sys/mman.h>
+#include <sched.h>
 #include <sys/resource.h>
+#include <sys/types.h>
 #include <sys/wait.h>
 #include <unistd.h>
-#include <limits.h>
 #include <signal.h>
+#include <stdint.h>
 
 #include "score/mw/launch_manager/common/log.hpp"
 #include "score/mw/launch_manager/common/signal_safe_log.hpp"
+#include "score/mw/launch_manager/configuration/component_config.hpp"
+#include "score/mw/launch_manager/configuration/environment_config.hpp"
+#include "score/mw/launch_manager/configuration/process_command.hpp"
 #include "score/mw/launch_manager/osal/ipc_comms.hpp"
+#include "score/mw/launch_manager/osal/return_types.hpp"
 #include "score/mw/launch_manager/osal/security_policy.hpp"
+#include "score/mw/launch_manager/osal/semaphore.hpp"
 #include "score/mw/launch_manager/osal/set_affinity.hpp"
 #include "score/mw/launch_manager/osal/set_groups.hpp"
 #include "score/mw/launch_manager/osal/shm_open_anon.hpp"
 #include "score/mw/launch_manager/osal/sys_exit.hpp"
 #include "score/mw/launch_manager/process_group_manager/details/process_launcher.hpp"
 #include "score/mw/launch_manager/process_group_manager/iprocess.hpp"
-#include <charconv>
-#include <array>
-#include <cassert>
+#include <score/assert.hpp>
 #include <cerrno>
-#include <csignal>
+#include <chrono>
 #include <cstdio>
 #include <cstdlib>
-#include <cstring>
-#include <iterator>
+#include <memory>
 #include <optional>
+#include <string>
+#include <vector>
 
 constexpr int kPidZero = 0;  // This value is used to check if the process ID (uses pid_t) is valid or not.
 constexpr int kPosixSuccess = 0;
@@ -52,7 +55,6 @@ namespace
 
 using score::mw::lifecycle::internal::signal_safe_log;
 using score::mw::lifecycle::internal::signal_safe_log_errno;
-using score::mw::lifecycle::internal::osal::CommsType;
 using score::mw::lifecycle::internal::osal::IpcCommsSync;
 using score::mw::lifecycle::internal::osal::sysexit;
 
@@ -98,24 +100,13 @@ void handleComms(score::mw::lifecycle::internal::osal::ChildProcessConfig& param
 {
     if (!param.shared_block)
     {
-        // kNoComms, fds are CLOEXEC
+        // Native process without comms, fds are CLOEXEC
         return;
     }
 
-    param.fd = dup2(param.fd, param.shared_block->sync_fd);  // always make sure we are using fd=3
-    param.shared_block->pid_ = getpid();                     // Store pid for check at client end
+    param.fd = dup2(param.fd, param.shared_block->sync_fd);
 
-    // It must be ensured that sync_fd (f3) remains open depending on
-    // the communication type. Flag FD_CLOEXEC is cleared conditionally to ensure that the
-    // respective file descriptor remains open after the execve call.
-    assert(
-        param.shared_block->comms_type_ != CommsType::kNoComms &&
-        "Invalid comms type, kNoComms is expected to be handled above");
-
-    assert(
-        param.shared_block->comms_type_ == CommsType::kReporting &&
-        "Invalid comms type, a communicating process must be kReporting");
-
+    // Flag FD_CLOEXEC is cleared to ensure that sync_fd remains open after the execve call.
     if (-1 == fcntl(IpcCommsSync::sync_fd, F_SETFD, 0))
     {
         static_cast<void>(signal_safe_log_errno(errno, "fcntl at line ", __LINE__, " failed"));
@@ -161,6 +152,39 @@ void changeSecurityPolicy(const score::mw::lifecycle::internal::configuration::S
     }
 }
 
+/// @brief Clears all signal handlers (where valid) and then unblocks them. This allows the child process to receive
+/// signals even before execve() is reached.
+void resetSignalHandlersAndUnblock()
+{
+    // If this static assert fails, pthread_sigmask will fail with EINVAL. See `man sigprocmask`.
+    // This is more a porting guard than a real life scenario (libc / kernel mismatch)...
+    static_assert(
+        sizeof(sigset_t) >= (_NSIG / 8),
+        "sigset_t is too small to fulfill the kernel's rt_sigprocmask size requirement");
+
+    // Reset all signal handlers to default except unblockable signals
+    struct sigaction act{};
+    act.sa_handler = SIG_DFL;
+
+    int err = 0;
+    for (int sig = 1; sig < _NSIG; ++sig)
+    {
+        if (sig == SIGKILL || sig == SIGSTOP)
+            continue;
+        err |= sigaction(sig, &act, NULL);
+    }
+    SCORE_LANGUAGE_FUTURECPP_ASSERT_DBG_MESSAGE(err == 0, "Failed to reset signal handlers");
+
+    // Unblock all signals by applying an empty mask
+    sigset_t mask;
+    err = sigemptyset(&mask);
+    SCORE_LANGUAGE_FUTURECPP_ASSERT_DBG_MESSAGE(err == 0, "Failed to build signal mask");
+
+    err = pthread_sigmask(SIG_SETMASK, &mask, NULL);
+    SCORE_LANGUAGE_FUTURECPP_ASSERT_DBG_MESSAGE(err == 0, "Invalid argument(s) to pthread_sigmask");
+    static_cast<void>(err);
+}
+
 }  // namespace
 
 namespace score::mw::lifecycle::internal::osal
@@ -171,72 +195,65 @@ ProcessLauncher::startProcess(ProcessID& pid, IpcCommsP& block, const configurat
 {
     OsalReturnType result = OsalReturnType::kFail;
 
-    if (!config.component_properties.binary_name.empty())
+    SCORE_LANGUAGE_FUTURECPP_ASSERT_DBG_MESSAGE(
+        !config.deployment_config.process_command.executablePath().empty(), "Executable path must not be empty");
+
+    if (access(config.deployment_config.process_command.executablePath().c_str(), X_OK) != 0)
     {
-        if (access(config.deployment_config.executable_path.c_str(), X_OK) != 0)
+        static_cast<void>(signal_safe_log(
+            "File does not exist or is not executable: ", config.deployment_config.process_command.executablePath()));
+        return result;
+    }
+
+    int fd = -1;
+    pid = -1;
+    block = nullptr;
+    bool comms_result = true;
+
+    const auto& app_type = config.component_properties.application_profile.application_type;
+    if (app_type != configuration::ApplicationType::Native)
+    {
+        comms_result = setupComms(block, fd, config);
+    }
+
+    if (comms_result)
+    {
+        if (fflush(stdout) == EOF)
         {
-            static_cast<void>(signal_safe_log(
-                "File does not exist or is not executable: ", config.deployment_config.executable_path));
-            return result;
+            LM_LOG_ERROR() << "Failed to flush stdout before forking.";
         }
 
-        int fd = -1;
-        pid = -1;
-        block = nullptr;
-        bool comms_result = true;
+        pid = fork();
 
-        const auto& app_type = config.component_properties.application_profile.application_type;
-        if (app_type != configuration::ApplicationType::Native)
+        if (pid == kPosixSuccess)
         {
-            comms_result = setupComms(block, fd, config);
+            /*
+             * From this point on, only async signal safe functions can be
+             * used. `fork` only copies the current thread, so any locks
+             * which were held at that time will never be released.
+             * See `man 2 fork`.
+             */
+            ChildProcessConfig param = {config, fd, block};
+            handleChildProcess(param);
+            result = OsalReturnType::kSuccess;
         }
-
-        if (comms_result)
+        else if (pid > kPidZero)
         {
-            if (fflush(stdout) == EOF)
-            {
-                LM_LOG_ERROR() << "Failed to flush stdout before forking.";
-            }
-
-            pid = fork();
-
-            if (pid == kPosixSuccess)
-            {
-                /*
-                 * From this point on, only async signal safe functions can be
-                 * used. `fork` only copies the current thread, so any locks
-                 * which were held at that time will never be released.
-                 * See `man 2 fork`.
-                 */
-                ChildProcessConfig param = {config, fd, block};
-                handleChildProcess(param);
-                result = OsalReturnType::kSuccess;
-            }
-            else if (pid > kPidZero)
-            {
-                result = OsalReturnType::kSuccess;
-            }
-            else
-            {
-                LM_LOG_ERROR() << "Fork failed: Unable to create a new process.";
-            }
+            result = OsalReturnType::kSuccess;
         }
         else
         {
-            LM_LOG_ERROR()
-                << "Shared memory creation failed: Unable to create shared memory for kRunning communication.";
-        }
-
-        if (fd >= 0)
-        {
-            close(fd);
+            LM_LOG_ERROR() << "Fork failed: Unable to create a new process.";
         }
     }
     else
     {
-        LM_LOG_ERROR() << "Invalid input parameters: Ensure config and binary_name are correctly provided.";
+        LM_LOG_ERROR() << "Shared memory creation failed: Unable to create shared memory for kRunning communication.";
+    }
 
-        return result;
+    if (fd >= 0)
+    {
+        close(fd);
     }
 
     return result;
@@ -249,37 +266,28 @@ bool ProcessLauncher::setupComms(IpcCommsP& block, int& fd, const configuration:
     fd = shm_open_anon("/lm_running_report_ipc\0");
     if (fd < 0)
     {
-        LM_LOG_ERROR() << "shm_open failed:" << config.deployment_config.executable_path
+        LM_LOG_ERROR() << "shm_open failed:" << config.deployment_config.process_command.executablePath()
                        << "Unable to open shared memory object. Error:" << errno_message(errno);
         return false;
     }
 
     if (-1 == ftruncate(fd, static_cast<int>(length)))
     {
-        LM_LOG_ERROR() << "ftruncate failed:" << config.deployment_config.executable_path
+        LM_LOG_ERROR() << "ftruncate failed:" << config.deployment_config.process_command.executablePath()
                        << "Unable to set size of shared memory file descriptor. Error:" << errno_message(errno);
         return false;
     }
 
-    block = IpcCommsSync::getCommsObject(fd);
+    block = IpcCommsSync::createCommsObject(fd);
     if (!block)
     {
+        LM_LOG_ERROR() << "Creating comms object failed:" << config.name;
         return false;
     }
 
-    // Map application type to CommsType for backward compatibility
     SCORE_LANGUAGE_FUTURECPP_ASSERT_DBG_MESSAGE(
         config.component_properties.application_profile.application_type != configuration::ApplicationType::Native,
-        "We should not set up the comms object if the application type is native. This used to be the kNoComms case");
-
-    block->comms_type_ = CommsType::kReporting;
-
-    if (!IpcCommsSync::initializeSemaphores(block))
-    {
-        LM_LOG_ERROR() << "Semaphore init failed:" << config.name
-                       << "Unable to initialize send_sync or reply_sync semaphore.";
-        return false;
-    }
+        "We should not set up the comms object if the application type is native");
 
     return true;
 }
@@ -295,31 +303,10 @@ OsalReturnType ProcessLauncher::setSchedulingAndSecurity(const configuration::Sa
         static_cast<void>(signal_safe_log_errno(errno, "setpgid() failed"));
         retval = OsalReturnType::kFail;
     }
-    // Set scheduling policy with sched_setscheduler
+    // Set scheduling policy with sched_setscheduler.
+    // The priority was clamped to the valid range of the policy when the configuration was loaded.
     sched_param sch_param{};
-
     sch_param.sched_priority = config.scheduling_priority;
-
-    if (sch_param.sched_priority < sched_get_priority_min(config.scheduling_policy))
-    {
-        static_cast<void>(signal_safe_log(
-            "Scheduling priority ",
-            sch_param.sched_priority,
-            " is below minimum for policy ",
-            config.scheduling_policy,
-            ", setting to minimum"));
-        sch_param.sched_priority = sched_get_priority_min(config.scheduling_policy);
-    }
-    else if (sch_param.sched_priority > sched_get_priority_max(config.scheduling_policy))
-    {
-        static_cast<void>(signal_safe_log(
-            "Scheduling priority ",
-            sch_param.sched_priority,
-            " is above maximum for policy ",
-            config.scheduling_policy,
-            ", setting to maximum"));
-        sch_param.sched_priority = sched_get_priority_max(config.scheduling_policy);
-    }
 
     if (-1 == sched_setscheduler(0, config.scheduling_policy, &sch_param))
     {
@@ -366,6 +353,8 @@ OsalReturnType ProcessLauncher::setSchedulingAndSecurity(const configuration::Sa
 /// @details The implementation should be async signal safe.
 void ProcessLauncher::handleChildProcess(ChildProcessConfig& param)
 {
+    resetSignalHandlersAndUnblock();
+
     handleComms(param);
 
     applyResourceLimits(param.config.deployment_config.sandbox);
@@ -378,27 +367,16 @@ void ProcessLauncher::handleChildProcess(ChildProcessConfig& param)
     changeCurrentWorkingDirectory(param.config.deployment_config);
     changeSecurityPolicy(param.config.deployment_config.sandbox);
 
-    // Build argv array - note: must be null-terminated
-    std::array<const char*, kArgvArraySize> argv{};
-    size_t arg_idx = 0;
-    argv[arg_idx++] = param.config.deployment_config.executable_path.c_str();
-    for (const auto& arg : param.config.component_properties.process_arguments)
-    {
-        if (arg_idx < kArgvArraySize - 1)
-        {
-            argv[arg_idx++] = arg.c_str();
-        }
-    }
-    argv[arg_idx] = nullptr;
+    const auto& process_command = param.config.deployment_config.process_command;
 
     // Get envp from Environment - it already provides a null-terminated array
     char* const* envp = param.config.deployment_config.environmental_variables.envp();
 
     // Finally, execute the process, passing all the arguments and environment variables
-    static_cast<void>(execve(argv[0], const_cast<char* const*>(argv.data()), envp));
+    static_cast<void>(execve(process_command.executablePath().c_str(), process_command.argv(), envp));
     // A successful execve replaces the process image; returning here always means failure.
     static_cast<void>(signal_safe_log_errno(
-        errno, "execve failed: Unable to execute the ", param.config.deployment_config.executable_path, " app."));
+        errno, "execve failed: Unable to execute the ", process_command.executablePath(), " app."));
     sysexit(EXIT_FAILURE);
 }
 
@@ -480,42 +458,30 @@ OsalReturnType ProcessLauncher::waitForTermination(osal::ProcessID& pid, int32_t
     return result;
 }
 
-OsalReturnType ProcessLauncher::waitForkRunning(IpcCommsP sync, std::optional<std::chrono::milliseconds> timeout)
+OsalReturnType ProcessLauncher::waitForkRunning(IpcCommsP sync, std::chrono::milliseconds timeout)
 {
-    OsalReturnType result = OsalReturnType::kSuccess;
-
     if (!sync)
     {
         LM_LOG_ERROR() << "Invalid shared memory pointer: The shared memory pointer is null.";
         return OsalReturnType::kFail;
     }
 
-    if (timeout.has_value())
+    const auto result = sync->send_sync_.timedWait(timeout);
+    if (result != OsalReturnType::kSuccess)
     {
-        result = sync->send_sync_.timedWait(timeout.value());
+        LM_LOG_ERROR() << "Semaphore timedWait failed: Did not receive kRunning within the specified timeout.";
+        return result;
     }
 
-    const auto post_res = sync->reply_sync_.post();
-
-    if (post_res == OsalReturnType::kFail)
+    // The semaphore is also posted when the process terminates, so only the reported_running_ flag tells whether the
+    // process actually reported kRunning.
+    if (!sync->hasReportedRunning())
     {
-        LM_LOG_ERROR() << "Semaphore post failed";
-        result = OsalReturnType::kFail;
+        LM_LOG_ERROR() << "Process terminated without reporting kRunning.";
+        return OsalReturnType::kFail;
     }
 
-    if (result == OsalReturnType::kFail)
-    {
-        LM_LOG_ERROR() << "Semaphore timedWait or post failed: Unable to wait or post on semaphores within the "
-                          "specified timeout.";
-    }
-    else if (timeout.has_value())
-    {
-        result = sync->send_sync_.timedWait(std::chrono::milliseconds(100));
-    }
-
-    IpcCommsSync::deinit(sync);
-
-    return result;
+    return OsalReturnType::kSuccess;
 }
 
 }  // namespace score::mw::lifecycle::internal::osal

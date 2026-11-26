@@ -25,10 +25,10 @@ cc_binary(
 
 integration_test(
     name = "process_launch_args",
-    srcs = ["process_launch_args.py"],
+    srcs = ["test.py"],
     binaries = [
         ":process_initial",
         "//score/launch_manager",
     ],
-    config = ":process_launch_args.json",
+    config = ":config.json",
 )

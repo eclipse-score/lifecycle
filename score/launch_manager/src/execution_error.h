@@ -23,23 +23,56 @@ namespace score::mw::lifecycle
 
 enum class ExecErrc : score::result::ErrorCode
 {
-    kGeneralError = 1,        ///< Some unspecified error occurred
-    kInvalidArguments = 2,    ///< Invalid argument was passed
-    kCommunicationError = 3,  ///< Communication error occurred
-    kMetaModelError = 4,      ///< Wrong meta model identifier passed to a function
-    kCancelled = 5,           ///< Transition to the requested Run Target was cancelled by a newer request
-    kFailed = 6,              ///< Requested operation could not be performed
-    kFailedUnexpectedTerminationOnExit = 7,   ///< Unexpected termination while stopping the previous Run Target
-    kFailedUnexpectedTerminationOnEnter = 8,  ///< Unexpected termination while starting the next Run Target
-    kInvalidTransition = 9,         ///< Transition invalid (e.g. report kRunning when already in Running Process State)
-    kAlreadyInState = 10,           ///< Transition to the requested Run Target failed because it is already active
-    kInTransitionToSameState = 11,  ///< Transition to the requested Run Target failed because the same transition
-                                    ///< is already in progress
-    kActivationInProgress =
-        12,  ///< A Run Target activation is already in progress; no single Run Target is currently active
-    kRequestQueueIsFull = 13,    ///< The activation request queue is full; the request was discarded
-    kRunTargetDoesntExist = 14,  ///< The requested Run Target does not exist in the current configuration
-    kNotImplemented = 15,        ///< The requested functionality is not yet implemented
+    /// @brief Some unspecified error occurred
+    kGeneralError = 1,
+
+    /// @brief Invalid argument was passed
+    kInvalidArguments = 2,
+
+    /// @brief Communication error occurred
+    kCommunicationError = 3,
+
+    /// @brief Wrong meta model identifier passed to a function
+    kMetaModelError = 4,
+
+    /// @brief Transition to the requested Run Target was cancelled by a newer request
+    kCancelled = 5,
+
+    /// @brief Requested operation could not be performed
+    kFailed = 6,
+
+    /// @brief Unexpected termination while stopping the previous Run Target
+    kFailedUnexpectedTerminationOnExit = 7,
+
+    /// @brief Unexpected termination while starting the next Run Target
+    kFailedUnexpectedTerminationOnEnter = 8,
+
+    /// @brief Transition invalid (e.g. report kRunning when already in Running Process State)
+    kInvalidTransition = 9,
+
+    /// @brief Transition to the requested Run Target failed because it is already active
+    kAlreadyInState = 10,
+
+    /// @brief Transition to the requested Run Target failed because the same transition is already in progress
+    kInTransitionToSameState = 11,
+
+    /// @brief A Run Target activation is already in progress; no single Run Target is currently active
+    kActivationInProgress = 12,
+
+    /// @brief The activation request queue is full; the request was discarded
+    kRequestQueueIsFull = 13,
+
+    /// @brief The requested Run Target does not exist in the current configuration
+    kRunTargetDoesntExist = 14,
+
+    /// @brief The requested functionality is not yet implemented
+    kNotImplemented = 15,
+
+    /// @brief The request could not be completed because launch manager is shutting down
+    kShuttingDown = 16,
+
+    /// @brief The operation timed out
+    kTimeout = 17,
 };
 
 class ExecErrorDomain final : public score::result::ErrorDomain
@@ -80,6 +113,10 @@ class ExecErrorDomain final : public score::result::ErrorDomain
                 return "The requested Run Target does not exist in the current configuration";
             case ExecErrc::kNotImplemented:
                 return "The requested functionality is not yet implemented";
+            case ExecErrc::kShuttingDown:
+                return "The request could not be completed because launch manager is shutting down";
+            case ExecErrc::kTimeout:
+                return "The operation timed out";
             default:
                 return "Unknown error";
         }

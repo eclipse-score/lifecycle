@@ -14,10 +14,12 @@
 #define SCORE_MW_LIFECYCLE_ILM_CONTROL_H_
 
 #include <chrono>
+#include <cstddef>
 #include <functional>
 #include <memory>
+#include <string_view>
 
-#include "score/mw/lifecycle/execution_error.h"
+#include "score/mw/lifecycle/execution_error.h"  // IWYU pragma: export
 #include "score/mw/lifecycle/fixed_string.hpp"
 #include "score/mw/lifecycle/run_target_activation_source.hpp"
 #include "score/result/result.h"

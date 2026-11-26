@@ -113,37 +113,37 @@ class LifecycleApp final : public score::mw::lifecycle::Application
 
         // Build a classic argv for getopt() from ApplicationContext arguments
         const auto& args = appCtx.get_arguments();
-        m_argvStorage.clear();
-        m_argvStorage.reserve(args.size() + 2);
+        argv_storage_.clear();
+        argv_storage_.reserve(args.size() + 2);
 
         // Ensure argv[0] exists (getopt expects it)
         if (args.empty())
         {
-            m_argvStorage.push_back(const_cast<char*>("LifecycleApp"));
+            argv_storage_.push_back(const_cast<char*>("LifecycleApp"));
         }
         else
         {
             for (const auto& s : args)
             {
                 // NOTE: relies on the underlying storage staying alive during Initialize().
-                m_argvStorage.push_back(const_cast<char*>(s.data()));
+                argv_storage_.push_back(const_cast<char*>(s.data()));
             }
         }
 
-        m_argvStorage.push_back(nullptr);
+        argv_storage_.push_back(nullptr);
 
         optind = 1;
 
-        const int argcLocal = static_cast<int>(m_argvStorage.size() - 1);
-        const auto config = parseOptions(argcLocal, m_argvStorage.data());
+        const int argcLocal = static_cast<int>(argv_storage_.size() - 1);
+        const auto config = parseOptions(argcLocal, argv_storage_.data());
         if (!config)
         {
             return EXIT_FAILURE;
         }
 
-        m_config = *config;
+        config_ = *config;
 
-        if (true == m_config.failToStart)
+        if (true == config_.failToStart)
         {
             return EXIT_FAILURE;
         }
@@ -157,19 +157,19 @@ class LifecycleApp final : public score::mw::lifecycle::Application
         std::chrono::duration<double, std::milli> runTime;
 
         timespec req{
-            static_cast<time_t>(m_config.responseTimeInMs / 1000),
-            static_cast<long>((m_config.responseTimeInMs % 1000) * 1000000L)};
+            static_cast<time_t>(config_.responseTimeInMs / 1000),
+            static_cast<long>((config_.responseTimeInMs % 1000) * 1000000L)};
 
         auto timeLastVerboseLog = std::chrono::steady_clock::now();
 
         while (!stopToken.stop_requested())
         {
-            if (true == m_config.crashRequested)
+            if (true == config_.crashRequested)
             {
                 runTime = std::chrono::steady_clock::now() - startTime;
-                int timeTillCrash = static_cast<int>(m_config.crashTimeInMs - runTime.count());
+                int timeTillCrash = static_cast<int>(config_.crashTimeInMs - runTime.count());
 
-                if (timeTillCrash < m_config.responseTimeInMs)
+                if (timeTillCrash < config_.responseTimeInMs)
                 {
                     if (timeTillCrash > 0)
                     {
@@ -183,7 +183,7 @@ class LifecycleApp final : public score::mw::lifecycle::Application
                 }
             }
 
-            if (m_config.verbose)
+            if (config_.verbose)
             {
                 const auto now = std::chrono::steady_clock::now();
                 if (now - timeLastVerboseLog >= std::chrono::seconds(1))
@@ -200,8 +200,8 @@ class LifecycleApp final : public score::mw::lifecycle::Application
     }
 
   private:
-    Config m_config{};
-    std::vector<char*> m_argvStorage{};
+    Config config_{};
+    std::vector<char*> argv_storage_{};
 };
 
 int main(int argc, char** argv)

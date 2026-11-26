@@ -52,3 +52,6 @@ Glossary
 
     Fallback Run Target
       A designated Run Target that the system can switch to in case the current active Run Target resp. one of its components fails.
+
+    Invalid Configuration
+      A configuration containing syntax errors or violating the component dependency rules, such as missing or circular dependencies.

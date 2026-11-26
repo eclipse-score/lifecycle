@@ -12,15 +12,19 @@
  ********************************************************************************/
 
 #include "score/mw/launch_manager/process_group_manager/details/ready_condition/report_running_ready_condition.hpp"
+#include "score/mw/launch_manager/osal/ipc_comms.hpp"
 #include "score/mw/launch_manager/osal/return_types.hpp"
+#include "score/mw/launch_manager/osal/semaphore.hpp"
 #include "score/mw/lifecycle/execution_error.h"
+#include <score/assert.hpp>
+#include <score/stop_token.hpp>
+#include <memory>
+#include <variant>
 
 namespace score::mw::lifecycle::internal
 {
 
-ReportRunningReadyCondition::ReportRunningReadyCondition(
-    osal::IProcess& launcher,
-    std::optional<std::chrono::milliseconds> timeout)
+ReportRunningReadyCondition::ReportRunningReadyCondition(osal::IProcess& launcher, std::chrono::milliseconds timeout)
     : launcher_(launcher), timeout_(timeout)
 {
 }
@@ -34,13 +38,18 @@ Result<void> ReportRunningReadyCondition::wait(cpp::stop_token /*stop_token*/, c
         process->sync != nullptr,
         "ReportRunningReadyCondition should only be called with a ProcessHandle containing IPCCommsSync");
 
+    // waitForkRunning only succeeds if the process itself reported kRunning, not if it was woken up by
+    // tryHandleTermination.
     const osal::OsalReturnType result = launcher_.waitForkRunning(process->sync, timeout_);
 
-    // If the PID is invalid, the process died and the notification was sent
-    // from tryHandleTermination rather than the process itself.
-    if (result == osal::OsalReturnType::kSuccess && process->pid > 0)
+    if (result == osal::OsalReturnType::kSuccess)
     {
         return {};
+    }
+
+    if (result == osal::OsalReturnType::kTimeout)
+    {
+        return MakeUnexpected(ExecErrc::kTimeout);
     }
 
     return MakeUnexpected(ExecErrc::kGeneralError);
@@ -55,6 +64,8 @@ bool ReportRunningReadyCondition::tryHandleTermination(const Handle& handle, int
         process->sync != nullptr,
         "ReportRunningReadyCondition should only be called with a ProcessHandle containing IPCCommsSync");
 
+    // Wake the waiting thread with exactly one post. It completes the handshake only if the process
+    // already posted its kRunning report, see wait().
     // FIXME: This static_cast was copied from the old code at
     // https://github.com/eclipse-score/lifecycle/blob/876c5df184ee0008017334303c12f1c2ee75e42e/score/launch_manager/src/daemon/src/process_group_manager/details/process_info_node.cpp#L171
     // Should errors be handled here?

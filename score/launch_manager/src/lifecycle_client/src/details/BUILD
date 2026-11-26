@@ -26,9 +26,10 @@ cc_library(
     ],
     deps = [
         "//score/launch_manager:error_event",
-        "//score/launch_manager/src/daemon/src/common:constants",
         "//score/launch_manager/src/daemon/src/common:log",
         "//score/launch_manager/src/daemon/src/osal:ipc_comms",
+        "//score/launch_manager/src/daemon/src/osal:return_types",
+        "//score/launch_manager/src/daemon/src/osal:semaphore",
         "@score_baselibs//score/result",
     ],
 )
@@ -47,7 +48,6 @@ cc_library(
     visibility = ["//score/launch_manager/src/lifecycle_client:__pkg__"],
     deps = [
         "//score/launch_manager:error_event",
-        "//score/launch_manager/src/daemon/src/common:log",
         "//score/launch_manager/src/daemon/src/osal:ipc_comms",
         "@googletest//:gtest",
         "@score_baselibs//score/result",
@@ -85,6 +85,8 @@ lm_cc_test(
         "clock_getres",
     ]),
     linkstatic = True,
+    # Some system calls are inlined on tsan build (compiles with -O1) which breaks the --wrap=fstat mock usage
+    target_compatible_with = ["@score_cpp_policies//sanitizers/constraints:no_tsan"],
     deps = [
         ":report_running_impl",
         "//tests/utils/accessors:accessor_report_running_impl",

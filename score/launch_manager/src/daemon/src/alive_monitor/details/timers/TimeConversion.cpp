@@ -13,8 +13,6 @@
 
 #include "score/mw/launch_manager/alive_monitor/details/timers/TimeConversion.hpp"
 
-#include <limits>
-
 namespace score::mw::lifecycle::internal::saf::timers
 {
 

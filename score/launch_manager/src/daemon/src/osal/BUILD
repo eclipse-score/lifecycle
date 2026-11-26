@@ -50,10 +50,10 @@ cc_library(
         ":ifile_waiter",
         ":return_types",
         "//score/launch_manager/src/daemon/src/configuration:component_config",
+        "@score_baselibs//score/language/futurecpp",
         "@score_baselibs//score/language/safecpp/string_view:zstring_view",
         "@score_baselibs//score/os:errno",
         "@score_baselibs//score/os:stat",
-        "@score_baselibs//score/result:error",
     ],
 )
 
@@ -82,6 +82,7 @@ cc_library(
     deps = [
         ":return_types",
         "//score/launch_manager/src/daemon/src/configuration:component_config",
+        "@score_baselibs//score/language/futurecpp",
         "@score_baselibs//score/language/safecpp/string_view:zstring_view",
     ],
 )
@@ -95,6 +96,7 @@ cc_library(
     visibility = ["//score:__subpackages__"],
     deps = [
         ":ifile_waiter",
+        "@googletest//:gtest",
         "@googletest//:gtest_main",
     ],
 )
@@ -188,6 +190,54 @@ cc_library(
     deps = [
         ":semaphore",
         "//score/launch_manager/src/daemon/src/common:log",
+    ],
+)
+
+cc_library(
+    name = "start_process",
+    srcs = ["details/qnx/start_process.cpp"],
+    hdrs = [
+        "details/qnx/start_process_internal.hpp",
+        "start_process.hpp",
+    ],
+    include_prefix = "score/mw/launch_manager/osal",
+    linkopts = ["-lsecpol"],
+    strip_include_prefix = "/score/launch_manager/src/daemon/src/osal",
+    target_compatible_with = ["@platforms//os:qnx"],
+    visibility = ["//score:__subpackages__"],
+    deps = [
+        ":ipc_comms",
+        ":return_types",
+        "//score/launch_manager/src/daemon/src/common:log",
+        "//score/launch_manager/src/daemon/src/configuration:component_config",
+        "@score_baselibs//score/os:errno",
+        "@score_baselibs//score/os:fcntl",
+        "@score_baselibs//score/os:sched",
+        "@score_baselibs//score/os:spawn",
+        "@score_baselibs//score/os:unistd",
+        "@score_baselibs//score/os/qnx:secpol",
+        "@score_baselibs//score/os/qnx:unistd",
+        "@score_baselibs//score/os/utils:signal",
+    ],
+)
+
+lm_cc_test(
+    name = "start_process_qnx_UT",
+    srcs = ["details/qnx/start_process_UT.cpp"],
+    # baselibs provides no abstraction for prlimit()
+    linkopts = ["-Wl,--wrap=prlimit"],
+    linkstatic = True,
+    target_compatible_with = ["@platforms//os:qnx"],
+    deps = [
+        ":start_process",
+        "@googletest//:gtest_main",
+        "@score_baselibs//score/os/mocklib:fcntl_mock",
+        "@score_baselibs//score/os/mocklib:sched_mock",
+        "@score_baselibs//score/os/mocklib:spawn_mock",
+        "@score_baselibs//score/os/mocklib:unistd_mock",
+        "@score_baselibs//score/os/mocklib/qnx:secpol_mock",
+        "@score_baselibs//score/os/mocklib/qnx:unistd_mock",
+        "@score_baselibs//score/os/utils/mocklib:signal_mock",
     ],
 )
 

@@ -24,6 +24,8 @@ cc_library(
         "//score/launch_manager/src/daemon/src/alive_monitor/details/ifappl:monitor_if_daemon",
         "//score/launch_manager/src/daemon/src/alive_monitor/details/ifexm:i_observable_event_reader",
         "//score/launch_manager/src/daemon/src/alive_monitor/details/supervision:alive",
+        "//score/launch_manager/src/daemon/src/common:identifier_hash",
+        "//score/launch_manager/src/daemon/src/configuration:config",
     ],
 )
 
@@ -36,18 +38,16 @@ cc_library(
     visibility = ["//score/launch_manager/src/daemon/src/alive_monitor:__subpackages__"],
     deps = [
         ":i_alive_worker_factory",
-        "//score/launch_manager/src/daemon/src/alive_monitor/details/ifappl:checkpoint",
+        "//score/launch_manager/src/daemon/src/alive_monitor/details/common:observer",
+        "//score/launch_manager/src/daemon/src/alive_monitor/details/ifappl:data_structures",
+        "//score/launch_manager/src/daemon/src/alive_monitor/details/ifappl:monitor_if_daemon",
+        "//score/launch_manager/src/daemon/src/alive_monitor/details/ifexm:i_observable_event_reader",
         "//score/launch_manager/src/daemon/src/alive_monitor/details/ifexm:observable_event",
-        "//score/launch_manager/src/daemon/src/alive_monitor/details/ifexm:observable_event_reader",
         "//score/launch_manager/src/daemon/src/alive_monitor/details/supervision:alive",
-        "//score/launch_manager/src/daemon/src/alive_monitor/details/timers:time_conversion",
-        "//score/launch_manager/src/daemon/src/alive_monitor/details/timers:timers_os_clock",
         "//score/launch_manager/src/daemon/src/common:alive_interface_path",
         "//score/launch_manager/src/daemon/src/common:constants",
         "//score/launch_manager/src/daemon/src/common:identifier_hash",
         "//score/launch_manager/src/daemon/src/common:log",
-        "//score/launch_manager/src/daemon/src/configuration:config",
-        "@score_baselibs//score/language/futurecpp",
     ],
 )
 
@@ -63,6 +63,8 @@ cc_library(
         "//score/launch_manager/src/daemon/src/alive_monitor/details/ifappl/injection_mocks:mock_monitor_if_daemon",
         "//score/launch_manager/src/daemon/src/alive_monitor/details/ifexm:i_observable_event_reader",
         "//score/launch_manager/src/daemon/src/alive_monitor/details/supervision/injection_mocks:mock_alive",
+        "//score/launch_manager/src/daemon/src/common:identifier_hash",
+        "//score/launch_manager/src/daemon/src/configuration:config",
     ],
 )
 
@@ -73,14 +75,17 @@ cc_library(
     hdrs = ["AliveWorkerFactory.hpp"],
     include_prefix = "score/mw/launch_manager/alive_monitor/details/factory",
     strip_include_prefix = "/score/launch_manager/src/daemon/src/alive_monitor/details/factory",
+    # Same sources as :alive_worker_factory, built against mocks that provide headers under the same include
+    # paths. DWYU cannot tell those apart.
+    tags = ["dwyu:skip"],
     visibility = ["//score/launch_manager/src/daemon/src/alive_monitor:__subpackages__"],
     deps = [
         ":mockable_i_alive_worker_factory",
-        "//score/launch_manager/src/daemon/src/alive_monitor/details/ifappl:checkpoint",
+        "//score/launch_manager/src/daemon/src/alive_monitor/details/common:observer",
+        "//score/launch_manager/src/daemon/src/alive_monitor/details/ifexm:i_observable_event_reader",
         "//score/launch_manager/src/daemon/src/alive_monitor/details/ifexm:observable_event",
-        "//score/launch_manager/src/daemon/src/alive_monitor/details/ifexm:observable_event_reader",
+        "//score/launch_manager/src/daemon/src/alive_monitor/details/supervision/injection_mocks:mock_alive",
         "//score/launch_manager/src/daemon/src/alive_monitor/details/timers:time_conversion",
-        "//score/launch_manager/src/daemon/src/alive_monitor/details/timers:timers_os_clock",
         "//score/launch_manager/src/daemon/src/common:alive_interface_path",
         "//score/launch_manager/src/daemon/src/common:constants",
         "//score/launch_manager/src/daemon/src/common:identifier_hash",

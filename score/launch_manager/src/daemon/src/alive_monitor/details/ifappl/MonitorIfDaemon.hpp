@@ -86,31 +86,36 @@ class MonitorIfDaemon : public common::Observer<ifexm::ObservableEvent>, public 
     /// @returns True if successful, false if an error reading from the buffer occurred.
     bool readIpcUntil(const std::chrono::nanoseconds f_syncTimestamp);
 
-    /// Internal states for instances of this class
+    /// @brief Internal states for instances of this class
     enum class EInternalState : std::uint8_t
     {
-        kActive,           ///< Interface active
-        kInactive,         ///< Interface inactive
-        kInactiveOverflow  ///< Interface inactive due to overflow
+        /// @brief Interface active
+        kActive,
+
+        /// @brief Interface inactive
+        kInactive,
+
+        /// @brief Interface inactive due to overflow
+        kInactiveOverflow
     };
 
-    /// Current internal state
-    EInternalState status{EInternalState::kInactive};
+    /// @brief Current internal state
+    EInternalState status_{EInternalState::kInactive};
 
     /// @brief Current Activation request
-    bool isActivateRequest{false};
+    bool is_activate_request_{false};
 
     /// @brief Current Deactivation request
-    bool isDeactivateRequest{false};
+    bool is_deactivate_request_{false};
 
     /// @brief Process restart status
-    bool isProcessRestarted{false};
+    bool is_process_restarted_{false};
 
-    /// Interface name
-    const IdentifierHash k_interfaceName;
+    /// @brief Interface name
+    const IdentifierHash interface_name_;
 
     /// @brief IPC connection to application
-    CheckpointIpcServer& ipcserver_r;
+    CheckpointIpcServer& ipcserver_;
 };
 
 }  // namespace score::mw::lifecycle::internal::saf::ifappl

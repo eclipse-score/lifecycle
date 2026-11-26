@@ -11,11 +11,15 @@
  * SPDX-License-Identifier: Apache-2.0
  ********************************************************************************/
 
+#include "score/mw/launch_manager/process_group_manager/details/mock_component.hpp"
+#include "score/mw/launch_manager/process_group_manager/details/mock_safe_process_map_inserter.hpp"
 #include "score/mw/launch_manager/process_group_manager/details/start_action/process_start_action.hpp"
 #include "score/mw/launch_manager/process_group_manager/mock_iprocess.hpp"
 #include "score/mw/lifecycle/execution_error.h"
 #include <gmock/gmock.h>
 #include <gtest/gtest.h>
+#include <array>
+#include <cstddef>
 
 namespace score::mw::lifecycle::internal
 {
@@ -24,46 +28,100 @@ namespace
 
 using namespace ::testing;
 
-TEST(ProcessStartActionTest, StartCallsStartProcessWithConfig)
+constexpr osal::ProcessID kPid = 42;
+
+alignas(osal::IpcCommsSync) std::array<std::byte, sizeof(osal::IpcCommsSync)> sync_buffer;
+
+// The semaphores are never touched, since the launcher is mocked.
+const osal::IpcCommsP kSync{reinterpret_cast<osal::IpcCommsSync*>(sync_buffer.data()), [](osal::IpcCommsSync*) {
+                            }};
+
+class ProcessStartActionTest : public Test
 {
-    StrictMock<osal::MockIProcess> launcher;
-    const configuration::ComponentConfig config{};
-    const ProcessStartAction process_start_action(launcher, config);
+  protected:
+    /// @brief Expect the process to be started with the configuration and get kPid and kSync.
+    void expectProcessStarted()
+    {
+        EXPECT_CALL(launcher_, startProcess(_, _, Ref(config_)))
+            .WillOnce(DoAll(SetArgReferee<0>(kPid), SetArgReferee<1>(kSync), Return(osal::OsalReturnType::kSuccess)));
+    }
 
-    EXPECT_CALL(launcher, startProcess(_, _, Ref(config))).WillOnce(Return(osal::OsalReturnType::kSuccess));
+    /// @brief Expect the handle to refer to the process started by expectProcessStarted().
+    static void expectStartedProcessHandle(const Handle& handle)
+    {
+        const ProcessHandle* const process = std::get_if<ProcessHandle>(&handle);
+        ASSERT_NE(process, nullptr);
+        EXPECT_EQ(process->pid, kPid);
+        EXPECT_EQ(process->sync, kSync);
+    }
 
-    static_cast<void>(process_start_action.start(cpp::stop_token{}));
+    StrictMock<osal::MockIProcess> launcher_;
+    StrictMock<MockSafeProcessMapInserter> process_map_;
+    const configuration::ComponentConfig config_{};
+    MockComponent component_;
+    const ProcessStartAction sut_{launcher_, process_map_, config_};
+};
+
+TEST_F(ProcessStartActionTest, StartStartsProcessAndTracksItForComponent)
+{
+    expectProcessStarted();
+    EXPECT_CALL(process_map_, insertIfNotTerminated(kPid, &component_))
+        .WillOnce(Return(SafeProcessMapInsertResult{SafeProcessMapReturnType::kInserted}));
+
+    const Result<StartedResource> result = sut_.start(cpp::stop_token{}, component_);
+
+    ASSERT_TRUE(result.has_value());
+    expectStartedProcessHandle(result.value().handle);
+    EXPECT_FALSE(result.value().exit_status.has_value());
 }
 
-TEST(ProcessStartActionTest, StartSucceedsReturnsProcessHandle)
+TEST_F(ProcessStartActionTest, StartReturnsExitStatusOfAlreadyTerminatedProcess)
 {
-    NiceMock<osal::MockIProcess> launcher;
-    const configuration::ComponentConfig config{};
-    const ProcessStartAction process_start_action(launcher, config);
-    const osal::ProcessID expected_pid = 42;
+    expectProcessStarted();
+    EXPECT_CALL(process_map_, insertIfNotTerminated(kPid, &component_))
+        .WillOnce(Return(SafeProcessMapInsertResult{SafeProcessMapReturnType::kMatched, 7}));
 
-    ON_CALL(launcher, startProcess(_, _, _))
-        .WillByDefault(DoAll(SetArgReferee<0>(expected_pid), Return(osal::OsalReturnType::kSuccess)));
+    const Result<StartedResource> result = sut_.start(cpp::stop_token{}, component_);
 
-    const Result<Handle> result = process_start_action.start(cpp::stop_token{});
-
-    EXPECT_TRUE(result.has_value());
-    EXPECT_EQ(std::get<ProcessHandle>(result.value()).pid, expected_pid);
+    ASSERT_TRUE(result.has_value());
+    expectStartedProcessHandle(result.value().handle);
+    ASSERT_TRUE(result.value().exit_status.has_value());
+    EXPECT_EQ(result.value().exit_status.value(), 7);
 }
 
-TEST(ProcessStartActionTest, StartFailsReturnsError)
+TEST_F(ProcessStartActionTest, StartFailsWithoutTrackingWhenProcessCannotBeStarted)
 {
-    NiceMock<osal::MockIProcess> launcher;
-    const configuration::ComponentConfig config{};
-    const ProcessStartAction process_start_action(launcher, config);
+    EXPECT_CALL(launcher_, startProcess(_, _, _)).WillOnce(Return(osal::OsalReturnType::kFail));
+    // The strict process map fails the test if the process is tracked.
 
-    ON_CALL(launcher, startProcess(_, _, _)).WillByDefault(Return(osal::OsalReturnType::kFail));
+    const Result<StartedResource> result = sut_.start(cpp::stop_token{}, component_);
 
-    const Result<Handle> result = process_start_action.start(cpp::stop_token{});
-
-    EXPECT_FALSE(result.has_value());
+    ASSERT_FALSE(result.has_value());
     EXPECT_EQ(result.error(), ExecErrc::kGeneralError);
 }
+
+class ProcessStartActionTrackingErrorTest : public ProcessStartActionTest,
+                                            public WithParamInterface<SafeProcessMapReturnType>
+{
+};
+
+TEST_P(ProcessStartActionTrackingErrorTest, StartKillsProcessAndFailsWhenProcessCannotBeTracked)
+{
+    expectProcessStarted();
+    EXPECT_CALL(process_map_, insertIfNotTerminated(kPid, &component_))
+        .WillOnce(Return(SafeProcessMapInsertResult{GetParam()}));
+    EXPECT_CALL(launcher_, forceTermination(kPid)).WillOnce(Return(osal::OsalReturnType::kSuccess));
+
+    const Result<StartedResource> result = sut_.start(cpp::stop_token{}, component_);
+
+    ASSERT_FALSE(result.has_value());
+    EXPECT_EQ(result.error(), ExecErrc::kGeneralError);
+}
+
+INSTANTIATE_TEST_SUITE_P(
+    AllTrackingErrors,
+    ProcessStartActionTrackingErrorTest,
+    Values(SafeProcessMapReturnType::kInsertionError, SafeProcessMapReturnType::kInvalidIdError));
 
 }  // namespace
 }  // namespace score::mw::lifecycle::internal

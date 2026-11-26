@@ -1,0 +1,208 @@
+// *******************************************************************************
+// Copyright (c) 2026 Contributors to the Eclipse Foundation
+//
+// See the NOTICE file(s) distributed with this work for additional
+// information regarding copyright ownership.
+//
+// This program and the accompanying materials are made available under the
+// terms of the Apache License Version 2.0 which is available at
+// https://www.apache.org/licenses/LICENSE-2.0
+//
+// SPDX-License-Identifier: Apache-2.0
+// *******************************************************************************
+//
+// Single source of truth for the health monitor configuration.
+//
+// `flatc --binary` uses this file to convert a JSON configuration to a FlatBuffer binary.
+// Baselibs' `generate_json_schema` derives the JSON schema `health_monitor_config_schema.json` from it.
+// After a change, regenerate the schema and commit it:
+//     bazel run //scripts/config_mapping:generate_health_monitor_schema
+// `health_monitor_tests` fails while the checked-in schema differs from the generated one.
+//
+// Field names are the JSON keys, in snake_case.
+// `///` tokens before the description lines carry the schema metadata that `flatc --jsonschema` cannot derive:
+//     /// @title: <schema title>
+//     /// @default: <schema default>
+//     /// @min: <minimum>
+//     /// @max: <maximum>
+//     /// @required
+//     /// @shared: <name>
+// `@shared` marks a table that the schema defines once in `$defs` and references from each use.
+// The JSON schema joins the lines of a description into one line, separated by a space.
+// A required scalar is declared `field: T = null;` and marked `@required`.
+// A plain scalar reads back as its default when the key is missing.
+// A required string, table or vector is marked `(required)` and `@required`.
+// A scalar with a default keeps the same value in `@default` and in the FlatBuffers default.
+
+namespace score.mw.health.configuration.fb;
+
+file_identifier "HMCF";
+file_extension "bin";
+
+/// Scheduling policy of the monitoring thread.
+enum SchedulingPolicy : byte {
+  OTHER = 0,
+  FIFO = 1,
+  RR = 2
+}
+
+/// @shared: time_range
+/// @title: Time Range
+/// Closed interval [min_ms, max_ms] of whole milliseconds.
+/// min_ms must not exceed max_ms.
+table TimeRange {
+  /// @title: Minimum
+  /// @min: 0
+  /// @required
+  /// Lower bound in milliseconds.
+  min_ms: uint32 = null;
+  /// @title: Maximum
+  /// @min: 0
+  /// @required
+  /// Upper bound in milliseconds.
+  max_ms: uint32 = null;
+}
+
+/// @title: Scheduler Parameters
+/// Scheduling policy and priority of the monitoring thread.
+table SchedulerParameters {
+  /// @title: Policy
+  /// @required
+  /// Scheduling policy.
+  policy: SchedulingPolicy = null;
+  /// @title: Priority
+  /// @required
+  /// Priority within the range the operating system accepts for the policy.
+  priority: int32 = null;
+}
+
+/// @title: Thread Parameters
+/// Scheduling, CPU affinity and stack size of the monitoring thread.
+/// A value that is not set keeps the operating system default.
+table ThreadParameters {
+  /// @title: Scheduler Parameters
+  /// Scheduling policy and priority.
+  /// If not set, the monitoring thread inherits the scheduling of the thread that starts the health monitor.
+  scheduler_parameters: SchedulerParameters;
+  /// @title: Affinity
+  /// CPU indices the monitoring thread can run on, each below the CPU count.
+  /// If empty or not set, the monitoring thread can run on any CPU.
+  affinity: [uint32];
+  /// @title: Stack Size
+  /// @min: 0
+  /// Stack size in bytes.
+  /// If not set, the monitoring thread uses the operating system default.
+  /// It must not be below the minimum of the operating system.
+  stack_size: uint64 = null;
+}
+
+/// @title: Deadline
+/// A deadline that must stop within its range after it starts.
+table Deadline {
+  /// @title: Deadline Tag
+  /// @required
+  /// Name of the deadline, unique within its deadline monitor.
+  tag: string (required);
+  /// @title: Deadline Range
+  /// @required
+  /// Allowed time between the start and the stop of the deadline.
+  range: TimeRange (required);
+}
+
+/// @title: Deadline Monitor
+/// A deadline monitor and its deadlines.
+table DeadlineMonitor {
+  /// @title: Monitor Tag
+  /// @required
+  /// Name of the monitor, unique across all monitor kinds.
+  tag: string (required);
+  /// @title: Deadlines
+  /// @required
+  /// Deadlines of the monitor.
+  deadlines: [Deadline] (required);
+}
+
+/// @title: Heartbeat Monitor
+/// A heartbeat monitor.
+table HeartbeatMonitor {
+  /// @title: Monitor Tag
+  /// @required
+  /// Name of the monitor, unique across all monitor kinds.
+  tag: string (required);
+  /// @title: Heartbeat Range
+  /// @required
+  /// Allowed time between two heartbeats.
+  /// min_ms must exceed half the internal processing cycle.
+  range: TimeRange (required);
+}
+
+/// @title: State
+/// A state of a logic monitor and the states it can move to.
+table State {
+  /// @title: State Tag
+  /// @required
+  /// Name of the state, unique within its logic monitor.
+  tag: string (required);
+  /// @title: Allowed States
+  /// @required
+  /// Tags of the states this state can move to.
+  /// Each must be a state of the monitor.
+  /// A state can move to itself only if this list contains it.
+  allowed_states: [string] (required);
+}
+
+/// @title: Logic Monitor
+/// A logic monitor and its state graph.
+table LogicMonitor {
+  /// @title: Monitor Tag
+  /// @required
+  /// Name of the monitor, unique across all monitor kinds.
+  tag: string (required);
+  /// @title: Initial State
+  /// @required
+  /// Tag of the state before the first transition.
+  /// It must be a state of the monitor.
+  initial_state: string (required);
+  /// @title: States
+  /// @required
+  /// States of the graph.
+  /// At least one state is required.
+  states: [State] (required);
+}
+
+/// @title: Health Monitor Configuration
+/// Configuration of one health monitor instance.
+/// At least one monitor is required.
+table HealthMonitorConfig {
+  /// @title: Schema Version
+  /// @min: 1
+  /// @max: 1
+  /// @required
+  /// Version of this configuration schema.
+  schema_version: uint32 = null;
+  /// @title: Supervisor API Cycle
+  /// @default: 500
+  /// @min: 1
+  /// Time in milliseconds between two alive notifications to the supervisor.
+  /// It must be an integer multiple of internal_processing_cycle_ms.
+  supervisor_api_cycle_ms: uint32 = 500;
+  /// @title: Internal Processing Cycle
+  /// @default: 100
+  /// @min: 1
+  /// Time in milliseconds between two checks of all monitors.
+  internal_processing_cycle_ms: uint32 = 100;
+  /// @title: Thread Parameters
+  /// Scheduling, CPU affinity and stack size of the monitoring thread.
+  thread_parameters: ThreadParameters;
+  /// @title: Deadline Monitors
+  /// Deadline monitors.
+  deadline_monitors: [DeadlineMonitor];
+  /// @title: Heartbeat Monitors
+  /// Heartbeat monitors.
+  heartbeat_monitors: [HeartbeatMonitor];
+  /// @title: Logic Monitors
+  /// Logic monitors.
+  logic_monitors: [LogicMonitor];
+}
+
+root_type HealthMonitorConfig;

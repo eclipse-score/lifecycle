@@ -11,9 +11,9 @@
  * SPDX-License-Identifier: Apache-2.0
  ********************************************************************************/
 
-#include <utility>
-
 #include <score/assert.hpp>
+#include <memory>
+#include <string_view>
 
 #include "score/mw/launch_manager/alive_monitor/details/AliveImpl.h"
 #include "score/mw/lifecycle/alive.h"
@@ -21,7 +21,7 @@
 namespace score::mw::lifecycle
 {
 
-Alive::Alive(const std::string_view& instance) noexcept(false) : aliveImplPtr(std::make_unique<AliveImpl>(instance))
+Alive::Alive(const std::string_view& instance) noexcept(false) : alive_impl_ptr_(std::make_unique<AliveImpl>(instance))
 {
 }
 
@@ -33,9 +33,9 @@ Alive::~Alive() noexcept = default;
 
 void Alive::ReportAlive() const noexcept
 {
-    if (aliveImplPtr.get() != nullptr)
+    if (alive_impl_ptr_.get() != nullptr)
     {
-        aliveImplPtr->ReportCheckpoint();
+        alive_impl_ptr_->ReportCheckpoint();
     }
 }
 

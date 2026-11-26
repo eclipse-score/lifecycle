@@ -21,6 +21,13 @@ DEFAULT_QEMU_CONFIG = "//config:qemu_config"
 DEFAULT_QEMU_IMAGE = "//config:qemu_image"
 DEFAULT_DOCKER_IMAGE_TARGET = "@score_lifecycle//tests/utils/environments/x86_64-linux"
 DEFAULT_DOCKER_IMAGE_TAG = "score_itf_examples:latest"
+DEFAULT_MW_COM_CONFIG_EXTRA_SRCS = []
+
+NO_SANITIZER_CONSTRAINTS = [
+    Label("@score_cpp_policies//sanitizers/constraints:no_asan"),
+    Label("@score_cpp_policies//sanitizers/constraints:no_ubsan"),
+    Label("@score_cpp_policies//sanitizers/constraints:no_lsan"),
+]
 
 def integration_test(
         name,
@@ -34,6 +41,7 @@ def integration_test(
         docker_image_target = DEFAULT_DOCKER_IMAGE_TARGET,
         docker_image_tag = DEFAULT_DOCKER_IMAGE_TAG,
         plugins = [],
+        mw_com_config_extra_srcs = DEFAULT_MW_COM_CONFIG_EXTRA_SRCS,
         **kwargs):
     """Creates an integration test.
 
@@ -66,6 +74,8 @@ def integration_test(
             `//config:integration_docker` variant of this test.
         docker_image_tag: `repo_tags` value for the image at `docker_image_target`.
         plugins: Additional bazel plugins used by the test.
+        mw_com_config_extra_srcs: List of extra mw::com configuration files
+          required for test (default: [])
         **kwargs: Miscellaneous arguments passed through to `py_itf_test`
     """
 
@@ -98,7 +108,7 @@ def integration_test(
 
     pkg_files(
         name = mw_com_config_pkg_name,
-        srcs = ["@score_lifecycle//tests/utils/environments:mw_com_config.json"],
+        srcs = ["@score_lifecycle//tests/utils/environments:mw_com_config.json"] + mw_com_config_extra_srcs,
         prefix = "tests/{}/etc".format(name),
         attributes = pkg_attributes(mode = "0400"),
     )
@@ -112,9 +122,15 @@ def integration_test(
 
     pkg_tar(name = test_tar_name, srcs = [":{}".format(bin_pkg_name), ":{}".format(lm_config_pkg_name), ":{}".format(mw_com_config_pkg_name), ":{}".format(files_pkg_name)])
 
-    # work out the compatibility targets
-    # if the user specified one then use that instead
+    # sanitizers make the CI fail https://github.com/eclipse-score/lifecycle/issues/1015
+    # bazel rejects duplicate labels, so skip constraints the test already adds
     extra_target_compatible_with = kwargs.pop("target_compatible_with", [])
+    user_labels = [Label(t) for t in extra_target_compatible_with]
+    extra_target_compatible_with = extra_target_compatible_with + [
+        c
+        for c in NO_SANITIZER_CONSTRAINTS
+        if c not in user_labels
+    ]
     linux = "@platforms//os:linux"
     qnx = "@platforms//os:qnx"
     docker_os_constraint = [] if linux in extra_target_compatible_with else [linux]
@@ -157,9 +173,6 @@ def integration_test(
         "//config:integration_host": ["@score_lifecycle//tests/utils/plugins:localhost_plugin"],
     })
 
-    # The test container does not ship the sanitizer runtime; daemon fails to start.
-    disable_sanitizer = ["@score_cpp_policies//sanitizers/constraints:no_asan"]
-
     # The QEMU plugin uses a hardcoded port so we can only run one test at a time.
     # See https://github.com/eclipse-score/itf/issues/125.
     # However we should not unnecessarily slow down Docker tests by adding the
@@ -176,7 +189,7 @@ def integration_test(
         data = final_data,
         args = final_args,
         plugins = final_plugins,
-        target_compatible_with = extra_target_compatible_with + disable_sanitizer + select({
+        target_compatible_with = extra_target_compatible_with + select({
             "//config:integration_docker": docker_os_constraint,
             "//config:integration_host": [],
             "//conditions:default": ["@platforms//:incompatible"],
@@ -195,7 +208,7 @@ def integration_test(
         data = final_data,
         args = final_args,
         plugins = final_plugins,
-        target_compatible_with = extra_target_compatible_with + disable_sanitizer + select({
+        target_compatible_with = extra_target_compatible_with + select({
             "//config:integration_qemu": qemu_os_constraint,
             "//conditions:default": ["@platforms//:incompatible"],
         }),

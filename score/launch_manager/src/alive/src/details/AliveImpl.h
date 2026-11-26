@@ -16,10 +16,11 @@
 
 #include <memory>
 #include <optional>
+#include <string>
+#include <string_view>
 
 #include "score/mw/launch_manager/alive_monitor/details/ifappl/DataStructures.hpp"
 #include "score/mw/launch_manager/alive_monitor/details/ipc/IpcClient.hpp"
-#include <string>
 
 namespace score::mw::lifecycle
 {
@@ -79,11 +80,11 @@ class AliveImpl
     static std::optional<std::string_view> readInterfacePath() noexcept;
 
     /// @brief Instance specifier path of the Alive instance
-    const std::string k_instanceSpecifierPath;
+    const std::string instance_specifier_path_;
 
     /// @brief IPC Connection to Launch Manager
     /// Class needs to be mutable to use in "const" reportCheckpoint method
-    mutable std::unique_ptr<CheckpointIpcClient> ipcClient;
+    mutable std::unique_ptr<CheckpointIpcClient> ipc_client_;
 };
 
 }  // namespace score::mw::lifecycle

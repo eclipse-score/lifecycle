@@ -12,10 +12,10 @@
  ********************************************************************************/
 
 #include "score/mw/launch_manager/alive_monitor/details/timers/Timers_OsClock.hpp"
-#include "score/mw/launch_manager/alive_monitor/details/timers/TimeConversion.hpp"
 
-#include <cstdint>
 #include <ctime>
+
+#include "score/mw/launch_manager/alive_monitor/details/timers/TimeConversion.hpp"
 
 namespace score::mw::lifecycle::internal::saf::timers
 {

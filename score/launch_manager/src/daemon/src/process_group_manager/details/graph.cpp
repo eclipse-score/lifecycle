@@ -11,20 +11,44 @@
  * SPDX-License-Identifier: Apache-2.0
  ********************************************************************************/
 
-#include <ctime>
-
-#include <score/span.hpp>
-#include <algorithm>
+#include <stdint.h>
 #include <chrono>
 #include <functional>
+#include <memory>
+#include <mutex>
+#include <optional>
+#include <string>
+#include <string_view>
 #include <type_traits>
-#include <unordered_map>
+#include <utility>
 #include <variant>
+#include <vector>
 
+#include "score/mw/launch_manager/common/concurrency/concurrency_error_domain.hpp"
+#include "score/mw/launch_manager/common/concurrency/mpmc_concurrent_queue.hpp"
+#include "score/mw/launch_manager/common/constants.hpp"
+#include "score/mw/launch_manager/common/identifier_hash.hpp"
 #include "score/mw/launch_manager/common/log.hpp"
+#include "score/mw/launch_manager/configuration/component_config.hpp"
+#include "score/mw/launch_manager/configuration/config.hpp"
+#include "score/mw/launch_manager/osal/return_types.hpp"
+#include "score/mw/launch_manager/process_group_manager/details/component_event.hpp"
+#include "score/mw/launch_manager/process_group_manager/details/component_of.hpp"
+#include "score/mw/launch_manager/process_group_manager/details/component_task.hpp"
+#include "score/mw/launch_manager/process_group_manager/details/dependency_graph.hpp"
 #include "score/mw/launch_manager/process_group_manager/details/graph.hpp"
+#include "score/mw/launch_manager/process_group_manager/details/icomponent.hpp"
+#include "score/mw/launch_manager/process_group_manager/details/process_handling.hpp"
 #include "score/mw/launch_manager/process_group_manager/details/process_info_node.hpp"
+#include "score/mw/launch_manager/process_group_manager/details/run_target.hpp"
+#include "score/mw/launch_manager/process_group_manager/details/transition.hpp"
+#include "score/mw/launch_manager/process_group_manager/iprocess.hpp"
+#include "score/mw/launch_manager/process_group_manager/irun_target_control.hpp"
+#include "score/mw/lifecycle/execution_error.h"
 #include "score/mw/lifecycle/run_target_activation_source.hpp"
+#include "score/result/error.h"
+#include "score/result/result.h"
+#include <score/stop_token.hpp>
 
 #include "score/assert.hpp"
 
@@ -276,11 +300,11 @@ void Graph::tryQueueNode(ComponentTask task)
 bool Graph::startTransition(IdentifierHash pg_state, RunTargetActivationSource source)
 {
     LM_LOG_DEBUG() << "Graph starting transition to" << pg_state;
-    // Set before the transition can finish synchronously below, which reports the activation source.
-    transition_source_ = source;
     IdentifierHash old_state_name;
     {
         std::lock_guard<std::mutex> lock(requested_state_mutex_);
+        // Set before the transition can finish synchronously below, which reports the activation source.
+        transition_source_ = source;
         old_state_name = requested_state_;
         requested_state_ = pg_state;
     }
@@ -385,6 +409,40 @@ void Graph::handleComponentEvent(const ComponentEvent& event)
                 IComponent& failingComponent = componentOf(nodes_[data.process_identifier]);
                 failingComponent.handleSupervisionFailure(data.failure_timestamp);
             }
+            else
+            {
+                SCORE_LANGUAGE_FUTURECPP_UNREACHABLE_MESSAGE(
+                    "It is a programmer error to call handleComponentEvent with an unhandled type.");
+            }
+        },
+        event);
+}
+
+void Graph::unblockComponentEvent(const ComponentEvent& event, const ExecErrc reason)
+{
+    std::visit(
+        [reason](const auto& data) {
+            using T = std::decay_t<decltype(data)>;
+            if constexpr (std::is_same_v<T, GetActiveRunTarget>)
+            {
+                if (data.completion != nullptr)
+                {
+                    data.completion->complete(score::MakeUnexpected(reason));
+                }
+            }
+            else if constexpr (std::is_same_v<T, SetRequestedRunTarget>)
+            {
+                if (data.completion != nullptr)
+                {
+                    data.completion->complete(score::MakeUnexpected(reason));
+                }
+            }
+            else
+            {
+                SCORE_LANGUAGE_FUTURECPP_UNREACHABLE_MESSAGE(
+                    "It is a programmer error to call unblockComponentEvent with anything other than "
+                    "GetActiveRunTarget|SetRequestedRunTarget.");
+            }
         },
         event);
 }
@@ -454,16 +512,6 @@ void Graph::forceKillProcesses()
     }
 }
 
-ProcessInfoNode* Graph::getProcessInfoNode(IdentifierHash process_index)
-{
-    if (nodes_.find(process_index) == nodes_.end())
-    {
-        return nullptr;
-    }
-
-    return std::get_if<ProcessInfoNode>(&nodes_[process_index]);
-}
-
 GraphState Graph::getState() const
 {
     return state_;
@@ -487,11 +535,6 @@ IdentifierHash Graph::setPendingState(IdentifierHash new_state, RunTargetActivat
     }
 
     return old_state;
-}
-
-IdentifierHash Graph::getPendingState()
-{
-    return pending_.run_target;
 }
 
 PendingTransition Graph::getPendingTransition() const

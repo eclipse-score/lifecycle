@@ -13,6 +13,7 @@
 #ifndef SCORE_LCM_RECOVERYCLIENT_H_
 #define SCORE_LCM_RECOVERYCLIENT_H_
 
+#include <chrono>
 #include <mutex>
 
 #include "score/mw/launch_manager/recovery_client/irecovery_client.h"

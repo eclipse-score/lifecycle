@@ -30,69 +30,41 @@ jobs:
     name: Common checks
     permissions:
       contents: read
-    uses: eclipse-score/cicd-workflows/.github/workflows/on-pr.yml@on-pr/v0.0.0
+    uses: eclipse-score/cicd-workflows/.github/workflows/on-pr.yml@on-pr/v0.0.1
 
-  # We don't use eclipse-score/cicd-workflows/.github/workflows/tests.yml
-  # because it is more resource efficient to build and test in the same job.
-  # Also the cache name in the template is not configurable.
   build:
     name: Build and test ${{ matrix.name }}
-    runs-on: ubuntu-24.04
     strategy:
       fail-fast: false
       matrix:
         include:
           - name: x86_64-linux
-            bazel-args: --config=x86_64-linux
+            bazel-configs: x86_64-linux
             build: true
             test: true
           - name: arm64-linux
-            bazel-args: --config=arm64-linux
+            bazel-configs: arm64-linux
             build: true
-            test: false # Cannot run on x86_64
+            test: false # Cross-compiled ARM tests cannot run on these x86_64 runners.
           - name: asan_ubsan_lsan
-            bazel-args: --config=x86_64-linux --config=asan_ubsan_lsan
-            build: false # https://github.com/eclipse-score/lifecycle/issues/476
+            bazel-configs: x86_64-linux asan_ubsan_lsan
+            build: true
             test: true
           - name: tsan
-            bazel-args: --config=x86_64-linux --config=tsan
-            build: false # https://github.com/eclipse-score/lifecycle/issues/474
+            bazel-configs: x86_64-linux tsan
+            build: true
             test: true
     permissions:
       contents: read
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v7
-
-      - name: Setup Bazel with shared caching
-        uses: eclipse-score/cicd-actions/setup-bazel-cache@e2a2a587a759b681632040ec1e1294015a0405f5 # setup-bazel-cache/v0.1.0
-        with:
-          disk-cache-key: ${{ github.job }}-${{ matrix.name }}
-
-      - name: Build with Bazel
-        if: matrix.build
-        run: |
-          bazel build \
-            --lockfile_mode=error \
-            ${{ matrix.bazel-args }} \
-            //examples/... \
-            //score/...
-
-      - name: Test with Bazel
-        if: matrix.test
-        run: |
-          bazel test \
-            --lockfile_mode=error \
-            ${{ matrix.bazel-args }} \
-            //...
-
-      - name: Upload test logs
-        if: always()
-        uses: actions/upload-artifact@v7
-        with:
-          name: bazel-testlogs-${{ matrix.name }}
-          path: bazel-testlogs/
-          retention-days: 7
+    uses: eclipse-score/cicd-workflows/.github/workflows/bazel.yml@ff883cfc550bfdf775a7f988ec343d5c17595dc7 # main (2026-11-11)
+    with:
+      # Empty target inputs skip that phase; Bazel still builds selected tests.
+      build-targets: ${{ matrix.build && '//examples/... //score/...' || '' }}
+      test-targets: ${{ matrix.test && '//...' || '' }}
+      bazel-configs: ${{ matrix.bazel-configs }}
+      cache-key: build-${{ matrix.name }}
+      # The Docs job selects the native x86_64 report by its fixed name.
+      artifact-name: bazel-testlogs-${{ matrix.name }}
 
   clippy:
     name: Clippy
@@ -144,6 +116,22 @@ jobs:
       security-events: write
     with:
       fail-on-findings: "true"
+
+  dwyu:
+    name: Bazel dependency check (DWYU)
+    permissions:
+      contents: read
+    uses: eclipse-score/cicd-workflows/.github/workflows/bazel.yml@ff883cfc550bfdf775a7f988ec343d5c17595dc7 # main (2026-11-11)
+    with:
+      build-targets: //score/...
+      bazel-configs: x86_64-linux dwyu
+      cache-key: dwyu
+
+  iwyu:
+    name: Include check (IWYU)
+    uses: ./.github/workflows/_iwyu.yml
+    permissions:
+      contents: read
 
   docs-check:
     name: Check documentation
@@ -209,6 +197,8 @@ jobs:
       - clippy
       - coverage
       - codeql
+      - dwyu
+      - iwyu
       - gitlint
     runs-on: ubuntu-slim
     permissions: {}

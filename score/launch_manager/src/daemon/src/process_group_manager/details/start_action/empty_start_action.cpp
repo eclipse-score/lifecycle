@@ -12,13 +12,16 @@
  ********************************************************************************/
 
 #include "score/mw/launch_manager/process_group_manager/details/start_action/empty_start_action.hpp"
+#include "score/mw/launch_manager/process_group_manager/details/handle.hpp"
+#include <score/stop_token.hpp>
+#include <optional>
 
 namespace score::mw::lifecycle::internal
 {
 
-Result<Handle> EmptyStartAction::start(cpp::stop_token /*stop_token*/) const
+Result<StartedResource> EmptyStartAction::start(cpp::stop_token /*stop_token*/, IComponent& /*component*/) const
 {
-    return EmptyHandle{};
+    return StartedResource{EmptyHandle{}, std::nullopt};
 }
 
 }  // namespace score::mw::lifecycle::internal

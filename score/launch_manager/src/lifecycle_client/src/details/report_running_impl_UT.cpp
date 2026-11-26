@@ -38,12 +38,14 @@ using namespace score::mw::lifecycle::internal::osal;
 alignas(IpcCommsSync) static char g_fake_ipc_storage[sizeof(IpcCommsSync)];
 
 // Helper to create a fake IPC structure with specified properties
-void* CreateFakeIpcComms(CommsType comms_type, pid_t pid)
+void* CreateFakeIpcComms(
+    std::uint32_t magic = IpcCommsSync::kMagic,
+    std::uint32_t version = IpcCommsSync::kLayoutVersion)
 {
     std::memset(g_fake_ipc_storage, 0, sizeof(IpcCommsSync));
     IpcCommsSync* fake_comms = reinterpret_cast<IpcCommsSync*>(g_fake_ipc_storage);
-    fake_comms->pid_ = pid;
-    fake_comms->comms_type_ = comms_type;
+    fake_comms->magic_ = magic;
+    fake_comms->version_ = version;
 
     return g_fake_ipc_storage;
 }
@@ -91,24 +93,18 @@ class ReportRunningImplTest : public ::testing::Test
         // By default, close succeeds
         EXPECT_CALL(*g_syscall_mock, close(_)).WillRepeatedly(Return(0));
 
-        // By default, getpid returns current PID
-        EXPECT_CALL(*g_syscall_mock, getpid()).WillRepeatedly(Return(::getpid()));
-
         // By default, mmap succeeds and returns valid IPC structure
         EXPECT_CALL(*g_syscall_mock, mmap(_, _, _, _, _, _))
             .WillRepeatedly(Invoke([](void*, size_t length, int, int, int, off_t) -> void* {
                 if (length == sizeof(IpcCommsSync))
                 {
-                    return CreateFakeIpcComms(CommsType::kReporting, ::getpid());
+                    return CreateFakeIpcComms();
                 }
                 return MAP_FAILED;
             }));
 
         // By default, sem_post() (backing Semaphore::post()) succeeds
         EXPECT_CALL(*semaphore_mock_, sem_post(_)).WillRepeatedly(Return(kSemSuccess));
-
-        // By default, sem_timedwait_monotonic() (backing Semaphore::timedWait()) succeeds immediately
-        EXPECT_CALL(*semaphore_mock_, sem_timedwait_monotonic(_, _)).WillRepeatedly(Return(kSemSuccess));
     }
 
     static struct stat CreateValidStat()
@@ -300,15 +296,15 @@ TEST_F(ReportRunningImplTest, GivenReportRunningImplInstance_ExceptGetCommsObjec
     EXPECT_EQ(result.error(), ExecErrc::kCommunicationError);
 }
 
-TEST_F(ReportRunningImplTest, GivenReportRunningImplInstance_ExpectCommsTypeIsKNoComms_WhenReportRunningStateCalled)
+TEST_F(ReportRunningImplTest, GivenWrongMagic_WhenReportRunningStateCalled_ThenReturnsCommunicationError)
 {
     RecordProperty("DerivationTechnique", "explorative-testing");
     RecordProperty(
         "Description",
         "Given a ReportRunningImpl instance. "
-        "Expect a comms_type mismatch. "
+        "Expect the shared memory not to contain the Launch Manager magic number. "
         "When ReportRunningState() is called. "
-        "Then ReportRunningState() returns kCommunicationError. ");
+        "Then ReportRunningState() returns a kCommunicationError error and does not post the semaphore. ");
 
     // Given
     ReportRunningImpl impl;
@@ -318,10 +314,11 @@ TEST_F(ReportRunningImplTest, GivenReportRunningImplInstance_ExpectCommsTypeIsKN
         .WillOnce([](void*, size_t length, int, int, int, off_t) -> void* {
             if (length == sizeof(IpcCommsSync))
             {
-                return CreateFakeIpcComms(CommsType::kNoComms, ::getpid());
+                return CreateFakeIpcComms(0U, IpcCommsSync::kLayoutVersion);
             }
             return MAP_FAILED;
         });
+    EXPECT_CALL(*semaphore_mock_, sem_post(_)).Times(0);
 
     // When
     auto result = impl.ReportRunningState();
@@ -331,15 +328,15 @@ TEST_F(ReportRunningImplTest, GivenReportRunningImplInstance_ExpectCommsTypeIsKN
     EXPECT_EQ(result.error(), ExecErrc::kCommunicationError);
 }
 
-TEST_F(ReportRunningImplTest, GivenWrongProcessId_WhenPidDoesNotMatch_ThenReturnsCommunicationError)
+TEST_F(ReportRunningImplTest, GivenWrongLayoutVersion_WhenReportRunningStateCalled_ThenReturnsCommunicationError)
 {
     RecordProperty("DerivationTechnique", "explorative-testing");
     RecordProperty(
         "Description",
-        "Given a ReportRunningImpl instace. "
-        "Expect a pid mismatch. "
+        "Given a ReportRunningImpl instance. "
+        "Expect the shared memory to contain a different layout version. "
         "When ReportRunningState() is called. "
-        "Then ReportRunningState() returns a kCommunicationError error. ");
+        "Then ReportRunningState() returns a kCommunicationError error and does not post the semaphore. ");
 
     // Given
     ReportRunningImpl impl;
@@ -349,10 +346,11 @@ TEST_F(ReportRunningImplTest, GivenWrongProcessId_WhenPidDoesNotMatch_ThenReturn
         .WillOnce([](void*, size_t length, int, int, int, off_t) -> void* {
             if (length == sizeof(IpcCommsSync))
             {
-                return CreateFakeIpcComms(CommsType::kReporting, 99999);
+                return CreateFakeIpcComms(IpcCommsSync::kMagic, IpcCommsSync::kLayoutVersion + 1U);
             }
             return MAP_FAILED;
         });
+    EXPECT_CALL(*semaphore_mock_, sem_post(_)).Times(0);
 
     // When
     auto result = impl.ReportRunningState();
@@ -410,57 +408,33 @@ TEST_F(ReportRunningImplTest, GivenReportRunningImplInstance_ExpectPostFails_Whe
     EXPECT_EQ(result.error(), ExecErrc::kCommunicationError);
 }
 
-TEST_F(
-    ReportRunningImplTest,
-    GivenReportRunningImplInstance_ExpectReplySyncTimedWaitFailure_WhenReportRunningStateCalled)
+TEST_F(ReportRunningImplTest, GivenReportRunningImplInstance_WhenReportRunningStateCalled_ThenPostsExactlyOnce)
 {
     RecordProperty("DerivationTechnique", "explorative-testing");
     RecordProperty(
         "Description",
-        "Given a ReportRunningImpl instance. "
-        "Expect reply_sync_.timedWait() to fail. "
+        "Given a ReportRunningImpl instance with valid IPC comms. "
         "When ReportRunningState() is called. "
-        "Then ReportRunningState() returns a kCommunicationError error. ");
+        "Then the semaphore is posted exactly once and the client does not wait for any reply. ");
 
     // Given
     ReportRunningImpl impl;
 
     // Expect
-    // sem_timedwait_monotonic() fails with an error other than EINTR/ETIMEDOUT, so Semaphore::timedWait() returns
-    // kFail immediately.
-    EXPECT_CALL(*semaphore_mock_, sem_timedwait_monotonic(_, _)).WillOnce(Return(SemError(EINVAL)));
+    const IpcCommsSync* const comms = reinterpret_cast<const IpcCommsSync*>(g_fake_ipc_storage);
+    EXPECT_CALL(*semaphore_mock_, sem_post(_)).Times(1).WillOnce(::testing::Invoke([comms](sem_t*) {
+        // reported_running_ must already be set when Launch Manager is woken up
+        EXPECT_TRUE(comms->hasReportedRunning());
+        return kSemSuccess;
+    }));
+    EXPECT_CALL(*semaphore_mock_, sem_timedwait_monotonic(_, _)).Times(0);
+    EXPECT_CALL(*semaphore_mock_, sem_wait(_)).Times(0);
 
     // When
     auto result = impl.ReportRunningState();
 
     // Then
-    EXPECT_FALSE(result.has_value());
-    EXPECT_EQ(result.error(), ExecErrc::kCommunicationError);
-}
-
-TEST_F(ReportRunningImplTest, GivenFinalPostFails_WhenPostReturnsKFail_ThenReturnsCommunicationError)
-{
-    RecordProperty("DerivationTechnique", "explorative-testing");
-    RecordProperty(
-        "Description",
-        "Given a ReportRunningImpl instance. "
-        "Expect final send_sync_.post() to fail. "
-        "When ReportRunningState() is called. "
-        "Then ReportRunningState() returns a kCommunicationError. ");
-
-    // Given
-    ReportRunningImpl impl;
-
-    // Expect
-    // First sem_post() call (send_sync_.post()) succeeds; second call (the final synchronization post) fails.
-    EXPECT_CALL(*semaphore_mock_, sem_post(_)).WillOnce(Return(kSemSuccess)).WillOnce(Return(SemError(EINVAL)));
-
-    // When
-    auto result = impl.ReportRunningState();
-
-    // Then
-    EXPECT_FALSE(result.has_value());
-    EXPECT_EQ(result.error(), ExecErrc::kCommunicationError);
+    EXPECT_TRUE(result.has_value());
 }
 
 }  // namespace score::mw::lifecycle

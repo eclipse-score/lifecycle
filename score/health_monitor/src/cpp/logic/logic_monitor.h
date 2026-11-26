@@ -13,11 +13,13 @@
 #ifndef SCORE_HM_LOGIC_LOGIC_MONITOR_H
 #define SCORE_HM_LOGIC_LOGIC_MONITOR_H
 
-#include "score/mw/health/common.h"
-#include "score/mw/health/tag.h"
 #include <score/expected.hpp>
+#include <optional>
 #include <utility>
 #include <vector>
+
+#include "score/mw/health/common.h"
+#include "score/mw/health/tag.h"
 
 namespace score::mw::health
 {
@@ -32,7 +34,7 @@ namespace score::mw::health::logic
 class LogicMonitorBuilder final : public internal::RustDroppable<LogicMonitorBuilder>
 {
   public:
-    /// Create a new `LogicMonitorBuilder`.
+    /// @brief Create a new `LogicMonitorBuilder`.
     ///
     /// - `initial_state` - starting point.
     LogicMonitorBuilder(const StateTag& initial_state);
@@ -43,8 +45,8 @@ class LogicMonitorBuilder final : public internal::RustDroppable<LogicMonitorBui
     LogicMonitorBuilder(LogicMonitorBuilder&&) = default;
     LogicMonitorBuilder& operator=(LogicMonitorBuilder&&) = delete;
 
-    /// Add state along with allowed transitions.
-    /// If state already exists - it is overwritten.
+    /// @brief Add state along with allowed transitions.
+    /// @details If state already exists - it is overwritten.
     LogicMonitorBuilder AddState(const StateTag& state, const std::vector<StateTag>& allowed_states) &&;
 
     /// @deprecated Use `AddState()` instead. Removed in the release after v0.10.
@@ -79,11 +81,11 @@ class LogicMonitor final
     LogicMonitor(LogicMonitor&& other) noexcept = default;
     LogicMonitor& operator=(LogicMonitor&& other) noexcept = default;
 
-    /// Perform transition to a new state.
-    /// On success, current state is returned.
+    /// @brief Perform transition to a new state.
+    /// @details On success, current state is returned.
     score::cpp::expected<StateTag, Error> Transition(const StateTag& state);
 
-    /// Current monitor state.
+    /// @brief Current monitor state.
     score::cpp::expected<StateTag, Error> State();
 
     /// @deprecated Use `Transition()` instead. Removed in the release after v0.10.

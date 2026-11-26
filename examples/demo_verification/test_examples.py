@@ -16,7 +16,8 @@ from tests.utils.testing_utils.setup_test import setup_test
 from attribute_plugin import add_test_properties
 
 _DEMO_APPS = (
-    "cpp_supervised_app",
+    "cpp_health_monitor_supervised_app",
+    "cpp_alive_supervised_app",
     "rust_supervised_app",
     "cpp_lifecycle_app",
     "c_supervised_app",
@@ -107,14 +108,14 @@ def test_examples(target, setup_test, remote_test_dir):
     _assert_running(target, *_DEMO_APPS)
 
     _step(
-        "Killing cpp_supervised_app (SIGKILL) — expecting recovery to fallback_run_target"
+        "Killing cpp_health_monitor_supervised_app (SIGKILL) — expecting recovery to fallback_run_target"
     )
-    _send_signal(target, "cpp_supervised_app", "9")
+    _send_signal(target, "cpp_health_monitor_supervised_app", "9")
     time.sleep(2.0)
     assert lm_proc.is_running(), (
-        "Launch manager exited unexpectedly after cpp_supervised_app crash"
+        "Launch manager exited unexpectedly after cpp_health_monitor_supervised_app crash"
     )
-    _assert_not_running(target, "cpp_supervised_app")
+    _assert_not_running(target, "cpp_health_monitor_supervised_app")
 
     _step("Transitioning to RunTarget Running after crash recovery")
     _lmcontrol(target, lmcontrol_path, "Running")
@@ -125,14 +126,14 @@ def test_examples(target, setup_test, remote_test_dir):
     _assert_running(target, *_DEMO_APPS)
 
     _step(
-        "Triggering supervision failure on cpp_supervised_app (SIGUSR1) — expecting recovery to fallback_run_target"
+        "Triggering supervision failure on cpp_health_monitor_supervised_app (SIGUSR1) — expecting recovery to fallback_run_target"
     )
-    _send_signal(target, "cpp_supervised_app", "USR1")
+    _send_signal(target, "cpp_health_monitor_supervised_app", "USR1")
     time.sleep(2.0)
     assert lm_proc.is_running(), (
         "Launch manager exited unexpectedly after supervision failure"
     )
-    _assert_not_running(target, "cpp_supervised_app")
+    _assert_not_running(target, "cpp_health_monitor_supervised_app")
 
     _step("Stopping launch manager (SIGTERM)")
     # Note: Cannot use lm_proc.stop() as the lm_proc.pid() is not the pid of the launch manager process itself

@@ -14,30 +14,32 @@
 #ifndef PROCESSGROUPMANAGER_HPP_INCLUDED
 #define PROCESSGROUPMANAGER_HPP_INCLUDED
 
-#include <cstdint>
-#include <ctime>
-#include <memory>
-
 #include "score/mw/launch_manager/alive_monitor/IAliveMonitor.hpp"
 #include "score/mw/launch_manager/common/concurrency/mpmc_concurrent_queue.hpp"
+#include "score/mw/launch_manager/common/concurrency/mpsc_bounded_queue.hpp"
 #include "score/mw/launch_manager/common/concurrency/thread_pool.hpp"
 #include "score/mw/launch_manager/common/constants.hpp"
 #include "score/mw/launch_manager/common/identifier_hash.hpp"
 #include "score/mw/launch_manager/configuration/config.hpp"
+#include "score/mw/launch_manager/configuration/watchdog_config.hpp"
 #include "score/mw/launch_manager/osal/wait_for_file.hpp"
 #include "score/mw/launch_manager/process_group_manager/details/component_event.hpp"
 #include "score/mw/launch_manager/process_group_manager/details/component_event_queue.hpp"
+#include "score/mw/launch_manager/process_group_manager/details/component_task.hpp"
 #include "score/mw/launch_manager/process_group_manager/details/graph.hpp"
 #include "score/mw/launch_manager/process_group_manager/details/os_handler.hpp"
-#include "score/mw/launch_manager/process_group_manager/details/process_info_node.hpp"
 #include "score/mw/launch_manager/process_group_manager/details/process_launcher.hpp"
 #include "score/mw/launch_manager/process_group_manager/details/process_monitor.hpp"
 #include "score/mw/launch_manager/process_group_manager/details/safe_process_map.hpp"
 #include "score/mw/launch_manager/process_group_manager/iprocess.hpp"
 #include "score/mw/launch_manager/process_group_manager/irun_target_control.hpp"
-#include "score/mw/launch_manager/recovery_client/recovery_client.hpp"
+#include "score/mw/launch_manager/recovery_client/irecovery_client.h"
 #include "score/mw/launch_manager/watchdog/IWatchdogIf.hpp"
-#include "score/mw/lifecycle/details/lm_control_service.h"
+#include "score/result/result.h"
+#include <ctime>
+#include <memory>
+#include <optional>
+#include <string_view>
 
 namespace score::mw::lifecycle::internal
 {
@@ -59,6 +61,8 @@ class ProcessGroupManager final : public IRunTargetControl
 {
     using WorkerQueue =
         MPMCConcurrentQueue<std::optional<ComponentTask>, static_cast<std::size_t>(ProcessLimits::kMaxProcesses)>;
+
+    using PendingActivationQueue = MpscBoundedQueue<IdentifierHash>;
 
   public:
     /// @brief Constructs a new ProcessGroupManager object.
@@ -104,18 +108,12 @@ class ProcessGroupManager final : public IRunTargetControl
     /// @return Returns true if the process group manager ran successfully, false otherwise.
     bool run();
 
-    /// @brief Get a node corresponding to the given process group and process index
-    /// @param pg_index The index of the process group in the list of groups managed by this manager
-    /// @param process_id The identifier of the process
-    /// @return nullptr if the node does not exist, otherwise a pointer to the corresponding node.
-    ProcessInfoNode* getProcessInfoNode(uint32_t pg_index, IdentifierHash process_id);
-
     /// @brief Cancels processGroupManager main routine as though SIGTERM had been sent
     void cancel();
 
     [[nodiscard]] score::Result<IdentifierHash> getActiveRunTarget() const noexcept override;
 
-    [[nodiscard]] score::Result<void> setRequestedRunTarget(IdentifierHash run_target) noexcept override;
+    [[nodiscard]] score::Result<void> setRequestedRunTarget(IdentifierHash run_target, bool force) noexcept override;
 
     void registerActiveRunTargetCallback(ActivationCallbackT callback) noexcept override;
 
@@ -184,6 +182,13 @@ class ProcessGroupManager final : public IRunTargetControl
     /// @brief Respond to a SetRequestedRunTarget event.
     void handleSetRequestedRunTarget(SetRequestedRunTarget* event) noexcept;
 
+    /// @brief Discard all queued run target requests, logging each one that is dropped.
+    /// @param reason Why the queue is being cleared, for the log.
+    void clearQueuedActivations(std::string_view reason) noexcept;
+
+    /// @brief Whether a new request has to wait for the current activation to finish.
+    [[nodiscard]] bool isActivationBusy() const noexcept;
+
     /// @brief The configuration object associated with the ProcessGroupManager.
     configuration::GraphConfig configuration_;
 
@@ -216,7 +221,11 @@ class ProcessGroupManager final : public IRunTargetControl
 
     /// @brief Queue of ComponentEvents produced by worker/OS-handler threads and drained by run()
     /// on the main thread, so all Graph state mutations happen from a single thread.
-    std::unique_ptr<ComponentEventQueue> event_queue_;
+    std::unique_ptr<ComponentEventQueue> event_queue_{};
+
+    /// @brief Run Target requests waiting for the ongoing transition to finish.
+    /// @details Only accessed from the main loop thread (event handling and processGroupHandler()).
+    PendingActivationQueue pending_activation_queue_{kPendingActivationQueueCapacity};
 
     std::shared_ptr<score::mw::lifecycle::IRecoveryClient> recovery_client_{};
 

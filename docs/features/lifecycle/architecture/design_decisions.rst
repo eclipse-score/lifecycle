@@ -243,3 +243,106 @@ Consequences
 The Launch Manager kills a process as soon as it detects a supervision failure.
 Applications must not rely on a graceful shutdown after a supervision failure.
 Data that has to survive such a failure must be persisted during normal operation.
+
+
+Launch Manager uses posix_spawn() to start processes on QNX
+===========================================================
+
+.. dec_rec:: posix_spawn on QNX
+   :id: dec_rec__lifecycle__posix_spawn
+   :status: accepted
+   :version: 1
+   :context: Architecture
+   :decision: The Launch Manager uses posix_spawn() to start processes on QNX
+   :consequences: Faster process starts on QNX, separate QNX and Linux implementations behind a common OSAL interface
+   :affects: comp__lifecycle_launch_manager
+
+Context
+-------
+
+The Launch Manager starts the processes of the system, which may include all processes during the startup of the machine.
+The time needed to start a process directly adds to the startup time, so starting processes has to be efficient.
+
+Before a new process executes its first instruction, the Launch Manager has to apply the configured attributes,
+e.g. user and group IDs, supplementary groups, scheduling policy and priority, CPU affinity, resource limits,
+working directory and process group.
+
+At the time of the decision the Launch Manager uses fork()+execve() for both Linux and QNX for process start.
+
+Options Considered
+------------------
+
+Option A: Continue using fork() + execve() on QNX and Linux
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+Pros:
+
+* One implementation for both platforms
+* fork() is cheap on Linux due to copy-on-write
+* All attributes can be applied in the child process between fork() and execve()
+
+Cons:
+
+* fork() is considerably slower than posix_spawn() on QNX
+* The code between fork() and execve() must only call async-signal-safe functions, which is difficult to guarantee
+
+Option B: Use posix_spawn() on QNX and Linux
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+Pros:
+
+* posix_spawn() is considerably faster than fork() on QNX
+* No code runs in the child process between process creation and execution of the new program
+
+Cons:
+
+* The POSIX standard posix_spawn() cannot set most of the required attributes, e.g. user and group IDs,
+  supplementary groups, CPU affinity and resource limits.
+  QNX closes this gap with platform-specific extensions, Linux does not.
+* Linux provides no way to start the process held, so the missing attributes cannot be applied afterwards
+  before the new program runs.
+  On Linux, a helper process would be required that sets the missing attributes before the new program runs.
+
+Option C: Use posix_spawn() on QNX and fork() + execve() on Linux
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+Pros:
+
+* Fast process starts on QNX using posix_spawn() and its QNX-specific extensions
+* Fast process starts on Linux using fork() + execve()
+* All required attributes can be applied on both platforms
+
+Cons:
+
+* Two implementations to maintain, one for QNX and one for Linux
+* On Linux, the code between fork() and execve() must only call async-signal-safe functions,
+  which is difficult to guarantee
+
+Evaluation
+----------
+
+Option A is ruled out, because the performance penalty of fork() on QNX is too high.
+
+Option B is ruled out, because posix_spawn() on Linux cannot apply the required process attributes.
+
+Option C provides the best performance on both platforms and supports all required attributes.
+
+Decision
+--------
+
+Option C: The Launch Manager uses posix_spawn() to start processes on QNX-only.
+We accept the platform-specific implementations in exchange for the best performance on both platforms.
+
+Different alterantives for Linux other than fork()+execve() have not been evaluated here.
+
+See :ref:`lm_fork_vs_posix_spawn` for a detailed comparison of the observable differences
+between fork() + execve() and posix_spawn() on QNX.
+
+Consequences
+------------
+
+Processes are started differently on QNX and Linux.
+The difference is hidden behind a common interface in the OSAL layer of the Launch Manager,
+so the rest of the Launch Manager is not affected.
+
+
