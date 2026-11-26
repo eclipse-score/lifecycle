@@ -32,10 +32,14 @@ namespace score::mw::lifecycle::internal::osal
 /// @brief Struct to hold configuration parameters for the child process.
 struct ChildProcessConfig
 {
-    const score::mw::lifecycle::internal::configuration::ComponentConfig&
-        config;              ///< child process startup configurations
-    int fd;                  ///< fd File descriptor of the shared memory segment.
-    IpcCommsP shared_block;  ///< sync Pointer to the shared memory block.
+    /// @brief child process startup configurations
+    const score::mw::lifecycle::internal::configuration::ComponentConfig& config;
+
+    /// @brief fd file descriptor of the shared memory segment.
+    int fd;
+
+    /// @brief sync Pointer to the shared memory block
+    IpcCommsP shared_block;
 };
 
 ///@brief This interface provides functionality that is needed to manage child processes.
@@ -108,11 +112,12 @@ class IProcess
 
     virtual OsalReturnType waitForTermination(ProcessID& pid, int32_t& status) = 0;
 
-    /// @brief This method wait for kRunning to be received from the process that was started
-    /// @param sync     The valid pointer returned from startProcess. Must not be NULL
-    /// @param timeout  How long to wait for kRunning. If nullopt is provided, kRunning notifications are ignored
-    /// @return kFail if sync is NULL or a timeout occurs, kSuccess otherwise
-    virtual OsalReturnType waitForkRunning(IpcCommsP sync, std::optional<std::chrono::milliseconds> timeout) = 0;
+    /// @brief This method wait for kRunning to be received from the process that was started.
+    /// @param sync     The valid pointer returned from startProcess. Must not be NULL.
+    /// @param timeout  How long to wait for kRunning.
+    /// @return kFail if sync is NULL, waiting fails or the process terminated without reporting kRunning,
+    ///         kTimeout on timeout, kSuccess if the process reported kRunning.
+    virtual OsalReturnType waitForkRunning(IpcCommsP sync, std::chrono::milliseconds timeout) = 0;
 };
 
 }  // namespace score::mw::lifecycle::internal::osal

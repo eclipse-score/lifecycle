@@ -25,16 +25,17 @@ The test verifies the following scenarios end-to-end:
 - Transition to `Running` — all demo apps start
 - Transition back to `Startup` — all demo apps stop
 - Transition to `Running` again
-- Process crash: `cpp_supervised_app` is killed with SIGKILL — recovery to `fallback_run_target` is triggered
+- Process crash: `cpp_health_monitor_supervised_app` is killed with SIGKILL — recovery to `fallback_run_target` is triggered
 - Transition to `Running` again
-- Supervision failure: `cpp_supervised_app` receives SIGUSR1 to misreport checkpoints — recovery to `fallback_run_target` is triggered
+- Supervision failure: `cpp_health_monitor_supervised_app` receives SIGUSR1 to misreport checkpoints — recovery to `fallback_run_target` is triggered
 - Launch manager is stopped gracefully with SIGTERM
 
 ## Example Applications
 
 | Application | Description |
 |---|---|
-| `cpp_supervised_app` | C++ app with alive supervision and crash recovery |
+| `cpp_health_monitor_supervised_app` | C++ app with alive supervision and crash recovery |
+| `cpp_alive_supervised_app` | C++ app demonstrating the Alive API |
 | `rust_supervised_app` | Rust app with alive supervision and crash recovery |
 | `cpp_lifecycle_app` | C++ app demonstrating basic lifecycle management |
 | `control_daemon` | State Manager app for requesting RunTarget transitions |

@@ -24,6 +24,12 @@ alias(
     visibility = ["//visibility:public"],
 )
 
+alias(
+    name = "schema",
+    actual = "//score/health_monitor/configuration:health_monitor_config_schema.json",
+    visibility = ["//visibility:public"],
+)
+
 docs_bundle(
     name = "docs",
     code_targets = [

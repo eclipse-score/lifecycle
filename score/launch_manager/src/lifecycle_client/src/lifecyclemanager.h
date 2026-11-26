@@ -14,16 +14,17 @@
 #ifndef SCORE_MW_LIFECYCLE_LIFECYCLEMANAGER_H_
 #define SCORE_MW_LIFECYCLE_LIFECYCLEMANAGER_H_
 
-#include "score/mw/lifecycle/application.h"
-#include "score/mw/lifecycle/applicationcontext.h"
-
-#include "score/os/utils/signal_impl.h"
-
 #include <score/stop_token.hpp>
-
+#include <signal.h>
 #include <atomic>
 #include <cstdint>
+#include <memory>
 #include <thread>
+
+#include "score/mw/lifecycle/application.h"
+#include "score/mw/lifecycle/applicationcontext.h"
+#include "score/os/utils/signal.h"
+#include "score/os/utils/signal_impl.h"
 
 namespace score
 {
@@ -44,27 +45,27 @@ class LifeCycleManager
     /**
      * \brief stop_source object used as sync and cancel mechanism for application
      */
-    score::cpp::stop_source m_stop_source;
+    score::cpp::stop_source stop_source_;
 
     /**
      * \brief Runnable application
      */
-    std::atomic<Application*> m_app;
+    std::atomic<Application*> app_;
 
     /**
      * \brief signal handling mask.
      */
-    sigset_t m_signal_set;
+    sigset_t signal_set_;
 
     /**
      * \brief The thread dedicated to signal handling.
      */
-    std::thread m_signal_handler_thread; /* NOLINT(score-banned-type) using std::thread by desing */
+    std::thread signal_handler_thread_; /* NOLINT(score-banned-type) using std::thread by desing */
 
     std::unique_ptr<score::os::Signal> signal_;
 
     /**
-     * \brief Sets up signal handling and spawns m_signal_handler_thread.
+     * \brief Sets up signal handling and spawns signal_handler_thread_.
      */
     bool initialize_internal();
 

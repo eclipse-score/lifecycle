@@ -12,6 +12,7 @@
  ********************************************************************************/
 
 #include "score/mw/launch_manager/process_group_manager/details/force_stop_action/empty_force_stop_action.hpp"
+#include <score/stop_token.hpp>
 
 namespace score::mw::lifecycle::internal
 {

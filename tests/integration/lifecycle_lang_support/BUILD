@@ -30,12 +30,16 @@ cc_binary(
 rust_binary(
     name = "rust_reporting_process",
     srcs = ["rust_reporting_process.rs"],
+    target_compatible_with = [
+        "@score_cpp_policies//sanitizers/constraints:no_tsan",
+        "@score_cpp_policies//sanitizers/constraints:no_asan",
+    ],
     deps = ["//score/launch_manager:lifecycle_rust"],
 )
 
 integration_test(
     name = "lifecycle_lang_support",
-    srcs = ["lifecycle_lang_support.py"],
+    srcs = ["test.py"],
     binaries = [
         ":c_reporting_process",
         ":cpp_reporting_process",
@@ -44,5 +48,5 @@ integration_test(
         "//tests/utils/test_helper:fail_test",
         "//tests/utils/test_helper:verification_process",
     ],
-    config = ":lifecycle_lang_support.json",
+    config = ":config.json",
 )

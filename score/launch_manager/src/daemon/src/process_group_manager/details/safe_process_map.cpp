@@ -12,6 +12,7 @@
  ********************************************************************************/
 
 #include "score/mw/launch_manager/process_group_manager/details/safe_process_map.hpp"
+#include <score/assert.hpp>
 
 namespace score::mw::lifecycle::internal
 {
@@ -36,20 +37,28 @@ SafeProcessMap::SafeProcessMap(size_t capacity, IComponentController& terminatio
 
 SafeProcessMapReturnType SafeProcessMap::findTerminated(osal::ProcessID key, int32_t status)
 {
-    return tryInsert<int32_t, std::reference_wrapper<IComponent>>(
-        key, status, [this, status](std::reference_wrapper<IComponent> component) {
-            termination_handler_.terminated(component.get(), status);
-        });
+    const TryInsertResult<std::reference_wrapper<IComponent>> result =
+        tryInsert<int32_t, std::reference_wrapper<IComponent>>(key, status);
+
+    // The handler is invoked without holding the map lock. Components insert themselves while
+    // holding their own lock, and the handler takes that lock, so invoking it under the map lock
+    // could deadlock.
+    if (result.match.has_value())
+    {
+        termination_handler_.terminated(result.match->get(), status);
+    }
+
+    return result.type;
 }
 
-SafeProcessMapReturnType SafeProcessMap::insertIfNotTerminated(osal::ProcessID key, IComponent* component)
+SafeProcessMapInsertResult SafeProcessMap::insertIfNotTerminated(osal::ProcessID key, IComponent* component)
 {
     SCORE_LANGUAGE_FUTURECPP_ASSERT(component != nullptr);
 
-    return tryInsert<std::reference_wrapper<IComponent>, int32_t>(
-        key, std::ref(*component), [this, component](int32_t exit_code) {
-            termination_handler_.terminated(*component, exit_code);
-        });
+    const TryInsertResult<int32_t> result =
+        tryInsert<std::reference_wrapper<IComponent>, int32_t>(key, std::ref(*component));
+
+    return SafeProcessMapInsertResult{result.type, result.match.value_or(0)};
 }
 
 }  // namespace score::mw::lifecycle::internal

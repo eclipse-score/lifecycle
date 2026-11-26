@@ -12,19 +12,24 @@
  ********************************************************************************/
 
 #include "score/mw/launch_manager/configuration/flatbuffer_config_loader.hpp"
-#include "score/mw/launch_manager/configuration/config.hpp"
-#include "score/mw/launch_manager/configuration/config_loader.hpp"
-
-#include "score/launch_manager/src/daemon/src/configuration/details/flatbuffer_type_converters.hpp"
-#include "score/launch_manager/src/daemon/src/configuration/details/lm_flatcfg_generated.h"
-
-#include "score/os/errno.h"
-
-#include "score/mw/launch_manager/common/log.hpp"
 
 #include <score/assert.hpp>
 #include <cstdint>
+#include <optional>
+#include <string>
+#include <utility>
 #include <vector>
+
+#include "flatbuffers/string.h"
+#include "flatbuffers/verifier.h"
+#include "score/launch_manager/src/daemon/src/configuration/details/flatbuffer_type_converters.hpp"
+#include "score/launch_manager/src/daemon/src/configuration/details/lm_flatcfg_generated.h"
+#include "score/mw/launch_manager/common/log.hpp"
+#include "score/mw/launch_manager/configuration/component_config.hpp"
+#include "score/mw/launch_manager/configuration/config.hpp"
+#include "score/mw/launch_manager/configuration/config_loader.hpp"
+#include "score/mw/launch_manager/configuration/watchdog_config.hpp"
+#include "score/os/errno.h"
 
 namespace score::mw::lifecycle::internal::configuration
 {

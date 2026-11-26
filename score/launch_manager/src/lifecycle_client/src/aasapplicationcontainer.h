@@ -14,11 +14,16 @@
 #ifndef SCORE_MW_MW_LIFECYCLE_AASAPPLICATIONCONTAINER_H
 #define SCORE_MW_MW_LIFECYCLE_AASAPPLICATIONCONTAINER_H
 
-#include "score/mw/lifecycle/application.h"
-#include "score/mw/lifecycle/lifecyclemanager.h"
-
+#include <score/assert.hpp>
+#include <cstddef>
+#include <cstdint>
 #include <memory>
+#include <utility>
 #include <vector>
+
+#include "score/mw/lifecycle/application.h"
+#include "score/mw/lifecycle/applicationcontext.h"
+#include "score/mw/lifecycle/lifecyclemanager.h"
 
 namespace score::mw::lifecycle
 {
@@ -113,7 +118,7 @@ class AasApplicationContainer : public Application
     score::mw::lifecycle::ApplicationContext context_;
     std::vector<std::unique_ptr<Application>> applications_;
     std::size_t count_expected_applications_;
-    LifeCycleManager lifecycle_manager;
+    LifeCycleManager lifecycle_manager_;
 };
 
 }  // namespace score::mw::lifecycle

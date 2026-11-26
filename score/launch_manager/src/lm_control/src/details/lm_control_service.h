@@ -31,9 +31,11 @@ namespace score::mw::lifecycle::internal
 /// @details Mirrors the `force` parameter of `ILmControl::activate_run_target`.
 enum class ActivationMode : uint8_t
 {
-    kQueued = 0,  ///< Queue this request behind any in-progress activation.
-    kForced = 1,  ///< Cancel any in-progress activation and the pending queue,
-                  ///< then start this activation immediately.
+    /// @brief Queue this request behind any in-progress activation.
+    kQueued = 0,
+
+    /// @brief Cancel any in-progress activation and the pending queue, then start this activation immediately.
+    kForced = 1,
 };
 
 /// @brief Request sent by the State Manager to activate a Run Target.
@@ -49,8 +51,11 @@ struct ActivateRunTargetRequest
 /// @brief Indicates whether the request was accepted or rejected by the Launch Manager.
 enum class RequestStatus : uint8_t
 {
-    kAccepted = 0,  ///< The request was accepted.
-    kRejected = 1,  ///< The request was rejected; see the accompanying rejection_reason field.
+    /// @brief The request was accepted.
+    kAccepted = 0,
+
+    /// @brief The request was rejected; see the accompanying rejection_reason field.
+    kRejected = 1,
 };
 
 /// @brief Synchronous response to an activate_run_target request.
@@ -73,8 +78,11 @@ struct ActivateRunTargetResponse
 /// @brief Indicates whether the Launch Manager can provide the currently active Run Target.
 enum class QueryStatus : uint8_t
 {
-    kAvailable = 0,     ///< An active Run Target exists; see the run_target field.
-    kNotAvailable = 1,  ///< No active Run Target; an activation is in progress.
+    /// @brief An active Run Target exists; see the run_target field.
+    kAvailable = 0,
+
+    /// @brief No active Run Target; an activation is in progress.
+    kNotAvailable = 1,
 };
 
 /// @brief Synchronous response to a get_active_run_target query.
@@ -119,7 +127,7 @@ template <typename Trait>
 class LmControlService : public Trait::Base
 {
   public:
-    /// Inherit mw::com's binding constructors.
+    /// @brief Inherit mw::com's binding constructors.
     using Trait::Base::Base;
 
     /// @brief Request Run Target activation.

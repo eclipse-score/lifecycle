@@ -13,8 +13,11 @@
 
 #include "score/mw/lifecycle/aasapplicationcontainer.h"
 
-#include "score/mw/lifecycle/lifecyclemanager.h"
 #include <score/jthread.hpp>
+#include <algorithm>
+#include <functional>
+
+#include "score/mw/lifecycle/lifecyclemanager.h"
 
 namespace score::mw::lifecycle
 {
@@ -122,7 +125,7 @@ std::int32_t AasApplicationContainer::Run(const score::cpp::stop_token& token)
 
 std::int32_t AasApplicationContainer::Launch()
 {
-    return lifecycle_manager.run(*this, context_);
+    return lifecycle_manager_.run(*this, context_);
 }
 
 }  // namespace score::mw::lifecycle

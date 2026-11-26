@@ -26,11 +26,27 @@ pkg_tar(
     srcs = [":ecu_logging_config_files"],
 )
 
+# Sanitizer runtimes from the resolved GCC toolchain, so sanitizer builds can run in the container.
+pkg_files(
+    name = "sanitizer_runtime_files",
+    srcs = ["@score_cpp_policies//sanitizers:runtime_libs"],
+    attributes = pkg_attributes(mode = "0755"),
+    prefix = "usr/lib/x86_64-linux-gnu",
+)
+
+pkg_tar(
+    name = "sanitizer_runtime_layer",
+    srcs = [":sanitizer_runtime_files"],
+)
+
 oci_image(
     name = "image",
     base = "@debian-test-runtime",
     target_compatible_with = ["@platforms//os:linux"],
-    tars = [":ecu_logging_config_layer"],
+    tars = [
+        ":ecu_logging_config_layer",
+        ":sanitizer_runtime_layer",
+    ],
 )
 
 oci_load(

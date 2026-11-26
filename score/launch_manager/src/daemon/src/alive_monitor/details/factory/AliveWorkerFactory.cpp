@@ -13,22 +13,24 @@
 
 #include "score/mw/launch_manager/alive_monitor/details/factory/AliveWorkerFactory.hpp"
 
-#include <cassert>
-#include <cmath>
-#include <cstring>
+#include <sys/mman.h>  // IWYU pragma: keep
+#include <exception>
+#include <memory>
+#include <string_view>
+#include <type_traits>
+#include <utility>
+#include <vector>
 
-#include <score/assert.hpp>
-
-#include "score/launch_manager/src/daemon/src/common/log.hpp"
+#include "score/mw/launch_manager/alive_monitor/details/common/Observer.hpp"
 #include "score/mw/launch_manager/alive_monitor/details/factory/IAliveWorkerFactory.hpp"
 #include "score/mw/launch_manager/alive_monitor/details/ifappl/MonitorIfDaemon.hpp"
+#include "score/mw/launch_manager/alive_monitor/details/ifexm/IObservableEventReader.hpp"
 #include "score/mw/launch_manager/alive_monitor/details/ifexm/ObservableEvent.hpp"
 #include "score/mw/launch_manager/alive_monitor/details/supervision/Alive.hpp"
-#include "score/mw/launch_manager/alive_monitor/details/timers/TimeConversion.hpp"
-#include "score/mw/launch_manager/alive_monitor/details/timers/Timers_OsClock.hpp"
 #include "score/mw/launch_manager/common/alive_interface_path.hpp"
 #include "score/mw/launch_manager/common/constants.hpp"
 #include "score/mw/launch_manager/common/identifier_hash.hpp"
+#include "score/mw/launch_manager/common/log.hpp"
 
 namespace score::mw::lifecycle::internal::saf::factory
 {
@@ -120,9 +122,12 @@ bool AliveWorkerFactory::createAliveIfIpc(
     try
     {
         const std::string pathInterface = aliveInterfacePath(component_id);
-        auto& server = servers.emplace_back();
 
-        if (initIpcServerWithUidBasedAccess(server, pathInterface, uid))
+        ifappl::CheckpointIpcServer server{};
+        const bool initialized = initIpcServerWithUidBasedAccess(server, pathInterface, uid);
+        servers.emplace_back(std::move(server));
+
+        if (initialized)
         {
             LM_LOG_DEBUG() << "Successfully created Monitor interface IPC with path:" << pathInterface;
             return true;

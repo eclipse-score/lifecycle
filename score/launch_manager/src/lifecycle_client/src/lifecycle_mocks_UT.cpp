@@ -39,7 +39,7 @@ using ::testing::ReturnRef;
 namespace
 {
 
-/// Minimal Application that records which argument was retrieved during Initialize().
+/// @brief Minimal Application that records which argument was retrieved during Initialize().
 class ArgCapturingApp final : public score::mw::lifecycle::Application
 {
   public:
@@ -57,7 +57,7 @@ class ArgCapturingApp final : public score::mw::lifecycle::Application
     std::string captured_arg_;
 };
 
-/// Minimal Application that always initialises and runs successfully.
+/// @brief Minimal Application that always initialises and runs successfully.
 class AlwaysOkApp final : public score::mw::lifecycle::Application
 {
   public:
@@ -87,7 +87,7 @@ class LifecycleMockUsageTest : public ::testing::Test
     score::mw::lifecycle::LifeCycleManagerMock lifecycle_mock_;
 
     static constexpr int kArgc = 1;
-    const char* kArgv[1] = {"test_app"};
+    const char* argv_[1] = {"test_app"};
 
     void SetUp() override
     {
@@ -103,7 +103,7 @@ class LifecycleMockUsageTest : public ::testing::Test
 // Tests
 // ---------------------------------------------------------------------------
 
-/// Verify that LifeCycleManagerMock::run() is called and its return value
+/// @brief Verify that LifeCycleManagerMock::run() is called and its return value
 /// is propagated through AsPosixProcess() — basic mock wiring smoke test.
 TEST_F(LifecycleMockUsageTest, MockRunReturnValueIsForwardedToCaller)
 {
@@ -111,11 +111,11 @@ TEST_F(LifecycleMockUsageTest, MockRunReturnValueIsForwardedToCaller)
 
     EXPECT_CALL(lifecycle_mock_, run(_, _)).WillOnce(Return(EXIT_SUCCESS));
 
-    score::mw::lifecycle::Run<AlwaysOkApp> runner(kArgc, kArgv);
+    score::mw::lifecycle::Run<AlwaysOkApp> runner(kArgc, argv_);
     EXPECT_EQ(runner.AsPosixProcess(), EXIT_SUCCESS);
 }
 
-/// Verify that a non-zero exit code coming from the mock is forwarded correctly,
+/// @brief Verify that a non-zero exit code coming from the mock is forwarded correctly,
 /// matching the behaviour that external callers (e.g. config_management) rely on.
 TEST_F(LifecycleMockUsageTest, MockRunNonZeroReturnValueIsForwarded)
 {
@@ -123,11 +123,11 @@ TEST_F(LifecycleMockUsageTest, MockRunNonZeroReturnValueIsForwarded)
 
     EXPECT_CALL(lifecycle_mock_, run(_, _)).WillOnce(Return(EXIT_FAILURE));
 
-    score::mw::lifecycle::Run<AlwaysOkApp> runner(kArgc, kArgv);
+    score::mw::lifecycle::Run<AlwaysOkApp> runner(kArgc, argv_);
     EXPECT_EQ(runner.AsPosixProcess(), EXIT_FAILURE);
 }
 
-/// Verify that ApplicationContextMock::get_argument() is called during Initialize()
+/// @brief Verify that ApplicationContextMock::get_argument() is called during Initialize()
 /// and that the returned value is visible to the application logic.
 /// This is the pattern used by config_management's unit tests to simulate
 /// command-line arguments without spawning a real process.
@@ -143,11 +143,11 @@ TEST_F(LifecycleMockUsageTest, ApplicationReceivesArgumentFromContextMock)
             return app.Initialize(ctx);
         });
 
-    score::mw::lifecycle::Run<ArgCapturingApp> runner(kArgc, kArgv);
+    score::mw::lifecycle::Run<ArgCapturingApp> runner(kArgc, argv_);
     EXPECT_EQ(runner.AsPosixProcess(), EXIT_SUCCESS);
 }
 
-/// Verify that ApplicationContextMock::get_arguments() can provide a full
+/// @brief Verify that ApplicationContextMock::get_arguments() can provide a full
 /// argument list — mirroring how config_management passes a simulated argv.
 TEST_F(LifecycleMockUsageTest, ContextMockProvidesArgumentList)
 {
@@ -161,7 +161,7 @@ TEST_F(LifecycleMockUsageTest, ContextMockProvidesArgumentList)
     EXPECT_EQ(args, expected_args);
 }
 
-/// Verify that exactly one LifeCycleManager is constructed and destroyed per
+/// @brief Verify that exactly one LifeCycleManager is constructed and destroyed per
 /// AsPosixProcess() call — important for callers that own RAII resources.
 TEST_F(LifecycleMockUsageTest, ExactlyOneLifecycleManagerLifetimePerRun)
 {
@@ -171,7 +171,7 @@ TEST_F(LifecycleMockUsageTest, ExactlyOneLifecycleManagerLifetimePerRun)
     EXPECT_CALL(lifecycle_mock_, dtor()).Times(1);
     EXPECT_CALL(lifecycle_mock_, run(_, _)).WillOnce(Return(EXIT_SUCCESS));
 
-    score::mw::lifecycle::Run<AlwaysOkApp> runner(kArgc, kArgv);
+    score::mw::lifecycle::Run<AlwaysOkApp> runner(kArgc, argv_);
     runner.AsPosixProcess();
 }
 
@@ -195,7 +195,7 @@ class MwLifecycleMockTest : public ::testing::Test
     score::mw::lifecycle::LifeCycleManagerMock lifecycle_mock_;
 
     static constexpr int kArgc = 1;
-    const char* kArgv[1] = {"test_app"};
+    const char* argv_[1] = {"test_app"};
 
     void SetUp() override
     {
@@ -207,7 +207,7 @@ class MwLifecycleMockTest : public ::testing::Test
 
 }  // namespace
 
-/// Verify that report_running() is invoked exactly once when the default
+/// @brief Verify that report_running() is invoked exactly once when the default
 /// run callback is used (i.e. the mock run() is not overridden).
 TEST_F(MwLifecycleMockTest, ReportRunningIsCalledOncePerRun)
 {
@@ -218,11 +218,11 @@ TEST_F(MwLifecycleMockTest, ReportRunningIsCalledOncePerRun)
     EXPECT_CALL(mw_mock_, report_shutdown()).Times(1);
     EXPECT_CALL(lifecycle_mock_, run(_, _)).WillOnce(Return(EXIT_SUCCESS));
 
-    score::mw::lifecycle::Run<AlwaysOkApp> runner(kArgc, kArgv);
+    score::mw::lifecycle::Run<AlwaysOkApp> runner(kArgc, argv_);
     runner.AsPosixProcess();
 }
 
-/// Verify that report_shutdown() is invoked exactly once per run, regardless
+/// @brief Verify that report_shutdown() is invoked exactly once per run, regardless
 /// of the application exit code.
 TEST_F(MwLifecycleMockTest, ReportShutdownIsCalledOncePerRun)
 {
@@ -233,6 +233,6 @@ TEST_F(MwLifecycleMockTest, ReportShutdownIsCalledOncePerRun)
     EXPECT_CALL(mw_mock_, report_shutdown()).Times(1);
     EXPECT_CALL(lifecycle_mock_, run(_, _)).WillOnce(Return(EXIT_FAILURE));
 
-    score::mw::lifecycle::Run<AlwaysOkApp> runner(kArgc, kArgv);
+    score::mw::lifecycle::Run<AlwaysOkApp> runner(kArgc, argv_);
     runner.AsPosixProcess();
 }

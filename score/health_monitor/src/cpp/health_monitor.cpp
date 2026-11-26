@@ -12,6 +12,8 @@
  ********************************************************************************/
 #include "score/mw/health/health_monitor.h"
 
+#include <score/assert.hpp>
+
 namespace
 {
 extern "C" {

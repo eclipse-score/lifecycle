@@ -20,16 +20,26 @@ cc_library(
     strip_include_prefix = "/score/launch_manager/src/daemon/src/",
     visibility = ["//score/launch_manager/src/daemon:__pkg__"],
     deps = [
-        "//score/launch_manager/src/daemon/src/alive_monitor",
+        "//score/launch_manager/src/daemon/src/alive_monitor:i_alive_monitor",
+        "//score/launch_manager/src/daemon/src/alive_monitor/details/daemon:health_monitor_impl",
         "//score/launch_manager/src/daemon/src/common:assertion_handler",
         "//score/launch_manager/src/daemon/src/common:log",
+        "//score/launch_manager/src/daemon/src/configuration:component_config",
+        "//score/launch_manager/src/daemon/src/configuration:config",
         "//score/launch_manager/src/daemon/src/configuration:flatbuffer_config_loader",
+        "//score/launch_manager/src/daemon/src/configuration:watchdog_config",
         "//score/launch_manager/src/daemon/src/control:control_provider",
         "//score/launch_manager/src/daemon/src/osal:ipc_comms",
         "//score/launch_manager/src/daemon/src/process_group_manager",
         "//score/launch_manager/src/daemon/src/recovery_client",
+        "//score/launch_manager/src/daemon/src/recovery_client:irecovery_client",
+        "//score/launch_manager/src/daemon/src/watchdog:i_watchdog_if",
         "//score/launch_manager/src/daemon/src/watchdog:watchdog_factory",
+        "//score/launch_manager/src/lm_control",
+        "@score_baselibs//score/filesystem",
         "@score_baselibs//score/language/futurecpp",
+        "@score_baselibs//score/result",
+        "@score_baselibs//score/result:error",
     ],
 )
 
@@ -48,5 +58,9 @@ cc_binary(
     visibility = ["//score/launch_manager:__subpackages__"],
     deps = [
         "//score/launch_manager/src/daemon:run",
-    ],
+    ] + select({
+        "//config:lm_use_cout_log": [],
+        # Enables logMode kRemote: DLT through the datarouter.
+        "//conditions:default": ["@score_logging//score/mw/log/backend:remote"],
+    }),
 )

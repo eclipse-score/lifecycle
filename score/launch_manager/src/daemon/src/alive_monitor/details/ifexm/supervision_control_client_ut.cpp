@@ -10,6 +10,7 @@
  *
  * SPDX-License-Identifier: Apache-2.0
  ********************************************************************************/
+#include "score/mw/launch_manager/alive_monitor/details/ifexm/supervision_event_queue.hpp"
 #include "score/mw/launch_manager/alive_monitor/details/ifexm/supervision_handle.hpp"
 #include <gtest/gtest.h>
 #include <memory>
@@ -23,7 +24,6 @@ class SupervisionControlClient_UT : public ::testing::Test
     void SetUp() override
     {
         RecordProperty("TestType", "interface-test");
-        RecordProperty("DerivationTechnique", "explorative-testing ");
         buffer_ = std::make_shared<SupervisionBufferType>();
         handle_ = std::make_unique<SupervisionHandle>(process_, buffer_);
     }
@@ -41,6 +41,7 @@ class SupervisionControlClient_UT : public ::testing::Test
 
 TEST_F(SupervisionControlClient_UT, SupervisionControlClient_QueueOneEvent_Succeeds)
 {
+    RecordProperty("DerivationTechnique", "equivalence-classes");
     RecordProperty(
         "Description",
         "This test verifies that a single SupervisionEvent can be successfully queued using the "
@@ -60,11 +61,35 @@ TEST_F(SupervisionControlClient_UT, SupervisionControlClient_QueueOneEvent_Succe
     EXPECT_EQ(result.systemClockTimestamp.tv_nsec, event1.systemClockTimestamp.tv_nsec);
 
     bool items_remaining = buffer_->tryDequeue(result);
-    ASSERT_FALSE(items_remaining);
+    EXPECT_FALSE(items_remaining);
+}
+
+TEST_F(SupervisionControlClient_UT, SupervisionControlClient_QueueDeactivation_Succeeds)
+{
+    RecordProperty("DerivationTechnique", "equivalence-classes");
+    RecordProperty("Description", "This test verifies that a deactivation request is queued as a kDeactivation event.");
+    timespec time{};
+    clock_gettime(CLOCK_MONOTONIC, &time);
+
+    ASSERT_TRUE(handle_->deactivateSupervision(time));
+
+    SupervisionEvent result;
+    ASSERT_TRUE(buffer_->tryDequeue(result));
+    EXPECT_EQ(result.id, process_);
+    EXPECT_EQ(result.eventType, SupervisionEventType::kDeactivation);
+    EXPECT_EQ(result.systemClockTimestamp.tv_nsec, time.tv_nsec);
+}
+
+TEST_F(SupervisionControlClient_UT, SupervisionControlClient_GetConnectionId_IsNotEmpty)
+{
+    RecordProperty("DerivationTechnique", "equivalence-classes");
+    RecordProperty("Description", "This test verifies that the handle exposes a non-empty IPC connection id.");
+    EXPECT_FALSE(handle_->getConnectionId().empty());
 }
 
 TEST_F(SupervisionControlClient_UT, SupervisionControlClient_QueueMaxNumberOfEvents_Succeeds)
 {
+    RecordProperty("DerivationTechnique", "boundary-values");
     RecordProperty(
         "Description",
         "This test verifies that the SupervisionControlNotifier can successfully queue the maximum number of "
@@ -88,11 +113,12 @@ TEST_F(SupervisionControlClient_UT, SupervisionControlClient_QueueMaxNumberOfEve
     }
 
     bool items_remaining = buffer_->tryDequeue(result);
-    ASSERT_FALSE(items_remaining);
+    EXPECT_FALSE(items_remaining);
 }
 
 TEST_F(SupervisionControlClient_UT, SupervisionControlClient_QueueOneEventTooMany_Fails)
 {
+    RecordProperty("DerivationTechnique", "boundary-values");
     RecordProperty(
         "Description",
         "This test verifies that attempting to queue a SupervisionEvent when the buffer is already at maximum capacity "
@@ -106,5 +132,5 @@ TEST_F(SupervisionControlClient_UT, SupervisionControlClient_QueueOneEventTooMan
     }
 
     bool queued = handle_->activateSupervision(event.systemClockTimestamp);
-    ASSERT_FALSE(queued) << "Expected queuing to fail due to full buffer";
+    EXPECT_FALSE(queued) << "Expected queuing to fail due to full buffer";
 }

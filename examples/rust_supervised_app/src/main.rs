@@ -24,9 +24,13 @@ use std::sync::Arc;
 #[derive(Parser, Debug)]
 #[command(version, about, long_about = None)]
 struct Args {
-    /// The app is configured to measure deadline between 50ms and 150ms. You configure the delay inside this deadline measurement.
+    /// The app measures a deadline between 50ms and --deadline-max. You configure the delay inside this deadline measurement.
     #[arg(short, long)]
     delay: u32,
+
+    /// Upper bound of the deadline in ms. Raise it on targets with unpredictable CPU availability.
+    #[arg(short = 'm', long, default_value_t = 150, value_parser = clap::value_parser!(u64).range(50..))]
+    deadline_max: u64,
 }
 
 fn interruptible_sleep(delay: timespec) {
@@ -60,7 +64,7 @@ fn main_logic(args: &Args, stop: Arc<AtomicBool>) -> Result<(), Box<dyn std::err
         DeadlineTag::from("deadline1"),
         TimeRange::new(
             std::time::Duration::from_millis(50),
-            std::time::Duration::from_millis(150),
+            std::time::Duration::from_millis(args.deadline_max),
         ),
     );
 

@@ -14,6 +14,7 @@
 #include "score/mw/launch_manager/process_group_manager/details/ready_condition/file_ready_condition.hpp"
 #include "score/mw/launch_manager/osal/return_types.hpp"
 #include "score/mw/lifecycle/execution_error.h"
+#include <score/stop_token.hpp>
 
 namespace score::mw::lifecycle::internal
 {
@@ -35,6 +36,11 @@ Result<void> FileReadyCondition::wait(cpp::stop_token stop_token, [[maybe_unused
     if (result == osal::OsalReturnType::kSuccess)
     {
         return {};
+    }
+
+    if (result == osal::OsalReturnType::kTimeout)
+    {
+        return MakeUnexpected(ExecErrc::kTimeout);
     }
 
     return MakeUnexpected(ExecErrc::kGeneralError);

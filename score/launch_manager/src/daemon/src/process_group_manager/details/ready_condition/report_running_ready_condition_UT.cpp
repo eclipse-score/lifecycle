@@ -38,8 +38,7 @@ TEST(ReportRunningReadyConditionTest, WaitCallsWaitForkRunningWithSyncAndTimeout
     StrictMock<osal::MockIProcess> launcher;
     const ReportRunningReadyCondition report_running_ready_condition(launcher, 10ms);
 
-    EXPECT_CALL(launcher, waitForkRunning(mock_handle.sync, std::optional<std::chrono::milliseconds>(10ms)))
-        .WillOnce(Return(osal::OsalReturnType::kSuccess));
+    EXPECT_CALL(launcher, waitForkRunning(mock_handle.sync, 10ms)).WillOnce(Return(osal::OsalReturnType::kSuccess));
 
     static_cast<void>(report_running_ready_condition.wait(cpp::stop_token{}, mock_handle));
 }
@@ -47,7 +46,7 @@ TEST(ReportRunningReadyConditionTest, WaitCallsWaitForkRunningWithSyncAndTimeout
 TEST(ReportRunningReadyConditionTest, WaitSucceedsReturnsSuccess)
 {
     NiceMock<osal::MockIProcess> launcher;
-    const ReportRunningReadyCondition report_running_ready_condition(launcher, std::nullopt);
+    const ReportRunningReadyCondition report_running_ready_condition(launcher, 10ms);
 
     ON_CALL(launcher, waitForkRunning(_, _)).WillByDefault(Return(osal::OsalReturnType::kSuccess));
 
@@ -59,7 +58,7 @@ TEST(ReportRunningReadyConditionTest, WaitSucceedsReturnsSuccess)
 TEST(ReportRunningReadyConditionTest, WaitFailsReturnsError)
 {
     NiceMock<osal::MockIProcess> launcher;
-    const ReportRunningReadyCondition report_running_ready_condition(launcher, std::nullopt);
+    const ReportRunningReadyCondition report_running_ready_condition(launcher, 10ms);
 
     ON_CALL(launcher, waitForkRunning(_, _)).WillByDefault(Return(osal::OsalReturnType::kFail));
 
@@ -69,10 +68,85 @@ TEST(ReportRunningReadyConditionTest, WaitFailsReturnsError)
     EXPECT_EQ(result.error(), ExecErrc::kGeneralError);
 }
 
+TEST(ReportRunningReadyConditionTest, WaitTimesOutReturnsTimeout)
+{
+    RecordProperty(
+        "Description",
+        "Given the process does not report kRunning within the timeout. "
+        "When wait is called. "
+        "Then wait returns kTimeout.");
+
+    NiceMock<osal::MockIProcess> launcher;
+    const ReportRunningReadyCondition report_running_ready_condition(launcher, 10ms);
+    ON_CALL(launcher, waitForkRunning(_, _)).WillByDefault(Return(osal::OsalReturnType::kTimeout));
+
+    const Result<void> result = report_running_ready_condition.wait(cpp::stop_token{}, mock_handle);
+
+    ASSERT_FALSE(result.has_value());
+    EXPECT_EQ(result.error(), ExecErrc::kTimeout);
+}
+
+/// @brief Provides a ProcessHandle whose send semaphore is initialised, because
+///        tryHandleTermination() posts on it.
+class ReportRunningReadyConditionTerminationTest : public ::testing::Test
+{
+  protected:
+    void SetUp() override
+    {
+        ASSERT_EQ(sync_->send_sync_.init(0U, false), osal::OsalReturnType::kSuccess);
+    }
+
+    void TearDown() override
+    {
+        static_cast<void>(sync_->send_sync_.deinit());
+    }
+
+    alignas(osal::IpcCommsSync) std::array<std::byte, sizeof(osal::IpcCommsSync)> buffer_{};
+    const osal::IpcCommsP sync_{reinterpret_cast<osal::IpcCommsSync*>(buffer_.data()), [](osal::IpcCommsSync*) {
+                                }};
+    const ProcessHandle handle_{42, sync_};
+};
+
+TEST_F(ReportRunningReadyConditionTerminationTest, TryHandleTerminationPostsExactlyOnce)
+{
+    RecordProperty(
+        "Description",
+        "Given a process which terminated during startup. "
+        "When tryHandleTermination is called. "
+        "Then it posts exactly once, which completes the kRunning handshake only if the process "
+        "already posted its kRunning report itself.");
+
+    NiceMock<osal::MockIProcess> launcher;
+    const ReportRunningReadyCondition report_running_ready_condition(launcher, 10ms);
+
+    EXPECT_TRUE(report_running_ready_condition.tryHandleTermination(handle_, 0));
+
+    EXPECT_EQ(sync_->send_sync_.timedWait(0ms), osal::OsalReturnType::kSuccess);
+    EXPECT_EQ(sync_->send_sync_.timedWait(0ms), osal::OsalReturnType::kTimeout);
+}
+
+TEST_F(ReportRunningReadyConditionTerminationTest, TerminationDoesNotOverrideSuccessfulHandshake)
+{
+    RecordProperty(
+        "Description",
+        "Given a process which reported kRunning and terminated afterwards. "
+        "When the kRunning handshake succeeds. "
+        "Then wait returns success, because the process did report kRunning.");
+
+    NiceMock<osal::MockIProcess> launcher;
+    const ReportRunningReadyCondition report_running_ready_condition(launcher, 10ms);
+    ON_CALL(launcher, waitForkRunning(_, _)).WillByDefault(Return(osal::OsalReturnType::kSuccess));
+
+    EXPECT_TRUE(report_running_ready_condition.tryHandleTermination(handle_, 0));
+    const Result<void> result = report_running_ready_condition.wait(cpp::stop_token{}, handle_);
+
+    EXPECT_TRUE(result.has_value());
+}
+
 TEST(ReportRunningReadyConditionTest, WaitWithEmptyHandleAborts)
 {
     NiceMock<osal::MockIProcess> launcher;
-    const ReportRunningReadyCondition report_running_ready_condition(launcher, std::nullopt);
+    const ReportRunningReadyCondition report_running_ready_condition(launcher, 10ms);
 
     EXPECT_DEATH(
         static_cast<void>(report_running_ready_condition.wait(cpp::stop_token{}, EmptyHandle{})),
@@ -82,7 +156,7 @@ TEST(ReportRunningReadyConditionTest, WaitWithEmptyHandleAborts)
 TEST(ReportRunningReadyConditionTest, WaitWithNullSyncAborts)
 {
     NiceMock<osal::MockIProcess> launcher;
-    const ReportRunningReadyCondition report_running_ready_condition(launcher, std::nullopt);
+    const ReportRunningReadyCondition report_running_ready_condition(launcher, 10ms);
 
     EXPECT_DEATH(
         static_cast<void>(report_running_ready_condition.wait(cpp::stop_token{}, ProcessHandle{42, nullptr})),
@@ -92,7 +166,7 @@ TEST(ReportRunningReadyConditionTest, WaitWithNullSyncAborts)
 TEST(ReportRunningReadyConditionTest, TryHandleTerminationWithEmptyHandleAborts)
 {
     NiceMock<osal::MockIProcess> launcher;
-    const ReportRunningReadyCondition report_running_ready_condition(launcher, std::nullopt);
+    const ReportRunningReadyCondition report_running_ready_condition(launcher, 10ms);
 
     EXPECT_DEATH(
         static_cast<void>(report_running_ready_condition.tryHandleTermination(EmptyHandle{}, 0)),
@@ -102,7 +176,7 @@ TEST(ReportRunningReadyConditionTest, TryHandleTerminationWithEmptyHandleAborts)
 TEST(ReportRunningReadyConditionTest, TryHandleTerminationWithNullSyncAborts)
 {
     NiceMock<osal::MockIProcess> launcher;
-    const ReportRunningReadyCondition report_running_ready_condition(launcher, std::nullopt);
+    const ReportRunningReadyCondition report_running_ready_condition(launcher, 10ms);
 
     EXPECT_DEATH(
         static_cast<void>(report_running_ready_condition.tryHandleTermination(ProcessHandle{42, nullptr}, 0)),

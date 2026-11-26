@@ -13,8 +13,9 @@
 #ifndef SCORE_HM_HEARTBEAT_HEARTBEAT_MONITOR_H
 #define SCORE_HM_HEARTBEAT_HEARTBEAT_MONITOR_H
 
+#include <optional>
+
 #include "score/mw/health/common.h"
-#include <score/expected.hpp>
 
 namespace score::mw::health
 {
@@ -25,14 +26,12 @@ class HealthMonitorBuilder;
 
 namespace score::mw::health::heartbeat
 {
-// Forward declaration
-class HeartbeatMonitor;
 
-/// Builder for `HeartbeatMonitor`.
+/// @brief Builder for `HeartbeatMonitor`.
 class HeartbeatMonitorBuilder final : public internal::RustDroppable<HeartbeatMonitorBuilder>
 {
   public:
-    /// Create a new `HeartbeatMonitorBuilder`.
+    /// @brief Create a new `HeartbeatMonitorBuilder`.
     ///
     /// - `range` - time range between heartbeats.
     HeartbeatMonitorBuilder(const TimeRange& range);

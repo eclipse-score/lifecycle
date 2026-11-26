@@ -34,6 +34,7 @@ being a non-profit and open source organization, can not take over any liability
    :caption: Content
 
    upcoming
+   release_note_v_0_10_1
    release_note_v_0_10_0
    release_note_v_0_9_0
    release_note_v_0_8_0

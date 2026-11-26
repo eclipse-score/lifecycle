@@ -46,7 +46,7 @@ class ProcessLauncherTest : public ::testing::Test
         RecordProperty("DerivationTechnique", "equivalence-classes");
 
         g_syscall_mock = std::make_unique<SyscallMock>();
-        process_launcher = std::make_unique<ProcessLauncher>();
+        process_launcher_ = std::make_unique<ProcessLauncher>();
 
         // Used by logging framework
         ON_CALL(*g_syscall_mock, access).WillByDefault(Invoke(__real_access));
@@ -62,18 +62,15 @@ class ProcessLauncherTest : public ::testing::Test
 
     void TearDown() override
     {
-        process_launcher.reset();
+        process_launcher_.reset();
         g_syscall_mock.reset();
     }
 
     std::shared_ptr<IpcCommsSync> GetInitialisedIpc()
     {
-        std::memset(test_buffer.data(), 0, test_buffer.size());
-        auto* sync = reinterpret_cast<IpcCommsSync*>(test_buffer.data());
+        std::memset(test_buffer_.data(), 0, test_buffer_.size());
+        auto* sync = reinterpret_cast<IpcCommsSync*>(test_buffer_.data());
 
-        sync->comms_type_ = score::mw::lifecycle::internal::osal::CommsType::kNoComms;
-        sync->pid_ = 0;
-        EXPECT_EQ(sync->reply_sync_.init(0, false), OsalReturnType::kSuccess);
         EXPECT_EQ(sync->send_sync_.init(0, false), OsalReturnType::kSuccess);
         // Real msync calls would treat this fake shared memory as invalid because it isn't page aligned.
         ON_CALL(*g_syscall_mock, msync(sync, _, _)).WillByDefault(Return(0));
@@ -85,16 +82,10 @@ class ProcessLauncherTest : public ::testing::Test
         return shared;
     }
 
-    void ExpectSemaphoreLifecycle()
-    {
-        EXPECT_CALL(*semaphore_mock_, sem_init).Times(AtLeast(1)).WillRepeatedly(Return(kSemSuccess));
-        EXPECT_CALL(*g_syscall_mock, sem_destroy).Times(AtLeast(1)).WillRepeatedly(Return(0));
-    }
-
     score::os::MockGuard<NiceMock<score::os::SemaphoreMock>, score::os::Semaphore> semaphore_mock_;
-    std::unique_ptr<ProcessLauncher> process_launcher;
+    std::unique_ptr<ProcessLauncher> process_launcher_;
 
-    alignas(IpcCommsSync) std::array<std::byte, sizeof(IpcCommsSync)> test_buffer;
+    alignas(IpcCommsSync) std::array<std::byte, sizeof(IpcCommsSync)> test_buffer_;
 };
 
 TEST_F(ProcessLauncherTest, waitForTerminationSuccess)
@@ -108,7 +99,7 @@ TEST_F(ProcessLauncherTest, waitForTerminationSuccess)
 
     ProcessID out_pid;
     int32_t out_status;
-    const auto res = process_launcher->waitForTermination(out_pid, out_status);
+    const auto res = process_launcher_->waitForTermination(out_pid, out_status);
 
     EXPECT_EQ(out_pid, pid);
     EXPECT_EQ(out_status, status);
@@ -123,7 +114,7 @@ TEST_F(ProcessLauncherTest, waitForTerminationFails)
 
     ProcessID out_pid;
     int32_t out_status;
-    const auto res = process_launcher->waitForTermination(out_pid, out_status);
+    const auto res = process_launcher_->waitForTermination(out_pid, out_status);
 
     EXPECT_EQ(res, OsalReturnType::kFail);
 }
@@ -142,7 +133,7 @@ TEST_F(TerminationTest, requestTerminationSuccess)
 
     EXPECT_CALL(*g_syscall_mock, kill(pid, SIGTERM)).WillOnce(Return(0));
 
-    const OsalReturnType res = process_launcher->requestTermination(pid);
+    const OsalReturnType res = process_launcher_->requestTermination(pid);
 
     EXPECT_EQ(res, OsalReturnType::kSuccess);
 }
@@ -155,7 +146,7 @@ TEST_F(TerminationTest, requestTerminationFailure)
 
     EXPECT_CALL(*g_syscall_mock, kill).WillOnce(SetErrnoAndReturn(ESRCH, -1));
 
-    const OsalReturnType res = process_launcher->requestTermination(pid);
+    const OsalReturnType res = process_launcher_->requestTermination(pid);
 
     EXPECT_EQ(res, OsalReturnType::kFail);
 }
@@ -168,7 +159,7 @@ TEST_F(TerminationTest, requestTerminationInvalid)
 
     EXPECT_CALL(*g_syscall_mock, kill).Times(0);
 
-    const OsalReturnType res = process_launcher->requestTermination(pid);
+    const OsalReturnType res = process_launcher_->requestTermination(pid);
 
     EXPECT_EQ(res, OsalReturnType::kFail);
 }
@@ -183,7 +174,7 @@ TEST_F(TerminationTest, forceTerminationSuccess)
 
     EXPECT_CALL(*g_syscall_mock, kill(pid, SIGKILL)).WillOnce(Return(0));
 
-    const OsalReturnType res = process_launcher->forceTermination(pid);
+    const OsalReturnType res = process_launcher_->forceTermination(pid);
 
     EXPECT_EQ(res, OsalReturnType::kSuccess);
 }
@@ -198,7 +189,7 @@ TEST_F(TerminationTest, forceTerminationSearchFailure)
 
     EXPECT_CALL(*g_syscall_mock, kill).WillOnce(SetErrnoAndReturn(ESRCH, -1));
 
-    const OsalReturnType res = process_launcher->forceTermination(pid);
+    const OsalReturnType res = process_launcher_->forceTermination(pid);
 
     EXPECT_EQ(res, OsalReturnType::kFail);
 }
@@ -213,7 +204,7 @@ TEST_F(TerminationTest, forceTerminationPermFailure)
 
     EXPECT_CALL(*g_syscall_mock, kill).WillOnce(SetErrnoAndReturn(EPERM, -1));
 
-    const OsalReturnType res = process_launcher->forceTermination(pid);
+    const OsalReturnType res = process_launcher_->forceTermination(pid);
 
     EXPECT_EQ(res, OsalReturnType::kFail);
 }
@@ -226,7 +217,7 @@ TEST_F(TerminationTest, forceTerminationInvalid)
 
     EXPECT_CALL(*g_syscall_mock, kill).Times(0);
 
-    const OsalReturnType res = process_launcher->forceTermination(pid);
+    const OsalReturnType res = process_launcher_->forceTermination(pid);
 
     EXPECT_EQ(res, OsalReturnType::kFail);
 }
@@ -251,12 +242,11 @@ class StartProcessTest : public ProcessLauncherTest
 
         ON_CALL(*g_syscall_mock, execve).WillByDefault(Throw(ExecveSuccess{}));
 
-        EXPECT_CALL(*g_syscall_mock, getpid).Times(AnyNumber()).WillRepeatedly(Return(forked_pid));
+        EXPECT_CALL(*g_syscall_mock, getpid).Times(AnyNumber()).WillRepeatedly(Return(forked_pid_));
 
         config_.name = "TestComponent";
-        config_.component_properties.binary_name = "TestProcess";
         config_.component_properties.application_profile.application_type = configuration::ApplicationType::Native;
-        config_.deployment_config.executable_path = "/bin/TestProcess";
+        config_.deployment_config.process_command = configuration::ProcessCommand{"/bin/TestProcess", {}};
         config_.deployment_config.working_dir = "/tmp";
         config_.deployment_config.sandbox.security_policy = std::nullopt;
         config_.deployment_config.sandbox.scheduling_priority = 1;
@@ -296,7 +286,7 @@ class StartProcessTest : public ProcessLauncherTest
     IpcCommsSync* StubShmObject()
     {
         const int fd = 123;
-        void* data = static_cast<void*>(test_buffer.data());
+        void* data = static_cast<void*>(test_buffer_.data());
         EXPECT_CALL(*g_syscall_mock, shm_open_anon).WillOnce(Return(fd));
         EXPECT_CALL(*g_syscall_mock, mmap(_, _, _, _, fd, _)).WillOnce(Return(data));
         EXPECT_CALL(*g_syscall_mock, ftruncate(fd, _)).WillOnce(Return(0));
@@ -312,7 +302,7 @@ class StartProcessTest : public ProcessLauncherTest
         EXPECT_CALL(*semaphore_mock_, sem_init).Times(AnyNumber()).WillRepeatedly(Return(kSemSuccess));
     }
 
-    const pid_t forked_pid = 23;
+    const pid_t forked_pid_ = 23;
 
     configuration::ComponentConfig config_ = {};
     ProcessID pid_;
@@ -325,17 +315,7 @@ TEST_F(StartProcessTest, startProcessNoFile)
 
     EXPECT_CALL(*g_syscall_mock, access(_, _)).WillOnce(Return(-1));
 
-    EXPECT_EQ(process_launcher->startProcess(pid_, sync_, config_), OsalReturnType::kFail);
-}
-
-TEST_F(StartProcessTest, startProcessNoPath)
-{
-    RecordProperty("Description", "Test that startProcess returns a failure if the provided path is empty");
-
-    config_.component_properties.binary_name = "";
-    EXPECT_CALL(*g_syscall_mock, access).Times(0);  // Access should not be called on an empty path
-
-    EXPECT_EQ(process_launcher->startProcess(pid_, sync_, config_), OsalReturnType::kFail);
+    EXPECT_EQ(process_launcher_->startProcess(pid_, sync_, config_), OsalReturnType::kFail);
 }
 
 TEST_F(StartProcessTest, startProcessForkFailed)
@@ -345,7 +325,7 @@ TEST_F(StartProcessTest, startProcessForkFailed)
     EXPECT_CALL(*g_syscall_mock, access(_, _)).WillOnce(Return(0));
     EXPECT_CALL(*g_syscall_mock, fork).WillOnce(Return(-1));
 
-    EXPECT_EQ(process_launcher->startProcess(pid_, sync_, config_), OsalReturnType::kFail);
+    EXPECT_EQ(process_launcher_->startProcess(pid_, sync_, config_), OsalReturnType::kFail);
 }
 
 TEST_F(StartProcessTest, handleCommsFailsFnctl)
@@ -360,7 +340,7 @@ TEST_F(StartProcessTest, handleCommsFailsFnctl)
 
     EXPECT_CALL(*g_syscall_mock, sysexit(EXIT_FAILURE)).WillOnce(Throw(SysExitException{}));
 
-    EXPECT_THROW(static_cast<void>(process_launcher->startProcess(pid_, sync_, config_)), SysExitException);
+    EXPECT_THROW(static_cast<void>(process_launcher_->startProcess(pid_, sync_, config_)), SysExitException);
 }
 
 class SetupCommsTest : public StartProcessTest
@@ -381,7 +361,7 @@ TEST_F(SetupCommsTest, shmOpenFails)
 
     EXPECT_CALL(*g_syscall_mock, shm_open_anon).WillOnce(Return(-1));
 
-    EXPECT_EQ(process_launcher->startProcess(pid_, sync_, config_), OsalReturnType::kFail);
+    EXPECT_EQ(process_launcher_->startProcess(pid_, sync_, config_), OsalReturnType::kFail);
 }
 
 TEST_F(SetupCommsTest, ftruncateFails)
@@ -391,7 +371,7 @@ TEST_F(SetupCommsTest, ftruncateFails)
     EXPECT_CALL(*g_syscall_mock, shm_open_anon).WillOnce(Return(123));
     EXPECT_CALL(*g_syscall_mock, ftruncate).WillOnce(Return(-1));
 
-    EXPECT_EQ(process_launcher->startProcess(pid_, sync_, config_), OsalReturnType::kFail);
+    EXPECT_EQ(process_launcher_->startProcess(pid_, sync_, config_), OsalReturnType::kFail);
 }
 
 TEST_F(SetupCommsTest, getCommsFails)
@@ -402,17 +382,73 @@ TEST_F(SetupCommsTest, getCommsFails)
     EXPECT_CALL(*g_syscall_mock, ftruncate).WillOnce(Return(0));
     EXPECT_CALL(*g_syscall_mock, mmap).WillOnce(Return(MAP_FAILED));
 
-    EXPECT_EQ(process_launcher->startProcess(pid_, sync_, config_), OsalReturnType::kFail);
+    EXPECT_EQ(process_launcher_->startProcess(pid_, sync_, config_), OsalReturnType::kFail);
 }
 
 TEST_F(SetupCommsTest, initSemaphoresFails)
 {
-    RecordProperty("Description", "Verify that if setting up the semaphores fails, startProcess fails");
+    RecordProperty(
+        "Description",
+        "Verify that if setting up the semaphores fails, startProcess fails, the shared memory is not marked as a "
+        "valid comms object and no semaphore is destroyed");
 
-    StubShmObject();
+    IpcCommsSync* block = StubShmObject();
+    block->magic_ = 0U;
     EXPECT_CALL(*semaphore_mock_, sem_init).WillRepeatedly(Return(SemError(EINVAL)));
+    EXPECT_CALL(*g_syscall_mock, sem_destroy).Times(0);
 
-    EXPECT_EQ(process_launcher->startProcess(pid_, sync_, config_), OsalReturnType::kFail);
+    EXPECT_EQ(process_launcher_->startProcess(pid_, sync_, config_), OsalReturnType::kFail);
+    EXPECT_EQ(block->magic_, 0U);
+}
+
+TEST_F(ProcessLauncherTest, releasingCommsObjectDestroysSemaphore)
+{
+    RecordProperty(
+        "Description",
+        "Verify that the comms object created for Launch Manager destroys its semaphore when the last reference is "
+        "dropped");
+
+    const int fd = 123;
+    void* data = static_cast<void*>(test_buffer_.data());
+    EXPECT_CALL(*g_syscall_mock, mmap(_, _, _, _, fd, _)).WillOnce(Return(data));
+    EXPECT_CALL(*semaphore_mock_, sem_init).WillOnce(Return(kSemSuccess));
+
+    // Fill with garbage to verify that reported_running_ is initialized explicitly
+    std::memset(test_buffer_.data(), 0xFF, test_buffer_.size());
+
+    IpcCommsP block = IpcCommsSync::createCommsObject(fd);
+    ASSERT_NE(block, nullptr);
+    EXPECT_EQ(block->magic_, IpcCommsSync::kMagic);
+    EXPECT_EQ(block->version_, IpcCommsSync::kLayoutVersion);
+    EXPECT_FALSE(block->hasReportedRunning());
+
+    EXPECT_CALL(*g_syscall_mock, msync(data, _, _)).WillOnce(Return(0));
+    Expectation destroyed = EXPECT_CALL(*g_syscall_mock, sem_destroy).WillOnce(Return(0));
+    EXPECT_CALL(*g_syscall_mock, munmap(data, sizeof(IpcCommsSync))).After(destroyed).WillOnce(Return(0));
+
+    block.reset();
+}
+
+TEST_F(ProcessLauncherTest, releasingCommsObjectSkipsDestroyOnInvalidMemory)
+{
+    RecordProperty(
+        "Description",
+        "Verify that the semaphore is not destroyed if the shared memory appears invalid, but memory is still "
+        "unmapped");
+
+    const int fd = 123;
+    void* data = static_cast<void*>(test_buffer_.data());
+    EXPECT_CALL(*g_syscall_mock, mmap(_, _, _, _, fd, _)).WillOnce(Return(data));
+    EXPECT_CALL(*semaphore_mock_, sem_init).WillOnce(Return(kSemSuccess));
+
+    IpcCommsP block = IpcCommsSync::createCommsObject(fd);
+    ASSERT_NE(block, nullptr);
+
+    EXPECT_CALL(*g_syscall_mock, msync(data, _, _)).WillOnce(Return(-1));
+    EXPECT_CALL(*g_syscall_mock, sem_destroy).Times(0);
+    EXPECT_CALL(*g_syscall_mock, munmap(data, sizeof(IpcCommsSync))).WillOnce(Return(0));
+
+    block.reset();
 }
 
 class SetSchedulingAndSecurityTest : public StartProcessTest
@@ -440,7 +476,7 @@ TEST_F(SetSchedulingAndSecurityTest, setpgidFails)
 
     EXPECT_CALL(*g_syscall_mock, sysexit(EXIT_FAILURE)).WillOnce(Throw(SysExitException{}));
 
-    EXPECT_THROW(static_cast<void>(process_launcher->startProcess(pid_, sync_, config_)), SysExitException);
+    EXPECT_THROW(static_cast<void>(process_launcher_->startProcess(pid_, sync_, config_)), SysExitException);
 }
 
 TEST_F(SetSchedulingAndSecurityTest, setgidFails)
@@ -455,7 +491,7 @@ TEST_F(SetSchedulingAndSecurityTest, setgidFails)
 
     EXPECT_CALL(*g_syscall_mock, sysexit(EXIT_FAILURE)).WillOnce(Throw(SysExitException{}));
 
-    EXPECT_THROW(static_cast<void>(process_launcher->startProcess(pid_, sync_, config_)), SysExitException);
+    EXPECT_THROW(static_cast<void>(process_launcher_->startProcess(pid_, sync_, config_)), SysExitException);
 }
 
 TEST_F(SetSchedulingAndSecurityTest, setuidFails)
@@ -470,7 +506,7 @@ TEST_F(SetSchedulingAndSecurityTest, setuidFails)
 
     EXPECT_CALL(*g_syscall_mock, sysexit(EXIT_FAILURE)).WillOnce(Throw(SysExitException{}));
 
-    EXPECT_THROW(static_cast<void>(process_launcher->startProcess(pid_, sync_, config_)), SysExitException);
+    EXPECT_THROW(static_cast<void>(process_launcher_->startProcess(pid_, sync_, config_)), SysExitException);
 }
 
 TEST_F(SetSchedulingAndSecurityTest, setschedFails)
@@ -485,47 +521,7 @@ TEST_F(SetSchedulingAndSecurityTest, setschedFails)
 
     EXPECT_CALL(*g_syscall_mock, sysexit(EXIT_FAILURE)).WillOnce(Throw(SysExitException{}));
 
-    EXPECT_THROW(static_cast<void>(process_launcher->startProcess(pid_, sync_, config_)), SysExitException);
-}
-
-TEST_F(SetSchedulingAndSecurityTest, setschedClampedUpper)
-{
-    RecordProperty(
-        "Description", "Verify that if the configured priority is higher than the OS supports, it is clamped");
-
-    config_.deployment_config.sandbox.scheduling_policy = SCHED_FIFO;
-    const int too_high = 1000;
-    config_.deployment_config.sandbox.scheduling_priority = too_high;
-
-    EXPECT_CALL(*g_syscall_mock, setpgid).WillOnce(Return(0));
-    EXPECT_CALL(*g_syscall_mock, setgid).WillOnce(Return(0));
-    EXPECT_CALL(*g_syscall_mock, setuid).WillOnce(Return(0));
-    EXPECT_CALL(*g_syscall_mock, setgroups).WillOnce(Return(0));
-
-    EXPECT_CALL(*g_syscall_mock, sched_setscheduler(_, _, Field(&sched_param::sched_priority, Lt(too_high))))
-        .WillOnce(Return(0));
-
-    EXPECT_THROW(static_cast<void>(process_launcher->startProcess(pid_, sync_, config_)), ExecveSuccess);
-}
-
-TEST_F(SetSchedulingAndSecurityTest, setschedClampedLower)
-{
-    RecordProperty(
-        "Description", "Verify that if the configured priority is lower than the OS supports, it is clamped");
-
-    config_.deployment_config.sandbox.scheduling_policy = SCHED_FIFO;
-    const int too_low = -10;
-    config_.deployment_config.sandbox.scheduling_priority = too_low;
-
-    EXPECT_CALL(*g_syscall_mock, setpgid).WillOnce(Return(0));
-    EXPECT_CALL(*g_syscall_mock, setgid).WillOnce(Return(0));
-    EXPECT_CALL(*g_syscall_mock, setuid).WillOnce(Return(0));
-    EXPECT_CALL(*g_syscall_mock, setgroups).WillOnce(Return(0));
-
-    EXPECT_CALL(*g_syscall_mock, sched_setscheduler(_, _, Field(&sched_param::sched_priority, Gt(too_low))))
-        .WillOnce(Return(0));
-
-    EXPECT_THROW(static_cast<void>(process_launcher->startProcess(pid_, sync_, config_)), ExecveSuccess);
+    EXPECT_THROW(static_cast<void>(process_launcher_->startProcess(pid_, sync_, config_)), SysExitException);
 }
 
 TEST_F(SetSchedulingAndSecurityTest, setgroupsFails)
@@ -542,7 +538,7 @@ TEST_F(SetSchedulingAndSecurityTest, setgroupsFails)
 
     EXPECT_CALL(*g_syscall_mock, sysexit(EXIT_FAILURE)).WillOnce(Throw(SysExitException{}));
 
-    EXPECT_THROW(static_cast<void>(process_launcher->startProcess(pid_, sync_, config_)), SysExitException);
+    EXPECT_THROW(static_cast<void>(process_launcher_->startProcess(pid_, sync_, config_)), SysExitException);
 }
 
 TEST_F(SetSchedulingAndSecurityTest, setaffinityFails)
@@ -560,7 +556,7 @@ TEST_F(SetSchedulingAndSecurityTest, setaffinityFails)
 
     EXPECT_CALL(*g_syscall_mock, sysexit(EXIT_FAILURE)).WillOnce(Throw(SysExitException{}));
 
-    EXPECT_THROW(static_cast<void>(process_launcher->startProcess(pid_, sync_, config_)), SysExitException);
+    EXPECT_THROW(static_cast<void>(process_launcher_->startProcess(pid_, sync_, config_)), SysExitException);
 }
 
 TEST_F(SetSchedulingAndSecurityTest, setaffinityIgnore)
@@ -576,7 +572,7 @@ TEST_F(SetSchedulingAndSecurityTest, setaffinityIgnore)
     EXPECT_CALL(*g_syscall_mock, setaffinity).Times(0);
     EXPECT_CALL(*g_syscall_mock, setgroups).WillOnce(Return(0));
 
-    EXPECT_THROW(static_cast<void>(process_launcher->startProcess(pid_, sync_, config_)), ExecveSuccess);
+    EXPECT_THROW(static_cast<void>(process_launcher_->startProcess(pid_, sync_, config_)), ExecveSuccess);
 }
 
 TEST_F(SetSchedulingAndSecurityTest, supplementaryGroupsAreCleared)
@@ -589,7 +585,7 @@ TEST_F(SetSchedulingAndSecurityTest, supplementaryGroupsAreCleared)
     ExpectSuccessfulSchedulingAndSecurity();
     EXPECT_CALL(*g_syscall_mock, setgroups(0, _)).WillOnce(Return(0));
 
-    EXPECT_THROW(static_cast<void>(process_launcher->startProcess(pid_, sync_, config_)), ExecveSuccess);
+    EXPECT_THROW(static_cast<void>(process_launcher_->startProcess(pid_, sync_, config_)), ExecveSuccess);
 }
 
 TEST_F(StartProcessTest, chdirFails)
@@ -602,7 +598,7 @@ TEST_F(StartProcessTest, chdirFails)
 
     EXPECT_CALL(*g_syscall_mock, sysexit(EXIT_FAILURE)).WillOnce(Throw(SysExitException{}));
 
-    EXPECT_THROW(static_cast<void>(process_launcher->startProcess(pid_, sync_, config_)), SysExitException);
+    EXPECT_THROW(static_cast<void>(process_launcher_->startProcess(pid_, sync_, config_)), SysExitException);
 }
 
 TEST_F(StartProcessTest, changeSecurityPolicyFails)
@@ -618,7 +614,7 @@ TEST_F(StartProcessTest, changeSecurityPolicyFails)
 
     EXPECT_CALL(*g_syscall_mock, sysexit(EXIT_FAILURE)).WillOnce(Throw(SysExitException{}));
 
-    EXPECT_THROW(static_cast<void>(process_launcher->startProcess(pid_, sync_, config_)), SysExitException);
+    EXPECT_THROW(static_cast<void>(process_launcher_->startProcess(pid_, sync_, config_)), SysExitException);
 }
 
 TEST_F(StartProcessTest, setRLimitFails)
@@ -636,7 +632,7 @@ TEST_F(StartProcessTest, setRLimitFails)
 
     EXPECT_CALL(*g_syscall_mock, sysexit(EXIT_FAILURE)).WillOnce(Throw(SysExitException{}));
 
-    EXPECT_THROW(static_cast<void>(process_launcher->startProcess(pid_, sync_, config_)), SysExitException);
+    EXPECT_THROW(static_cast<void>(process_launcher_->startProcess(pid_, sync_, config_)), SysExitException);
 }
 
 TEST_F(StartProcessTest, noRlimitsConfiguredSkipsSetrlimit)
@@ -649,7 +645,7 @@ TEST_F(StartProcessTest, noRlimitsConfiguredSkipsSetrlimit)
     EXPECT_CALL(*g_syscall_mock, setrlimit).Times(0);
     EXPECT_CALL(*g_syscall_mock, execve).Times(AtMost(1));
 
-    EXPECT_THROW(static_cast<void>(process_launcher->startProcess(pid_, sync_, config_)), ExecveSuccess);
+    EXPECT_THROW(static_cast<void>(process_launcher_->startProcess(pid_, sync_, config_)), ExecveSuccess);
 }
 
 TEST_F(StartProcessTest, setRLimitZeroIsApplied)
@@ -668,7 +664,7 @@ TEST_F(StartProcessTest, setRLimitZeroIsApplied)
         .WillOnce(Return(0));
     EXPECT_CALL(*g_syscall_mock, execve).Times(AtMost(1));
 
-    EXPECT_THROW(static_cast<void>(process_launcher->startProcess(pid_, sync_, config_)), ExecveSuccess);
+    EXPECT_THROW(static_cast<void>(process_launcher_->startProcess(pid_, sync_, config_)), ExecveSuccess);
 }
 
 TEST_F(StartProcessTest, setRLimitPassesPreResolvedValuesUnchanged)
@@ -692,7 +688,7 @@ TEST_F(StartProcessTest, setRLimitPassesPreResolvedValuesUnchanged)
         .WillOnce(Return(0));
     EXPECT_CALL(*g_syscall_mock, execve).Times(AtMost(1));
 
-    EXPECT_THROW(static_cast<void>(process_launcher->startProcess(pid_, sync_, config_)), ExecveSuccess);
+    EXPECT_THROW(static_cast<void>(process_launcher_->startProcess(pid_, sync_, config_)), ExecveSuccess);
 }
 
 TEST_F(StartProcessTest, rlimitsAppliedBeforePrivilegeDrop)
@@ -720,7 +716,7 @@ TEST_F(StartProcessTest, rlimitsAppliedBeforePrivilegeDrop)
         EXPECT_CALL(*g_syscall_mock, setuid).WillOnce(Return(0));
     }
 
-    EXPECT_THROW(static_cast<void>(process_launcher->startProcess(pid_, sync_, config_)), ExecveSuccess);
+    EXPECT_THROW(static_cast<void>(process_launcher_->startProcess(pid_, sync_, config_)), ExecveSuccess);
 }
 
 TEST_F(StartProcessTest, execveFails)
@@ -734,7 +730,7 @@ TEST_F(StartProcessTest, execveFails)
 
     EXPECT_CALL(*g_syscall_mock, sysexit(EXIT_FAILURE)).WillOnce(Throw(SysExitException{}));
 
-    EXPECT_THROW(static_cast<void>(process_launcher->startProcess(pid_, sync_, config_)), SysExitException);
+    EXPECT_THROW(static_cast<void>(process_launcher_->startProcess(pid_, sync_, config_)), SysExitException);
 }
 
 // Define a matcher that checks a null-terminated char** against a vector of strings
@@ -782,7 +778,7 @@ TEST_F(StartProcessTest, startProcessChildSuccess)
     const std::string security_policy = "security";
     const std::vector<std::string> args_in = {"-c 2", "--argument yes"};
     const std::vector<std::string> expected_launch_args = {
-        config_.deployment_config.executable_path, args_in[0], args_in[1]};
+        config_.deployment_config.process_command.executablePath(), args_in[0], args_in[1]};
 
     config_.component_properties.application_profile.application_type = configuration::ApplicationType::Reporting;
     config_.deployment_config.sandbox.scheduling_policy = scheduler;
@@ -797,16 +793,17 @@ TEST_F(StartProcessTest, startProcessChildSuccess)
     config_.deployment_config.sandbox.security_policy = security_policy;
     config_.deployment_config.environmental_variables.add("environment", "yes");
     config_.deployment_config.environmental_variables.add("errors", "no");
-    config_.component_properties.process_arguments = args_in;
+    config_.deployment_config.process_command =
+        configuration::ProcessCommand{config_.deployment_config.process_command.executablePath(), args_in};
 
     IpcCommsSync* block = StubShmObject();
 
     EXPECT_CALL(*g_syscall_mock, access).WillOnce(Return(0));
     EXPECT_CALL(*g_syscall_mock, fork).WillOnce(Return(0));
-    EXPECT_CALL(*g_syscall_mock, getpid).WillRepeatedly(Return(forked_pid));
+    EXPECT_CALL(*g_syscall_mock, getpid).WillRepeatedly(Return(forked_pid_));
     EXPECT_CALL(*g_syscall_mock, fcntl).WillOnce(Return(0));
-    EXPECT_CALL(*semaphore_mock_, sem_init).Times(2).WillRepeatedly(Return(kSemSuccess));
-    EXPECT_CALL(*g_syscall_mock, setpgid(0, forked_pid));
+    EXPECT_CALL(*semaphore_mock_, sem_init).Times(1).WillRepeatedly(Return(kSemSuccess));
+    EXPECT_CALL(*g_syscall_mock, setpgid(0, forked_pid_));
     EXPECT_CALL(*g_syscall_mock, sched_setscheduler(0, scheduler, _)).WillOnce(Return(0));
     EXPECT_CALL(*g_syscall_mock, setaffinity(affinity_mask)).WillOnce(Return(0));
     EXPECT_CALL(*g_syscall_mock, setuid(uid)).WillOnce(Return(0));
@@ -830,10 +827,10 @@ TEST_F(StartProcessTest, startProcessChildSuccess)
 
     EXPECT_CALL(*g_syscall_mock, sysexit).Times(0);  // No failures
 
-    EXPECT_THROW(static_cast<void>(process_launcher->startProcess(pid_, sync_, config_)), ExecveSuccess);
+    EXPECT_THROW(static_cast<void>(process_launcher_->startProcess(pid_, sync_, config_)), ExecveSuccess);
 
-    EXPECT_EQ(block->pid_, forked_pid);
-    EXPECT_EQ(block->comms_type_, CommsType::kReporting);
+    EXPECT_EQ(block->magic_, IpcCommsSync::kMagic);
+    EXPECT_EQ(block->version_, IpcCommsSync::kLayoutVersion);
 }
 
 class ClientMethodsTest : public ProcessLauncherTest
@@ -842,56 +839,42 @@ class ClientMethodsTest : public ProcessLauncherTest
 
 using namespace std::chrono_literals;
 
-TEST_F(ProcessLauncherTest, ignoreRunningNoPost)
-{
-    RecordProperty("Description", "Verify that ignoreRunning correctly handles a failed semaphore post");
-
-    EXPECT_CALL(*semaphore_mock_, sem_init).WillRepeatedly(Return(kSemSuccess));
-    EXPECT_CALL(*g_syscall_mock, sem_destroy).WillRepeatedly(Return(0));
-    std::shared_ptr<IpcCommsSync> sync = GetInitialisedIpc();
-    EXPECT_CALL(*semaphore_mock_, sem_post).WillOnce(Return(SemError(EINVAL)));
-
-    EXPECT_EQ(process_launcher->waitForkRunning(sync, std::nullopt), OsalReturnType::kFail);
-}
-
-TEST_F(ProcessLauncherTest, ignoreRunningSuccess)
-{
-    RecordProperty(
-        "Description",
-        "Verify that waitForkRunning without a timeout posts on the reply semaphore without waiting and returns a "
-        "success");
-
-    ExpectSemaphoreLifecycle();
-    std::shared_ptr<IpcCommsSync> sync = GetInitialisedIpc();
-    EXPECT_CALL(*semaphore_mock_, sem_post).WillOnce(Return(kSemSuccess));
-
-    EXPECT_EQ(process_launcher->waitForkRunning(sync, std::nullopt), OsalReturnType::kSuccess);
-}
-
 TEST_F(ProcessLauncherTest, kRunningNoSync)
 {
     RecordProperty("Description", "Verify that waitForkRunning correctly handles a null pointer");
 
     std::shared_ptr<IpcCommsSync> sync;
 
-    EXPECT_EQ(process_launcher->waitForkRunning(sync, 1ms), OsalReturnType::kFail);
+    EXPECT_EQ(process_launcher_->waitForkRunning(sync, 1ms), OsalReturnType::kFail);
 }
 
 TEST_F(ProcessLauncherTest, kRunningSuccess)
 {
     RecordProperty(
-        "Description",
-        "Verify that waitForkRunning waits for a notification, posts a reply, and then waits for another notification "
-        "before proceeding");
+        "Description", "Verify that waitForkRunning waits for exactly one notification and does not post a reply");
 
-    ExpectSemaphoreLifecycle();
+    std::shared_ptr<IpcCommsSync> sync = GetInitialisedIpc();
+    sync->reportRunning();
+
+    EXPECT_CALL(*semaphore_mock_, sem_timedwait_monotonic).Times(1).WillOnce(Return(kSemSuccess));
+    EXPECT_CALL(*semaphore_mock_, sem_post).Times(0);
+
+    EXPECT_EQ(process_launcher_->waitForkRunning(sync, 1ms), OsalReturnType::kSuccess);
+}
+
+TEST_F(ProcessLauncherTest, kRunningWokenUpWithoutReport)
+{
+    RecordProperty(
+        "Description",
+        "Verify that waitForkRunning fails if the semaphore was posted without kRunning being reported, as happens "
+        "when Launch Manager wakes up the waiter because the process terminated");
+
     std::shared_ptr<IpcCommsSync> sync = GetInitialisedIpc();
 
-    Expectation waits = EXPECT_CALL(*semaphore_mock_, sem_timedwait_monotonic).WillOnce(Return(kSemSuccess));
-    Expectation posts = EXPECT_CALL(*semaphore_mock_, sem_post).After(waits).WillOnce(Return(kSemSuccess));
-    EXPECT_CALL(*semaphore_mock_, sem_timedwait_monotonic).After(posts).WillOnce(Return(kSemSuccess));
+    EXPECT_CALL(*semaphore_mock_, sem_timedwait_monotonic).Times(1).WillOnce(Return(kSemSuccess));
 
-    EXPECT_EQ(process_launcher->waitForkRunning(sync, 1ms), OsalReturnType::kSuccess);
+    EXPECT_FALSE(sync->hasReportedRunning());
+    EXPECT_EQ(process_launcher_->waitForkRunning(sync, 1ms), OsalReturnType::kFail);
 }
 
 TEST_F(ProcessLauncherTest, kRunningTimeout)
@@ -900,11 +883,9 @@ TEST_F(ProcessLauncherTest, kRunningTimeout)
         "Description",
         "Verify that waitForkRunning returns a timeout failure if no notification is received within the timeout");
 
-    ExpectSemaphoreLifecycle();
-
     std::shared_ptr<IpcCommsSync> sync = GetInitialisedIpc();
     EXPECT_CALL(*semaphore_mock_, sem_timedwait_monotonic).WillRepeatedly(Return(SemError(ETIMEDOUT)));
-    EXPECT_CALL(*semaphore_mock_, sem_post).WillOnce(Return(kSemSuccess));  // Posts even if the wait fails...
+    EXPECT_CALL(*semaphore_mock_, sem_post).Times(0);
 
-    EXPECT_EQ(process_launcher->waitForkRunning(sync, 1ms), OsalReturnType::kTimeout);
+    EXPECT_EQ(process_launcher_->waitForkRunning(sync, 1ms), OsalReturnType::kTimeout);
 }

@@ -12,8 +12,10 @@
  ********************************************************************************/
 
 #include "score/mw/launch_manager/process_group_manager/details/os_handler.hpp"
-
-#include <sys/wait.h>
+#include "score/mw/launch_manager/common/log.hpp"
+#include <score/expected.hpp>
+#include <stdint.h>
+#include <stdlib.h>
 
 namespace score::mw::lifecycle::internal
 {
