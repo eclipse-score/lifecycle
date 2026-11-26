@@ -38,8 +38,7 @@ namespace score::mw::lifecycle::internal
 ///            Both share the ready timeout.
 ///          - \c Running for a \c Native application: EmptyReadyCondition.
 ///          - \c Running for any other application type: ReportRunningReadyCondition.
-///          - \c Terminated: ProcessTerminatedReadyCondition, for every application type. A
-///            reporting process is not waited for to report kRunning.
+///          - \c Terminated: ProcessTerminatedReadyCondition, for every application type.
 ///
 ///          Each returned component owns its actions and shares ownership of its configuration,
 ///          so it stays valid without the factory. It still refers to the dependencies given to

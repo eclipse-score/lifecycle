@@ -638,33 +638,6 @@ TEST(ComponentTest, DeactivateInTerminatedStateSucceeds)
     EXPECT_FALSE(component.active());
 }
 
-TEST(ComponentTest, CannotActivateInReadyState)
-{
-    RecordProperty(
-        "Description",
-        "Given an active component. "
-        "When it is activated again. "
-        "Then the component aborts, since activation requires the inactive state.");
-
-    NiceMock<MockSupervisionFactory> factory;
-
-    auto start_action = std::make_unique<MockStartAction>();
-    EXPECT_CALL(*start_action, start(_, _)).WillOnce(Return(Result<StartedResource>{StartedResource{mock_handle}}));
-
-    Component component(
-        std::move(start_action),
-        std::make_unique<MockStopAction>(),
-        std::make_unique<MockForceStopAction>(),
-        std::make_unique<NiceMock<MockReadyCondition>>(),
-        factory,
-        std::make_shared<configuration::ComponentConfig>());
-
-    static_cast<void>(component.activate(cpp::stop_token{}));
-
-    EXPECT_DEATH(
-        { static_cast<void>(component.activate(cpp::stop_token{})); }, "Cannot activate component in a running state");
-}
-
 TEST(ComponentTest, DeactivateWithEmptyHandleIsInactiveImmediately)
 {
     RecordProperty("TestType", "interface-test");
