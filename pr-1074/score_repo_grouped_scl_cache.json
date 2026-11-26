@@ -1168,6 +1168,33 @@
               "verify_type": "partially",
               "result": "passed",
               "result_text": ""
+            },
+            {
+              "name": "ProcessShutdownTest__GracefulShutdown_SendsSigtermThenSigkillAfterTimeout",
+              "file": "score/launch_manager/src/daemon/src/process_group_manager/details/process_shutdown_UT.cpp",
+              "line": 104,
+              "need": "feat_req__lifecycle__process_termination",
+              "verify_type": "partially",
+              "result": "passed",
+              "result_text": ""
+            },
+            {
+              "name": "ProcessShutdownTest__ImmediateShutdown_SendsSigkillWithoutSigterm",
+              "file": "score/launch_manager/src/daemon/src/process_group_manager/details/process_shutdown_UT.cpp",
+              "line": 191,
+              "need": "feat_req__lifecycle__process_termination",
+              "verify_type": "partially",
+              "result": "passed",
+              "result_text": ""
+            },
+            {
+              "name": "ProcessShutdownTest__GracefulShutdown_ProcessCooperates_NoSigkillSent",
+              "file": "score/launch_manager/src/daemon/src/process_group_manager/details/process_shutdown_UT.cpp",
+              "line": 259,
+              "need": "feat_req__lifecycle__process_termination",
+              "verify_type": "partially",
+              "result": "passed",
+              "result_text": ""
             }
           ]
         }
@@ -1388,7 +1415,7 @@
             {
               "name": "ProcessShutdownTest__GracefulShutdown_SendsSigtermThenSigkillAfterTimeout",
               "file": "score/launch_manager/src/daemon/src/process_group_manager/details/process_shutdown_UT.cpp",
-              "line": 103,
+              "line": 104,
               "need": "comp_req__launch_man__graceful_p_shutd",
               "verify_type": "fully",
               "result": "passed",
@@ -1397,7 +1424,7 @@
             {
               "name": "ProcessShutdownTest__ImmediateShutdown_SendsSigkillWithoutSigterm",
               "file": "score/launch_manager/src/daemon/src/process_group_manager/details/process_shutdown_UT.cpp",
-              "line": 190,
+              "line": 191,
               "need": "comp_req__launch_man__graceful_p_shutd",
               "verify_type": "fully",
               "result": "passed",
@@ -1406,7 +1433,7 @@
             {
               "name": "ProcessShutdownTest__GracefulShutdown_ProcessCooperates_NoSigkillSent",
               "file": "score/launch_manager/src/daemon/src/process_group_manager/details/process_shutdown_UT.cpp",
-              "line": 258,
+              "line": 259,
               "need": "comp_req__launch_man__graceful_p_shutd",
               "verify_type": "fully",
               "result": "passed",
@@ -1423,7 +1450,7 @@
             {
               "name": "ProcessShutdownTest__GracefulShutdown_SendsSigtermThenSigkillAfterTimeout",
               "file": "score/launch_manager/src/daemon/src/process_group_manager/details/process_shutdown_UT.cpp",
-              "line": 103,
+              "line": 104,
               "need": "comp_req__launch_man__instant_p_shutd",
               "verify_type": "fully",
               "result": "passed",
@@ -1432,7 +1459,7 @@
             {
               "name": "ProcessShutdownTest__ImmediateShutdown_SendsSigkillWithoutSigterm",
               "file": "score/launch_manager/src/daemon/src/process_group_manager/details/process_shutdown_UT.cpp",
-              "line": 190,
+              "line": 191,
               "need": "comp_req__launch_man__instant_p_shutd",
               "verify_type": "fully",
               "result": "passed",
@@ -1441,7 +1468,7 @@
             {
               "name": "ProcessShutdownTest__GracefulShutdown_ProcessCooperates_NoSigkillSent",
               "file": "score/launch_manager/src/daemon/src/process_group_manager/details/process_shutdown_UT.cpp",
-              "line": 258,
+              "line": 259,
               "need": "comp_req__launch_man__instant_p_shutd",
               "verify_type": "fully",
               "result": "passed",

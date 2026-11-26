@@ -11510,7 +11510,7 @@
   {
     "name": "ProcessShutdownTest__GracefulShutdown_SendsSigtermThenSigkillAfterTimeout",
     "file": "score/launch_manager/src/daemon/src/process_group_manager/details/process_shutdown_UT.cpp",
-    "line": "103",
+    "line": "104",
     "result": "passed",
     "repo_name": "local_repo",
     "hash": "",
@@ -11518,13 +11518,13 @@
     "TestType": "interface-test",
     "DerivationTechnique": "equivalence-classes",
     "result_text": "",
-    "PartiallyVerifies": null,
+    "PartiallyVerifies": "feat_req__lifecycle__process_termination",
     "FullyVerifies": "comp_req__launch_man__graceful_p_shutd, comp_req__launch_man__instant_p_shutd"
   },
   {
     "name": "ProcessShutdownTest__ImmediateShutdown_SendsSigkillWithoutSigterm",
     "file": "score/launch_manager/src/daemon/src/process_group_manager/details/process_shutdown_UT.cpp",
-    "line": "190",
+    "line": "191",
     "result": "passed",
     "repo_name": "local_repo",
     "hash": "",
@@ -11532,13 +11532,13 @@
     "TestType": "interface-test",
     "DerivationTechnique": "equivalence-classes",
     "result_text": "",
-    "PartiallyVerifies": null,
+    "PartiallyVerifies": "feat_req__lifecycle__process_termination",
     "FullyVerifies": "comp_req__launch_man__graceful_p_shutd, comp_req__launch_man__instant_p_shutd"
   },
   {
     "name": "ProcessShutdownTest__GracefulShutdown_ProcessCooperates_NoSigkillSent",
     "file": "score/launch_manager/src/daemon/src/process_group_manager/details/process_shutdown_UT.cpp",
-    "line": "258",
+    "line": "259",
     "result": "passed",
     "repo_name": "local_repo",
     "hash": "",
@@ -11546,7 +11546,7 @@
     "TestType": "interface-test",
     "DerivationTechnique": "equivalence-classes",
     "result_text": "",
-    "PartiallyVerifies": null,
+    "PartiallyVerifies": "feat_req__lifecycle__process_termination",
     "FullyVerifies": "comp_req__launch_man__graceful_p_shutd, comp_req__launch_man__instant_p_shutd"
   },
   {
