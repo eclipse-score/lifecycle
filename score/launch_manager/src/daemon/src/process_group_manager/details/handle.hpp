@@ -43,6 +43,11 @@ using Handle = std::variant<EmptyHandle, ProcessHandle>;
 /// @param handle The handle to invalidate.
 void invalidate(Handle& handle);
 
+/// @brief Checks whether a handle still refers to a resource which can terminate.
+/// @param handle The handle to check.
+/// @return False for an EmptyHandle and for a handle which was invalidated, true otherwise.
+bool isAlive(const Handle& handle);
+
 }  // namespace score::mw::lifecycle::internal
 
 #endif  // SCORE_LCM_HANDLE_HPP_INCLUDED

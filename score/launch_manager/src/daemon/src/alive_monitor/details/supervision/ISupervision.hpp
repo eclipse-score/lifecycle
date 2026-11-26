@@ -14,13 +14,9 @@
 #ifndef ISUPERVISION_HPP_INCLUDED
 #define ISUPERVISION_HPP_INCLUDED
 
-#include <cstdint>
+#include <chrono>
 
-#include "score/mw/launch_manager/alive_monitor/details/timers/Timers_OsClock.hpp"
 #include "score/mw/launch_manager/common/identifier_hash.hpp"
-#include <string>
-#include <string_view>
-#include <vector>
 
 namespace score::mw::lifecycle::internal::saf::supervision
 {
@@ -63,8 +59,8 @@ class ISupervision
     ISupervision& operator=(const ISupervision&) = delete;
 
   private:
-    /// Unique name set by configuration
-    const IdentifierHash k_cfgName;
+    /// @brief Unique name set by configuration
+    const IdentifierHash cfg_name_;
 };
 
 }  // namespace score::mw::lifecycle::internal::saf::supervision

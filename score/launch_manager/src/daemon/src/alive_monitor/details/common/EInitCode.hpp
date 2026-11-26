@@ -22,11 +22,20 @@ namespace score::mw::lifecycle::internal::saf::daemon
 /// @brief Return codes for AliveMonitor Initialization
 enum class EInitCode : std::int8_t
 {
-    kNoError,                            ///< Init Successful (no error occurred)
-    kNotInitialized,                     ///< Init was not performed
-    kCycleTimeInitFailed,                ///< Cyclic Timer initialization failed
-    kConstructAliveWorkerFactoryFailed,  ///< AliveWorkerFactory failed loading SWCL configurations
-    kGeneralError                        ///< General error
+    /// @brief Init Successful (no error occured)
+    kNoError,
+
+    /// @brief Init was not performed
+    kNotInitialized,
+
+    /// @brief Cyclic Timer initialization failed
+    kCycleTimeInitFailed,
+
+    /// @brief AliveWorkerFactory failed loading SWCL configurations
+    kConstructAliveWorkerFactoryFailed,
+
+    /// @brief General error
+    kGeneralError
 };
 
 }  // namespace score::mw::lifecycle::internal::saf::daemon

@@ -1,0 +1,12 @@
+{
+  "schema_version": 2,
+  "heartbeat_monitors": [
+    {
+      "tag": "Heartbeat",
+      "range": {
+        "min_ms": 100,
+        "max_ms": 200
+      }
+    }
+  ]
+}

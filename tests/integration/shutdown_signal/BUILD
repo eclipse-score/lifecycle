@@ -44,11 +44,11 @@ cc_binary(
 
 integration_test(
     name = "shutdown_signal",
-    srcs = ["shutdown_signal.py"],
+    srcs = ["test.py"],
     binaries = [
         ":control_client_test_driver",
         ":shutdown_signal_process",
         "//score/launch_manager",
     ],
-    config = ":shutdown_signal.json",
+    config = ":config.json",
 )

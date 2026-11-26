@@ -11,18 +11,47 @@
  * SPDX-License-Identifier: Apache-2.0
  ********************************************************************************/
 
-#include <fcntl.h>
-#include <sys/wait.h>
-#include <unistd.h>
-#include <algorithm>
-#include <csignal>
-
+#include "score/mw/launch_manager/process_group_manager/process_group_manager.hpp"
+#include "score/mw/launch_manager/alive_monitor/IAliveMonitor.hpp"
+#include "score/mw/launch_manager/common/concurrency/concurrency_error_domain.hpp"
+#include "score/mw/launch_manager/common/concurrency/thread_pool.hpp"
+#include "score/mw/launch_manager/common/constants.hpp"
+#include "score/mw/launch_manager/common/identifier_hash.hpp"
 #include "score/mw/launch_manager/common/log.hpp"
+#include "score/mw/launch_manager/configuration/component_config.hpp"
+#include "score/mw/launch_manager/configuration/config.hpp"
+#include "score/mw/launch_manager/configuration/watchdog_config.hpp"
+#include "score/mw/launch_manager/osal/wait_for_file.hpp"
 #include "score/mw/launch_manager/process_group_manager/details/completion_slot.hpp"
 #include "score/mw/launch_manager/process_group_manager/details/component_event.hpp"
+#include "score/mw/launch_manager/process_group_manager/details/component_event_queue.hpp"
+#include "score/mw/launch_manager/process_group_manager/details/component_task.hpp"
+#include "score/mw/launch_manager/process_group_manager/details/graph.hpp"
+#include "score/mw/launch_manager/process_group_manager/details/os_handler.hpp"
+#include "score/mw/launch_manager/process_group_manager/details/process_handling.hpp"
 #include "score/mw/launch_manager/process_group_manager/details/process_monitor.hpp"
-#include "score/mw/launch_manager/process_group_manager/process_group_manager.hpp"
-#include "score/mw/lifecycle/details/lm_control_service.h"
+#include "score/mw/launch_manager/process_group_manager/details/safe_process_map.hpp"
+#include "score/mw/launch_manager/process_group_manager/iprocess.hpp"
+#include "score/mw/launch_manager/process_group_manager/irun_target_control.hpp"
+#include "score/mw/launch_manager/recovery_client/irecovery_client.h"
+#include "score/mw/launch_manager/watchdog/IWatchdogIf.hpp"
+#include "score/mw/lifecycle/execution_error.h"
+#include "score/mw/lifecycle/run_target_activation_source.hpp"
+#include "score/result/error.h"
+#include "score/result/result.h"
+#include <score/assert.hpp>
+#include <stdint.h>
+#include <algorithm>
+#include <atomic>
+#include <chrono>
+#include <csignal>
+#include <memory>
+#include <optional>
+#include <string>
+#include <string_view>
+#include <utility>
+#include <variant>
+#include <vector>
 
 namespace score::mw::lifecycle::internal
 {
@@ -129,6 +158,9 @@ void ProcessGroupManager::deinitialize()
 {
     // ucm_polling_thread_.stopPolling();
     watchdog_->disable();
+
+    pending_activation_queue_.stop();
+
     if (event_queue_)
     {
         event_queue_->stop();
@@ -268,31 +300,54 @@ void ProcessGroupManager::allProcessGroupsOff()
     // Wait for process group state to change while actively draining shutdown events.
     // SupervisionFailure is intentionally ignored here so recovery transitions do not
     // fight the forced transition to Off.
-    auto waitForStateCompletion = [this](GraphState state_to_be_completed, int32_t max_wait_ms) -> bool {
-        constexpr int32_t kSleepIntervalMs = 10;
+    // Returns the time waited, or std::nullopt if the state did not complete within max_wait_ms.
+    auto waitForStateCompletion = [this](
+                                      GraphState state_to_be_completed,
+                                      std::chrono::milliseconds max_wait) -> std::optional<std::chrono::milliseconds> {
+        constexpr int32_t kMaxSleepIntervalMs = 10;
 
         auto has_state = [this, state_to_be_completed]() {
             return graph_->getState() == state_to_be_completed;
         };
 
-        int32_t remaining_ms = max_wait_ms;
-        while (has_state() && (remaining_ms > 0))
+        // We cannot rely on the kMaxSleepIntervalMs delay actually elapsing, so we check the clock each iteration
+        const auto start = std::chrono::steady_clock::now();
+        const auto deadline = start + max_wait;
+        while (has_state() && (std::chrono::steady_clock::now() < deadline))
         {
-            static_cast<void>(event_queue_->waitForEvents(std::chrono::milliseconds(kSleepIntervalMs)));
+            static_cast<void>(event_queue_->waitForEvents(std::chrono::milliseconds(kMaxSleepIntervalMs)));
             while (auto event = event_queue_->getNextEvent())
             {
                 if (std::holds_alternative<SupervisionFailure>(*event))
                 {
                     continue;
                 }
-                graph_->handleComponentEvent(*event);
+                // We need to complete any slots here to prevent them causing a hang
+                else if (
+                    std::holds_alternative<GetActiveRunTarget>(*event) ||
+                    std::holds_alternative<SetRequestedRunTarget>(*event))
+                {
+                    graph_->unblockComponentEvent(*event, ExecErrc::kShuttingDown);
+                }
+                else
+                {
+                    graph_->handleComponentEvent(*event);
+                }
             }
-
-            remaining_ms -= kSleepIntervalMs;
         }
 
-        return !has_state();
+        if (has_state())
+        {
+            return std::nullopt;
+        }
+        return std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::steady_clock::now() - start);
     };
+
+    clearQueuedActivations("shutdown");
+
+    bool off_fails{false};
+    auto remaining_off_transition_timeout = std::chrono::duration_cast<std::chrono::milliseconds>(
+        graph_->getOffStateTransitionTimeout() + kMaxSigKillDelay);
 
     // First, check if we're already transitioning to Off - if so, no need to cancel
     if (!graph_->isTransitioningToOff())
@@ -301,13 +356,16 @@ void ProcessGroupManager::allProcessGroupsOff()
         graph_->cancel();
 
         LM_LOG_DEBUG() << "Wait for transition cancellation";
-        if (!waitForStateCompletion(GraphState::kAborting, 2000))
+        const auto cancel_wait = waitForStateCompletion(GraphState::kAborting, remaining_off_transition_timeout);
+        if (!cancel_wait.has_value())
         {
             LM_LOG_ERROR() << "NOTE: Cancellation timed out";
         }
+        remaining_off_transition_timeout = std::max(
+            std::chrono::milliseconds{0}, remaining_off_transition_timeout - cancel_wait.value_or(kMaxSigKillDelay));
 
         LM_LOG_DEBUG() << "Start transitioning to Off Run Target";
-        (void)graph_->startTransitionToOffState();
+        off_fails = !graph_->startTransitionToOffState();
     }
     else
     {
@@ -316,9 +374,7 @@ void ProcessGroupManager::allProcessGroupsOff()
 
     LM_LOG_DEBUG() << "Wait for transition completion";
 
-    const auto overall_off_transition_timeout = graph_->getOffStateTransitionTimeout() + kMaxSigKillDelay;
-    if (!waitForStateCompletion(
-            GraphState::kInTransition, static_cast<int32_t>(overall_off_transition_timeout.count())))
+    if (off_fails || !waitForStateCompletion(GraphState::kInTransition, remaining_off_transition_timeout).has_value())
     {
         // Last resort: a process ignored even SIGKILL within its budget. Force-kill
         // whatever is left and tear down the worker pool so shutdown can still proceed.
@@ -338,8 +394,25 @@ void ProcessGroupManager::processGroupHandler(Graph& pg)
 
     if (GraphState::kSuccess == graph_state || GraphState::kUndefinedState == graph_state)
     {
-        const RunTargetActivationSource last_source = pg.getPendingTransition().source;
+        RunTargetActivationSource last_source = pg.getPendingTransition().source;
+        const bool busy = isActivationBusy();
         IdentifierHash last_state = pg.setPendingState(IdentifierHash(""));
+
+        if (!busy)
+        {
+            // The previous transition finished and nothing newer was requested: take the next queued request,
+            // skipping any that would not change the active Run Target.
+            while (const std::optional<IdentifierHash> next = pending_activation_queue_.tryPop())
+            {
+                if (next.value() != pg.getRequestedRunTarget())
+                {
+                    last_state = next.value();
+                    last_source = RunTargetActivationSource::kStateManagerRequest;
+                    pg.setRequestStartTime();
+                    break;
+                }
+            }
+        }
 
         if ((last_state != IdentifierHash("")) &&
             ((last_state != pg.getRequestedRunTarget()) || (GraphState::kUndefinedState == graph_state)))
@@ -375,16 +448,6 @@ void ProcessGroupManager::processGroupHandler(Graph& pg)
     }
 }
 
-ProcessInfoNode* ProcessGroupManager::getProcessInfoNode(uint32_t pg_index, IdentifierHash process_id)
-{
-    if (pg_index == 0U && graph_)
-    {
-        return graph_->getProcessInfoNode(process_id);
-    }
-
-    return nullptr;
-}
-
 void ProcessGroupManager::handleGetActiveRunTarget(GetActiveRunTarget* event) const noexcept
 {
     Result<IdentifierHash> result;
@@ -414,15 +477,33 @@ Result<IdentifierHash> ProcessGroupManager::getActiveRunTarget() const noexcept
     const bool push_result = event_queue_->push(GetActiveRunTarget{&slot});
     if (!push_result)
     {
+        if (!event_queue_->getOverflow())
+        {
+            return score::MakeUnexpected(ExecErrc::kShuttingDown);
+        }
         return score::MakeUnexpected(ExecErrc::kFailed);
     }
 
     return slot.wait();
 }
 
+bool ProcessGroupManager::isActivationBusy() const noexcept
+{
+    // A forced request may have set a pending Run Target that the main loop has not started yet.
+    return (graph_->getState() != GraphState::kSuccess) ||
+           (graph_->getPendingTransition().run_target != IdentifierHash(""));
+}
+
+void ProcessGroupManager::clearQueuedActivations(std::string_view reason) noexcept
+{
+    while (const std::optional<IdentifierHash> dropped = pending_activation_queue_.tryPop())
+    {
+        LM_LOG_WARN() << "Dropping queued activation of Run Target" << dropped.value() << "due to" << reason;
+    }
+}
+
 void ProcessGroupManager::handleSetRequestedRunTarget(SetRequestedRunTarget* event) noexcept
 {
-    IdentifierHash old_state = graph_->getRequestedRunTarget();
     GraphState graph_state = graph_->getState();
     Result<void> response = {};
 
@@ -431,29 +512,55 @@ void ProcessGroupManager::handleSetRequestedRunTarget(SetRequestedRunTarget* eve
         // Reject before this can reach Graph::startTransition() with no matching node (#541).
         response = score::MakeUnexpected(ExecErrc::kRunTargetDoesntExist);
     }
-    else if (GraphState::kInTransition == graph_state)
+    else if (!event->forced && isActivationBusy())
     {
-        if (old_state != event->run_target)
+        const auto push_result = pending_activation_queue_.push(event->run_target);
+        if (!push_result.has_value())
+        {
+            const auto error = push_result.error();
+            if (error == ConcurrencyErrc::kOverflow)
+            {
+                response = score::MakeUnexpected(ExecErrc::kRequestQueueIsFull);
+            }
+            else
+            {
+                response = score::MakeUnexpected(ExecErrc::kFailed);
+            }
+        }
+    }
+    else
+    {
+        const IdentifierHash old_state = graph_->getRequestedRunTarget();
+
+        if (event->forced)
+        {
+            clearQueuedActivations("forced activation");
+        }
+
+        if (GraphState::kInTransition == graph_state)
+        {
+            if (old_state != event->run_target)
+            {
+                (void)graph_->setPendingState(event->run_target);
+                // get state transition start time stamp
+                graph_->setRequestStartTime();
+                graph_->cancel();
+            }
+            else
+            {
+                response = score::MakeUnexpected(ExecErrc::kInTransitionToSameState);
+            }
+        }
+        else if (GraphState::kSuccess == graph_state && old_state == event->run_target)
+        {
+            response = score::MakeUnexpected(ExecErrc::kAlreadyInState);
+        }
+        else
         {
             (void)graph_->setPendingState(event->run_target);
             // get state transition start time stamp
             graph_->setRequestStartTime();
-            graph_->cancel();
         }
-        else
-        {
-            response = score::MakeUnexpected(ExecErrc::kInTransitionToSameState);
-        }
-    }
-    else if (GraphState::kSuccess == graph_state && old_state == event->run_target)
-    {
-        response = score::MakeUnexpected(ExecErrc::kAlreadyInState);
-    }
-    else
-    {
-        (void)graph_->setPendingState(event->run_target);
-        // get state transition start time stamp
-        graph_->setRequestStartTime();
     }
 
     if (event->completion != nullptr)
@@ -462,13 +569,17 @@ void ProcessGroupManager::handleSetRequestedRunTarget(SetRequestedRunTarget* eve
     }
 }
 
-Result<void> ProcessGroupManager::setRequestedRunTarget(IdentifierHash run_target) noexcept
+Result<void> ProcessGroupManager::setRequestedRunTarget(IdentifierHash run_target, bool force) noexcept
 {
     CompletionSlot<Result<void>> slot;
 
-    const bool push_result = event_queue_->push(SetRequestedRunTarget{run_target, &slot});
+    const bool push_result = event_queue_->push(SetRequestedRunTarget{run_target, &slot, force});
     if (!push_result)
     {
+        if (!event_queue_->getOverflow())
+        {
+            return score::MakeUnexpected(ExecErrc::kShuttingDown);
+        }
         return score::MakeUnexpected(ExecErrc::kFailed);
     }
 

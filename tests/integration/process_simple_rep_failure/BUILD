@@ -36,12 +36,12 @@ cc_binary(
 
 integration_test(
     name = "process_simple_rep_failure",
-    srcs = ["process_simple_rep_failure.py"],
+    srcs = ["test.py"],
     binaries = [
         ":control_client_test_driver",
         ":process_simple_reporting",
         "//score/launch_manager",
         "//tests/utils/test_helper:verification_process",
     ],
-    config = ":process_simple_rep_failure.json",
+    config = ":config.json",
 )

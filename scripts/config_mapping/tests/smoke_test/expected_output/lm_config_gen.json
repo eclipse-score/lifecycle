@@ -3,7 +3,6 @@
     "components": [
         {
             "name": "setup_filesystem_sh",
-            "description": "Script to mount partitions at the right directories",
             "component_properties": {
                 "binary_name": "bin/setup_filesystem.sh",
                 "application_profile": {
@@ -71,7 +70,6 @@
         },
         {
             "name": "dlt-daemon",
-            "description": "Logging application",
             "component_properties": {
                 "binary_name": "dltd",
                 "application_profile": {
@@ -142,7 +140,6 @@
         },
         {
             "name": "someip-daemon",
-            "description": "SOME/IP application",
             "component_properties": {
                 "binary_name": "someipd",
                 "application_profile": {
@@ -217,7 +214,6 @@
         },
         {
             "name": "test_app1",
-            "description": "Simple test application",
             "component_properties": {
                 "binary_name": "test_app1",
                 "application_profile": {
@@ -295,7 +291,6 @@
         },
         {
             "name": "state_manager",
-            "description": "Application that manages life cycle of the ECU",
             "component_properties": {
                 "binary_name": "sm",
                 "application_profile": {
@@ -378,7 +373,6 @@
             "recovery_action": {
                 "run_target": "fallback_run_target"
             },
-            "description": "Minimal functionality of the system",
             "depends_on": [
                 "state_manager"
             ]
@@ -389,7 +383,6 @@
             "recovery_action": {
                 "run_target": "fallback_run_target"
             },
-            "description": "Everything running",
             "depends_on": [
                 "test_app1",
                 "Startup"
@@ -398,8 +391,7 @@
     ],
     "initial_run_target": "Startup",
     "fallback_run_target": {
-        "transition_timeout_ms": 1500,
-        "description": "Switching off everything"
+        "transition_timeout_ms": 1500
     },
     "alive_supervision": {
         "evaluation_cycle_ms": 500

@@ -11,10 +11,11 @@
  * SPDX-License-Identifier: Apache-2.0
  ********************************************************************************/
 
-#include <cstdlib>
-
 #include <score/mw/lifecycle/application.h>
 #include <score/mw/lifecycle/runapplication.h>
+#include <score/stop_token.hpp>
+#include <cstdint>
+#include <cstdlib>
 
 class LifecycleApp final : public score::mw::lifecycle::Application
 {

@@ -76,8 +76,7 @@ cc_library(
     strip_include_prefix = "/score/launch_manager/src",
     visibility = ["//score/launch_manager:__subpackages__"],
     deps = [
-        ":error",
-        "//score/launch_manager/src/daemon/src/common:identifier_hash",
+        "@score_baselibs//score/result",
     ],
 )
 

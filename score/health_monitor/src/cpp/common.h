@@ -15,25 +15,26 @@
 
 #include <score/assert.hpp>
 #include <chrono>
+#include <cstdint>
 #include <optional>
 
 namespace score::mw::health
 {
 
-/// FFI internal helpers
+/// @brief FFI internal helpers
 namespace internal
 {
 
-/// Internal success representation.
+/// @brief Internal success representation.
 constexpr int kSuccess = 0;
 
-/// Internal return code.
+/// @brief Internal return code.
 using FFICode = uint8_t;
 
-/// Opaque handle type for Rust managed object
+/// @brief Opaque handle type for Rust managed object
 using FFIHandle = void*;
 
-/// Droppable wrapper that denotes that the object can be dropped by Rust side
+/// @brief Droppable wrapper that denotes that the object can be dropped by Rust side
 template <typename T>
 class RustDroppable
 {
@@ -41,14 +42,14 @@ class RustDroppable
     virtual ~RustDroppable() = default;
 
   protected:
-    /// Marks object as no longer managed by C++ side, releasing handle to be passed to Rust side for dropping
+    /// @brief Marks object as no longer managed by C++ side, releasing handle to be passed to Rust side for dropping
     std::optional<FFIHandle> DropByRust()
     {
         return static_cast<T*>(this)->DropByRustImpl();
     }
 };
 
-/// Wrapper for FFIHandle that ensures proper dropping via provided drop function
+/// @brief Wrapper for FFIHandle that ensures proper dropping via provided drop function
 class DroppableFFIHandle
 {
   public:
@@ -62,10 +63,10 @@ class DroppableFFIHandle
     DroppableFFIHandle(DroppableFFIHandle&& other) noexcept;
     DroppableFFIHandle& operator=(DroppableFFIHandle&& other) noexcept;
 
-    /// Get the underlying FFI handle if it was not dropped before
+    /// @brief Get the underlying FFI handle if it was not dropped before
     std::optional<FFIHandle> AsRustHandle() const;
 
-    /// Marks object as no longer managed by C++ side, releasing handle to be passed to Rust side for dropping
+    /// @brief Marks object as no longer managed by C++ side, releasing handle to be passed to Rust side for dropping
     std::optional<FFIHandle> DropByRust();
 
     virtual ~DroppableFFIHandle();

@@ -14,21 +14,41 @@
 #ifndef _INCLUDED_PROCESSINFONODE_
 #define _INCLUDED_PROCESSINFONODE_
 
-#include "score/launch_manager/src/daemon/src/configuration/component_config.hpp"
 #include "score/mw/launch_manager/alive_monitor/ialive_supervision_handle.hpp"
+#include "score/mw/launch_manager/common/identifier_hash.hpp"
 #include "score/mw/launch_manager/configuration/component_config.hpp"
+#include "score/mw/launch_manager/osal/ipc_comms.hpp"
+#include "score/mw/launch_manager/osal/return_types.hpp"
 #include "score/mw/launch_manager/process_group_manager/details/icomponent.hpp"
 #include "score/mw/launch_manager/process_group_manager/details/process_handling.hpp"
-#include "score/mw/launch_manager/process_group_manager/details/safe_process_map.hpp"
-#include "score/mw/launch_manager/process_group_manager/details/termination_waiter.hpp"
+#include "score/mw/launch_manager/process_group_manager/details/ready_condition/termination_waiter.hpp"
 #include "score/mw/launch_manager/process_group_manager/process_state.hpp"
+#include <score/expected.hpp>
 #include <score/stop_token.hpp>
+#include <time.h>
 #include <atomic>
 #include <chrono>
+#include <cstdint>
+#include <memory>
 #include <optional>
+#include <utility>
 
 namespace score::mw::lifecycle::internal
 {
+
+/// @brief Identifies a process in log messages in the same way, as "Name: <name> , PID: <pid>".
+struct ProcId
+{
+    const IdentifierHash& name;
+    osal::ProcessID pid;
+};
+
+template <class Stream>
+Stream& operator<<(Stream& stream, const ProcId& proc_id)
+{
+    stream << "Name:" << proc_id.name << ", PID:" << proc_id.pid;
+    return stream;
+}
 
 /// @brief Represents both a process and a component in the graph.
 /// @details A ProcessInfoNode is a node in the dependency graph that represents an OS process and its associated
@@ -50,7 +70,7 @@ class ProcessInfoNode final : public IComponent
     /// @brief Explicit move constructor required due to atomics. PIN must be moveable to exist in the graph
     ProcessInfoNode(ProcessInfoNode&& other) noexcept
         : termination_requested_(other.termination_requested_.load()),
-          pid_(other.pid_),
+          pid_(other.pid_.load()),
           exit_status_(other.exit_status_.load()),
           process_state_(other.process_state_.load()),
           reached_ready_(other.reached_ready_.load()),
@@ -173,7 +193,7 @@ class ProcessInfoNode final : public IComponent
     std::atomic_bool termination_requested_{false};
 
     /// @brief The process id reported by the operating system when the process was started
-    osal::ProcessID pid_ = 0;
+    std::atomic<osal::ProcessID> pid_{0};
 
     /// @brief The status reported by the operating system when the process terminated
     std::atomic<int32_t> exit_status_{0};

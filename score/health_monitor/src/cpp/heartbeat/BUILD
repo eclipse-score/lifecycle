@@ -22,6 +22,6 @@ cc_library(
     visibility = ["//score:__subpackages__"],
     deps = [
         "//score/health_monitor/src/cpp:common",
-        "@score_baselibs//score/result",
+        "@score_baselibs//score/language/futurecpp",
     ],
 )

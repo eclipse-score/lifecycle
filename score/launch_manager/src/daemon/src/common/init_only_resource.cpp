@@ -18,6 +18,10 @@
 namespace score::mw::lifecycle::internal
 {
 
+InitOnlyResource::InitOnlyResource(std::pmr::memory_resource* resource) noexcept : resource_(resource)
+{
+}
+
 void InitOnlyResource::lock() noexcept
 {
     locked_ = true;
@@ -30,12 +34,12 @@ void* InitOnlyResource::do_allocate(std::size_t bytes, std::size_t alignment)
         throw std::bad_alloc();
     }
 
-    return std::pmr::new_delete_resource()->allocate(bytes, alignment);
+    return resource_->allocate(bytes, alignment);
 }
 
 void InitOnlyResource::do_deallocate(void* p, std::size_t bytes, std::size_t alignment)
 {
-    std::pmr::new_delete_resource()->deallocate(p, bytes, alignment);
+    resource_->deallocate(p, bytes, alignment);
 }
 
 bool InitOnlyResource::do_is_equal(const std::pmr::memory_resource& other) const noexcept

@@ -15,8 +15,10 @@
 #define SAFE_PROCESS_MAP_HPP_INCLUDED
 
 #include "score/mw/launch_manager/common/init_only_resource.hpp"
+#include "score/mw/launch_manager/osal/return_types.hpp"
+#include "score/mw/launch_manager/process_group_manager/details/icomponent.hpp"
 #include "score/mw/launch_manager/process_group_manager/details/icomponent_controller.hpp"
-#include "score/mw/launch_manager/process_group_manager/iprocess.hpp"
+#include <stddef.h>
 #include <condition_variable>
 #include <cstdint>
 #include <functional>
@@ -24,6 +26,7 @@
 #include <mutex>
 #include <optional>
 #include <unordered_map>
+#include <utility>
 #include <variant>
 
 namespace score::mw::lifecycle::internal
@@ -45,6 +48,16 @@ enum class SafeProcessMapReturnType : std::uint_fast8_t
     kInvalidIdError,
 };
 
+/// @brief Result of inserting a component into the SafeProcessMap.
+struct SafeProcessMapInsertResult
+{
+    /// @brief Outcome of the insertion.
+    SafeProcessMapReturnType type;
+
+    /// @brief Exit status of the already terminated process. Only valid if \c type is \c kMatched.
+    int32_t exit_status{0};
+};
+
 /// @brief Interface for inserting components into SafeProcessMap.
 class SafeProcessMapInserter
 {
@@ -52,12 +65,13 @@ class SafeProcessMapInserter
     virtual ~SafeProcessMapInserter() = default;
 
     /// @brief Insert a component into the map. If it matches with an already-
-    ///        inserted exit status, remove them both and invoke the callback.
-    /// @warning The callback must not access the SafeProcessMap internally,
-    ///          as this would cause a deadlock.
+    ///        inserted exit status, remove them both and return the exit status.
+    /// @note On \c kMatched, the termination handler is not invoked: the caller is
+    ///       responsible for handling the termination of the component.
     /// @param key The key to insert under.
     /// @param component The component to insert.
-    virtual SafeProcessMapReturnType insertIfNotTerminated(osal::ProcessID key, IComponent* component) = 0;
+    /// @return The outcome of the insertion, and the exit status on \c kMatched.
+    virtual SafeProcessMapInsertResult insertIfNotTerminated(osal::ProcessID key, IComponent* component) = 0;
 };
 
 /// @brief The SafeProcessMap waits for both a component and exit status to be
@@ -75,28 +89,38 @@ class SafeProcessMap final : public SafeProcessMapInserter
     ~SafeProcessMap() = default;
 
     /// @brief Insert an exit status into the map. If it matches with an already-
-    ///        inserted component, remove them both and invoke the callback.
-    /// @warning The callback must not access the SafeProcessMap internally,
-    ///          as this would cause a deadlock.
+    ///        inserted component, remove them both and notify the termination
+    ///        handler. The handler is invoked after the map lock was released.
     /// @param key The key to insert under.
     /// @param status The exit status to insert.
     SafeProcessMapReturnType findTerminated(osal::ProcessID key, int32_t status);
 
     /// @brief Insert a component into the map. If it matches with an already-
-    ///        inserted exit status, remove them both and invoke the callback.
-    /// @warning The callback must not access the SafeProcessMap internally,
-    ///          as this would cause a deadlock.
+    ///        inserted exit status, remove them both and return the exit status.
+    /// @note On \c kMatched, the termination handler is not invoked: the caller is
+    ///       responsible for handling the termination of the component.
     /// @param key The key to insert under.
     /// @param component The component to insert.
-    SafeProcessMapReturnType insertIfNotTerminated(osal::ProcessID key, IComponent* component);
+    /// @return The outcome of the insertion, and the exit status on \c kMatched.
+    SafeProcessMapInsertResult insertIfNotTerminated(osal::ProcessID key, IComponent* component) override;
 
   private:
-    template <typename InsertType, typename MatchType, typename OnMatch>
-    SafeProcessMapReturnType tryInsert(osal::ProcessID key, InsertType value, OnMatch on_match)
+    /// @brief Outcome of tryInsert(), together with the matched value on \c kMatched.
+    template <typename MatchType>
+    struct TryInsertResult
+    {
+        SafeProcessMapReturnType type;
+        std::optional<MatchType> match;
+    };
+
+    /// @brief Insert @p value under @p key. If a value of type @p MatchType is already
+    ///        stored under @p key, remove it and return it instead.
+    template <typename InsertType, typename MatchType>
+    TryInsertResult<MatchType> tryInsert(osal::ProcessID key, InsertType value)
     {
         if (key < 0)
         {
-            return SafeProcessMapReturnType::kInvalidIdError;
+            return {SafeProcessMapReturnType::kInvalidIdError, std::nullopt};
         }
 
         std::unique_lock map_lock(map_mutex_);
@@ -109,20 +133,22 @@ class SafeProcessMap final : public SafeProcessMapInserter
             {
                 if (process_map_.size() == capacity_)
                 {
-                    return SafeProcessMapReturnType::kInsertionError;
+                    return {SafeProcessMapReturnType::kInsertionError, std::nullopt};
                 }
 
                 const bool inserted = process_map_.try_emplace(key, value).second;
 
-                return inserted ? SafeProcessMapReturnType::kInserted : SafeProcessMapReturnType::kInsertionError;
+                return {
+                    inserted ? SafeProcessMapReturnType::kInserted : SafeProcessMapReturnType::kInsertionError,
+                    std::nullopt};
             }
 
             if (const MatchType* match = std::get_if<MatchType>(&it->second))
             {
-                on_match(*match);
+                const MatchType matched_value = *match;
                 process_map_.erase(it);
                 map_cv_.notify_all();
-                return SafeProcessMapReturnType::kMatched;
+                return {SafeProcessMapReturnType::kMatched, matched_value};
             }
 
             // If there is no match, and there is already a value stored, then

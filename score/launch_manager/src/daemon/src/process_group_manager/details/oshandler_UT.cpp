@@ -119,7 +119,7 @@ TEST_F(OsHandlerTest, WaitReturnsProcessIdBeforeRegistration_LaterRegistrationRe
         "Description",
         "Covers the race where a child terminates before the process has been registered in "
         "SafeProcessMap. OsHandler sees the pid first, stores the terminated state, and a later "
-        "insertIfNotTerminated call must immediately deliver the stored exit status to the callback.");
+        "insertIfNotTerminated call must immediately return the stored exit status to the caller.");
 
     // given
     // Simulate the OS reporting that pid 4000 has already exited.
@@ -148,12 +148,13 @@ TEST_F(OsHandlerTest, WaitReturnsProcessIdBeforeRegistration_LaterRegistrationRe
 
     // then
     // Register the process after the termination has already been observed.
-    // insertIfNotTerminated must detect the previously stored termination, return kMatched, and invoke the
-    // callback immediately with the saved exit status instead of creating a new live entry.
-    EXPECT_CALL(ccontroller_, terminated(_, 99)).Times(1);
-    EXPECT_EQ(
-        process_map_.insertIfNotTerminated(4000, &component_),
-        score::mw::lifecycle::internal::SafeProcessMapReturnType::kMatched);
+    // insertIfNotTerminated must detect the previously stored termination and return kMatched with the saved exit
+    // status instead of creating a new live entry. Handling the termination is up to the caller, so the controller
+    // is not notified.
+    EXPECT_CALL(ccontroller_, terminated(_, _)).Times(0);
+    const SafeProcessMapInsertResult result = process_map_.insertIfNotTerminated(4000, &component_);
+    EXPECT_EQ(result.type, score::mw::lifecycle::internal::SafeProcessMapReturnType::kMatched);
+    EXPECT_EQ(result.exit_status, 99);
 
     sut_.reset();
 }
@@ -170,7 +171,7 @@ TEST_F(OsHandlerTest, WaitReturnsUnknownPidWhenMapIsFull_OutOfResourcesPathDoesN
     for (uint32_t i = 0; i < kCapacity; ++i)
     {
         ASSERT_EQ(
-            process_map_.insertIfNotTerminated(static_cast<int32_t>(i + 1U), &callbacks[i]),
+            process_map_.insertIfNotTerminated(static_cast<int32_t>(i + 1U), &callbacks[i]).type,
             score::mw::lifecycle::internal::SafeProcessMapReturnType::kInserted);
     }
 

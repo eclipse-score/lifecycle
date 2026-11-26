@@ -95,7 +95,7 @@ def gen_lifecycle_config(
         if i >= cppprocesses:
             binary = "supervision_demo/rust_supervised_app"
         else:
-            binary = "supervision_demo/cpp_supervised_app"
+            binary = "supervision_demo/cpp_health_monitor_supervised_app"
 
         comp_name = f"demo_app{i}"
         config["components"][comp_name] = {

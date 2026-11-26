@@ -26,18 +26,18 @@ _QNX_UNSUPPORTED_RLIMITS = {
 
 expand_template(
     name = "sandbox_options_config",
-    out = "sandbox_options.json",
+    out = "config.json",
     substitutions = select({
         "@platforms//os:qnx": _QNX_UNSUPPORTED_RLIMITS,
         "//conditions:default": {},
     }),
-    template = "//tests/integration/sandbox_options:sandbox_options.in.json",
+    template = "//tests/integration/sandbox_options:config.in.json",
 )
 
 integration_test(
     name = "sandbox_options",
     timeout = "short",
-    srcs = ["sandbox_options.py"],
+    srcs = ["test.py"],
     binaries = [
         "//tests/integration/sandbox_options:sandbox_options_process_a",
         "//tests/integration/sandbox_options:sandbox_options_process_b",
@@ -45,5 +45,10 @@ integration_test(
         "//score/launch_manager",
         "//tests/utils/test_helper:verification_process",
     ],
-    config = ":sandbox_options.json",
+    config = ":config.json",
+    # Sanitizers cannot reserve their shadow memory under the RLIMIT_AS configured for the processes.
+    target_compatible_with = [
+        "@score_cpp_policies//sanitizers/constraints:no_asan",
+        "@score_cpp_policies//sanitizers/constraints:no_tsan",
+    ],
 )

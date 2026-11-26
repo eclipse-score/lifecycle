@@ -14,16 +14,19 @@
 #ifndef ALIVE_HPP_INCLUDED
 #define ALIVE_HPP_INCLUDED
 
+#include <chrono>
 #include <cstdint>
+#include <memory>
 #include <variant>
 
 #include "score/mw/launch_manager/alive_monitor/details/common/Observer.hpp"
 #include "score/mw/launch_manager/alive_monitor/details/common/TimeSortingBuffer.hpp"
 #include "score/mw/launch_manager/alive_monitor/details/ifappl/Checkpoint.hpp"
 #include "score/mw/launch_manager/alive_monitor/details/ifexm/ObservableEvent.hpp"
+#include "score/mw/launch_manager/alive_monitor/details/ifexm/supervision_event.hpp"
 #include "score/mw/launch_manager/alive_monitor/details/supervision/ISupervision.hpp"
-#include "score/mw/launch_manager/alive_monitor/details/timers/Timers_OsClock.hpp"
-#include "score/mw/launch_manager/configuration/config.hpp"
+#include "score/mw/launch_manager/common/identifier_hash.hpp"
+#include "score/mw/launch_manager/configuration/component_config.hpp"
 #include "score/mw/launch_manager/recovery_client/irecovery_client.h"
 
 namespace score::mw::lifecycle::internal::saf::supervision
@@ -149,12 +152,23 @@ class Alive : public ISupervision,
     /// @brief Enumeration of supervision update events
     enum class EUpdateEventType : std::uint8_t
     {
-        kNoChange = 0U,      ///< update event for no change in activation/deactivation
-        kActivation = 1U,    ///< update event for activation of supervision
-        kDeactivation = 2U,  ///< update event for deactivation of supervision
-        kCheckpoint = 3U,    ///< update event for reported checkpoint
-        kEvaluation = 4U,    ///< artificial update event for evaluation of supervision (relevant for Alive only)
-        kSync = 5U           ///< artificial update event for synchronization (relevant for Alive only)
+        /// @brief update event for no change in activation/deactivation
+        kNoChange = 0U,
+
+        /// @brief update event for activation of supervision
+        kActivation = 1U,
+
+        /// @brief update event for deactivation of supervision
+        kDeactivation = 2U,
+
+        /// @brief update event for reported checkpoint
+        kCheckpoint = 3U,
+
+        /// @brief artificial update event for evaluation of supervision (relevant for Alive only)
+        kEvaluation = 4U,
+
+        /// @brief artificial update event for synchronization (relevant for Alive only)
+        kSync = 5U
     };
 
     /// @brief Get timestamp of current update event
@@ -233,18 +247,30 @@ class Alive : public ISupervision,
     /// @brief Reasons for Alive state transitions
     enum class EReason : std::uint8_t
     {
-        kDataLoss,                 ///< Checkpoint data was lost, e.g. due to full buffer
-        kFailedToleranceExceeded,  ///< More failed cycles than the configured tolerance
-        kDataCorruption,           ///< Checkpoint data was corrupted
-        kOverflow                  ///< Overflow appeared, e.g. failed cycle counter or timestamp overflowed
+        /// @brief Checkpoint data was lost, e.g. due to full buffer
+        kDataLoss,
+
+        /// @brief More failed cycles than the configured tolerance
+        kFailedToleranceExceeded,
+
+        /// @brief Checkpoint data was corrupted
+        kDataCorruption,
+
+        /// @brief Overflow appeared, e.g. failed cycle counter or timestamp overflowed
+        kOverflow
     };
 
     /// @brief Reasons for Data loss
     enum class EDataLossReason : std::uint8_t
     {
-        kNoDataLoss,   ///< No data loss appeared
-        kBufferFull,   ///< Time sorted buffer is full
-        kSharedMemory  ///< Data loss in shared memory occurred
+        /// @brief No data loss appeared
+        kNoDataLoss,
+
+        /// @brief Time sorted buffer is full
+        kBufferFull,
+
+        /// @brief Data loss in shared memory occurred
+        kSharedMemory
     };
 
     /// @brief Switch to state Expired
@@ -271,68 +297,69 @@ class Alive : public ISupervision,
     void incIndicationCount(const std::chrono::nanoseconds f_updateEventTimestamp) noexcept(true);
 
     /// @brief Set reference cycle timestamps if no overflow appears
-    /// @details Set referenceCycleStart to the provided param and referenceCycleEnd to f_baseValue +
-    /// k_aliveReferenceCycle. If overflow would appear status is set to EXPIRED.
-    /// @param [in] f_baseValue Value to set reference referenceCycleStart
+    /// @details Set reference_cycle_start_ to the provided param and reference_cycle_end_ to f_baseValue +
+    /// alive_reference_cycle_. If overflow would appear status is set to EXPIRED.
+    /// @param [in] f_baseValue Value to set reference reference_cycle_start_
     /// @return true on overflow and vice versa
     bool setReferenceCycleTimestamps(std::chrono::nanoseconds f_baseValue) noexcept(true);
 
     /// @brief Alive reference cycle in [nano seconds]
-    const std::chrono::nanoseconds k_aliveReferenceCycle;
+    const std::chrono::nanoseconds alive_reference_cycle_;
 
     /// @brief Minimum allowed alive indications
-    const uint32_t k_minAliveIndications;
+    const uint32_t min_alive_indications_;
 
     /// @brief Maximum allowed alive indications
-    const uint64_t k_maxAliveIndications;
+    const uint64_t max_alive_indications_;
 
     /// @brief Disabled status for checking minimum alive indications
-    const bool k_isMinCheckDisabled;
+    const bool is_min_check_disabled_;
 
     /// @brief Disabled status for checking maximum alive indications
-    const bool k_isMaxCheckDisabled;
+    const bool is_max_check_disabled_;
 
     /// @brief Failed supervision cycle tolerance (debouncing of alive failure)
-    const uint32_t k_failedSupervisionCyclesTolerance;
+    const uint32_t failed_supervision_cycles_tolerance_;
 
     /// @brief Recovery client invoked when supervision expires (null means recovery is disabled)
-    std::shared_ptr<score::mw::lifecycle::IRecoveryClient> recoveryClient_p;
+    std::shared_ptr<score::mw::lifecycle::IRecoveryClient> recovery_client_;
 
     /// @brief Identifier of the supervised process, sent via recovery client when supervision expires
-    const score::mw::lifecycle::IdentifierHash processIdentifier_;
+    const score::mw::lifecycle::IdentifierHash process_identifier_;
 
     /// @brief Set to true when sendRecoveryRequest fails (ring buffer full)
-    bool recoveryEnqueueFailed_{false};
+    bool recovery_enqueue_failed_{false};
 
     /// @brief Data loss reason
-    EDataLossReason dataLossReason{EDataLossReason::kNoDataLoss};
+    EDataLossReason data_loss_reason_{EDataLossReason::kNoDataLoss};
 
     /// @brief status of Alive supervision
-    EStatus aliveStatus{EStatus::kDeactivated};
+    EStatus alive_status_{EStatus::kDeactivated};
 
     /// @brief alive reference cycle start time in [nano seconds]
-    std::chrono::nanoseconds referenceCycleStart{0U};
+    std::chrono::nanoseconds reference_cycle_start_{0U};
 
     /// @brief alive reference cycle end time in [nano seconds]
-    std::chrono::nanoseconds referenceCycleEnd{std::chrono::nanoseconds::max()};
+    std::chrono::nanoseconds reference_cycle_end_{std::chrono::nanoseconds::max()};
 
     /// @brief Number of indications that belong to the current alive reference cycle
-    uint32_t indicationCount{0U};
+    uint32_t indication_count_{0U};
 
     /// @brief Number of failed alive supervision cycles
-    uint32_t failedSupervisionCycles{0U};
+    uint32_t failed_supervision_cycles_{0U};
 
     /// @brief Timestamp in which state change is detected in [nano seconds]
     /// @details This timestamp is updated whenever assessment is done or data loss has occurred.
-    std::chrono::nanoseconds eventTimestamp{0U};
+    std::chrono::nanoseconds event_timestamp_{0U};
 
     /// @brief Sync timestamp from current evaluation [nano seconds]
-    /// @details This is required for eventTimestamp in case of data loss
-    std::chrono::nanoseconds lastSyncTimestamp{0U};
+    /// @details This is required for event_timestamp_ in case of data loss
+    std::chrono::nanoseconds last_sync_timestamp_{0U};
 
     /// @brief Time sorting buffer for update events in alive supervision
     /// @details This buffer sorts all process events and checkpoint events in the same buffer.
-    score::mw::lifecycle::internal::saf::common::TimeSortingBuffer<TimeSortedUpdateEvent> timeSortingUpdateEventBuffer;
+    score::mw::lifecycle::internal::saf::common::TimeSortingBuffer<TimeSortedUpdateEvent>
+        time_sorting_update_event_buffer_;
 };
 
 }  // namespace score::mw::lifecycle::internal::saf::supervision

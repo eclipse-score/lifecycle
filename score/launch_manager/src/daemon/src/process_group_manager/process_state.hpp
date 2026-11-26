@@ -22,12 +22,23 @@ namespace score::mw::lifecycle
 /// @brief Represents the state of a modelled process.
 enum class ProcessState : std::uint8_t
 {
-    kIdle = 0,         ///< process in idle state.
-    kStarting = 1,     ///< process in starting state.
-    kRunning = 2,      ///< process in running state.
-    kTerminating = 3,  ///< process in terminating state.
-    kTerminated = 4,   ///< process in terminated state.
-    kFailed = 5        ///< process failed to start.
+    /// @brief process in idle state.
+    kIdle = 0,
+
+    /// @brief process in starting state.
+    kStarting = 1,
+
+    /// @brief process in running state.
+    kRunning = 2,
+
+    /// @brief process in terminating state.
+    kTerminating = 3,
+
+    /// @brief process in terminated state.
+    kTerminated = 4,
+
+    /// @brief process failed to start.
+    kFailed = 5
 };
 
 }  // namespace score::mw::lifecycle

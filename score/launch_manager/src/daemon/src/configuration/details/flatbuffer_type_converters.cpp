@@ -13,17 +13,20 @@
 
 #include "score/launch_manager/src/daemon/src/configuration/details/flatbuffer_type_converters.hpp"
 
-#include "score/launch_manager/src/daemon/src/configuration/details/lm_flatcfg_generated.h"
-
-#include "score/mw/launch_manager/common/log.hpp"
-
 #include <sched.h>
 #include <score/assert.hpp>
 #include <sys/resource.h>
 #include <sys/types.h>
+#include <chrono>
 #include <cstdint>
 #include <string>
+#include <utility>
 #include <vector>
+
+#include "flatbuffers/stl_emulation.h"
+#include "score/launch_manager/src/daemon/src/configuration/details/lm_flatcfg_generated.h"
+#include "score/mw/launch_manager/common/log.hpp"
+#include "score/mw/launch_manager/configuration/process_command.hpp"
 
 namespace score::mw::lifecycle::internal::configuration
 {
@@ -56,6 +59,27 @@ score::cpp::expected<TargetT, IConfigLoader::Error> requireScalarInRange(
         return score::cpp::make_unexpected(value.error());
     }
     return validateRange<TargetT>(*value, field_name);
+}
+
+/// @brief Clamps @p priority to the range the OS supports for @p policy, logging a warning if it is changed.
+/// @details Done once at load time, so all process start implementations apply the same priority.
+std::int32_t clampSchedulingPriority(const std::int32_t policy, const std::int32_t priority)
+{
+    const std::int32_t min_priority = sched_get_priority_min(policy);
+    const std::int32_t max_priority = sched_get_priority_max(policy);
+    if (priority < min_priority)
+    {
+        LM_LOG_WARN() << "Scheduling priority" << priority << "is below minimum" << min_priority << "for policy"
+                      << policy << ", setting to minimum";
+        return min_priority;
+    }
+    if (priority > max_priority)
+    {
+        LM_LOG_WARN() << "Scheduling priority" << priority << "is above maximum" << max_priority << "for policy"
+                      << policy << ", setting to maximum";
+        return max_priority;
+    }
+    return priority;
 }
 
 template <typename T>
@@ -406,12 +430,8 @@ score::cpp::expected<ComponentProperties, IConfigLoader::Error> convertComponent
     if (fb_cp != nullptr)
     {
         SCORE_LANGUAGE_FUTURECPP_ASSERT_PRD_MESSAGE(
-            fb_cp->binary_name(),
-            "ComponentProperties::binary_name must never be nullptr as it is required in the schema");
-        SCORE_LANGUAGE_FUTURECPP_ASSERT_PRD_MESSAGE(
             fb_cp->application_profile(),
             "ComponentProperties::application_profile must never be nullptr as it is required in the schema");
-        result.binary_name = fb_cp->binary_name()->str();
         auto app_profile = convertApplicationProfile(fb_cp->application_profile());
         if (!app_profile.has_value())
         {
@@ -419,7 +439,6 @@ score::cpp::expected<ComponentProperties, IConfigLoader::Error> convertComponent
         }
         result.application_profile = std::move(*app_profile);
         result.depends_on = convertStringVector(fb_cp->depends_on());
-        result.process_arguments = convertStringVector(fb_cp->process_arguments());
         if (fb_cp->ready_condition() != nullptr)
         {
             auto ready_condition = convertReadyCondition(fb_cp->ready_condition());
@@ -469,7 +488,7 @@ score::cpp::expected<Sandbox, IConfigLoader::Error> convertSandbox(const fb::San
                                  ? std::optional<std::string>{fb_sb->security_policy()->str()}
                                  : std::nullopt;
     result.scheduling_policy = *scheduling_policy;
-    result.scheduling_priority = *scheduling_priority;
+    result.scheduling_priority = clampSchedulingPriority(*scheduling_policy, *scheduling_priority);
     auto rlimits = convertRlimits(fb_sb->rlimits());
     if (!rlimits.has_value())
     {
@@ -482,7 +501,8 @@ score::cpp::expected<Sandbox, IConfigLoader::Error> convertSandbox(const fb::San
 
 score::cpp::expected<DeploymentConfig, IConfigLoader::Error> convertDeploymentConfig(
     const fb::DeploymentConfig* fb_dc,
-    std::string_view binary_name)
+    std::string_view binary_name,
+    const std::vector<std::string>& process_arguments)
 {
     DeploymentConfig result{};
     if (fb_dc != nullptr)
@@ -520,7 +540,8 @@ score::cpp::expected<DeploymentConfig, IConfigLoader::Error> convertDeploymentCo
         result.ready_timeout_ms = *ready_timeout;
         result.shutdown_timeout_ms = *shutdown_timeout;
         result.environmental_variables = convertEnvironmentalVariables(fb_dc->environmental_variables());
-        result.executable_path = fb_dc->bin_dir()->str() + "/" + std::string{binary_name};
+        result.process_command =
+            ProcessCommand{fb_dc->bin_dir()->str() + "/" + std::string{binary_name}, process_arguments};
         result.working_dir = fb_dc->working_dir()->str();
         result.activation_retry_attempts = *activation_retry_attempts;
         result.activation_retry_delay_ms = *activation_retry_delay_ms;
@@ -549,7 +570,6 @@ score::cpp::expected<ComponentConfig, IConfigLoader::Error> convertComponent(con
             fb_comp->deployment_config(),
             "Component::deployment_config must never be nullptr as it is required in the schema");
         result.name = fb_comp->name()->str();
-        result.description = safeString(fb_comp->description());
         auto component_properties = convertComponentProperties(fb_comp->component_properties());
         if (!component_properties.has_value())
         {
@@ -557,8 +577,13 @@ score::cpp::expected<ComponentConfig, IConfigLoader::Error> convertComponent(con
             return score::cpp::make_unexpected(component_properties.error());
         }
         result.component_properties = std::move(*component_properties);
-        auto deployment_config =
-            convertDeploymentConfig(fb_comp->deployment_config(), result.component_properties.binary_name);
+        SCORE_LANGUAGE_FUTURECPP_ASSERT_PRD_MESSAGE(
+            fb_comp->component_properties()->binary_name(),
+            "ComponentProperties::binary_name must never be nullptr as it is required in the schema");
+        auto deployment_config = convertDeploymentConfig(
+            fb_comp->deployment_config(),
+            fb_comp->component_properties()->binary_name()->string_view(),
+            convertStringVector(fb_comp->component_properties()->process_arguments()));
         if (!deployment_config.has_value())
         {
             LM_LOG_ERROR() << "Invalid deployment_config for Component '" << result.name << "'";
@@ -586,7 +611,6 @@ score::cpp::expected<RunTargetConfig, IConfigLoader::Error> convertRunTarget(con
             return score::cpp::make_unexpected(transition_timeout.error());
         }
         result.name = fb_rt->name()->str();
-        result.description = safeString(fb_rt->description());
         result.depends_on = convertStringVector(fb_rt->depends_on());
         result.transition_timeout_ms = *transition_timeout;
         result.recovery_action = convertRequiredSwitchRunTargetAction(fb_rt->recovery_action());
@@ -606,7 +630,6 @@ score::cpp::expected<FallbackRunTargetConfig, IConfigLoader::Error> convertFallb
         {
             return score::cpp::make_unexpected(transition_timeout.error());
         }
-        result.description = safeString(fb_frt->description());
         result.depends_on = convertStringVector(fb_frt->depends_on());
         result.transition_timeout_ms = *transition_timeout;
     }

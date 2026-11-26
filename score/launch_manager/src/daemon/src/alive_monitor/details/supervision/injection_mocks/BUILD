@@ -21,12 +21,13 @@ cc_library(
     strip_include_prefix = "/score/launch_manager/src/daemon/src/alive_monitor/details/supervision/injection_mocks",
     visibility = ["//score/launch_manager/src/daemon/src/alive_monitor:__subpackages__"],
     deps = [
+        "//score/launch_manager/src/daemon/src/alive_monitor/details/common:observer",
         "//score/launch_manager/src/daemon/src/alive_monitor/details/ifappl:checkpoint",
         "//score/launch_manager/src/daemon/src/alive_monitor/details/ifexm:observable_event",
         "//score/launch_manager/src/daemon/src/alive_monitor/details/supervision:i_supervision",
         "//score/launch_manager/src/daemon/src/configuration:config",
         "//score/launch_manager/src/daemon/src/recovery_client:irecovery_client",
+        "@googletest//:gtest",
         "@googletest//:gtest_main",
-        "@score_baselibs//score/language/futurecpp",
     ],
 )

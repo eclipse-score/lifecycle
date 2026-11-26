@@ -18,6 +18,7 @@
 #include "score/mw/launch_manager/configuration/component_config.hpp"
 #include "score/mw/launch_manager/osal/ifile_waiter.hpp"
 #include "score/mw/launch_manager/process_group_manager/details/icomponent.hpp"
+#include "score/mw/launch_manager/process_group_manager/details/safe_process_map.hpp"
 #include "score/mw/launch_manager/process_group_manager/iprocess.hpp"
 #include "score/result/result.h"
 #include <memory>
@@ -28,7 +29,9 @@ namespace score::mw::lifecycle::internal
 
 /// @brief Creates components, choosing the actions to use from each component's configuration.
 /// @details Every component is started, stopped and force stopped as a POSIX process, using
-///          ProcessStartAction, ProcessStopAction and ProcessForceStopAction.
+///          ProcessStartAction, ProcessStopAction and ProcessForceStopAction. Started processes
+///          are registered in the process map, so that their termination is reported to their
+///          component.
 ///          The ready condition is chosen from the configured ready condition:
 ///          - \c FileState: FileReadyCondition.
 ///          - \c Running for a \c Native application: EmptyReadyCondition.
@@ -45,10 +48,13 @@ class ComponentFactory final
   public:
     /// @brief Creates a new component factory.
     /// @param launcher Used by the process actions to start, stop and wait for POSIX processes.
+    /// @param process_map Used by the process start action to report process terminations to
+    ///                    their component.
     /// @param file_waiter Used by file-based ready conditions to wait for a file.
     /// @param supervision_factory Used to set up alive supervision for supervised components.
     ComponentFactory(
         osal::IProcess& launcher,
+        SafeProcessMapInserter& process_map,
         const osal::IFileWaiter& file_waiter,
         ISupervisionFactory& supervision_factory);
 
@@ -72,6 +78,9 @@ class ComponentFactory final
   private:
     /// @brief Used by the process actions to start, stop and wait for POSIX processes.
     osal::IProcess& launcher_;
+
+    /// @brief Used by the process start action to report process terminations to their component.
+    SafeProcessMapInserter& process_map_;
 
     /// @brief Used by file-based ready conditions to wait for a file.
     const osal::IFileWaiter& file_waiter_;

@@ -13,17 +13,20 @@
 #ifndef SCORE_HM_THREAD_H
 #define SCORE_HM_THREAD_H
 
-#include "score/mw/health/common.h"
+#include <stddef.h>
 #include <cstdint>
+#include <optional>
 #include <utility>
 #include <vector>
+
+#include "score/mw/health/common.h"
 
 namespace score::mw::health
 {
 
 class HealthMonitorBuilder;
 
-/// Scheduler policy.
+/// @brief Scheduler policy.
 enum class SchedulerPolicy : int32_t
 {
     Other,
@@ -31,10 +34,10 @@ enum class SchedulerPolicy : int32_t
     RoundRobin,
 };
 
-/// Get min thread priority for given policy.
+/// @brief Get min thread priority for given policy.
 int32_t SchedulerPolicyPriorityMin(SchedulerPolicy scheduler_policy);
 
-/// Get max thread priority for given policy.
+/// @brief Get max thread priority for given policy.
 int32_t SchedulerPolicyPriorityMax(SchedulerPolicy scheduler_policy);
 
 /// @deprecated Use `SchedulerPolicyPriorityMin()` instead. Removed in the release after v0.10.
@@ -54,14 +57,14 @@ inline int32_t scheduler_policy_priority_max(SchedulerPolicy scheduler_policy)
 class SchedulerParameters final
 {
   public:
-    /// Create a new `SchedulerParameters`.
-    /// Priority must be in allowed range for the scheduler policy.
+    /// @brief Create a new `SchedulerParameters`.
+    /// @details Priority must be in allowed range for the scheduler policy.
     SchedulerParameters(SchedulerPolicy policy, int32_t priority);
 
-    /// Scheduler policy.
+    /// @brief Scheduler policy.
     SchedulerPolicy Policy() const;
 
-    /// Thread priority.
+    /// @brief Thread priority.
     int32_t Priority() const;
 
     /// @deprecated Use `Policy()` instead. Removed in the release after v0.10.
@@ -83,20 +86,20 @@ class SchedulerParameters final
     int32_t priority_;
 };
 
-/// Thread parameters.
+/// @brief Thread parameters.
 class ThreadParameters final : public internal::RustDroppable<ThreadParameters>
 {
   public:
-    /// Create a new `ThreadParameters` containing default values.
+    /// @brief Create a new `ThreadParameters` containing default values.
     ThreadParameters();
 
-    /// Scheduler parameters, including scheduler policy and thread priority.
+    /// @brief Scheduler parameters, including scheduler policy and thread priority.
     ThreadParameters WithSchedulerParameters(SchedulerParameters scheduler_parameters) &&;
 
-    /// Set thread affinity - array of CPU core IDs that the thread can run on.
+    /// @brief Set thread affinity - array of CPU core IDs that the thread can run on.
     ThreadParameters Affinity(const std::vector<size_t>& affinity) &&;
 
-    /// Set stack size.
+    /// @brief Set stack size.
     ThreadParameters StackSize(size_t stack_size) &&;
 
     /// @deprecated Use `WithSchedulerParameters()` instead. Removed in the release after v0.10.

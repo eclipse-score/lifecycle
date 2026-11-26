@@ -14,10 +14,11 @@
 #ifndef SCORE_MW_LIFECYCLE_RUNAPPLICATION_H
 #define SCORE_MW_LIFECYCLE_RUNAPPLICATION_H
 
+#include <cstdint>
+#include <utility>
+
 #include "score/mw/lifecycle/applicationcontext.h"
 #include "score/mw/lifecycle/lifecyclemanager.h"
-
-#include <cstdint>
 
 namespace score
 {

@@ -13,18 +13,23 @@
 #ifndef SCORE_HM_HEALTH_MONITOR_H
 #define SCORE_HM_HEALTH_MONITOR_H
 
+#include <score/expected.hpp>
+#include <stdint.h>
+#include <chrono>
+#include <optional>
+#include <utility>
+
 #include "score/mw/health/common.h"
 #include "score/mw/health/deadline_monitor.h"
 #include "score/mw/health/heartbeat_monitor.h"
 #include "score/mw/health/logic_monitor.h"
 #include "score/mw/health/tag.h"
 #include "score/mw/health/thread.h"
-#include <utility>
 
 namespace score::mw::health
 {
 
-class HealthMonitor;
+class HealthMonitor;  // IWYU pragma: keep
 
 ///
 /// Builder for HealthMonitor instances.
@@ -32,7 +37,7 @@ class HealthMonitor;
 class HealthMonitorBuilder final
 {
   public:
-    /// Create a new `HealthMonitorBuilder`.
+    /// @brief Create a new `HealthMonitorBuilder`.
     HealthMonitorBuilder();
 
     ~HealthMonitorBuilder() = default;
@@ -42,31 +47,31 @@ class HealthMonitorBuilder final
     HealthMonitorBuilder(HealthMonitorBuilder&&) = default;
     HealthMonitorBuilder& operator=(HealthMonitorBuilder&&) = delete;
 
-    /// Adds a deadline monitor to the builder to construct DeadlineMonitor instances during HealthMonitor build.
+    /// @brief Adds a deadline monitor to the builder to construct DeadlineMonitor instances during HealthMonitor build.
     HealthMonitorBuilder AddDeadlineMonitor(
         const MonitorTag& monitor_tag,
         deadline::DeadlineMonitorBuilder&& monitor) &&;
 
-    /// Adds a heartbeat monitor for a specific identifier tag.
+    /// @brief Adds a heartbeat monitor for a specific identifier tag.
     HealthMonitorBuilder AddHeartbeatMonitor(
         const MonitorTag& monitor_tag,
         heartbeat::HeartbeatMonitorBuilder&& monitor) &&;
 
-    /// Adds a logic monitor for a specific identifier tag.
+    /// @brief Adds a logic monitor for a specific identifier tag.
     HealthMonitorBuilder AddLogicMonitor(const MonitorTag& monitor_tag, logic::LogicMonitorBuilder&& monitor) &&;
 
-    /// Sets the cycle duration for supervisor API notifications.
-    /// This duration determines how often the health monitor notifies the supervisor that the system is alive.
+    /// @brief Sets the cycle duration for supervisor API notifications.
+    /// @details This duration determines how often the health monitor notifies the supervisor that the system is alive.
     HealthMonitorBuilder WithSupervisorApiCycle(std::chrono::milliseconds cycle_duration) &&;
 
-    /// Sets the internal processing cycle duration.
-    /// This duration determines how often the health monitor checks deadlines.
+    /// @brief Sets the internal processing cycle duration.
+    /// @details This duration determines how often the health monitor checks deadlines.
     HealthMonitorBuilder WithInternalProcessingCycle(std::chrono::milliseconds cycle_duration) &&;
 
-    /// Sets the monitoring thread parameters.
+    /// @brief Sets the monitoring thread parameters.
     HealthMonitorBuilder WithThreadParameters(score::mw::health::ThreadParameters&& thread_parameters) &&;
 
-    /// Build a new `HealthMonitor` instance based on provided parameters.
+    /// @brief Build a new `HealthMonitor` instance based on provided parameters.
     score::cpp::expected<HealthMonitor, Error> Build() &&;
 
     /// @deprecated Use `AddDeadlineMonitor()` instead. Removed in the release after v0.10.

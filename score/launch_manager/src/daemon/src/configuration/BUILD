@@ -39,6 +39,24 @@ cc_library(
 )
 
 cc_library(
+    name = "process_command",
+    srcs = ["process_command.cpp"],
+    hdrs = ["process_command.hpp"],
+    include_prefix = "score/mw/launch_manager/configuration",
+    strip_include_prefix = "/score/launch_manager/src/daemon/src/configuration",
+    visibility = ["//score:__subpackages__"],
+)
+
+lm_cc_test(
+    name = "process_command_UT",
+    srcs = ["process_command_UT.cpp"],
+    deps = [
+        ":process_command",
+        "@googletest//:gtest_main",
+    ],
+)
+
+cc_library(
     name = "watchdog_config",
     hdrs = ["watchdog_config.hpp"],
     include_prefix = "score/mw/launch_manager/configuration",
@@ -62,6 +80,7 @@ cc_library(
     visibility = ["//score:__subpackages__"],
     deps = [
         ":environment_config",
+        ":process_command",
         ":recovery_action_config",
     ],
 )
@@ -75,8 +94,8 @@ cc_library(
     visibility = ["//score:__subpackages__"],
     deps = [
         ":component_config",
+        ":recovery_action_config",
         ":watchdog_config",
-        "@score_baselibs//score/language/futurecpp",
     ],
 )
 
@@ -99,7 +118,7 @@ cc_library(
     deps = [
         ":config",
         "@score_baselibs//score/filesystem",
-        "@score_baselibs//score/result",
+        "@score_baselibs//score/language/futurecpp",
     ],
 )
 
@@ -112,7 +131,13 @@ cc_library(
     hdrs = ["details/flatbuffer_type_converters.hpp"],
     visibility = ["//score:__subpackages__"],
     deps = [
+        ":component_config",
+        ":config",
         ":config_loader",
+        ":environment_config",
+        ":process_command",
+        ":recovery_action_config",
+        ":watchdog_config",
         "//score/launch_manager/src/daemon/src/common:log",
         "@score_baselibs//score/flatbuffers:flatbufferscpp",
         "@score_baselibs//score/language/futurecpp",
@@ -130,12 +155,17 @@ cc_library(
     strip_include_prefix = "/score/launch_manager/src/daemon/src/configuration",
     visibility = ["//score:__subpackages__"],
     deps = [
+        ":component_config",
+        ":config",
         ":config_loader",
         ":flatbuffer_type_converters",
+        ":watchdog_config",
         "//score/launch_manager/src/daemon/src/common:log",
+        "@score_baselibs//score/filesystem",
         "@score_baselibs//score/flatbuffers:flatbufferscpp",
         "@score_baselibs//score/flatbuffers:flatbufferutils",
         "@score_baselibs//score/language/futurecpp",
+        "@score_baselibs//score/os:errno",
     ],
 )
 

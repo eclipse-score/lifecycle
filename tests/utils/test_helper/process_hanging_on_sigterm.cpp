@@ -26,7 +26,7 @@ namespace
 /// @brief How long the process stalls while being terminated.
 /// Must be smaller than the configured shutdown_timeout_ms so the
 /// process still exits gracefully.
-constexpr unsigned int kTerminationDelaySeconds = 2U;
+constexpr unsigned int kTerminationDelaySeconds = 3U;
 
 /// @return "<PROCESSIDENTIFIER>_<suffix>", or just <suffix> if PROCESSIDENTIFIER is
 /// unset. Keeps signal files distinct when this shared binary is deployed as several
@@ -55,7 +55,7 @@ TEST(ProcessHangingOnSigterm, StallsDuringTermination)
 
     TEST_STEP("Stall during termination to keep the run-target switch in progress")
     {
-        EXPECT_EQ(kill(getppid(), SIGTERM), 0);
+        TestRunner::EndTest();
         static_cast<void>(sleep(kTerminationDelaySeconds));
     }
 }

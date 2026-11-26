@@ -14,11 +14,12 @@
 #ifndef CYCLETIMER_HPP_INCLUDED
 #define CYCLETIMER_HPP_INCLUDED
 
-#include <unistd.h>
+#include <time.h>
 #include <cerrno>
+#include <chrono>
+#include <cstdint>
 
 #include "score/mw/launch_manager/alive_monitor/details/timers/OsClockInterface.hpp"
-#include "score/mw/launch_manager/alive_monitor/details/timers/Timers_OsClock.hpp"
 
 namespace score::mw::lifecycle::internal::saf::timers
 {
@@ -85,12 +86,13 @@ class CycleTimer
         // If clockGetTime fails, we do not calculate the time (possibly) passed the deadline
         // and will not use the returned timestamp.
         // In case of such clock error, the clockNanosleep below will fail as well and the error is handled there.
-        if (0 == osInterface->clockGetTime(&now))
+        if (0 == os_interface_->clockGetTime(&now))
         {
-            if ((now.tv_sec > deadline.tv_sec) || ((now.tv_sec == deadline.tv_sec) && (now.tv_nsec > deadline.tv_nsec)))
+            if ((now.tv_sec > deadline_.tv_sec) ||
+                ((now.tv_sec == deadline_.tv_sec) && (now.tv_nsec > deadline_.tv_nsec)))
             {
-                const std::chrono::seconds secDiff{now.tv_sec - deadline.tv_sec};
-                const std::chrono::nanoseconds nsDiff{now.tv_nsec - deadline.tv_nsec};
+                const std::chrono::seconds secDiff{now.tv_sec - deadline_.tv_sec};
+                const std::chrono::nanoseconds nsDiff{now.tv_nsec - deadline_.tv_nsec};
                 // Arithmetic overflow unlikely (deadline would have to be missed by hundreds of years)
                 const std::chrono::nanoseconds nsOverDeadlineSigned{nsDiff + secDiff};
                 f_nsOverDeadline_r = nsOverDeadlineSigned;
@@ -110,7 +112,7 @@ class CycleTimer
 
         while ((EINTR == result) && (!f_exitRequested_r.load()))
         {
-            result = osInterface->clockNanosleep(NANOSLEEP_FLAGS, &deadline, NULL);
+            result = os_interface_->clockNanosleep(NANOSLEEP_FLAGS, &deadline_, NULL);
         }
         return result;
     }
@@ -133,15 +135,15 @@ class CycleTimer
     void handleNanoSecOverflow() noexcept;
 
     /// @brief Interface to perform system calls such as clock_nanosleep()
-    const score::mw::lifecycle::internal::saf::timers::OsClockInterface* osInterface;
+    const score::mw::lifecycle::internal::saf::timers::OsClockInterface* os_interface_;
 
     /// @brief Cycle time interval value in nanoseconds
-    std::chrono::nanoseconds sleepIntervalNs;
+    std::chrono::nanoseconds sleep_interval_ns_;
 
     /// @brief Contains the absolute time until when to sleep
     ///
     /// @details is updated and normalized in every cyclic step
-    struct timespec deadline;
+    struct timespec deadline_;
 };
 
 }  // namespace score::mw::lifecycle::internal::saf::timers

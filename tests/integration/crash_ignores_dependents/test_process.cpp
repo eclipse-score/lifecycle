@@ -23,6 +23,7 @@ TEST(CrashIgnoresDependents, TestProcess)
 {
     const std::string_view started_file = "test_process_started";
     const std::string_view crash_file = "process_crashed";
+    const std::string_view restarted_file = "process_started_normally";
 
     TEST_STEP("Check this is the first start")
     {
@@ -36,18 +37,19 @@ TEST(CrashIgnoresDependents, TestProcess)
         score::mw::lifecycle::report_running();
     }
 
-    // Wait for the crashing process to deploy its first file
+    // Wait for the crashing process to be restarted by the recovery action.
     {
         const auto deadline = std::chrono::steady_clock::now() + std::chrono::seconds(10);
-        while (!std::filesystem::exists(crash_file) && std::chrono::steady_clock::now() < deadline)
+        while (!std::filesystem::exists(restarted_file) && std::chrono::steady_clock::now() < deadline)
         {
             std::this_thread::sleep_for(std::chrono::milliseconds(50));
         }
     }
     // Then
-    TEST_STEP("Verify process crashed while this was running")
+    TEST_STEP("Verify process crashed and was restarted while this was running")
     {
         EXPECT_TRUE(std::filesystem::exists(crash_file)) << "Process did not actually crash";
+        EXPECT_TRUE(std::filesystem::exists(restarted_file)) << "Crashed process was not restarted";
     }
 }
 

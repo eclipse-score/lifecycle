@@ -13,12 +13,13 @@
 #ifndef SCORE_HM_DEADLINE_DEADLINE_MONITOR_H
 #define SCORE_HM_DEADLINE_DEADLINE_MONITOR_H
 
-#include "score/mw/health/common.h"
-#include "score/mw/health/tag.h"
 #include <score/expected.hpp>
 #include <functional>
 #include <optional>
 #include <utility>
+
+#include "score/mw/health/common.h"
+#include "score/mw/health/tag.h"
 
 namespace score::mw::health
 {
@@ -30,16 +31,14 @@ class HealthMonitorBuilder;
 namespace score::mw::health::deadline
 {
 
-// Forward declaration
-class DeadlineMonitor;
 class DeadlineHandle;
 class Deadline;
 
-/// DeadlineMonitorBuilder for constructing DeadlineMonitor instance
+/// @brief DeadlineMonitorBuilder for constructing DeadlineMonitor instance
 class DeadlineMonitorBuilder final : public internal::RustDroppable<DeadlineMonitorBuilder>
 {
   public:
-    /// Create a new `DeadlineMonitorBuilder`.
+    /// @brief Create a new `DeadlineMonitorBuilder`.
     DeadlineMonitorBuilder();
 
     DeadlineMonitorBuilder(const DeadlineMonitorBuilder&) = delete;
@@ -48,7 +47,7 @@ class DeadlineMonitorBuilder final : public internal::RustDroppable<DeadlineMoni
     DeadlineMonitorBuilder(DeadlineMonitorBuilder&&) = default;
     DeadlineMonitorBuilder& operator=(DeadlineMonitorBuilder&&) = delete;
 
-    /// Adds a deadline with the given tag and duration range to the monitor.
+    /// @brief Adds a deadline with the given tag and duration range to the monitor.
     DeadlineMonitorBuilder AddDeadline(const DeadlineTag& deadline_tag, const TimeRange& range) &&;
 
     /// @deprecated Use `AddDeadline()` instead. Removed in the release after v0.10.
@@ -95,7 +94,7 @@ class DeadlineMonitor final
     internal::DroppableFFIHandle monitor_handle_;
 };
 
-/// Deadline instance representing a specific deadline to be monitored.
+/// @brief Deadline instance representing a specific deadline to be monitored.
 class Deadline final
 {
   public:
@@ -107,7 +106,7 @@ class Deadline final
     Deadline(Deadline&& other) noexcept = default;
     Deadline& operator=(Deadline&& other) noexcept = delete;
 
-    /// Starts the deadline monitoring. Returns a DeadlineHandle to manage the deadline.
+    /// @brief Starts the deadline monitoring. Returns a DeadlineHandle to manage the deadline.
     //  After this call the Deadline instance cannot be used until connected DeadlineHandle is destroyed
     ::score::cpp::expected<DeadlineHandle, Error> Start();
 
@@ -127,18 +126,18 @@ class Deadline final
     bool has_handle_;
 };
 
-/// Deadline guard to manage the lifetime of a started deadline.
+/// @brief Deadline guard to manage the lifetime of a started deadline.
 class DeadlineHandle final
 {
   public:
-    /// Stops the deadline monitoring.
+    /// @brief Stops the deadline monitoring.
     void Stop();
 
     /// @deprecated Use `Stop()` instead. Removed in the release after v0.10.
     [[deprecated("Use Stop() instead. The snake_case API is removed in the release after v0.10.")]]
     void stop();
 
-    /// Destructor that ensures the deadline is stopped if not already done.
+    /// @brief Destructor that ensures the deadline is stopped if not already done.
     ~DeadlineHandle();
 
     DeadlineHandle(const DeadlineHandle&) = delete;
