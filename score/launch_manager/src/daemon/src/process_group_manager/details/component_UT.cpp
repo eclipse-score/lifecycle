@@ -2521,8 +2521,8 @@ INSTANTIATE_TEST_SUITE_P(
         ProcessTerminatedCase{"SucceedsOnExitZero", true, 0, IComponent::RequestResult::kSuccess},
         ProcessTerminatedCase{"FailsOnNonZeroExit", true, 1, IComponent::RequestResult::kFailure},
         ProcessTerminatedCase{"FailsWhenNotSelfTerminating", false, 0, IComponent::RequestResult::kFailure}),
-    [](const TestParamInfo<ProcessTerminatedCase>& info) {
-        return std::string{info.param.name};
+    [](const TestParamInfo<ProcessTerminatedCase>& param_info) {
+        return std::string{param_info.param.name};
     });
 
 TEST(ComponentTest, SelfTerminatingExitWhileStartingDoesNotBlockReactivation)

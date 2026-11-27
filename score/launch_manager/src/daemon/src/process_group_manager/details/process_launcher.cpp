@@ -382,7 +382,7 @@ void ProcessLauncher::handleChildProcess(ChildProcessConfig& param)
 
 OsalReturnType ProcessLauncher::requestTermination(ProcessID pid)
 {
-    LM_LOG_DEBUG() << "Request termination received for" << pid;
+    LM_LOG_DEBUG() << "Request termination received for pid" << pid;
 
     OsalReturnType result = OsalReturnType::kFail;
 
