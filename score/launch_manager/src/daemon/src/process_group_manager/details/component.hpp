@@ -130,6 +130,16 @@ class Component final : public IComponent
     /// @return The recovery action of the component configuration, or std::nullopt if none is configured.
     [[nodiscard]] const std::optional<configuration::RecoveryAction>& getRecoveryAction() const override;
 
+    /// @brief Restart the resource after it terminated unexpectedly.
+    /// @details The component is activated the same way as by activate(), including the activation retries.
+    ///          Only a configuration::RestartAction can be executed by the component, any other or no
+    ///          recovery action fails without starting the resource.
+    /// @note This method is invoked from a dedicated worker thread only and is allowed to do blocking wait.
+    /// @pre The component is inactive after the unexpected termination of its resource.
+    /// @param stop_token Token which can be used to interrupt the wait for the ready condition.
+    /// @return The result of activate(), or kFailure if no restart recovery action is configured.
+    RequestResult recover(cpp::stop_token stop_token) override;
+
   private:
     /// @brief How to start the resource.
     const std::unique_ptr<const IStartAction> start_action_;

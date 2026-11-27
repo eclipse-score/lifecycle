@@ -570,6 +570,19 @@ const std::optional<configuration::RecoveryAction>& Component::getRecoveryAction
     return config_->deployment_config.recovery_action;
 }
 
+IComponent::RequestResult Component::recover(cpp::stop_token stop_token)
+{
+    const std::optional<configuration::RecoveryAction>& recovery_action = config_->deployment_config.recovery_action;
+    if (!recovery_action.has_value() || !std::holds_alternative<configuration::RestartAction>(*recovery_action))
+    {
+        LM_LOG_ERROR() << ComponentId{config_->name} << "cannot be recovered, no restart recovery action is configured";
+        return RequestResult::kFailure;
+    }
+
+    LM_LOG_INFO() << ComponentId{config_->name} << "restarting after unexpected termination";
+    return activate(stop_token);
+}
+
 std::optional<std::chrono::nanoseconds> Component::activateSupervision() const
 {
     if (!supervision_handle_)
