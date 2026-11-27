@@ -14,7 +14,7 @@ load("@score_docs_as_code//:docs.bzl", "docs_bundle")
 
 alias(
     name = "health_monitoring_cc",
-    actual = "//score/health_monitor/src/cpp:health_monitoring_cc",
+    actual = "//score/health_monitor/src/cpp:health_monitor",
     visibility = ["//visibility:public"],
 )
 
