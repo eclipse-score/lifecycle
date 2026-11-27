@@ -187,8 +187,12 @@ class Component final : public IComponent
 
     /// @brief One activation attempt, without cleaning up if it fails.
     /// @param stop_token Token which can be used to interrupt the wait for the ready condition.
+    /// @param activation_start When activate() started, to log how long the activation took in total,
+    ///                         including previous attempts.
     /// @return Whether the component activation succeeded, timed out or failed.
-    [[nodiscard]] RequestResult tryActivate(cpp::stop_token stop_token);
+    [[nodiscard]] RequestResult tryActivate(
+        cpp::stop_token stop_token,
+        std::chrono::steady_clock::time_point activation_start);
 
     /// @brief First phase of the activation: start and track the resource, and change the state
     ///        from TerminatedState to StartingState.
@@ -203,8 +207,10 @@ class Component final : public IComponent
     ///        from StartingState to ReadyState, unless the activation failed.
     /// @details Locks the state. The stop token is not checked here, it only interrupts the wait.
     /// @param ready_condition_result The result of the wait for the ready condition.
+    /// @param cancelled Whether a stop was requested during the wait. Only used to tell a cancelled
+    ///                  activation apart from a failed ready condition in the log.
     /// @return Whether the component activation succeeded, timed out or failed.
-    [[nodiscard]] RequestResult completeActivation(const Result<void>& ready_condition_result);
+    [[nodiscard]] RequestResult completeActivation(const Result<void>& ready_condition_result, bool cancelled);
 
     /// @brief Stop the resource after a failed activation and wait for its termination.
     /// @details Locks the state. Does nothing if no resource was started.

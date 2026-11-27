@@ -161,7 +161,10 @@ cc_library(
     include_prefix = "score/mw/launch_manager/process_group_manager/details",
     strip_include_prefix = "/score/launch_manager/src/daemon/src/process_group_manager/details",
     visibility = ["//score:__subpackages__"],
-    deps = ["//score/launch_manager/src/daemon/src/osal:ipc_comms"],
+    deps = [
+        "//score/launch_manager/src/daemon/src/common:log",
+        "//score/launch_manager/src/daemon/src/osal:ipc_comms",
+    ],
 )
 
 lm_cc_test(

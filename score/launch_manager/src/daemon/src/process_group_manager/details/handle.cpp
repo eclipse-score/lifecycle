@@ -42,4 +42,26 @@ bool isSameResource(const Handle& lhs, const Handle& rhs)
     return (lhs_process->pid != -1) && (lhs_process->pid == rhs_process->pid);
 }
 
+std::ostream& operator<<(std::ostream& stream, const Handle& handle)
+{
+    const ProcessHandle* const process_handle = std::get_if<ProcessHandle>(&handle);
+    if ((process_handle != nullptr) && (process_handle->pid != -1))
+    {
+        stream << "pid: " << process_handle->pid;
+    }
+    return stream;
+}
+
+#ifdef LC_LOG_SCORE_MW_LOG
+score::mw::log::LogStream& operator<<(score::mw::log::LogStream& stream, const Handle& handle)
+{
+    const ProcessHandle* const process_handle = std::get_if<ProcessHandle>(&handle);
+    if ((process_handle != nullptr) && (process_handle->pid != -1))
+    {
+        stream << "pid:" << process_handle->pid;
+    }
+    return stream;
+}
+#endif  // LC_LOG_SCORE_MW_LOG
+
 }  // namespace score::mw::lifecycle::internal

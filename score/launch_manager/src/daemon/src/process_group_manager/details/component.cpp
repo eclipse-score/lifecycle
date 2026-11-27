@@ -24,7 +24,12 @@
 #include <time.h>
 #include <optional>
 #include <string>
+#include <string_view>
 #include <utility>
+
+#ifndef LC_LOG_SCORE_MW_LOG
+#include <ostream>  // Only needed by the std::cout logger variant of operator<<(ComponentId).
+#endif              // LC_LOG_SCORE_MW_LOG
 
 namespace score::mw::lifecycle::internal
 {
@@ -33,6 +38,38 @@ namespace
 {
 
 using score::mw::lifecycle::internal::configuration::ApplicationType;
+
+/// @brief Identifies a component in logs as "Component: <name>", followed by its handle if it has one.
+struct ComponentId
+{
+    std::string_view name;
+    const Handle* handle{nullptr};
+};
+
+template <class Stream>
+Stream& operator<<(Stream& stream, const ComponentId& component_id)
+{
+    stream << "Component:" << component_id.name;
+    if (component_id.handle != nullptr)
+    {
+        stream << *component_id.handle;
+    }
+    return stream;
+}
+
+#ifndef LC_LOG_SCORE_MW_LOG
+/// @brief Variant for the std::cout logger, which writes the ComponentId as a single argument: unlike the log
+///        stream, std::ostream does not separate what is written to it, so the spaces are added here.
+std::ostream& operator<<(std::ostream& stream, const ComponentId& component_id)
+{
+    stream << "Component: " << component_id.name;
+    if ((component_id.handle != nullptr) && isAlive(*component_id.handle))
+    {
+        stream << ' ' << *component_id.handle;
+    }
+    return stream;
+}
+#endif  // LC_LOG_SCORE_MW_LOG
 
 bool isSupervised(const ApplicationType& application_type) noexcept
 {
@@ -62,14 +99,14 @@ std::unique_ptr<IAliveSupervisionHandle> constructSupervision(
         config.component_properties.application_profile.alive_supervision.has_value(),
         "Supervised component did not have alive supervision config");
 
-    LM_LOG_DEBUG() << "Setting up alive supervision for" << config.name;
+    LM_LOG_DEBUG() << ComponentId{config.name} << "setting up alive supervision";
     std::unique_ptr<IAliveSupervisionHandle> handle = supervision_factory.constructSupervision(
         IdentifierHash{config.name},
         config.deployment_config.sandbox.uid,
         config.component_properties.application_profile.alive_supervision.value());
     if (!handle)
     {
-        LM_LOG_ERROR() << "Failed to set up alive supervision for" << config.name;
+        LM_LOG_ERROR() << ComponentId{config.name} << "failed to set up alive supervision";
         return nullptr;
     }
 
@@ -100,12 +137,13 @@ Component::Component(
 IComponent::RequestResult Component::activate(cpp::stop_token stop_token)
 {
     const std::uint32_t attempts = 1U + config_->deployment_config.activation_retry_attempts;
+    const std::chrono::steady_clock::time_point activation_start = std::chrono::steady_clock::now();
 
     RequestResult result{RequestResult::kFailure};
     for (std::uint32_t attempt = 1U; attempt <= attempts; ++attempt)
     {
-        LM_LOG_DEBUG() << config_->name << ": starting activation attempt" << attempt << "of" << attempts;
-        result = tryActivate(stop_token);
+        LM_LOG_DEBUG() << ComponentId{config_->name} << "starting activation attempt" << attempt << "of" << attempts;
+        result = tryActivate(stop_token, activation_start);
         if (result == RequestResult::kSuccess)
         {
             return result;
@@ -115,20 +153,31 @@ IComponent::RequestResult Component::activate(cpp::stop_token stop_token)
         // attempt could start a second instance of it.
         if (!stopAfterFailedActivation())
         {
+            LM_LOG_ERROR() << ComponentId{config_->name} << "activation attempt" << attempt << "of" << attempts
+                           << "failed and the resource could not be stopped, not retrying";
             return result;
         }
 
         if (stop_token.stop_requested())
         {
-            LM_LOG_DEBUG() << config_->name << ": activation was cancelled, not retrying";
+            LM_LOG_DEBUG() << ComponentId{config_->name} << "activation was cancelled, not retrying";
             return result;
+        }
+
+        if (attempt < attempts)
+        {
+            LM_LOG_WARN() << ComponentId{config_->name} << "activation attempt" << attempt << "of" << attempts
+                          << "failed, retrying";
         }
     }
 
+    LM_LOG_ERROR() << ComponentId{config_->name} << "activation failed after" << attempts << "attempt(s)";
     return result;
 }
 
-IComponent::RequestResult Component::tryActivate(cpp::stop_token stop_token)
+IComponent::RequestResult Component::tryActivate(
+    cpp::stop_token stop_token,
+    std::chrono::steady_clock::time_point activation_start)
 {
     const std::optional<Handle> handle = beginActivation(stop_token);
     if (!handle.has_value())
@@ -142,7 +191,15 @@ IComponent::RequestResult Component::tryActivate(cpp::stop_token stop_token)
     const Result<void> ready_condition_result = ready_condition_->wait(
         stop_token, handle.value(), std::chrono::milliseconds{config_->deployment_config.ready_timeout_ms});
 
-    return completeActivation(ready_condition_result);
+    const RequestResult result = completeActivation(ready_condition_result, stop_token.stop_requested());
+    if (result == RequestResult::kSuccess)
+    {
+        const std::chrono::milliseconds duration =
+            std::chrono::round<std::chrono::milliseconds>(std::chrono::steady_clock::now() - activation_start);
+        LM_LOG_DEBUG() << ComponentId{config_->name, &handle.value()} << "is ready, activation took" << duration.count()
+                       << "ms";
+    }
+    return result;
 }
 
 std::optional<Handle> Component::beginActivation(cpp::stop_token stop_token)
@@ -154,7 +211,7 @@ std::optional<Handle> Component::beginActivation(cpp::stop_token stop_token)
 
     if (isSupervised(config_->component_properties.application_profile.application_type) && !supervision_handle_)
     {
-        LM_LOG_ERROR() << config_->name << ": alive supervision could not set up, aborting activation";
+        LM_LOG_ERROR() << ComponentId{config_->name} << "alive supervision could not be set up, aborting activation";
         return std::nullopt;
     }
 
@@ -169,6 +226,7 @@ std::optional<Handle> Component::beginActivation(cpp::stop_token stop_token)
     const Result<StartedResource> start_result = start_action_->start(stop_token, *this);
     if (!start_result.has_value())
     {
+        LM_LOG_WARN() << ComponentId{config_->name} << "failed to start:" << start_result.error().Message();
         // Nothing is left running, see IStartAction::start().
         state_ = TerminatedState{};
         return std::nullopt;
@@ -185,7 +243,7 @@ std::optional<Handle> Component::beginActivation(cpp::stop_token stop_token)
     return started.handle;
 }
 
-IComponent::RequestResult Component::completeActivation(const Result<void>& ready_condition_result)
+IComponent::RequestResult Component::completeActivation(const Result<void>& ready_condition_result, bool cancelled)
 {
     const std::lock_guard<std::mutex> lock{state_mutex_};
 
@@ -195,7 +253,6 @@ IComponent::RequestResult Component::completeActivation(const Result<void>& read
 
     if (starting->terminated_unexpectedly_)
     {
-        LM_LOG_WARN() << config_->name << ": terminated unexpectedly during startup";
         return RequestResult::kFailure;
     }
 
@@ -203,8 +260,19 @@ IComponent::RequestResult Component::completeActivation(const Result<void>& read
     {
         if (ready_condition_result.error() == ExecErrc::kTimeout)
         {
-            LM_LOG_WARN() << config_->name << ": ready condition was not met within the ready timeout";
+            LM_LOG_WARN() << ComponentId{config_->name, &starting->handle_}
+                          << "did not meet its ready condition within the ready timeout";
             return RequestResult::kTimeout;
+        }
+        if (cancelled)
+        {
+            LM_LOG_DEBUG() << ComponentId{config_->name, &starting->handle_}
+                           << "activation was cancelled while waiting for the ready condition";
+        }
+        else
+        {
+            LM_LOG_WARN() << ComponentId{config_->name, &starting->handle_}
+                          << "failed its ready condition:" << ready_condition_result.error().Message();
         }
         return RequestResult::kFailure;
     }
@@ -270,7 +338,7 @@ bool Component::stopAndWait(std::unique_lock<std::mutex>& lock, const Handle& ha
             return true;
         }
 
-        LM_LOG_ERROR() << config_->name << ": failed to request the resource to stop";
+        LM_LOG_ERROR() << ComponentId{config_->name, &handle} << "failed to request the resource to stop";
         state_ = TerminatedState{};
         return false;
     }
@@ -280,7 +348,8 @@ bool Component::stopAndWait(std::unique_lock<std::mutex>& lock, const Handle& ha
         return true;
     }
 
-    LM_LOG_WARN() << config_->name << ": did not terminate within the shutdown timeout, stopping it forcefully";
+    LM_LOG_WARN() << ComponentId{config_->name, &handle}
+                  << "did not terminate within the shutdown timeout, stopping it forcefully";
     const Result<RequestResult> forced = force_stop_action_->forceStop(cpp::stop_token{}, handle);
 
     // Like the stop request, a forced stop also fails if the resource has terminated in the meantime,
@@ -292,11 +361,11 @@ bool Component::stopAndWait(std::unique_lock<std::mutex>& lock, const Handle& ha
 
     if (!forced.has_value() || (forced.value() != RequestResult::kSuccess))
     {
-        LM_LOG_ERROR() << config_->name << ": failed to stop the resource forcefully";
+        LM_LOG_ERROR() << ComponentId{config_->name, &handle} << "failed to stop the resource forcefully";
     }
     else
     {
-        LM_LOG_ERROR() << config_->name << ": did not terminate after being stopped forcefully";
+        LM_LOG_ERROR() << ComponentId{config_->name, &handle} << "did not terminate after being stopped forcefully";
     }
 
     state_ = TerminatedState{};
@@ -344,7 +413,8 @@ IComponent::TerminationResult Component::tryHandleTerminationInternally(const Ha
     // The component already gave up on the resource, e.g. after a failed cleanup.
     if (handle == nullptr)
     {
-        LM_LOG_DEBUG() << config_->name << ": ignoring termination of a resource which is no longer tracked";
+        LM_LOG_DEBUG() << ComponentId{config_->name, &terminated}
+                       << "ignoring termination, the resource is no longer tracked";
         return TerminationResult::kIgnore;
     }
 
@@ -352,7 +422,8 @@ IComponent::TerminationResult Component::tryHandleTerminationInternally(const Ha
     // not terminate in time after being stopped forcefully, and has been started again since then.
     if (!isSameResource(*handle, terminated))
     {
-        LM_LOG_DEBUG() << config_->name << ": ignoring termination of a previous instance of the resource";
+        LM_LOG_DEBUG() << ComponentId{config_->name, &terminated}
+                       << "ignoring termination of a previous instance of the resource";
         return TerminationResult::kIgnore;
     }
 
@@ -360,6 +431,7 @@ IComponent::TerminationResult Component::tryHandleTerminationInternally(const Ha
     // about the exit code.
     if (std::holds_alternative<TerminatingState>(state_))
     {
+        LM_LOG_DEBUG() << ComponentId{config_->name, &terminated} << "terminated after being stopped (expected)";
         state_ = TerminatedState{};
         // Notified while still locked: once stopAndWait() sees the termination, the component may be
         // destroyed, so this thread must not touch it after releasing the lock.
@@ -372,6 +444,17 @@ IComponent::TerminationResult Component::tryHandleTerminationInternally(const Ha
         (starting != nullptr) || (std::get_if<ReadyState>(&state_) != nullptr),
         "Cannot handle termination in this state");
 
+    const bool terminationExpected = isExpectedTermination(status);
+    const std::string_view phase = (starting != nullptr) ? "while starting" : "while ready";
+    if (terminationExpected)
+    {
+        LM_LOG_DEBUG() << ComponentId{config_->name, &terminated} << "terminated" << phase << "(expected)";
+    }
+    else
+    {
+        LM_LOG_WARN() << ComponentId{config_->name, &terminated} << "terminated" << phase << "(unexpected)";
+    }
+
     // Invalidate the resource to prevent acting on something which is already gone.
     invalidate(*handle);
 
@@ -380,7 +463,7 @@ IComponent::TerminationResult Component::tryHandleTerminationInternally(const Ha
         // The ready condition decides whether its wait succeeds, the component decides whether the
         // termination is expected. activate() reports the outcome, so there is only one event.
         ready_condition_->handleTermination(*handle, status);
-        starting->terminated_unexpectedly_ = !isExpectedTermination(status);
+        starting->terminated_unexpectedly_ = !terminationExpected;
         return TerminationResult::kIgnore;
     }
 
@@ -388,7 +471,7 @@ IComponent::TerminationResult Component::tryHandleTerminationInternally(const Ha
     // also on next restart. Failure must be escalated
     static_cast<void>(deactivateSupervision());
 
-    if (isExpectedTermination(status))
+    if (terminationExpected)
     {
         return TerminationResult::kIgnore;
     }
@@ -427,8 +510,15 @@ void Component::handleSupervisionFailure(std::chrono::nanoseconds failure_timest
         return;
     }
 
-    LM_LOG_WARN() << "Alive supervision failed for component" << config_->name << ", stopping it forcefully";
-    static_cast<void>(force_stop_action_->forceStop(cpp::stop_token{}, ready->handle_));
+    LM_LOG_WARN() << ComponentId{config_->name, &ready->handle_}
+                  << "alive supervision failed, stopping the resource forcefully";
+    const Result<RequestResult> forced = force_stop_action_->forceStop(cpp::stop_token{}, ready->handle_);
+    if (!forced.has_value() || (forced.value() != RequestResult::kSuccess))
+    {
+        // May also fail if the resource terminated in the meantime and its termination is not handled yet.
+        LM_LOG_WARN() << ComponentId{config_->name, &ready->handle_}
+                      << "failed to stop the resource forcefully after the supervision failure";
+    }
 }
 
 Handle* Component::currentHandle()
@@ -455,7 +545,12 @@ void Component::forceStop()
     const Handle* const handle = currentHandle();
     if ((handle != nullptr) && isAlive(*handle))
     {
-        static_cast<void>(force_stop_action_->forceStop(cpp::stop_token{}, *handle));
+        const Result<RequestResult> forced = force_stop_action_->forceStop(cpp::stop_token{}, *handle);
+        if (!forced.has_value() || (forced.value() != RequestResult::kSuccess))
+        {
+            // May also fail if the resource terminated in the meantime and its termination is not handled yet.
+            LM_LOG_WARN() << ComponentId{config_->name, handle} << "failed to stop the resource forcefully";
+        }
     }
 }
 
@@ -481,13 +576,14 @@ std::optional<std::chrono::nanoseconds> Component::activateSupervision() const
 
     if (clock_gettime(CLOCK_MONOTONIC, &timestamp) != 0)
     {
-        LM_LOG_ERROR() << config_->name << ": failed to get timestamp to activate supervision:" << errno_message(errno);
+        LM_LOG_ERROR() << ComponentId{config_->name}
+                       << "failed to get timestamp to activate supervision:" << errno_message(errno);
         return std::nullopt;
     }
 
     if (!supervision_handle_->activateSupervision(timestamp))
     {
-        LM_LOG_ERROR() << config_->name << ": failed to activate supervision";
+        LM_LOG_ERROR() << ComponentId{config_->name} << "failed to activate supervision";
         return std::nullopt;
     }
 
@@ -505,14 +601,14 @@ bool Component::deactivateSupervision() const
 
     if (clock_gettime(CLOCK_MONOTONIC, &timestamp) != 0)
     {
-        LM_LOG_ERROR() << config_->name
-                       << ": failed to get timestamp to deactivate supervision: " << errno_message(errno);
+        LM_LOG_ERROR() << ComponentId{config_->name}
+                       << "failed to get timestamp to deactivate supervision:" << errno_message(errno);
         return false;
     }
 
     if (!supervision_handle_->deactivateSupervision(timestamp))
     {
-        LM_LOG_ERROR() << config_->name << ": failed to deactivate supervision";
+        LM_LOG_ERROR() << ComponentId{config_->name} << "failed to deactivate supervision";
         return false;
     }
 

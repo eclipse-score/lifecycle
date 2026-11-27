@@ -13,6 +13,8 @@
 
 #include "score/mw/launch_manager/process_group_manager/details/handle.hpp"
 #include <gtest/gtest.h>
+#include <sstream>
+#include <string>
 
 namespace score::mw::lifecycle::internal
 {
@@ -87,6 +89,37 @@ TEST(HandleTest, InvalidatedHandleIsNeverSameResource)
     EXPECT_FALSE(isSameResource(invalidated, ProcessHandle{42, nullptr}));
     EXPECT_FALSE(isSameResource(ProcessHandle{42, nullptr}, invalidated));
     EXPECT_FALSE(isSameResource(invalidated, invalidated));
+}
+
+std::string toString(const Handle& handle)
+{
+    std::ostringstream stream;
+    stream << handle;
+    return stream.str();
+}
+
+TEST(HandleTest, ProcessHandleIsWrittenAsPid)
+{
+    RecordProperty("Description", "A ProcessHandle is written to a stream as its pid.");
+
+    EXPECT_EQ(toString(ProcessHandle{42, nullptr}), "pid: 42");
+}
+
+TEST(HandleTest, InvalidatedProcessHandleIsWrittenAsNothing)
+{
+    RecordProperty("Description", "Nothing is written for an invalidated ProcessHandle.");
+
+    Handle handle = ProcessHandle{42, nullptr};
+    invalidate(handle);
+
+    EXPECT_EQ(toString(handle), "");
+}
+
+TEST(HandleTest, EmptyHandleIsWrittenAsNothing)
+{
+    RecordProperty("Description", "Nothing is written for an EmptyHandle.");
+
+    EXPECT_EQ(toString(EmptyHandle{}), "");
 }
 
 }  // namespace
