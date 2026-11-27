@@ -316,6 +316,8 @@ score::Result<void> HealthMonitorImpl::Start() noexcept
         return connected;
     }
 
+    // Logged before the worker exists, so a blocked log backend delays only this call and nothing that is monitored.
+    GetLogger().LogInfo() << "Starting monitoring thread.";
     score::cpp::ignore = worker_.emplace(
         score::cpp::span<MonitorEvaluator* const>{evaluators_.data(), evaluators_.size()},
         supervisor_api_cycle_,

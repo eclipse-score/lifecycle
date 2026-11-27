@@ -23,6 +23,8 @@ namespace
 {
 
 /// @brief Supervisor client without a supervisor: it connects at once and only logs each alive notification.
+/// @note The log runs on the worker, so a blocked log backend delays the next evaluation.
+/// No supervisor reacts to a failure, and the failure log of the worker uses the same backend.
 class StubSupervisorClient final : public SupervisorClient
 {
   public:

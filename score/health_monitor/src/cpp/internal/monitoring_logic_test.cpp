@@ -16,11 +16,14 @@
 #include "score/health_monitor/src/cpp/internal/fake_monotonic_time.h"
 #include "score/health_monitor/src/cpp/internal/mock_supervisor_client.h"
 #include "score/health_monitor/src/cpp/internal/monitor_evaluator.h"
+#include "score/health_monitor/src/cpp/internal/test_helpers.h"
+#include "score/mw/log/recorder_mock.h"
 
 #include <gmock/gmock.h>
 #include <gtest/gtest.h>
 
 #include <chrono>
+#include <string_view>
 #include <vector>
 
 using namespace score::health_monitor;
@@ -178,6 +181,57 @@ TEST_F(MonitoringLogicTest, ErrorReturnsFalseAndWithholdsAliveNotification)
     Advance(1000ms);
 
     EXPECT_FALSE(logic.Run(hmon_start_));
+}
+
+TEST_F(MonitoringLogicTest, WithholdsAliveWhileTheFailureIsLogged)
+{
+    RecordProperty(
+        "PartiallyVerifies", "comp_req__health_monitor__failure_log, comp_req__health_monitor__alive_withhold");
+    RecordProperty("TestType", "requirements-based");
+    RecordProperty("DerivationTechnique", "error-guessing");
+    RecordProperty(
+        "Description",
+        "Check that a run with an error logs a warning and does not notify alive, also when a supervisor "
+        "cycle passes while the warning is logged.");
+
+    EXPECT_CALL(evaluators_[0], Evaluate(_)).WillOnce(Return(false));
+    EXPECT_CALL(evaluators_[1], Evaluate(_)).Times(1);
+    EXPECT_CALL(evaluators_[2], Evaluate(_)).Times(1);
+    EXPECT_CALL(client_, NotifyAlive()).Times(0);
+    auto logic = MakeLogic(30ms);
+    ::testing::NiceMock<score::mw::log::RecorderMock> recorder;
+    // The supervisor cycle passes while the warning is logged, so a notification check after the log would notify.
+    EXPECT_CALL(recorder, StartRecord(_, score::mw::log::LogLevel::kWarn))
+        .WillOnce([this](const std::string_view, const score::mw::log::LogLevel) {
+            Advance(1000ms);
+            return score::cpp::optional<score::mw::log::SlotHandle>{};
+        });
+    const ScopedLogRecorder scoped_recorder{recorder};
+
+    EXPECT_FALSE(logic.Run(hmon_start_));
+}
+
+TEST_F(MonitoringLogicTest, PassingRunDoesNotLog)
+{
+    RecordProperty(
+        "PartiallyVerifies", "comp_req__health_monitor__detect_latency, comp_req__health_monitor__alive_notify");
+    RecordProperty("TestType", "requirements-based");
+    RecordProperty("DerivationTechnique", "error-guessing");
+    RecordProperty("Description", "Check that a run without an error notifies alive and logs nothing.");
+
+    for (auto& evaluator : evaluators_)
+    {
+        EXPECT_CALL(evaluator, Evaluate(_)).Times(1);
+    }
+
+    EXPECT_CALL(client_, NotifyAlive()).Times(1);
+    auto logic = MakeLogic(30ms);
+    Advance(1000ms);
+    ::testing::NiceMock<score::mw::log::RecorderMock> recorder;
+    EXPECT_CALL(recorder, StartRecord(_, _)).Times(0);
+    const ScopedLogRecorder scoped_recorder{recorder};
+
+    EXPECT_TRUE(logic.Run(hmon_start_));
 }
 
 TEST_F(MonitoringLogicTest, NotifiesAliveOnEveryRunWithZeroSupervisorCycle)

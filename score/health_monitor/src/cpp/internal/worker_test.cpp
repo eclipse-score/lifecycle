@@ -17,8 +17,10 @@
 #include "score/health_monitor/src/cpp/internal/test_helpers.h"
 #include "score/health_monitor/supervisor_client.h"
 #include "score/health_monitor/thread_parameters.h"
+#include "score/mw/log/recorder_mock.h"
 #include "score/os/time.h"
 
+#include <gmock/gmock.h>
 #include <gtest/gtest.h>
 
 #include <atomic>
@@ -26,6 +28,7 @@
 #include <climits>
 #include <cstddef>
 #include <memory>
+#include <string_view>
 #include <thread>
 #include <vector>
 
@@ -125,6 +128,45 @@ TEST_F(WorkerTest, HealthyEvaluatorKeepsNotifyingAlive)
     EXPECT_TRUE(WaitFor([&] {
         return client_.notifications.load() >= 3;
     }));
+}
+
+TEST_F(WorkerTest, HealthyCyclesDoNotLogOnTheWorkerThread)
+{
+    RecordProperty(
+        "PartiallyVerifies", "comp_req__health_monitor__detect_latency, comp_req__health_monitor__alive_notify");
+    RecordProperty("TestType", "requirements-based");
+    RecordProperty("DerivationTechnique", "error-guessing");
+    RecordProperty(
+        "Description",
+        "Check that a worker whose monitors pass logs nothing on its thread, so a blocked log backend cannot "
+        "delay an evaluation or an alive notification.");
+
+    const std::thread::id test_thread{std::this_thread::get_id()};
+    std::atomic<int> worker_records{0};
+    ::testing::NiceMock<score::mw::log::RecorderMock> recorder;
+    ON_CALL(recorder, StartRecord(::testing::_, ::testing::_))
+        .WillByDefault([test_thread, &worker_records](const std::string_view, const score::mw::log::LogLevel) {
+            if (std::this_thread::get_id() != test_thread)
+            {
+                worker_records.fetch_add(1);
+            }
+
+            return score::cpp::optional<score::mw::log::SlotHandle>{};
+        });
+    // Installed before the worker starts and removed after it is joined, so the worker never sees the switch.
+    const ScopedLogRecorder scoped_recorder{recorder};
+    auto worker = Start(5ms, 5ms);
+
+    ASSERT_TRUE(WaitFor([&] {
+        return evaluator_.calls.load() >= 5;
+    }));
+    ASSERT_TRUE(WaitFor([&] {
+        return client_.notifications.load() >= 3;
+    }));
+    const int records_while_healthy{worker_records.load()};
+    worker.reset();
+
+    EXPECT_EQ(records_while_healthy, 0);
 }
 
 TEST_F(WorkerTest, FailingEvaluatorStopsNotificationsAndEvaluations)

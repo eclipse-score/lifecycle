@@ -16,6 +16,7 @@
 #include "score/health_monitor/error.h"
 #include "score/health_monitor/src/cpp/internal/mock_supervisor_client.h"
 #include "score/health_monitor/src/cpp/internal/test_helpers.h"
+#include "score/mw/log/recorder_mock.h"
 #include "score/os/time.h"
 
 #include <gmock/gmock.h>
@@ -24,6 +25,7 @@
 #include <atomic>
 #include <chrono>
 #include <memory>
+#include <string_view>
 #include <thread>
 #include <utility>
 
@@ -510,6 +512,54 @@ TEST_F(HealthMonitorImplTest, StartSucceedsOnceEveryMonitorIsTakenAndNotifiesAli
     EXPECT_TRUE(WaitFor([&] {
         return notifications_.load() >= 1;
     }));
+}
+
+TEST_F(HealthMonitorImplTest, StartLogsBeforeTheWorkerStarts)
+{
+    RecordProperty(
+        "PartiallyVerifies", "comp_req__health_monitor__detect_latency, comp_req__health_monitor__alive_notify");
+    RecordProperty("TestType", "requirements-based");
+    RecordProperty("DerivationTechnique", "error-guessing");
+    RecordProperty(
+        "Description",
+        "Check that Start logs the start of the worker on the calling thread before the worker exists, so a "
+        "blocked log backend delays only Start.");
+
+    Create(kHealthyMin, kHealthyMax);
+    EXPECT_CALL(*client_, Connect()).WillOnce(Invoke(&Success));
+    EXPECT_CALL(*client_, NotifyAlive()).Times(AnyNumber()).WillRepeatedly(Invoke([this] {
+        ++notifications_;
+    }));
+    auto taken = monitor_->GetHeartbeatMonitor(kHeartbeat);
+    ASSERT_TRUE(taken.has_value());
+    const std::thread::id test_thread{std::this_thread::get_id()};
+    std::atomic<bool> recorded{false};
+    std::atomic<bool> logged_on_caller{false};
+    std::atomic<int> notifications_during_log{-1};
+    ::testing::NiceMock<score::mw::log::RecorderMock> recorder;
+    ON_CALL(recorder, StartRecord(::testing::_, score::mw::log::LogLevel::kInfo))
+        .WillByDefault([this, test_thread, &recorded, &logged_on_caller, &notifications_during_log](
+                           const std::string_view, const score::mw::log::LogLevel) {
+            if (!recorded.exchange(true))
+            {
+                logged_on_caller = (std::this_thread::get_id() == test_thread);
+                // Long enough for several supervisor cycles, so a worker that already ran would notify meanwhile.
+                std::this_thread::sleep_for(std::chrono::milliseconds{100});
+                notifications_during_log = notifications_.load();
+            }
+
+            return score::cpp::optional<score::mw::log::SlotHandle>{};
+        });
+    // Installed before the worker starts and removed after it is joined, so the worker never sees the switch.
+    const ScopedLogRecorder scoped_recorder{recorder};
+    // Declared after the recorder, so the worker is joined first also when an assertion returns early.
+    const std::unique_ptr<HealthMonitorImpl> monitor{std::move(monitor_)};
+
+    ASSERT_TRUE(monitor->Start().has_value());
+
+    EXPECT_TRUE(recorded);
+    EXPECT_TRUE(logged_on_caller);
+    EXPECT_EQ(notifications_during_log, 0);
 }
 
 TEST_F(HealthMonitorImplTest, SecondStartFailsWithAlreadyStarted)

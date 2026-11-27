@@ -16,7 +16,6 @@
 #include "score/health_monitor/error.h"
 
 #include "score/health_monitor/src/cpp/internal/test_helpers.h"
-#include "score/mw/log/logging.h"
 #include "score/mw/log/recorder_mock.h"
 
 #include <gmock/gmock.h>
@@ -62,24 +61,6 @@ std::shared_ptr<Monitor> MakeMonitor(const StateTag& initial_state = kS1)
     EXPECT_TRUE(result.has_value());
     return result.has_value() ? std::move(result).value() : nullptr;
 }
-
-/// @brief Routes every log message to `recorder` until destroyed, then restores the default recorder.
-class ScopedLogRecorder final
-{
-  public:
-    explicit ScopedLogRecorder(score::mw::log::Recorder& recorder) noexcept
-    {
-        score::mw::log::SetLogRecorder(&recorder);
-    }
-    ScopedLogRecorder(const ScopedLogRecorder&) = delete;
-    ScopedLogRecorder(ScopedLogRecorder&&) = delete;
-    ScopedLogRecorder& operator=(const ScopedLogRecorder&) = delete;
-    ScopedLogRecorder& operator=(ScopedLogRecorder&&) = delete;
-    ~ScopedLogRecorder() noexcept
-    {
-        score::mw::log::SetLogRecorder(nullptr);
-    }
-};
 
 }  // namespace
 
@@ -392,6 +373,23 @@ TEST(LogicMonitorImplEvaluateTest, FailsWhileTheInvalidTransitionIsLogged)
     ExpectError(monitor->Transition(kS3), ErrorCode::kInvalidTransition);
 
     EXPECT_FALSE(healthy_during_log);
+}
+
+TEST(LogicMonitorImplEvaluateTest, PassingEvaluationDoesNotLog)
+{
+    RecordProperty("PartiallyVerifies", "comp_req__health_monitor__detect_latency");
+    RecordProperty("TestType", "requirements-based");
+    RecordProperty("DerivationTechnique", "error-guessing");
+    RecordProperty("Description", "Check that Evaluate after a valid transition logs nothing.");
+
+    const auto monitor = MakeMonitor();
+    ASSERT_NE(monitor, nullptr);
+    ASSERT_TRUE(monitor->Transition(kS2).has_value());
+    ::testing::NiceMock<score::mw::log::RecorderMock> recorder;
+    EXPECT_CALL(recorder, StartRecord(::testing::_, ::testing::_)).Times(0);
+    const ScopedLogRecorder scoped_recorder{recorder};
+
+    EXPECT_TRUE(monitor->Evaluate(kStart));
 }
 
 TEST(LogicMonitorImplEvaluateTest, FailsAfterATransitionToAnUnconfiguredState)

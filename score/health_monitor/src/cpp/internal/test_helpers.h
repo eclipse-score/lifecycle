@@ -15,6 +15,8 @@
 #define SCORE_HEALTH_MONITOR_INTERNAL_TEST_HELPERS_H
 
 #include "score/health_monitor/error.h"
+#include "score/mw/log/logging.h"
+#include "score/mw/log/recorder.h"
 #include "score/result/result.h"
 
 #include <gtest/gtest.h>
@@ -50,6 +52,24 @@ void ExpectError(const score::Result<T>& result, const ErrorCode code)
     ASSERT_FALSE(result.has_value());
     EXPECT_EQ(result.error(), MakeError(code));
 }
+
+/// @brief Routes every log message to `recorder` until destroyed, then restores the default recorder.
+class ScopedLogRecorder final
+{
+  public:
+    explicit ScopedLogRecorder(score::mw::log::Recorder& recorder) noexcept
+    {
+        score::mw::log::SetLogRecorder(&recorder);
+    }
+    ScopedLogRecorder(const ScopedLogRecorder&) = delete;
+    ScopedLogRecorder(ScopedLogRecorder&&) = delete;
+    ScopedLogRecorder& operator=(const ScopedLogRecorder&) = delete;
+    ScopedLogRecorder& operator=(ScopedLogRecorder&&) = delete;
+    ~ScopedLogRecorder() noexcept
+    {
+        score::mw::log::SetLogRecorder(nullptr);
+    }
+};
 
 }  // namespace score::health_monitor::details
 

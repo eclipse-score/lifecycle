@@ -14,6 +14,8 @@
 #include "score/health_monitor/src/cpp/heartbeat_monitor/heartbeat_monitor_impl.h"
 #include "score/health_monitor/error.h"
 #include "score/health_monitor/src/cpp/internal/fake_monotonic_time.h"
+#include "score/health_monitor/src/cpp/internal/test_helpers.h"
+#include "score/mw/log/recorder_mock.h"
 
 #include <gmock/gmock.h>
 #include <gtest/gtest.h>
@@ -22,6 +24,7 @@
 #include <chrono>
 #include <csignal>
 #include <memory>
+#include <string_view>
 #include <tuple>
 
 using namespace score::health_monitor;
@@ -315,6 +318,56 @@ TEST_F(HeartbeatMonitorImplTest, TwoHeartbeatsInRangeInOneEvaluationAreMultiple)
     BeatAt(100ms);
 
     EXPECT_FALSE(EvaluateAt(100ms));
+}
+
+TEST_F(HeartbeatMonitorImplTest, PassingEvaluationsDoNotLog)
+{
+    RecordProperty("PartiallyVerifies", "comp_req__health_monitor__detect_latency");
+    RecordProperty("TestType", "requirements-based");
+    RecordProperty("DerivationTechnique", "error-guessing");
+    RecordProperty(
+        "Description",
+        "Check that an evaluation without a heartbeat before the range maximum and one with a heartbeat "
+        "inside the range log nothing.");
+
+    ::testing::NiceMock<score::mw::log::RecorderMock> recorder;
+    EXPECT_CALL(recorder, StartRecord(_, _)).Times(0);
+    const ScopedLogRecorder scoped_recorder{recorder};
+
+    ASSERT_TRUE(EvaluateAt(50ms));
+    BeatAt(100ms);
+    EXPECT_TRUE(EvaluateAt(100ms));
+}
+
+TEST_F(HeartbeatMonitorImplTest, HeartbeatDuringAFailureLogCountsInTheNextEvaluation)
+{
+    RecordProperty("PartiallyVerifies", "comp_req__health_monitor__failure_log, comp_req__health_monitor__concurrency");
+    RecordProperty("TestType", "requirements-based");
+    RecordProperty("DerivationTechnique", "error-guessing");
+    RecordProperty(
+        "Description",
+        "Check that a heartbeat recorded while a too-early heartbeat is logged counts in the next "
+        "evaluation.");
+
+    BeatAt(79ms);
+    ::testing::NiceMock<score::mw::log::RecorderMock> recorder;
+    bool beat_during_log{false};
+    // The recorder call stands in for a log backend that blocks while the application sends its next heartbeat.
+    EXPECT_CALL(recorder, StartRecord(_, score::mw::log::LogLevel::kWarn))
+        .WillOnce([this, &beat_during_log](const std::string_view, const score::mw::log::LogLevel) {
+            monitor_->Heartbeat();
+            beat_during_log = true;
+            return score::cpp::optional<score::mw::log::SlotHandle>{};
+        });
+    {
+        const ScopedLogRecorder scoped_recorder{recorder};
+        ASSERT_FALSE(EvaluateAt(100ms));
+    }
+
+    ASSERT_TRUE(beat_during_log);
+
+    // The heartbeat at 100 ms is inside [80, 120] ms. A lost heartbeat would fail at 121 ms as missing.
+    EXPECT_TRUE(EvaluateAt(121ms));
 }
 
 TEST_F(HeartbeatMonitorImplTest, AcceptedHeartbeatStartsNextCycle)

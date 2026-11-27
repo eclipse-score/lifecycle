@@ -63,7 +63,6 @@ Worker::Worker(
 void Worker::Run(const score::cpp::stop_token& stop_token) noexcept
 {
     ApplyThreadParameters(thread_parameters_);
-    GetLogger().LogInfo() << "Monitoring thread started.";
 
     const std::chrono::steady_clock::time_point hmon_start{ReadMonotonicTime(time_)};
     std::chrono::steady_clock::time_point cycle_start{hmon_start};

@@ -16,7 +16,6 @@
 #include "score/health_monitor/error.h"
 #include "score/health_monitor/src/cpp/internal/fake_monotonic_time.h"
 #include "score/health_monitor/src/cpp/internal/test_helpers.h"
-#include "score/mw/log/logging.h"
 #include "score/mw/log/recorder_mock.h"
 
 #include <gmock/gmock.h>
@@ -55,24 +54,6 @@ const TimePoint kCreation{100s};
 constexpr std::int64_t kLargest32BitMs{std::numeric_limits<std::uint32_t>::max()};
 // Start of the deadline "a" whose expected end is the largest timestamp.
 constexpr std::chrono::milliseconds kLastStart{kLargest32BitMs - 120};
-
-/// @brief Routes every log message to `recorder` until destroyed, then restores the default recorder.
-class ScopedLogRecorder final
-{
-  public:
-    explicit ScopedLogRecorder(score::mw::log::Recorder& recorder) noexcept
-    {
-        score::mw::log::SetLogRecorder(&recorder);
-    }
-    ScopedLogRecorder(const ScopedLogRecorder&) = delete;
-    ScopedLogRecorder(ScopedLogRecorder&&) = delete;
-    ScopedLogRecorder& operator=(const ScopedLogRecorder&) = delete;
-    ScopedLogRecorder& operator=(ScopedLogRecorder&&) = delete;
-    ~ScopedLogRecorder() noexcept
-    {
-        score::mw::log::SetLogRecorder(nullptr);
-    }
-};
 
 /// @brief Monitor "deadlines" created at `kCreation`, whose clock is `now_`.
 /// Every time in the tests is an offset from `kCreation`.
@@ -956,6 +937,30 @@ TEST_F(DeadlineMonitorImplTest, EvaluateFailsWhileTheTooEarlyErrorIsLogged)
 
     EXPECT_TRUE(inside_log);
     EXPECT_FALSE(healthy_during_log);
+}
+
+TEST_F(DeadlineMonitorImplTest, PassingEvaluationsDoNotLog)
+{
+    RecordProperty("PartiallyVerifies", "comp_req__health_monitor__detect_latency");
+    RecordProperty("TestType", "requirements-based");
+    RecordProperty("DerivationTechnique", "error-guessing");
+    RecordProperty(
+        "Description",
+        "Check that evaluating a deadline before its start, while it runs inside its range and after a stop "
+        "inside its range logs nothing.");
+
+    CreateMonitor(Single());
+    Deadline* const deadline{Take(kA)};
+    ASSERT_NE(deadline, nullptr);
+    ::testing::NiceMock<score::mw::log::RecorderMock> recorder;
+    EXPECT_CALL(recorder, StartRecord(::testing::_, ::testing::_)).Times(0);
+    const ScopedLogRecorder scoped_recorder{recorder};
+
+    ASSERT_TRUE(EvaluateAt(5ms));
+    auto handle = StartAt(*deadline, 10ms);
+    ASSERT_TRUE(EvaluateAt(100ms));
+    StopAt(handle, 100ms);
+    EXPECT_TRUE(EvaluateAt(150ms));
 }
 
 TEST_F(DeadlineMonitorImplTest, StartAndStopInsideTheRangeNeverFailAConcurrentEvaluate)

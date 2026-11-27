@@ -32,6 +32,8 @@ namespace score::health_monitor::details
 /// @brief Thread that runs the monitoring logic once per internal processing cycle until a monitor fails.
 /// @note The thread first applies its thread parameters, then waits one cycle before the first evaluation.
 /// @note A cycle that takes longer than the internal processing cycle delays the next one, but does not skip it.
+/// @note The thread logs only before it terminates the process, after a failure or a stop request, and when the
+/// client logs in `NotifyAlive()`, so a blocked log backend delays no cycle in which every monitor passes.
 class Worker final
 {
   public:

@@ -49,6 +49,8 @@ class MonitoringLogic final
     /// @brief Evaluates every monitor, then notifies alive if no monitor failed and a supervisor cycle passed.
     /// @return `false` if a monitor failed. The worker then stops, so no later notification follows.
     /// @note A notification needs strictly more than one supervisor cycle since the last one.
+    /// @note A failing monitor logs during its evaluation, and the run logs once more after the last one.
+    /// A run in which every monitor passes logs nothing itself.
     bool Run(const std::chrono::steady_clock::time_point hmon_start) noexcept;
 
   private:
