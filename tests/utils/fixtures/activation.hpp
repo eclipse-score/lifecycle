@@ -57,6 +57,11 @@ class ActivationFixture : public ControlClientFixture
     {
         ASSERT_TRUE(touch_file(gatedReleasePath("gated")));
     }
+
+    void WaitForGatedProcessExit(std::string_view process_name)
+    {
+        ASSERT_TRUE(wait_for_file(gatedExitingPath(process_name)));
+    }
 };
 
 #endif  // TESTS_UTILS_FIXTURES_ACTIVATION_FIXTURE_HPP

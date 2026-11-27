@@ -13,6 +13,7 @@
 #include <gtest/gtest.h>
 #include <unistd.h>
 
+#include "tests/utils/fixtures/activation.hpp"
 #include "tests/utils/test_helper/gated_process.hpp"
 #include "tests/utils/test_helper/test_helper.hpp"
 #include "tests/utils/test_helper/test_runner.hpp"
@@ -21,9 +22,13 @@
 
 using namespace score::mw::lifecycle;
 
-TEST(RunTargetRequests, ReplacedActivation)
+class ReplacedActivationFixture : public ActivationFixture
 {
-    ASSERT_TRUE(check_clean({gatedStartedPath("gated"), gatedReleasePath("gated")}));
+};
+
+TEST_F(ReplacedActivationFixture, ReplacedActivation)
+{
+    ASSERT_TRUE(check_clean({gatedStartedPath("gated"), gatedReleasePath("gated"), gatedExitingPath("gated")}));
     std::unique_ptr<ILmControl> client;
 
     TEST_STEP("Create client")
@@ -75,6 +80,11 @@ TEST(RunTargetRequests, ReplacedActivation)
     {
         // The replaced activation must settle before Startup is activated.
         ASSERT_TRUE(touch_file(gatedReleasePath("gated")));
+    }
+
+    TEST_STEP("Wait for gated process to terminate")
+    {
+        WaitForGatedProcessExit("gated");
     }
 
     pop_event([](RunTargetActivationSource source, RunTargetName target) {

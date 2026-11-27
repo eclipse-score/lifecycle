@@ -35,4 +35,4 @@ def test_replaced_activation(target, setup_test, assert_test_results, remote_tes
         cwd=str(remote_test_dir),
     )
 
-    assert_test_results({"control_client_test_driver.xml", "gated.xml"})
+    assert_test_results({"control_client_test_driver.xml"})

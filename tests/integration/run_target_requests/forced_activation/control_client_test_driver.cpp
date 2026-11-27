@@ -25,7 +25,7 @@ TEST_F(
     ActivationFixture,
     GivenAClientConnection_WhenForcedActivationIsRequested_ThenOngoingTransitionAbortedAndQueueIsCleared)
 {
-    ASSERT_TRUE(check_clean({gatedStartedPath("gated"), gatedReleasePath("gated")}));
+    ASSERT_TRUE(check_clean({gatedStartedPath("gated"), gatedReleasePath("gated"), gatedExitingPath("gated")}));
 
     std::unique_ptr<ILmControl> client;
 
@@ -65,6 +65,11 @@ TEST_F(
     TEST_STEP("Unblock run target activation")
     {
         UnblockRunTargetActivation();
+    }
+
+    TEST_STEP("Wait for gated process to terminate")
+    {
+        WaitForGatedProcessExit("gated");
     }
 
     TEST_STEP("Callback for Run Target Startup")

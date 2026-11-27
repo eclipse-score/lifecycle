@@ -13,6 +13,7 @@
 #include <gtest/gtest.h>
 #include <unistd.h>
 
+#include "tests/utils/fixtures/activation.hpp"
 #include "tests/utils/test_helper/gated_process.hpp"
 #include "tests/utils/test_helper/test_helper.hpp"
 #include "tests/utils/test_helper/test_runner.hpp"
@@ -21,9 +22,13 @@
 
 using namespace score::mw::lifecycle;
 
-TEST(RunTargetRequests, SameRunTargetInTransition)
+class SameRunTargetInTransitionFixture : public ActivationFixture
 {
-    ASSERT_TRUE(check_clean({gatedStartedPath("gated"), gatedReleasePath("gated")}));
+};
+
+TEST_F(SameRunTargetInTransitionFixture, SameRunTargetInTransition)
+{
+    ASSERT_TRUE(check_clean({gatedStartedPath("gated"), gatedReleasePath("gated"), gatedExitingPath("gated")}));
     std::unique_ptr<ILmControl> client;
 
     TEST_STEP("Create client")
