@@ -1200,19 +1200,6 @@ Logging
     Actions <Recovery Action>`.
 
 
-.. comp_req:: Logging Watchdog interaction
-    :id: comp_req__launch_man__watchdog_log
-    :reqtype: Functional
-    :security: NO
-    :safety: ASIL_B
-    :derived_from: feat_req__lifecycle__logging_support[version==1]
-    :status: valid
-    :version: 1
-    :satisfied_by: comp__lifecycle_launch_manager
-
-    The :term:`Launch Manager` shall log servicing an external
-    :term:`Watchdog`.
-
 .. comp_req:: Logging DAG
     :id: comp_req__launch_man__dag_logging_controlif
     :reqtype: Functional
