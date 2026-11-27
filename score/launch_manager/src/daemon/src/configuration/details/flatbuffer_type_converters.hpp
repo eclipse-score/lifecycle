@@ -17,6 +17,7 @@
 #include <sys/types.h>
 #include <cstdint>
 #include <limits>
+#include <map>
 #include <optional>
 #include <string>
 #include <string_view>
@@ -119,18 +120,34 @@ score::cpp::expected<TargetT, IConfigLoader::Error> validateRange(int64_t value,
 /// @brief Converts a FlatBuffer ComponentProperties to the config equivalent.
 [[nodiscard]] score::cpp::expected<ComponentProperties, IConfigLoader::Error> convertComponentProperties(
     const fb::ComponentProperties* fb_cp);
+/// @brief Range of the scheduling priorities that the OS supports for a scheduling policy.
+struct SchedulingPriorityRange
+{
+    std::int32_t min;
+    std::int32_t max;
+};
+/// @brief Scheduling priority ranges by scheduling policy. Filled while the configuration is loaded, so that the OS is
+///        asked only once for the range of each scheduling policy.
+using SchedulingPriorityRanges = std::map<std::int32_t, SchedulingPriorityRange>;
 /// @brief Converts a FlatBuffer Sandbox to the config equivalent with range validation.
-[[nodiscard]] score::cpp::expected<Sandbox, IConfigLoader::Error> convertSandbox(const fb::Sandbox* fb_sb);
+/// @param priority_ranges Scheduling priority ranges known so far, extended by the scheduling policy of the sandbox.
+[[nodiscard]] score::cpp::expected<Sandbox, IConfigLoader::Error> convertSandbox(
+    const fb::Sandbox* fb_sb,
+    SchedulingPriorityRanges& priority_ranges);
 /// @brief Converts a FlatBuffer DeploymentConfig to the config equivalent.
 /// @param binary_name Executable name relative to the configured bin_dir.
 /// @param process_arguments Arguments passed to the executable, excluding the executable path.
+/// @param priority_ranges Scheduling priority ranges known so far, see convertSandbox().
 [[nodiscard]] score::cpp::expected<DeploymentConfig, IConfigLoader::Error> convertDeploymentConfig(
     const fb::DeploymentConfig* fb_dc,
     std::string_view binary_name,
-    const std::vector<std::string>& process_arguments);
+    const std::vector<std::string>& process_arguments,
+    SchedulingPriorityRanges& priority_ranges);
 /// @brief Converts a single FlatBuffer Component to a ComponentConfig.
+/// @param priority_ranges Scheduling priority ranges known so far, see convertSandbox().
 [[nodiscard]] score::cpp::expected<ComponentConfig, IConfigLoader::Error> convertComponent(
-    const fb::Component* fb_comp);
+    const fb::Component* fb_comp,
+    SchedulingPriorityRanges& priority_ranges);
 /// @brief Converts a FlatBuffer vector of Components to a vector of ComponentConfig.
 [[nodiscard]] score::cpp::expected<std::vector<ComponentConfig>, IConfigLoader::Error> convertComponents(
     const ::flatbuffers::Vector<::flatbuffers::Offset<fb::Component>>* fb_components);
