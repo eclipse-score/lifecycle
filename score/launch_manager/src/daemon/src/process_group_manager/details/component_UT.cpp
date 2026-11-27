@@ -2796,5 +2796,94 @@ TEST(ComponentTest, RecoveryActionIsEmptyIfNotConfigured)
     EXPECT_FALSE(component.getRecoveryAction().has_value());
 }
 
+/// @brief Configuration with a restart recovery action which retries a failed activation once.
+std::shared_ptr<configuration::ComponentConfig> configWithRestartAction()
+{
+    auto config = configWithRetries(1U);
+    config->deployment_config.recovery_action = configuration::RestartAction{};
+    return config;
+}
+
+TEST(ComponentTest, RecoverRestartsComponentWithActivationRetries)
+{
+    RecordProperty(
+        "Description",
+        "Given an active component with a restart recovery action and activation retries whose process terminated "
+        "unexpectedly. "
+        "When it is recovered and the first restart attempt fails. "
+        "Then the attempt is retried like during an activation, recovery succeeds and the component is active.");
+
+    NiceMock<MockSupervisionFactory> factory;
+
+    auto start_action = std::make_unique<MockStartAction>();
+    EXPECT_CALL(*start_action, start(_, _))
+        .WillOnce(kStartsProcess)
+        .WillOnce(kRestartsProcess)
+        .WillOnce(kRestartsProcess);
+
+    auto stop_action = std::make_unique<MockStopAction>();
+    auto* const stop_action_ptr = stop_action.get();
+
+    auto ready_condition = std::make_unique<NiceMock<MockReadyCondition>>();
+    EXPECT_CALL(*ready_condition, wait(_, _, _))
+        .WillOnce(Return(Result<void>{}))
+        .WillOnce(Return(Result<void>{MakeUnexpected(ExecErrc::kGeneralError)}))
+        .WillOnce(Return(Result<void>{}));
+
+    Component component(
+        std::move(start_action),
+        std::move(stop_action),
+        std::make_unique<StrictMock<MockForceStopAction>>(),
+        std::move(ready_condition),
+        factory,
+        configWithRestartAction());
+
+    cpp::jthread termination_thread;
+    EXPECT_CALL(*stop_action_ptr, stop(_, _)).WillOnce(Invoke(reportTerminationLater(component, termination_thread)));
+
+    ASSERT_EQ(component.activate(cpp::stop_token{}), IComponent::RequestResult::kSuccess);
+    ASSERT_EQ(terminateFromOtherThread(component, 1), IComponent::TerminationResult::kFailure);
+    ASSERT_FALSE(component.active());
+
+    EXPECT_EQ(component.recover(cpp::stop_token{}), IComponent::RequestResult::kSuccess);
+    EXPECT_TRUE(component.active());
+}
+
+/// @brief Recovery actions with which the component cannot recover itself.
+class ComponentRecoverWithoutRestartActionTest : public TestWithParam<std::optional<configuration::RecoveryAction>>
+{
+};
+
+TEST_P(ComponentRecoverWithoutRestartActionTest, RecoverFailsWithoutStarting)
+{
+    RecordProperty(
+        "Description",
+        "Given a component with a switch Run Target recovery action or without any recovery action. "
+        "When it is recovered. "
+        "Then recovery fails, the process is not started and the component stays inactive.");
+
+    NiceMock<MockSupervisionFactory> factory;
+    auto config = configWithShutdownTimeout(kNeverExpires);
+    config->deployment_config.recovery_action = GetParam();
+
+    Component component(
+        std::make_unique<StrictMock<MockStartAction>>(),
+        std::make_unique<StrictMock<MockStopAction>>(),
+        std::make_unique<StrictMock<MockForceStopAction>>(),
+        std::make_unique<StrictMock<MockReadyCondition>>(),
+        factory,
+        std::move(config));
+
+    EXPECT_EQ(component.recover(cpp::stop_token{}), IComponent::RequestResult::kFailure);
+    EXPECT_FALSE(component.active());
+}
+
+INSTANTIATE_TEST_SUITE_P(
+    RecoveryActions,
+    ComponentRecoverWithoutRestartActionTest,
+    Values(
+        std::optional<configuration::RecoveryAction>{},
+        std::optional<configuration::RecoveryAction>{configuration::SwitchRunTargetAction{"fallback"}}));
+
 }  // namespace
 }  // namespace score::mw::lifecycle::internal

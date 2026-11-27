@@ -124,3 +124,55 @@ TEST_F(ProcessMonitorTest, FailedDeactivationIsReportedAsComplete)
     // When
     process_monitor_.doWork(ComponentTask{ComponentTaskType::kDeactivate, mock_component_, stop_source_.get_token()});
 }
+
+TEST_F(ProcessMonitorTest, DoWorkSuccessfulRecovery)
+{
+    RecordProperty(
+        "Description", "Verify that a successful recover task pushes ComponentRecoverySuccessful to the event queue");
+
+    EXPECT_CALL(mock_component_, recover).WillOnce(Return(IComponent::RequestResult::kSuccess));
+    EXPECT_CALL(
+        mock_queue_,
+        push(
+            VariantWith<ComponentRecoverySuccessful>(
+                Field(&ComponentRecoverySuccessful::node_identifier, kDefaultIdentifier))))
+        .Times(1);
+
+    process_monitor_.doWork(ComponentTask{ComponentTaskType::kRecover, mock_component_, stop_source_.get_token()});
+}
+
+TEST_F(ProcessMonitorTest, DoWorkFailedRecovery)
+{
+    RecordProperty(
+        "Description",
+        "Verify that a failed recover task pushes ComponentRecoveryFailed with the failure reason to the event queue");
+
+    auto errc = IComponent::RequestResult::kTimeout;
+    EXPECT_CALL(mock_component_, recover).WillOnce(Return(errc));
+    EXPECT_CALL(
+        mock_queue_,
+        push(
+            VariantWith<ComponentRecoveryFailed>(AllOf(
+                Field(&ComponentRecoveryFailed::node_identifier, kDefaultIdentifier),
+                Field(&ComponentRecoveryFailed::reason, errc)))))
+        .Times(1);
+
+    process_monitor_.doWork(ComponentTask{ComponentTaskType::kRecover, mock_component_, stop_source_.get_token()});
+}
+
+TEST_F(ProcessMonitorTest, DoWorkRecoveryCancelledWhileRunning)
+{
+    RecordProperty(
+        "Description",
+        "Verify that a recover task that fails after its stop token was stopped pushes JobSkipped instead of "
+        "ComponentRecoveryFailed");
+
+    EXPECT_CALL(mock_component_, recover).WillOnce(InvokeWithoutArgs([this]() {
+        stop_source_.request_stop();
+        return IComponent::RequestResult::kFailure;
+    }));
+    EXPECT_CALL(mock_queue_, push(VariantWith<JobSkipped>(Field(&JobSkipped::node_identifier, kDefaultIdentifier))))
+        .Times(1);
+
+    process_monitor_.doWork(ComponentTask{ComponentTaskType::kRecover, mock_component_, stop_source_.get_token()});
+}
