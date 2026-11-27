@@ -58,8 +58,9 @@ namespace score::mw::lifecycle::internal
 namespace
 {
 
-/// @brief States in which the graph has jobs that can be stopped through its stop source.
-bool isActiveState(const GraphState state)
+/// @brief States in which the graph dispatches jobs to the worker pool. All jobs share the graph's stop source,
+///        so that the jobs still in flight can be stopped when the graph leaves the state.
+bool dispatchesJobs(const GraphState state)
 {
     return state == GraphState::kInTransition || state == GraphState::kComponentRecovery;
 }
@@ -187,27 +188,32 @@ bool Graph::setState(const GraphState new_state)
 
     // kInTransition and kComponentRecovery are never entered directly from each other, so one stop source
     // is enough for both.
-    const bool becomes_active = !isActiveState(old_state) && isActiveState(target_state);
-    const bool leaves_active = isActiveState(old_state) && target_state != old_state;
+    // Entering a dispatching state: the jobs about to be dispatched get a fresh stop source.
+    const bool starts_dispatching_jobs = !dispatchesJobs(old_state) && dispatchesJobs(target_state);
+    // Leaving a dispatching state, e.g. towards kAborting or kSuccess: stop the jobs still in flight.
+    const bool stops_dispatching_jobs = dispatchesJobs(old_state) && target_state != old_state;
 
-    if (becomes_active)
+    if (starts_dispatching_jobs)
     {
         stop_source_ = score::cpp::stop_source{};
     }
-    else if (leaves_active)
+    else if (stops_dispatching_jobs)
     {
-        // we should stop any continuing jobs
         static_cast<void>(stop_source_.request_stop());
     }
 
-    if (target_state == GraphState::kSuccess && old_state == GraphState::kInTransition)
+    const bool transition_successful = target_state == GraphState::kSuccess && old_state == GraphState::kInTransition;
+    const bool recovery_successful =
+        target_state == GraphState::kSuccess && old_state == GraphState::kComponentRecovery;
+
+    if (transition_successful)
     {
         auto request_end_time = std::chrono::steady_clock::now();
         auto timeDiff = std::chrono::duration_cast<std::chrono::milliseconds>(request_end_time - getRequestStartTime());
         LM_LOG_INFO() << "Completed the request for Run Target" << getRequestedRunTarget() << "in" << timeDiff.count()
                       << "ms";
     }
-    else if (target_state == GraphState::kSuccess && old_state == GraphState::kComponentRecovery)
+    else if (recovery_successful)
     {
         LM_LOG_INFO() << "Component recovery complete, Run Target" << getRequestedRunTarget() << "is active";
     }
@@ -286,7 +292,7 @@ void Graph::finalizeTransitionSuccess()
 
 void Graph::tryQueueNode(ComponentTask task)
 {
-    while (isActiveState(getState()))
+    while (dispatchesJobs(getState()))
     {
         auto push_res = job_queue_->push(task, kMaxQueueDelay);
         if (push_res)
@@ -424,6 +430,8 @@ void Graph::handleComponentEvent(const ComponentEvent& event)
                 if (!recovery_action.has_value())
                 {
                     // No recovery action configured: escalate.
+                    LM_LOG_WARN() << "Component" << failingComponent.getIdentifier()
+                                  << "terminated unexpectedly with no configured recovery action, aborting";
                     cancel();
                 }
                 else if (configuration::getScope(*recovery_action) == configuration::RecoveryActionScope::kLocal)
@@ -431,12 +439,17 @@ void Graph::handleComponentEvent(const ComponentEvent& event)
                     // The component recovers itself. This is only possible while the active Run Target is stable,
                     // a failure during a transition aborts the transition instead.
                     const GraphState state = getState();
-                    if (state == GraphState::kSuccess || state == GraphState::kComponentRecovery)
+                    const bool in_recoverable_state =
+                        state == GraphState::kSuccess || state == GraphState::kComponentRecovery;
+                    if (in_recoverable_state)
                     {
                         startComponentRecovery(failingComponent);
                     }
                     else
                     {
+                        LM_LOG_WARN() << "Component" << failingComponent.getIdentifier()
+                                      << "terminated unexpectedly during" << toString(state)
+                                      << "its recovery action is not executed, aborting";
                         cancel();
                     }
                 }
@@ -444,6 +457,8 @@ void Graph::handleComponentEvent(const ComponentEvent& event)
                 {
                     // TODO: Implement SwitchRunTargetAction
                     // Currently always switching to fallback_run_target
+                    LM_LOG_WARN() << "Component" << failingComponent.getIdentifier()
+                                  << "terminated unexpectedly, switching to fallback Run Target";
                     cancel();
                 }
             }

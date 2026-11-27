@@ -539,7 +539,7 @@ void ProcessGroupManager::handleSetRequestedRunTarget(SetRequestedRunTarget* eve
             clearQueuedActivations("forced activation");
         }
 
-        if (GraphState::kInTransition == graph_state)
+        if (graph_state == GraphState::kInTransition)
         {
             if (old_state != event->run_target)
             {
@@ -553,7 +553,7 @@ void ProcessGroupManager::handleSetRequestedRunTarget(SetRequestedRunTarget* eve
                 response = score::MakeUnexpected(ExecErrc::kInTransitionToSameState);
             }
         }
-        else if (GraphState::kComponentRecovery == graph_state)
+        else if (graph_state == GraphState::kComponentRecovery)
         {
             if (old_state != event->run_target)
             {
@@ -567,7 +567,7 @@ void ProcessGroupManager::handleSetRequestedRunTarget(SetRequestedRunTarget* eve
                 response = score::MakeUnexpected(ExecErrc::kAlreadyInState);
             }
         }
-        else if (GraphState::kSuccess == graph_state && old_state == event->run_target)
+        else if (graph_state == GraphState::kSuccess && old_state == event->run_target)
         {
             response = score::MakeUnexpected(ExecErrc::kAlreadyInState);
         }
