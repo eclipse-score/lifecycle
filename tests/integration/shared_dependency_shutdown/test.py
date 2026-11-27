@@ -23,7 +23,6 @@ from attribute_plugin import add_test_properties
     ],
     partially_verifies=[
         "feat_req__lifecycle__termination_dependency",
-        "comp_req__launch_man__launch_parallel",
     ],
     test_type="requirements-based",
     derivation_technique="requirements-analysis",
