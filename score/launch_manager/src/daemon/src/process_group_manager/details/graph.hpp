@@ -55,23 +55,32 @@ using WorkerQueue =
 /// between states. Invalid transitions are replaced by a valid new state.
 /// The state transition logic is implemented in the setState method.
 /// @verbatim
-///    Old state    .  Requested State  .  New state
-/// ----------------+-------------------+----------------
-/// kSuccess        | kInTransition     | kInTransition
-/// kSuccess        | kAborting         | kUndefinedState
-/// kSuccess        | kUndefinedState   | kUndefinedState
-/// ----------------+-------------------+----------------
-/// kInTransition   | kSuccess          | kSuccess
-/// kInTransition   | kAborting         | kAborting
-/// kInTransition   | kUndefinedState   | kAborting
-/// ----------------+-------------------+----------------
-/// kAborting       | kSuccess          | kUndefinedState
-/// kAborting       | kInTransition     | kAborting
-/// kAborting       | kUndefinedState   | kUndefinedState
-/// ----------------+-------------------+----------------
-/// kUndefinedState | kSuccess          | kUndefinedState
-/// kUndefinedState | kInTransition     | kInTransition
-/// kUndefinedState | kAborting         | kUndefinedState
+///    Old state       .  Requested State     .  New state
+/// -------------------+----------------------+--------------------
+/// kSuccess           | kInTransition        | kInTransition
+/// kSuccess           | kAborting            | kUndefinedState
+/// kSuccess           | kUndefinedState      | kUndefinedState
+/// kSuccess           | kComponentRecovery   | kComponentRecovery
+/// -------------------+----------------------+--------------------
+/// kInTransition      | kSuccess             | kSuccess
+/// kInTransition      | kAborting            | kAborting
+/// kInTransition      | kUndefinedState      | kAborting
+/// kInTransition      | kComponentRecovery   | kInTransition
+/// -------------------+----------------------+--------------------
+/// kAborting          | kSuccess             | kUndefinedState
+/// kAborting          | kInTransition        | kAborting
+/// kAborting          | kUndefinedState      | kUndefinedState
+/// kAborting          | kComponentRecovery   | kAborting
+/// -------------------+----------------------+--------------------
+/// kUndefinedState    | kSuccess             | kUndefinedState
+/// kUndefinedState    | kInTransition        | kInTransition
+/// kUndefinedState    | kAborting            | kUndefinedState
+/// kUndefinedState    | kComponentRecovery   | kUndefinedState
+/// -------------------+----------------------+--------------------
+/// kComponentRecovery | kSuccess             | kSuccess
+/// kComponentRecovery | kInTransition        | kAborting
+/// kComponentRecovery | kAborting            | kAborting
+/// kComponentRecovery | kUndefinedState      | kAborting
 /// @endverbatim
 enum class GraphState : std::uint_least8_t
 {
@@ -86,34 +95,46 @@ enum class GraphState : std::uint_least8_t
     kAborting = 2U,
 
     ///@brief Graph is not running but process group state is not known
-    kUndefinedState = 3U
+    kUndefinedState = 3U,
+
+    ///@brief At least one component-local recovery action is being executed. The requested Run Target is still
+    /// considered active.
+    kComponentRecovery = 4U
 };
 
 /// @details Allowed transitions:
 /// -------------------
-/// kSuccess        -> kInTransition
-/// kInTransition   -> kSuccess
-/// kInTransition   -> kAborting
-/// kInTransition   -> kUndefinedState
-/// kAborting       -> kUndefinedState
-/// kSuccess        -> kUndefinedState
-/// kUndefinedState -> kInTransition
+/// kSuccess           -> kInTransition
+/// kSuccess           -> kUndefinedState
+/// kSuccess           -> kComponentRecovery
+/// kInTransition      -> kSuccess
+/// kInTransition      -> kAborting
+/// kAborting          -> kUndefinedState
+/// kUndefinedState    -> kInTransition
+/// kComponentRecovery -> kSuccess
+/// kComponentRecovery -> kAborting
 ///
-/// Disallowed transitions:             Replaced by
-/// ------------------------------------------------
-/// kSuccess        -> kAborting        kUndefinedState
-/// kInTransition   -> kUndefinedState  kAborting
-/// kAborting       -> kSuccess         kUndefinedState
-/// kAborting       -> kInTransition    kAborting
-/// kUndefinedState -> kSuccess         kUndefinedState
-/// kUndefinedState -> kAborting        kUndefinedState
+/// Disallowed transitions:                   Replaced by
+/// --------------------------------------------------------
+/// kSuccess           -> kAborting          kUndefinedState
+/// kInTransition      -> kUndefinedState    kAborting
+/// kInTransition      -> kComponentRecovery kInTransition
+/// kAborting          -> kSuccess           kUndefinedState
+/// kAborting          -> kInTransition      kAborting
+/// kAborting          -> kComponentRecovery kAborting
+/// kUndefinedState    -> kSuccess           kUndefinedState
+/// kUndefinedState    -> kAborting          kUndefinedState
+/// kUndefinedState    -> kComponentRecovery kUndefinedState
+/// kComponentRecovery -> kInTransition      kAborting
+/// kComponentRecovery -> kUndefinedState    kAborting
 // clang-format off
-static constexpr GraphState state_results[][static_cast<uint>(GraphState::kUndefinedState) + 1U] = {
-    //from kSuccess                     kInTransition               kAborting                    kUndefinedState              to new_state
-    {GraphState::kSuccess, GraphState::kSuccess, GraphState::kUndefinedState, GraphState::kUndefinedState},  // kSuccess
-    {GraphState::kInTransition, GraphState::kInTransition, GraphState::kAborting, GraphState::kInTransition},  // kInTransition
-    {GraphState::kUndefinedState, GraphState::kAborting, GraphState::kAborting, GraphState::kUndefinedState},  // kAborting
-    {GraphState::kUndefinedState, GraphState::kAborting, GraphState::kUndefinedState, GraphState::kUndefinedState}  // kUndefinedState
+static constexpr GraphState state_results[][static_cast<uint>(GraphState::kComponentRecovery) + 1U] = {
+    //from kSuccess                    kInTransition               kAborting                    kUndefinedState               kComponentRecovery              to new_state
+    {GraphState::kSuccess,            GraphState::kSuccess,       GraphState::kUndefinedState, GraphState::kUndefinedState, GraphState::kSuccess},            // kSuccess
+    {GraphState::kInTransition,       GraphState::kInTransition,  GraphState::kAborting,       GraphState::kInTransition,   GraphState::kAborting},           // kInTransition
+    {GraphState::kUndefinedState,     GraphState::kAborting,      GraphState::kAborting,       GraphState::kUndefinedState, GraphState::kAborting},           // kAborting
+    {GraphState::kUndefinedState,     GraphState::kAborting,      GraphState::kUndefinedState, GraphState::kUndefinedState, GraphState::kAborting},           // kUndefinedState
+    {GraphState::kComponentRecovery,  GraphState::kInTransition,  GraphState::kAborting,       GraphState::kUndefinedState, GraphState::kComponentRecovery}  // kComponentRecovery
 };
 // clang-format on
 
@@ -178,9 +199,10 @@ class Graph final
     /// @param reason The error code containing the reason for ignoring the request.
     void unblockComponentEvent(const ComponentEvent& event, const ExecErrc reason);
 
-    /// @brief Cancel the current transition because a new state has been requested.
-    /// Sets the graph state to kAborting.
-    /// If no jobs are in progress, transitions immediately to kUndefinedState.
+    /// @brief Cancel the ongoing transition or component recovery, because a new state has been requested or because
+    /// of a failure. Stops ongoing jobs and sets the graph state to kAborting.
+    /// If no jobs are in progress, transitions immediately to kUndefinedState; otherwise the last finishing job does
+    /// so in nodeExecuted().
     void cancel();
 
     /// @brief Begin transitioning this process group to the given state.
@@ -215,7 +237,7 @@ class Graph final
     GraphState getState() const;
 
     /// @return The currently requested Run Target.
-    /// @note Only meaningful when getState() returns GraphState::kSuccess.
+    /// @note Only meaningful when getState() returns GraphState::kSuccess or GraphState::kComponentRecovery.
     IdentifierHash getRequestedRunTarget();
 
     /// @brief Replaces the pending state with new_state and returns the previous pending state.
@@ -262,10 +284,13 @@ class Graph final
     /// @returns False if the requested state was not set
     bool setState(GraphState new_state);
 
-    /// @brief Pushes the given task onto the worker queue while the graph is in transition.
+    /// @brief Pushes the given task onto the worker queue while the graph is in transition or component recovery.
     /// Retries on timeout.
     /// @param task The task to enqueue.
     void tryQueueNode(ComponentTask task);
+
+    /// @brief Enters kComponentRecovery and queues the recovery action of @p component.
+    void startComponentRecovery(IComponent& component);
 
     /// @brief Every node that is ready to execute is either executed in place (RunTarget) or queued for execution
     /// (Component).
@@ -280,10 +305,6 @@ class Graph final
     /// kSuccess, posts kSetStateSuccess, and reports initial-state-transition success if this
     /// was the initial transition.
     void finalizeTransitionSuccess();
-
-    /// @brief Finalizes an aborted transition (error or cancellation) after the last in-flight job
-    /// completes. Moves the graph state to kUndefinedState and posts the appropriate event.
-    void handleNonTransitionExecution();
 
     /// @brief Number of jobs that have been queued but are not yet executed
     int32_t jobs_in_progress_{0};
@@ -331,7 +352,7 @@ class Graph final
     /// @brief Stores the timestamp based on the system clock when starting a request
     std::chrono::time_point<std::chrono::steady_clock> request_start_time_{};
 
-    /// @brief Stop token generator for transitions.
+    /// @brief Stop token generator for transitions and component recoveries.
     score::cpp::stop_source stop_source_;
 
     /// @brief Transition timeout for Off state

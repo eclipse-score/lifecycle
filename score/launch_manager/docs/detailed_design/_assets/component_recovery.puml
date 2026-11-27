@@ -1,0 +1,137 @@
+' *******************************************************************************
+' Copyright (c) 2026 Contributors to the Eclipse Foundation
+'
+' See the NOTICE file(s) distributed with this work for additional
+' information regarding copyright ownership.
+'
+' This program and the accompanying materials are made available under the
+' terms of the Apache License Version 2.0 which is available at
+' https://www.apache.org/licenses/LICENSE-2.0
+'
+' SPDX-License-Identifier: Apache-2.0
+' *******************************************************************************
+
+@startuml component_recovery
+
+title Component Recovery
+
+box "Main loop thread" #F0F4FA
+participant "ProcessGroupManager" as PGM
+participant "Graph" as Graph
+end box
+
+queue "Worker Queue" as WorkerQueue
+queue "Component Event Queue" as EventQueue
+
+box "OsHandler thread or worker" #F4F0FA
+participant "OsHandler" as OsHandler
+participant "ProcessMonitor" as Monitor
+participant "Component" as Component
+end box
+
+participant "Alive Supervision" as Supervision
+participant "Operating System" as OS
+
+' --- Process crash detection ---------------------------------------------------------------
+OS -> OsHandler ++: a child process has terminated
+OsHandler -> Monitor ++: terminated(component, status)
+deactivate OsHandler
+
+Monitor -> Component ++: tryHandleTermination(status)
+
+group #Pink Unexpected termination while ready
+  Component -> Supervision: deactivate supervision
+  Component -> Component: TerminatedState
+  Component --> Monitor: kFailure
+  deactivate Component
+  Monitor -> EventQueue: UnexpectedTermination
+  deactivate Monitor
+end group
+
+' --- reaction ----------------------------------------------------------------
+EventQueue -> PGM ++: component event
+PGM -> Graph ++: handleComponentEvent()
+
+Graph -> Component ++: getRecoveryAction()
+return configured recovery action, if any
+
+alt kLocal recovery action (RestartAction) && Graph State == kSuccess || kComponentRecovery
+  group #White Executing the local recovery action
+    Graph -> Graph: setState(kComponentRecovery)
+    Graph -> WorkerQueue: ComponentTask{kRecover}
+    deactivate Graph
+    deactivate PGM
+
+    WorkerQueue -> Monitor ++: task is taken by a free worker
+
+    alt stop token already stopped (recovery cancelled)
+      Monitor -> EventQueue: JobSkipped
+    else
+      Monitor -> Component ++: recover(stop_token)
+      note over Component
+        Executes the configured
+        local recovery action
+      end note
+
+      alt Recovery successful
+        Component --> Monitor: kSuccess
+        Monitor -> EventQueue: ComponentRecoverySuccessful
+      else Recovery failed, stop token stopped meanwhile
+        Component --> Monitor: kFailure / kTimeout
+        Monitor -> EventQueue: JobSkipped
+        note over Monitor
+          A cancelled recovery is never
+          reported as a recovery failure.
+        end note
+      else #Pink Recovery failed
+        Component --> Monitor: kFailure / kTimeout
+        deactivate Component
+        Monitor -> EventQueue: ComponentRecoveryFailed
+      end alt
+    end alt
+    deactivate Monitor
+  end group
+
+  ' --- result ---------------------------------------------------------------
+  EventQueue -> PGM ++: component event
+  PGM -> Graph ++: handleComponentEvent()
+  alt ComponentRecoverySuccessful
+    note over Graph
+      Last job: kComponentRecovery -> kSuccess,
+      otherwise stays in kComponentRecovery.
+      The active Run Target did not change,
+      so no activation is reported.
+    end note
+  else ComponentRecoveryFailed
+    Graph -> Graph: cancel()
+    note over Graph
+      kAborting while other jobs are running,
+      kUndefinedState after the last one.
+    end note
+  else JobSkipped
+    note over Graph
+      Only happens in kAborting.
+      kUndefinedState after the last job.
+    end note
+  end alt
+  deactivate Graph
+  deactivate PGM
+else no recovery action || kGlobal recovery action || other Graph State
+  Graph -> Graph: cancel()
+  note over Graph
+    kAborting while jobs are running, kUndefinedState otherwise.
+    kGlobal actions (SwitchRunTargetAction) currently
+    always switch to the fallback Run Target.
+  end note
+  deactivate Graph
+  deactivate PGM
+end alt
+
+legend bottom
+  In kUndefinedState the main loop starts the pending Run Target, or the fallback Run Target otherwise.
+  A request for a different Run Target, or a shutdown, while in kComponentRecovery cancels the
+  ongoing recoveries: the Graph moves to kAborting and stops their stop token.
+  A request for the active Run Target is answered with kAlreadyInState and does not interrupt the recovery.
+end legend
+
+@enduml

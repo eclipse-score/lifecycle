@@ -19,34 +19,48 @@ kSuccess : the requested Run Target is active
 kInTransition : Run Target transition is in progress
 kAborting : Wait for ongoing jobs to finish after\na failure or transition cancellation
 kUndefinedState : No ongoing jobs, graph is in\nan undefined but consistent state
+state kComponentRecovery #LightCoral
+kComponentRecovery : At least one Component-local\nRecovery action is being executed
 
 [*] --> kSuccess : construction
 
+kSuccess --> kSuccess : RT transition request [requested RT already active]
+
 ' --- starting a transition ---------------------------------------------------
-kSuccess --> kInTransition : main loop iteration\n[a pending Run Target has been set,\ndiffers from active]\n\nstart initial transition\n\nstart transition to Off
-kUndefinedState --> kInTransition : main loop iteration\n[a pending Run Target has been set]\n\nmain loop iteration\n[no pending Run Target]\nself-heal to fallback
+kSuccess --> kInTransition : RT transition request [requested RT not active]
+kUndefinedState --> kInTransition : Forced RT transition request\n(otherwise always fallback_run_target if there is no pending request)
 
 ' --- running a transition ----------------------------------------------------
 kInTransition --> kInTransition : job finished\n[transition has work left]
 kInTransition --> kSuccess : Last job finished\n[transition complete]
 
 ' --- leaving a transition ----------------------------------------------------
-kInTransition --> kAborting : activation failed, unexpected termination,\nnew Run Target requested, supervision failure or shutdown\n[jobs still running]
+kInTransition --> kAborting : activation failed, unexpected termination,\nnew forced RT transition request or shutdown\n[jobs still running]
 kInTransition --> kUndefinedState : same as transition to kAborting\nbut with no jobs running
 
 ' --- aborting ----------------------------------------------------------------
-kAborting --> kAborting : job finished\n[not the last job]
+kAborting --> kAborting : job finished [not the last job]\ncancel or new request\nunexpected termination (no component RA executed)
 kAborting --> kUndefinedState : job finished\n[last job]
-kAborting --> kAborting : cancel or new request
 
 ' --- failures outside a transition -------------------------------------------
-kSuccess --> kUndefinedState : unexpected termination\n\nlate completion\n[last outstanding job]
-kUndefinedState --> kUndefinedState : unexpected termination
+kSuccess --> kUndefinedState : unexpected termination\n[no local component RA configured]
+kUndefinedState --> kUndefinedState : unexpected termination (no component RA executed)
+
+' --- Local Recovery Action
+kSuccess --> kComponentRecovery : unexpected termination\n[local component RA configured]
+kComponentRecovery --> kComponentRecovery : RT transition request [requested RT already active]\ncomponent RA succeeded [jobs still running]\nunexpected termination [local component RA configured]
+kComponentRecovery --> kSuccess: component RA succeeded\n[last job]
+kComponentRecovery --> kAborting : Forced RT transition request\n[requested RT not active]\n\nshutdown
+kComponentRecovery --> kAborting : unexpected termination\n[no local component RA configured]
+kComponentRecovery --> kAborting : component RA failed [not the last job]
+kComponentRecovery --> kUndefinedState : component RA failed [last job]
 
 legend bottom
   A Run Target request will record the "pending Run Target".
   The cyclic main loop will check in each iteration for a recorded pending Run Target
   and initiates the Run Target transition when in kSuccess or kUndefinedState state.
+  In kComponentRecovery the ongoing component RAs are stopped first and the graph
+  waits for them in kAborting.
 
   kUndefinedState is not terminal. Every main loop iteration leaves it, towards a
   recorded pending Run Target request if there is one and towards the fallback Run 
@@ -59,6 +73,24 @@ legend bottom
   
   Requests made while in kAborting do not change the state immediately, but only change the
   target for the transition that will be started in kUndefinedState.
+
+  kComponentRecovery is entered when a component of the active Run Target terminates
+  unexpectedly and has a component-local recovery action (RA) configured (e.g. restart).
+  Component RAs are only executed in kSuccess and kComponentRecovery. A failure during a
+  Run Target transition always aborts the transition, even if a component RA is configured.
+  Only the failed component is recovered, its dependents keep running. The active
+  Run Target is still reported as active while in this state, and a request for the
+  active Run Target does not interrupt the recovery. Further failures with a component
+  RA are recovered in parallel. When the last component RA succeeds, the graph returns
+  to kSuccess. If a component RA fails, or a component without a local component RA fails,
+  the remaining component RAs are stopped and the graph leaves via kAborting or
+  kUndefinedState towards the pending Run Target, or the fallback Run Target otherwise.
+
+  If a component RA cannot be queued for execution (only during shutdown, when the worker
+  queue is stopped), the graph aborts as for a failed component RA.
+
+  A supervision failure does not change the graph state. The process is killed (SIGKILL)
+  and the resulting unexpected termination drives the reaction described above.
 end legend
 
 @enduml
