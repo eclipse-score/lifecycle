@@ -99,7 +99,7 @@ Deactivating Components
         **Use case:** This is relevant when the system needs to restart quickly, 
         so it shuts down the launch manager in an ordinary manner, but ignores the child processes.
 
-.. comp_req:: Normal shutdown
+.. comp_req:: Shutdown of components
     :id: comp_req__launch_man__launch_manager_shutdown
     :reqtype: Functional
     :security: NO
@@ -110,8 +110,9 @@ Deactivating Components
     :valid_from: v1.0.0
     :satisfied_by: comp__lifecycle_launch_manager
 
-    The :term:`Launch Manager` shall support normal shutdown by terminating all
-    processes in the dependency order.
+    When switching from one :term:`Run Target` to another, the :term:`Launch Manager`
+    shall stop the :term:`Components <Component>` of the previous Run Target that the
+    new Run Target does not depend on, in the dependency order.
 
 .. comp_req:: Launch Manager shutdown
     :id: comp_req__launch_man__launcher_exit_shutdown
@@ -125,7 +126,7 @@ Deactivating Components
     :satisfied_by: comp__lifecycle_launch_manager
 
     The :term:`Launch Manager` shall exit after performing shutdown operation by
-    stopping all the :term:`Processes <Process>` it owns in the dependency order when requested.
+    stopping all the :term:`Components <Component>` it owns in the dependency order when requested.
 
 .. comp_req:: Dropping process responsibility
     :id: comp_req__launch_man__drop_supervsion
