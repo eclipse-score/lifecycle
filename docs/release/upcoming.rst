@@ -44,7 +44,11 @@ Changes to the Module
 New Features
 ~~~~~~~~~~~~
 
-- None
+- Component recovery action ``deployment_config.recovery_action.restart`` is now supported.
+  When a component terminates unexpectedly after reaching its Ready State, only this component
+  is restarted while the active Run Target stays active. The restart uses the component's
+  ``activation_retry_attempts`` (and ``activation_retry_delay_ms``) settings. If the restart
+  fails, the Launch Manager switches to the ``fallback_run_target``.
 
 Improvements
 ~~~~~~~~~~~~
@@ -90,6 +94,9 @@ Known Vulnerabilities
 Upgrade Instructions
 ~~~~~~~~~~~~~~~~~~~~
 
-- None
+- The ``restart`` recovery action no longer accepts the parameters ``number_of_attempts`` and
+  ``delay_before_restart_ms``; it must be configured as an empty object (``"restart": {}``).
+  Configure ``deployment_config.activation_retry_attempts`` and
+  ``deployment_config.activation_retry_delay_ms`` instead.
 
 *For any questions or support, please contact the* `Project Team <https://github.com/orgs/eclipse-score/projects/33>`_ *or raise an issue/discussion.*

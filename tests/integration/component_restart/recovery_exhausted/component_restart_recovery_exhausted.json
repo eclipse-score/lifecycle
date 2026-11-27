@@ -1,0 +1,86 @@
+{
+    "schema_version": 2,
+    "defaults": {
+        "deployment_config": {
+            "bin_dir": "/tmp/tests/component_restart_recovery_exhausted",
+            "ready_timeout_ms": 5000,
+            "shutdown_timeout_ms": 5000,
+            "recovery_action": {
+                "switch_run_target": {
+                    "run_target": "fallback_run_target"
+                }
+            },
+            "environmental_variables": {
+                "LD_LIBRARY_PATH": "/opt/lib"
+            },
+            "sandbox": {
+                "uid": 0,
+                "gid": 0,
+                "scheduling_policy": "SCHED_OTHER",
+                "scheduling_priority": 0
+            }
+        },
+        "component_properties": {
+            "application_profile": {
+                "application_type": "Reporting",
+                "is_self_terminating": false
+            },
+            "ready_condition": {
+                "process_state": "Running"
+            }
+        }
+    },
+    "components": {
+        "control_client_test_driver": {
+            "component_properties": {
+                "binary_name": "control_client_test_driver",
+                "application_profile": {
+                    "application_type": "State_Manager",
+                    "is_self_terminating": true,
+                    "alive_supervision": {
+                        "min_indications": 0
+                    }
+                }
+            }
+        },
+        "crashing_hanging": {
+            "component_properties": {
+                "binary_name": "process_crashing_after_ready",
+                "process_arguments": ["crashing_hanging", "0", "hang"]
+            },
+            "deployment_config": {
+                "activation_retry_attempts": 0,
+                "recovery_action": {
+                    "restart": {}
+                }
+            }
+        },
+        "crashing_exhausted": {
+            "component_properties": {
+                "binary_name": "process_crashing_after_ready",
+                "process_arguments": ["crashing_exhausted", "2"]
+            },
+            "deployment_config": {
+                "activation_retry_attempts": 1,
+                "recovery_action": {
+                    "restart": {}
+                }
+            }
+        }
+    },
+    "run_targets": {
+        "Startup": {
+            "depends_on": [
+                "control_client_test_driver",
+                "crashing_hanging",
+                "crashing_exhausted"
+            ]
+        }
+    },
+    "initial_run_target": "Startup",
+    "fallback_run_target": {
+        "depends_on": [
+            "control_client_test_driver"
+        ]
+    }
+}
