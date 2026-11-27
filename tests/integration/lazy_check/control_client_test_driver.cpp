@@ -17,6 +17,7 @@
 #include <fstream>
 #include <string>
 
+#include "tests/utils/fixtures/activation.hpp"
 #include "tests/utils/test_helper/test_helper.hpp"
 #include "tests/utils/test_helper/test_runner.hpp"
 #include <score/mw/lifecycle/ilm_control.hpp>
@@ -27,26 +28,17 @@ using namespace score::mw::lifecycle;
 constexpr std::string_view script_path{"/tmp/tests/lazy_check/created_at_runtime.sh"};
 constexpr std::string_view script{"#!/bin/sh\nexit 0\n"};
 
-TEST(LazyCheck, ControlClientTestDriver)
+using LazyCheck = ActivationFixture;
+
+TEST_F(LazyCheck, ControlClientTestDriver)
 {
     std::unique_ptr<ILmControl> client;
 
-    TEST_STEP("Create client")
+    TEST_STEP("Initialize client")
     {
-        auto client_result = ILmControl::Create("StateManager/LaunchManager/Instance");
-        ASSERT_TRUE(client_result.has_value()) << client_result.error().Message();
-        client = std::move(client_result).value();
-    }
-
-    TEST_STEP("Register callback")
-    {
-        const auto result = client->register_run_target_activation_callback(push_event);
-        ASSERT_TRUE(result.has_value());
-    }
-
-    TEST_STEP("Wait for client connection")
-    {
-        ASSERT_TRUE(client->wait_for_connection().has_value());
+        auto maybe_client = InitializeClient();
+        ASSERT_TRUE(maybe_client.has_value()) << maybe_client.error().Message();
+        client = std::move(maybe_client).value();
     }
 
     TEST_STEP("Report running")
@@ -54,13 +46,10 @@ TEST(LazyCheck, ControlClientTestDriver)
         report_running();
     }
 
-    pop_event([](RunTargetActivationSource source, RunTargetName target) {
-        TEST_STEP("Callback for Run Target Startup")
-        {
-            EXPECT_EQ(source, RunTargetActivationSource::kInitialActivation);
-            EXPECT_EQ(target, "Startup");
-        }
-    });
+    TEST_STEP("Callback for Run Target Startup")
+    {
+        WaitForActivation(RunTargetActivationSource::kInitialActivation, "Startup");
+    }
 
     TEST_STEP("Activate RT with binaries that exist")
     {
@@ -68,13 +57,10 @@ TEST(LazyCheck, ControlClientTestDriver)
         EXPECT_TRUE(result.has_value()) << result.error().Message();
     }
 
-    pop_event([](RunTargetActivationSource source, RunTargetName target) {
-        TEST_STEP("Callback for requested Run Target")
-        {
-            EXPECT_EQ(source, RunTargetActivationSource::kStateManagerRequest);
-            EXPECT_EQ(target, "run_target_with_available_binary");
-        }
-    });
+    TEST_STEP("Callback for requested Run Target")
+    {
+        WaitForActivation(RunTargetActivationSource::kStateManagerRequest, "run_target_with_available_binary");
+    }
 
     TEST_STEP("Create the executable of a component at runtime")
     {
@@ -92,13 +78,10 @@ TEST(LazyCheck, ControlClientTestDriver)
         EXPECT_TRUE(result.has_value()) << result.error().Message();
     }
 
-    pop_event([](RunTargetActivationSource source, RunTargetName target) {
-        TEST_STEP("Callback for Run Target whose binary was created at runtime")
-        {
-            EXPECT_EQ(source, RunTargetActivationSource::kStateManagerRequest);
-            EXPECT_EQ(target, "run_target_with_runtime_created_binary");
-        }
-    });
+    TEST_STEP("Callback for Run Target whose binary was created at runtime")
+    {
+        WaitForActivation(RunTargetActivationSource::kStateManagerRequest, "run_target_with_runtime_created_binary");
+    }
 
     TEST_STEP("Activate Run Target containing a component with a missing binary")
     {
@@ -106,13 +89,10 @@ TEST(LazyCheck, ControlClientTestDriver)
         EXPECT_TRUE(result.has_value()) << result.error().Message();
     }
 
-    pop_event([](RunTargetActivationSource source, RunTargetName target) {
-        TEST_STEP("Callback for Run Target fallback, the missing binary is detected once it is required")
-        {
-            EXPECT_EQ(source, RunTargetActivationSource::kRecoveryAction);
-            EXPECT_EQ(target, "fallback_run_target");
-        }
-    });
+    TEST_STEP("Callback for Run Target fallback, the missing binary is detected once it is required")
+    {
+        WaitForActivation(RunTargetActivationSource::kRecoveryAction, "fallback_run_target");
+    }
 }
 
 int main()

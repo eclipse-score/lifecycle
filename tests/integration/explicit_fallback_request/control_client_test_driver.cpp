@@ -12,6 +12,7 @@
  ********************************************************************************/
 #include <gtest/gtest.h>
 
+#include "tests/utils/fixtures/activation.hpp"
 #include "tests/utils/test_helper/test_helper.hpp"
 #include "tests/utils/test_helper/test_runner.hpp"
 #include <score/mw/lifecycle/ilm_control.hpp>
@@ -19,26 +20,17 @@
 
 using namespace score::mw::lifecycle;
 
-TEST(ExplicitFallbackRequest, ControlClientTestDriver)
+using ExplicitFallbackRequest = ActivationFixture;
+
+TEST_F(ExplicitFallbackRequest, ControlClientTestDriver)
 {
     std::unique_ptr<ILmControl> client;
 
-    TEST_STEP("Create client")
+    TEST_STEP("Initialize client")
     {
-        auto client_result = ILmControl::Create("StateManager/LaunchManager/Instance");
-        ASSERT_TRUE(client_result.has_value()) << client_result.error().Message();
-        client = std::move(client_result).value();
-    }
-
-    TEST_STEP("Register callback")
-    {
-        const auto result = client->register_run_target_activation_callback(push_event);
-        ASSERT_TRUE(result.has_value());
-    }
-
-    TEST_STEP("Wait for client connection")
-    {
-        ASSERT_TRUE(client->wait_for_connection().has_value());
+        auto maybe_client = InitializeClient();
+        ASSERT_TRUE(maybe_client.has_value()) << maybe_client.error().Message();
+        client = std::move(maybe_client).value();
     }
 
     TEST_STEP("Report running")
@@ -46,13 +38,10 @@ TEST(ExplicitFallbackRequest, ControlClientTestDriver)
         report_running();
     }
 
-    pop_event([](RunTargetActivationSource source, RunTargetName target) {
-        TEST_STEP("Callback for Run Target Startup")
-        {
-            EXPECT_EQ(source, RunTargetActivationSource::kInitialActivation);
-            EXPECT_EQ(target, "Startup");
-        }
-    });
+    TEST_STEP("Callback for Run Target Startup")
+    {
+        WaitForActivation(RunTargetActivationSource::kInitialActivation, "Startup");
+    }
 
     TEST_STEP("Request the fallback Run Target explicitly")
     {
@@ -60,14 +49,11 @@ TEST(ExplicitFallbackRequest, ControlClientTestDriver)
         EXPECT_TRUE(result.has_value()) << result.error().Message();
     }
 
-    pop_event([](RunTargetActivationSource source, RunTargetName target) {
-        TEST_STEP("Callback for the explicitly requested fallback Run Target")
-        {
-            // Nothing failed: the State Manager asked for this Run Target.
-            EXPECT_EQ(source, RunTargetActivationSource::kStateManagerRequest);
-            EXPECT_EQ(target, "fallback_run_target");
-        }
-    });
+    TEST_STEP("Callback for the explicitly requested fallback Run Target")
+    {
+        // Nothing failed: the State Manager asked for this Run Target.
+        WaitForActivation(RunTargetActivationSource::kStateManagerRequest, "fallback_run_target");
+    }
 }
 
 int main()

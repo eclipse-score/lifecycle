@@ -31,22 +31,11 @@ TEST_F(ReplacedActivationFixture, ReplacedActivation)
     ASSERT_TRUE(check_clean({gatedStartedPath("gated"), gatedReleasePath("gated"), gatedExitingPath("gated")}));
     std::unique_ptr<ILmControl> client;
 
-    TEST_STEP("Create client")
+    TEST_STEP("Initialize client")
     {
-        auto client_result = ILmControl::Create("StateManager/LaunchManager/Instance");
-        ASSERT_TRUE(client_result.has_value()) << client_result.error().Message();
-        client = std::move(client_result).value();
-    }
-
-    TEST_STEP("Register callback")
-    {
-        const auto result = client->register_run_target_activation_callback(push_event);
-        ASSERT_TRUE(result.has_value());
-    }
-
-    TEST_STEP("Wait for client connection")
-    {
-        ASSERT_TRUE(client->wait_for_connection().has_value());
+        auto maybe_client = InitializeClient();
+        ASSERT_TRUE(maybe_client.has_value()) << maybe_client.error().Message();
+        client = std::move(maybe_client).value();
     }
 
     TEST_STEP("Report running")
@@ -54,20 +43,14 @@ TEST_F(ReplacedActivationFixture, ReplacedActivation)
         report_running();
     }
 
-    pop_event([](RunTargetActivationSource source, RunTargetName target) {
-        TEST_STEP("Callback for Run Target Startup")
-        {
-            EXPECT_EQ(source, RunTargetActivationSource::kInitialActivation);
-            EXPECT_EQ(target, "Startup");
-        }
-    });
+    TEST_STEP("Callback for Run Target Startup")
+    {
+        WaitForActivation(RunTargetActivationSource::kInitialActivation, "Startup");
+    }
 
     TEST_STEP("Activate run_target_gated")
     {
-        const auto result = client->activate_run_target("run_target_gated", true);
-        EXPECT_TRUE(result.has_value()) << result.error().Message();
-        ASSERT_TRUE(wait_for_activation_in_progress(*client));
-        ASSERT_TRUE(wait_for_file(gatedStartedPath("gated")));
+        ASSERT_NO_FATAL_FAILURE(BlockRunTargetActivation(*client));
     }
 
     TEST_STEP("Request Startup while run_target_gated is being activated")
@@ -79,21 +62,18 @@ TEST_F(ReplacedActivationFixture, ReplacedActivation)
     TEST_STEP("Release gated")
     {
         // The replaced activation must settle before Startup is activated.
-        ASSERT_TRUE(touch_file(gatedReleasePath("gated")));
+        ASSERT_NO_FATAL_FAILURE(UnblockRunTargetActivation());
     }
 
     TEST_STEP("Wait for gated process to terminate")
     {
-        WaitForGatedProcessExit("gated");
+        ASSERT_NO_FATAL_FAILURE(WaitForGatedProcessExit("gated"));
     }
 
-    pop_event([](RunTargetActivationSource source, RunTargetName target) {
-        TEST_STEP("Callback for Run Target Startup, not for the replaced run_target_gated")
-        {
-            EXPECT_EQ(source, RunTargetActivationSource::kStateManagerRequest);
-            EXPECT_EQ(target, "Startup");
-        }
-    });
+    TEST_STEP("Callback for Run Target Startup, not for the replaced run_target_gated")
+    {
+        WaitForActivation(RunTargetActivationSource::kStateManagerRequest, "Startup");
+    }
 
     TEST_STEP("Validate active Run Target")
     {

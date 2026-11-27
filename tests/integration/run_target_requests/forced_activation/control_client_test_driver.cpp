@@ -48,12 +48,12 @@ TEST_F(
 
     TEST_STEP("Block run target activation by starting gated process")
     {
-        BlockRunTargetActivation(*client);
+        ASSERT_NO_FATAL_FAILURE(BlockRunTargetActivation(*client));
     }
 
     TEST_STEP("Fill the run target activation request queue")
     {
-        FillActivationQueue(*client);
+        ASSERT_NO_FATAL_FAILURE(FillActivationQueue(*client));
     }
 
     TEST_STEP("Forced request for Startup clears the queue")
@@ -64,12 +64,12 @@ TEST_F(
 
     TEST_STEP("Unblock run target activation")
     {
-        UnblockRunTargetActivation();
+        ASSERT_NO_FATAL_FAILURE(UnblockRunTargetActivation());
     }
 
     TEST_STEP("Wait for gated process to terminate")
     {
-        WaitForGatedProcessExit("gated");
+        ASSERT_NO_FATAL_FAILURE(WaitForGatedProcessExit("gated"));
     }
 
     TEST_STEP("Callback for Run Target Startup")
