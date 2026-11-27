@@ -149,6 +149,7 @@ cc_binary(
     srcs = ["counting_process.cpp"],
     visibility = ["//tests:__subpackages__"],
     deps = [
+        ":arg_parser",
         ":test_helper",
         "//score/launch_manager:lifecycle_cc",
     ],
@@ -159,6 +160,7 @@ cc_binary(
     srcs = ["simple_supervised_app.cpp"],
     visibility = ["//tests:__subpackages__"],
     deps = [
+        ":arg_parser",
         "//score/launch_manager:alive_cc",
         "//score/launch_manager:lifecycle_cc",
     ],
@@ -178,6 +180,7 @@ cc_binary(
     srcs = ["waiting_process.cpp"],
     visibility = ["//tests:__subpackages__"],
     deps = [
+        ":arg_parser",
         ":test_helper",
     ],
 )

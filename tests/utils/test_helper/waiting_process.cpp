@@ -26,9 +26,7 @@
  *   number of posts actually observed so far is printed to stderr.
  */
 
-#include <charconv>
 #include <fcntl.h>
-#include <getopt.h>
 #include <semaphore.h>
 #include <sys/stat.h>
 #include <time.h>
@@ -37,38 +35,53 @@
 #include <cstdio>
 #include <cstdlib>
 #include <cstring>
-#include <optional>
 #include <string>
-#include <system_error>
+#include <string_view>
+
+#include "tests/utils/test_helper/arg_parser.hpp"
 
 namespace
 {
+using score::mw::lifecycle::test::ParseArgs;
 
-/**
- * @brief Converts a C-string to an unsigned 64-bit integer.
- * @param str The null-terminated string to convert
- * @return The parsed uint64_t value, or std::nullopt if parsing fails
- */
-[[nodiscard]] std::optional<std::uint64_t> cstr_to_uint64(const char* str) noexcept
+struct HelpArg
 {
-    if (str == nullptr || *str == '\0')
-    {
-        return std::nullopt;
-    }
+    static constexpr std::string_view name = "--help";
+    using type = bool;
+};
 
-    std::uint64_t value = 0;
-    const std::size_t len = std::strlen(str);
-    const char* last = str + len;
+struct SemaphoreNameArg
+{
+    static constexpr std::string_view name = "--semaphore-name";
+    using type = std::string_view;
+    static constexpr type default_value{};
+};
 
-    auto [ptr, ec] = std::from_chars(str, last, value);
+struct ExpectedCountArg
+{
+    static constexpr std::string_view name = "--expected-count";
+    using type = int;
+    static constexpr type default_value = 0;
+};
 
-    if (ec == std::errc{} && ptr == last)
-    {
-        return value;
-    }
+struct TimeoutSecondsArg
+{
+    static constexpr std::string_view name = "--timeout-seconds";
+    using type = int;
+    static constexpr type default_value = 10;
+};
 
-    return std::nullopt;
-}
+struct StartFromZeroArg
+{
+    static constexpr std::string_view name = "--start-from-zero";
+    using type = bool;
+};
+
+struct SucceedOnTimeoutArg
+{
+    static constexpr std::string_view name = "--succeed-on-timeout";
+    using type = bool;
+};
 
 /**
  * @brief Adds seconds to a timespec.
@@ -158,81 +171,15 @@ void add_seconds(timespec* ts, std::uint64_t seconds)
 
 int main(int argc, char** argv)
 {
-    constexpr std::uint64_t DEFAULT_TIMEOUT_SECONDS = 10U;
-    bool help = false;
-    std::string semaphore_name;
-    std::uint64_t expected_count = 0U;
-    std::uint64_t timeout_seconds = DEFAULT_TIMEOUT_SECONDS;
-    bool start_from_zero = false;
-    bool succeed_on_timeout = false;
-
-    static struct option long_options[] = {
-        {"help", no_argument, nullptr, 'h'},
-        {"semaphore-name", required_argument, nullptr, 'n'},
-        {"expected-count", required_argument, nullptr, 'c'},
-        {"timeout-seconds", required_argument, nullptr, 't'},
-        {"start-from-zero", no_argument, nullptr, 'z'},
-        {"succeed-on-timeout", no_argument, nullptr, 's'},
-        {nullptr, 0, nullptr, 0}};
-
-    int opt;
-    int option_index = 0;
-
-    while ((opt = getopt_long(argc, argv, "hn:c:t:zs", long_options, &option_index)) != -1)
-    {
-        switch (opt)
-        {
-            case 'h':
-                help = true;
-                break;
-            case 'n':
-                if (optarg)
-                {
-                    semaphore_name = std::string(optarg);
-                }
-                break;
-            case 'c':
-                if (optarg)
-                {
-                    auto maybe_count = cstr_to_uint64(optarg);
-                    if (maybe_count.has_value())
-                    {
-                        expected_count = *maybe_count;
-                    }
-                    else
-                    {
-                        std::fprintf(stderr, "Could not parse expected-count as integer: %s\n", optarg);
-                        return 1;
-                    }
-                }
-                break;
-            case 't':
-                if (optarg)
-                {
-                    auto maybe_timeout = cstr_to_uint64(optarg);
-                    if (maybe_timeout.has_value())
-                    {
-                        timeout_seconds = *maybe_timeout;
-                    }
-                    else
-                    {
-                        std::fprintf(stderr, "Could not parse timeout-seconds as integer: %s\n", optarg);
-                        return 1;
-                    }
-                }
-                break;
-            case 'z':
-                start_from_zero = true;
-                break;
-            case 's':
-                succeed_on_timeout = true;
-                break;
-            case '?':
-            default:
-                std::fprintf(stderr, "Invalid or missing argument.\n");
-                return 1;
-        }
-    }
+    const auto [help, semaphore_arg, expected_count_arg, timeout_seconds_arg, start_from_zero, succeed_on_timeout] =
+        ParseArgs<
+            HelpArg,
+            SemaphoreNameArg,
+            ExpectedCountArg,
+            TimeoutSecondsArg,
+            StartFromZeroArg,
+            SucceedOnTimeoutArg>(argc, argv);
+    const std::string semaphore_name{semaphore_arg};
 
     if (help)
     {
@@ -248,9 +195,15 @@ int main(int argc, char** argv)
         return 1;
     }
 
-    if (expected_count == 0)
+    if (expected_count_arg <= 0)
     {
         std::fprintf(stderr, "Invalid count! An expected count greater than zero must be provided.\n");
+        return 1;
+    }
+
+    if (timeout_seconds_arg < 0)
+    {
+        std::fprintf(stderr, "Invalid timeout! The timeout must not be negative.\n");
         return 1;
     }
 
@@ -265,10 +218,9 @@ int main(int argc, char** argv)
         static_cast<void>(::sem_unlink(semaphore_name.c_str()));
     }
 
-    if (!semaphore_name.empty() && expected_count > 0)
-    {
-        return wait_for_named_semaphore(semaphore_name, expected_count, timeout_seconds, succeed_on_timeout);
-    }
-
-    return 0;
+    return wait_for_named_semaphore(
+        semaphore_name,
+        static_cast<std::uint64_t>(expected_count_arg),
+        static_cast<std::uint64_t>(timeout_seconds_arg),
+        succeed_on_timeout);
 }

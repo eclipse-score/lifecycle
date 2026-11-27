@@ -18,7 +18,6 @@
  * tests to provoke an alive supervision failure.
  *
  */
-#include <getopt.h>
 #include <unistd.h>
 
 #include <atomic>
@@ -29,15 +28,33 @@
 #include <fstream>
 #include <iostream>
 #include <string>
+#include <string_view>
 #include <thread>
 
+#include "tests/utils/test_helper/arg_parser.hpp"
 #include <score/mw/lifecycle/alive.h>
 #include <score/mw/lifecycle/report_running.h>
 
 namespace
 {
+using score::mw::lifecycle::test::ParseArgs;
+
 /// @brief Used when --checkpointIntervalMs is not given.
 constexpr std::chrono::milliseconds kDefaultCheckpointInterval{100};
+
+struct CheckpointIntervalMsArg
+{
+    static constexpr std::string_view name = "--checkpointIntervalMs";
+    using type = int;
+    static constexpr type default_value = static_cast<int>(kDefaultCheckpointInterval.count());
+};
+
+struct PidfileArg
+{
+    static constexpr std::string_view name = "--pidfile";
+    using type = std::string_view;
+    static constexpr type default_value{};
+};
 
 std::atomic<bool> exit_requested{false};
 std::atomic<bool> stop_reporting{false};
@@ -60,37 +77,15 @@ struct Config
     std::string pidfile;
 };
 
-bool parse_options(int argc, char* const* argv, Config& config)
+bool parse_options(int argc, char** argv, Config& config)
 {
-    constexpr option long_options[] = {
-        {"checkpointIntervalMs", required_argument, nullptr, 'c'},
-        {"pidfile", required_argument, nullptr, 'p'},
-        {nullptr, 0, nullptr, 0},
-    };
-
-    int opt;
-    while ((opt = getopt_long(argc, argv, "", long_options, nullptr)) != -1)
+    const auto [checkpoint_interval_ms, pidfile] = ParseArgs<CheckpointIntervalMsArg, PidfileArg>(argc, argv);
+    if (checkpoint_interval_ms <= 0)
     {
-        switch (opt)
-        {
-            case 'c':
-            {
-                char* end = nullptr;
-                const long value = std::strtol(optarg, &end, 10);
-                if (*optarg == '\0' || *end != '\0' || value <= 0)
-                {
-                    return false;
-                }
-                config.checkpoint_interval = std::chrono::milliseconds{value};
-                break;
-            }
-            case 'p':
-                config.pidfile = optarg;
-                break;
-            default:
-                return false;
-        }
+        return false;
     }
+    config.checkpoint_interval = std::chrono::milliseconds{checkpoint_interval_ms};
+    config.pidfile = std::string{pidfile};
     return !config.pidfile.empty();
 }
 
