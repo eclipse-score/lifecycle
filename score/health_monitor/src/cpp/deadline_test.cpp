@@ -54,6 +54,11 @@ class DeadlineHandleTest : public ::testing::Test
 
 TEST_F(DeadlineHandleTest, StartReturnsHandleAndCallsDoStartOnce)
 {
+    RecordProperty("PartiallyVerifies", "comp_req__health_monitor__dl_no_stop, comp_req__health_monitor__dl_late_stop");
+    RecordProperty("TestType", "requirements-based");
+    RecordProperty("DerivationTechnique", "design-analysis");
+    RecordProperty("Description", "Check that starting a deadline returns a handle and starts the deadline once.");
+
     auto handle{deadline_.Start()};
 
     ASSERT_TRUE(handle.has_value());
@@ -63,6 +68,11 @@ TEST_F(DeadlineHandleTest, StartReturnsHandleAndCallsDoStartOnce)
 
 TEST_F(DeadlineHandleTest, SecondStartWhileHandleExistsReturnsDeadlineRunning)
 {
+    RecordProperty("PartiallyVerifies", "comp_req__health_monitor__dl_no_stop");
+    RecordProperty("TestType", "requirements-based");
+    RecordProperty("DerivationTechnique", "design-analysis");
+    RecordProperty("Description", "Check that starting a running deadline again fails with kDeadlineRunning.");
+
     auto first{deadline_.Start()};
     ASSERT_TRUE(first.has_value());
 
@@ -76,6 +86,11 @@ TEST_F(DeadlineHandleTest, SecondStartWhileHandleExistsReturnsDeadlineRunning)
 
 TEST_F(DeadlineHandleTest, StopCallsDoStopOnce)
 {
+    RecordProperty("PartiallyVerifies", "comp_req__health_monitor__dl_no_stop, comp_req__health_monitor__dl_late_stop");
+    RecordProperty("TestType", "requirements-based");
+    RecordProperty("DerivationTechnique", "design-analysis");
+    RecordProperty("Description", "Check that stopping a handle stops the deadline once.");
+
     auto handle{deadline_.Start()};
     ASSERT_TRUE(handle.has_value());
 
@@ -86,6 +101,11 @@ TEST_F(DeadlineHandleTest, StopCallsDoStopOnce)
 
 TEST_F(DeadlineHandleTest, SecondStopDoesNothing)
 {
+    RecordProperty("PartiallyVerifies", "comp_req__health_monitor__dl_no_stop, comp_req__health_monitor__dl_late_stop");
+    RecordProperty("TestType", "requirements-based");
+    RecordProperty("DerivationTechnique", "boundary-values");
+    RecordProperty("Description", "Check that a second stop of the same handle does not stop the deadline again.");
+
     auto handle{deadline_.Start()};
     ASSERT_TRUE(handle.has_value());
 
@@ -97,6 +117,11 @@ TEST_F(DeadlineHandleTest, SecondStopDoesNothing)
 
 TEST_F(DeadlineHandleTest, DestructorStopsDeadline)
 {
+    RecordProperty("PartiallyVerifies", "comp_req__health_monitor__dl_no_stop, comp_req__health_monitor__dl_late_stop");
+    RecordProperty("TestType", "requirements-based");
+    RecordProperty("DerivationTechnique", "design-analysis");
+    RecordProperty("Description", "Check that destroying a handle stops the deadline.");
+
     {
         auto handle{deadline_.Start()};
         ASSERT_TRUE(handle.has_value());
@@ -107,6 +132,11 @@ TEST_F(DeadlineHandleTest, DestructorStopsDeadline)
 
 TEST_F(DeadlineHandleTest, DestructorAfterStopDoesNotStopAgain)
 {
+    RecordProperty("PartiallyVerifies", "comp_req__health_monitor__dl_no_stop, comp_req__health_monitor__dl_late_stop");
+    RecordProperty("TestType", "requirements-based");
+    RecordProperty("DerivationTechnique", "design-analysis");
+    RecordProperty("Description", "Check that destroying a stopped handle does not stop the deadline again.");
+
     {
         auto handle{deadline_.Start()};
         ASSERT_TRUE(handle.has_value());
@@ -118,6 +148,11 @@ TEST_F(DeadlineHandleTest, DestructorAfterStopDoesNotStopAgain)
 
 TEST_F(DeadlineHandleTest, MovedFromHandleDoesNothingAndMovedToHandleStopsOnce)
 {
+    RecordProperty("PartiallyVerifies", "comp_req__health_monitor__dl_no_stop, comp_req__health_monitor__dl_late_stop");
+    RecordProperty("TestType", "requirements-based");
+    RecordProperty("DerivationTechnique", "design-analysis");
+    RecordProperty("Description", "Check that only the moved-to handle stops the deadline, once.");
+
     auto started{deadline_.Start()};
     ASSERT_TRUE(started.has_value());
     {
@@ -136,6 +171,11 @@ TEST_F(DeadlineHandleTest, MovedFromHandleDoesNothingAndMovedToHandleStopsOnce)
 
 TEST_F(DeadlineHandleTest, StartAfterStopWorksAgain)
 {
+    RecordProperty("PartiallyVerifies", "comp_req__health_monitor__dl_no_stop, comp_req__health_monitor__dl_late_stop");
+    RecordProperty("TestType", "requirements-based");
+    RecordProperty("DerivationTechnique", "design-analysis");
+    RecordProperty("Description", "Check that a stopped deadline can be started again.");
+
     {
         auto first{deadline_.Start()};
         ASSERT_TRUE(first.has_value());
@@ -150,6 +190,11 @@ TEST_F(DeadlineHandleTest, StartAfterStopWorksAgain)
 
 TEST_F(DeadlineHandleTest, DoStartErrorIsPassedThrough)
 {
+    RecordProperty("PartiallyVerifies", "comp_req__health_monitor__dl_failed_reuse");
+    RecordProperty("TestType", "requirements-based");
+    RecordProperty("DerivationTechnique", "design-analysis");
+    RecordProperty("Description", "Check that a start error of the deadline reaches the caller without a stop.");
+
     deadline_.start_result = score::MakeUnexpected(ErrorCode::kDeadlineFailed);
 
     const auto handle{deadline_.Start()};
@@ -161,6 +206,11 @@ TEST_F(DeadlineHandleTest, DoStartErrorIsPassedThrough)
 
 TEST_F(DeadlineHandleTest, DoStartErrorLeavesDeadlineStartable)
 {
+    RecordProperty("PartiallyVerifies", "comp_req__health_monitor__dl_failed_reuse");
+    RecordProperty("TestType", "requirements-based");
+    RecordProperty("DerivationTechnique", "design-analysis");
+    RecordProperty("Description", "Check that a failed start does not mark the deadline as running.");
+
     deadline_.start_result = score::MakeUnexpected(ErrorCode::kDeadlineFailed);
     const auto failed{deadline_.Start()};
     ASSERT_FALSE(failed.has_value());

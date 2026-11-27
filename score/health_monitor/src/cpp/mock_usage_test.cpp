@@ -135,6 +135,11 @@ class MockUsageCycleTest : public MockUsageTest
 
 TEST_F(MockUsageTest, InitTakesMonitorsThenStartsHealthMonitor)
 {
+    RecordProperty("PartiallyVerifies", "comp_req__health_monitor__monitor_once");
+    RecordProperty("TestType", "interface-test");
+    RecordProperty("DerivationTechnique", "design-analysis");
+    RecordProperty("Description", "Check that the mocks let a component take its monitors before it starts.");
+
     ::testing::InSequence sequence;
     ExpectMonitorsTaken();
     EXPECT_CALL(health_monitor_, Start()).WillOnce(::testing::Return(score::Result<void>{}));
@@ -144,6 +149,11 @@ TEST_F(MockUsageTest, InitTakesMonitorsThenStartsHealthMonitor)
 
 TEST_F(MockUsageTest, InitFailsOnUnknownTagAndNeverStarts)
 {
+    RecordProperty("PartiallyVerifies", "comp_req__health_monitor__monitor_once");
+    RecordProperty("TestType", "interface-test");
+    RecordProperty("DerivationTechnique", "design-analysis");
+    RecordProperty("Description", "Check that a mocked unknown monitor tag stops the component before start.");
+
     EXPECT_CALL(health_monitor_, GetHeartbeatMonitor(kHeartbeatTag))
         .WillOnce(::testing::Return(score::MakeUnexpected<Taken<HeartbeatMonitor>>(MakeError(ErrorCode::kUnknownTag))));
     EXPECT_CALL(health_monitor_, Start()).Times(0);
@@ -156,6 +166,11 @@ TEST_F(MockUsageTest, InitFailsOnUnknownTagAndNeverStarts)
 
 TEST_F(MockUsageTest, InitFailsOnUnknownDeadlineTagAndNeverStarts)
 {
+    RecordProperty("PartiallyVerifies", "comp_req__health_monitor__monitor_once");
+    RecordProperty("TestType", "interface-test");
+    RecordProperty("DerivationTechnique", "design-analysis");
+    RecordProperty("Description", "Check that a mocked unknown deadline tag stops the component before start.");
+
     EXPECT_CALL(health_monitor_, GetHeartbeatMonitor(kHeartbeatTag)).WillOnce(::testing::Return(MakeTaken(heartbeat_)));
     EXPECT_CALL(health_monitor_, GetLogicMonitor(kLogicTag)).WillOnce(::testing::Return(MakeTaken(logic_)));
     EXPECT_CALL(health_monitor_, GetDeadlineMonitor(kDeadlineMonitorTag))
@@ -172,6 +187,11 @@ TEST_F(MockUsageTest, InitFailsOnUnknownDeadlineTagAndNeverStarts)
 
 TEST_F(MockUsageTest, InitSurfacesStartError)
 {
+    RecordProperty("PartiallyVerifies", "comp_req__health_monitor__monitor_once");
+    RecordProperty("TestType", "interface-test");
+    RecordProperty("DerivationTechnique", "design-analysis");
+    RecordProperty("Description", "Check that a mocked start error reaches the component caller.");
+
     ExpectMonitorsTaken();
     EXPECT_CALL(health_monitor_, Start())
         .WillOnce(::testing::Return(score::MakeUnexpected<void>(MakeError(ErrorCode::kNotTaken))));
@@ -184,6 +204,14 @@ TEST_F(MockUsageTest, InitSurfacesStartError)
 
 TEST_F(MockUsageCycleTest, CycleHeartbeatsTransitionsAndRunsDeadlineInOrder)
 {
+    RecordProperty(
+        "PartiallyVerifies",
+        "comp_req__health_monitor__hb_too_late, comp_req__health_monitor__lg_invalid_trans, "
+        "comp_req__health_monitor__dl_no_stop");
+    RecordProperty("TestType", "interface-test");
+    RecordProperty("DerivationTechnique", "design-analysis");
+    RecordProperty("Description", "Check that the mocks record a heartbeat, a transition and a deadline in order.");
+
     ::testing::InSequence sequence;
     EXPECT_CALL(heartbeat_, Heartbeat());
     EXPECT_CALL(logic_, Transition(kRunningState)).WillOnce(::testing::Return(kRunningState));
@@ -195,6 +223,11 @@ TEST_F(MockUsageCycleTest, CycleHeartbeatsTransitionsAndRunsDeadlineInOrder)
 
 TEST_F(MockUsageCycleTest, CycleSurfacesInvalidTransitionAndSkipsDeadline)
 {
+    RecordProperty("PartiallyVerifies", "comp_req__health_monitor__lg_invalid_trans");
+    RecordProperty("TestType", "interface-test");
+    RecordProperty("DerivationTechnique", "design-analysis");
+    RecordProperty("Description", "Check that a mocked invalid transition reaches the component caller.");
+
     EXPECT_CALL(heartbeat_, Heartbeat());
     EXPECT_CALL(logic_, Transition(kRunningState))
         .WillOnce(::testing::Return(score::MakeUnexpected<StateTag>(MakeError(ErrorCode::kInvalidTransition))));
@@ -209,6 +242,11 @@ TEST_F(MockUsageCycleTest, CycleSurfacesInvalidTransitionAndSkipsDeadline)
 
 TEST_F(MockUsageCycleTest, CycleSurfacesDeadlineStartErrorWithoutStop)
 {
+    RecordProperty("PartiallyVerifies", "comp_req__health_monitor__dl_failed_reuse");
+    RecordProperty("TestType", "interface-test");
+    RecordProperty("DerivationTechnique", "design-analysis");
+    RecordProperty("Description", "Check that a mocked deadline start error reaches the caller without a stop.");
+
     EXPECT_CALL(heartbeat_, Heartbeat());
     EXPECT_CALL(logic_, Transition(kRunningState)).WillOnce(::testing::Return(kRunningState));
     EXPECT_CALL(deadline_, DoStart())

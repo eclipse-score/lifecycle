@@ -70,6 +70,11 @@ static_assert(!std::is_default_constructible<Taken<Counter>>::value, "Taken must
 
 TEST(TakenTest, AccessorsReturnTheTakenObject)
 {
+    RecordProperty("PartiallyVerifies", "comp_req__health_monitor__monitor_once");
+    RecordProperty("TestType", "requirements-based");
+    RecordProperty("DerivationTechnique", "design-analysis");
+    RecordProperty("Description", "Check that every accessor of a taken handle returns the taken object.");
+
     Counter counter{};
     const auto taken{MakeTaken(counter)};
 
@@ -80,6 +85,11 @@ TEST(TakenTest, AccessorsReturnTheTakenObject)
 
 TEST(TakenTest, ArrowWritesToTheTakenObject)
 {
+    RecordProperty("PartiallyVerifies", "comp_req__health_monitor__monitor_once");
+    RecordProperty("TestType", "requirements-based");
+    RecordProperty("DerivationTechnique", "design-analysis");
+    RecordProperty("Description", "Check that a write through the arrow operator reaches the taken object.");
+
     Counter counter{};
     const auto taken{MakeTaken(counter)};
 
@@ -90,6 +100,11 @@ TEST(TakenTest, ArrowWritesToTheTakenObject)
 
 TEST(TakenTest, MoveConstructionTransfersTheObject)
 {
+    RecordProperty("PartiallyVerifies", "comp_req__health_monitor__monitor_once");
+    RecordProperty("TestType", "requirements-based");
+    RecordProperty("DerivationTechnique", "design-analysis");
+    RecordProperty("Description", "Check that move construction hands the taken object to the new handle.");
+
     Counter counter{};
     auto source{MakeTaken(counter)};
 
@@ -100,6 +115,11 @@ TEST(TakenTest, MoveConstructionTransfersTheObject)
 
 TEST(TakenTest, MoveAssignmentTransfersTheObject)
 {
+    RecordProperty("PartiallyVerifies", "comp_req__health_monitor__monitor_once");
+    RecordProperty("TestType", "requirements-based");
+    RecordProperty("DerivationTechnique", "design-analysis");
+    RecordProperty("Description", "Check that move assignment hands the taken object to the target handle.");
+
     Counter first{};
     Counter second{};
     auto source{MakeTaken(first)};
@@ -112,6 +132,11 @@ TEST(TakenTest, MoveAssignmentTransfersTheObject)
 
 TEST(TakenTest, ConversionToBaseTransfersTheObject)
 {
+    RecordProperty("PartiallyVerifies", "comp_req__health_monitor__monitor_once");
+    RecordProperty("TestType", "requirements-based");
+    RecordProperty("DerivationTechnique", "design-analysis");
+    RecordProperty("Description", "Check that converting to a handle of the base type keeps the taken object.");
+
     DerivedCounter counter{};
     auto source{MakeTaken(counter)};
 
@@ -122,6 +147,11 @@ TEST(TakenTest, ConversionToBaseTransfersTheObject)
 
 TEST(TakenTest, KeepsTheObjectAliveAfterTheOtherOwnerReleasesIt)
 {
+    RecordProperty("PartiallyVerifies", "comp_req__health_monitor__monitor_once");
+    RecordProperty("TestType", "requirements-based");
+    RecordProperty("DerivationTechnique", "design-analysis");
+    RecordProperty("Description", "Check that a taken object outlives the release of its other owner.");
+
     bool destroyed{false};
     auto owner{std::make_shared<DestructionFlag>(destroyed)};
     const Taken<DestructionFlag> taken{owner};
@@ -134,6 +164,11 @@ TEST(TakenTest, KeepsTheObjectAliveAfterTheOtherOwnerReleasesIt)
 
 TEST(TakenTest, DestroysTheObjectWithTheLastOwner)
 {
+    RecordProperty("PartiallyVerifies", "comp_req__health_monitor__monitor_once");
+    RecordProperty("TestType", "requirements-based");
+    RecordProperty("DerivationTechnique", "design-analysis");
+    RecordProperty("Description", "Check that the taken object is destroyed when its last owner is gone.");
+
     bool destroyed{false};
     auto owner{std::make_shared<DestructionFlag>(destroyed)};
     {
@@ -146,6 +181,11 @@ TEST(TakenTest, DestroysTheObjectWithTheLastOwner)
 
 TEST(TakenTest, MoveKeepsTheUseCount)
 {
+    RecordProperty("PartiallyVerifies", "comp_req__health_monitor__monitor_once");
+    RecordProperty("TestType", "requirements-based");
+    RecordProperty("DerivationTechnique", "design-analysis");
+    RecordProperty("Description", "Check that moving a handle does not add an owner of the taken object.");
+
     auto owner{std::make_shared<Counter>()};
     const std::weak_ptr<Counter> observer{owner};
     auto source{Taken<Counter>{owner}};
@@ -158,6 +198,11 @@ TEST(TakenTest, MoveKeepsTheUseCount)
 
 TEST(TakenTest, ConversionToBaseKeepsTheSharedOwnership)
 {
+    RecordProperty("PartiallyVerifies", "comp_req__health_monitor__monitor_once");
+    RecordProperty("TestType", "requirements-based");
+    RecordProperty("DerivationTechnique", "design-analysis");
+    RecordProperty("Description", "Check that a handle converted to the base type stays the only owner.");
+
     auto owner{std::make_shared<DerivedCounter>()};
     const std::weak_ptr<DerivedCounter> observer{owner};
     Taken<DerivedCounter> source{owner};
@@ -171,6 +216,11 @@ TEST(TakenTest, ConversionToBaseKeepsTheSharedOwnership)
 
 TEST(TakenTest, MoveAssignmentReleasesTheReplacedObject)
 {
+    RecordProperty("PartiallyVerifies", "comp_req__health_monitor__monitor_once");
+    RecordProperty("TestType", "requirements-based");
+    RecordProperty("DerivationTechnique", "design-analysis");
+    RecordProperty("Description", "Check that move assignment releases the object the target held.");
+
     bool first_destroyed{false};
     bool second_destroyed{false};
     Taken<DestructionFlag> source{std::make_shared<DestructionFlag>(first_destroyed)};
@@ -184,11 +234,21 @@ TEST(TakenTest, MoveAssignmentReleasesTheReplacedObject)
 
 TEST(TakenDeathTest, ConstructionFromNullAborts)
 {
+    RecordProperty("PartiallyVerifies", "comp_req__health_monitor__monitor_once");
+    RecordProperty("TestType", "fault-injection");
+    RecordProperty("DerivationTechnique", "error-guessing");
+    RecordProperty("Description", "Check that building a handle from a null pointer aborts.");
+
     EXPECT_DEATH(Taken<Counter>{std::shared_ptr<Counter>{}}, "");
 }
 
 TEST(TakenDeathTest, AccessAfterConversionToBaseAborts)
 {
+    RecordProperty("PartiallyVerifies", "comp_req__health_monitor__monitor_once");
+    RecordProperty("TestType", "fault-injection");
+    RecordProperty("DerivationTechnique", "error-guessing");
+    RecordProperty("Description", "Check that access through a handle converted away aborts.");
+
     DerivedCounter counter{};
     auto source{MakeTaken(counter)};
     const Taken<Counter> target{std::move(source)};
@@ -198,6 +258,11 @@ TEST(TakenDeathTest, AccessAfterConversionToBaseAborts)
 
 TEST(TakenDeathTest, AccessAfterMoveConstructionAborts)
 {
+    RecordProperty("PartiallyVerifies", "comp_req__health_monitor__monitor_once");
+    RecordProperty("TestType", "fault-injection");
+    RecordProperty("DerivationTechnique", "error-guessing");
+    RecordProperty("Description", "Check that every access through a moved-from handle aborts.");
+
     Counter counter{};
     auto source{MakeTaken(counter)};
     const Taken<Counter> target{std::move(source)};
@@ -209,6 +274,11 @@ TEST(TakenDeathTest, AccessAfterMoveConstructionAborts)
 
 TEST(TakenDeathTest, AccessAfterMoveAssignmentAborts)
 {
+    RecordProperty("PartiallyVerifies", "comp_req__health_monitor__monitor_once");
+    RecordProperty("TestType", "fault-injection");
+    RecordProperty("DerivationTechnique", "error-guessing");
+    RecordProperty("Description", "Check that access through a handle moved away by assignment aborts.");
+
     Counter first{};
     Counter second{};
     auto source{MakeTaken(first)};

@@ -23,6 +23,15 @@ using namespace score::health_monitor;
 
 TEST(ErrorCodeTest, IntegerValuesAreStable)
 {
+    RecordProperty(
+        "PartiallyVerifies",
+        "comp_req__health_monitor__cfg_no_monitor, comp_req__health_monitor__monitor_once, "
+        "comp_req__health_monitor__dl_failed_reuse, comp_req__health_monitor__lg_invalid_trans, "
+        "comp_req__health_monitor__lg_unknown_state");
+    RecordProperty("TestType", "interface-test");
+    RecordProperty("DerivationTechnique", "equivalence-classes");
+    RecordProperty("Description", "Check that every error code keeps its published integer value.");
+
     EXPECT_EQ(static_cast<int>(ErrorCode::kUnknownTag), 1);
     EXPECT_EQ(static_cast<int>(ErrorCode::kAlreadyTaken), 2);
     EXPECT_EQ(static_cast<int>(ErrorCode::kNotTaken), 3);
@@ -37,6 +46,15 @@ TEST(ErrorCodeTest, IntegerValuesAreStable)
 
 TEST(ErrorDomainTest, MessageForEveryCode)
 {
+    RecordProperty(
+        "PartiallyVerifies",
+        "comp_req__health_monitor__cfg_no_monitor, comp_req__health_monitor__monitor_once, "
+        "comp_req__health_monitor__dl_failed_reuse, comp_req__health_monitor__lg_invalid_trans, "
+        "comp_req__health_monitor__lg_unknown_state");
+    RecordProperty("TestType", "interface-test");
+    RecordProperty("DerivationTechnique", "equivalence-classes");
+    RecordProperty("Description", "Check that the error domain returns the message of every error code.");
+
     const ErrorDomain domain{};
     const auto message{[&domain](const ErrorCode code) {
         return domain.MessageFor(static_cast<score::result::ErrorCode>(code));
@@ -56,6 +74,15 @@ TEST(ErrorDomainTest, MessageForEveryCode)
 
 TEST(ErrorDomainTest, UnmappedValuesGiveUnknownError)
 {
+    RecordProperty(
+        "PartiallyVerifies",
+        "comp_req__health_monitor__cfg_no_monitor, comp_req__health_monitor__monitor_once, "
+        "comp_req__health_monitor__dl_failed_reuse, comp_req__health_monitor__lg_invalid_trans, "
+        "comp_req__health_monitor__lg_unknown_state");
+    RecordProperty("TestType", "interface-test");
+    RecordProperty("DerivationTechnique", "boundary-values");
+    RecordProperty("Description", "Check that values next to the code range give the unknown error message.");
+
     const ErrorDomain domain{};
 
     EXPECT_EQ(domain.MessageFor(0), "Unknown error");
@@ -65,6 +92,15 @@ TEST(ErrorDomainTest, UnmappedValuesGiveUnknownError)
 
 TEST(MakeErrorTest, KeepsCodeAndMessage)
 {
+    RecordProperty(
+        "PartiallyVerifies",
+        "comp_req__health_monitor__cfg_no_monitor, comp_req__health_monitor__monitor_once, "
+        "comp_req__health_monitor__dl_failed_reuse, comp_req__health_monitor__lg_invalid_trans, "
+        "comp_req__health_monitor__lg_unknown_state");
+    RecordProperty("TestType", "interface-test");
+    RecordProperty("DerivationTechnique", "equivalence-classes");
+    RecordProperty("Description", "Check that an error made from a code keeps that code and its message.");
+
     const score::result::Error error{MakeError(ErrorCode::kNotTaken)};
 
     EXPECT_EQ(*error, static_cast<score::result::ErrorCode>(ErrorCode::kNotTaken));
@@ -74,6 +110,15 @@ TEST(MakeErrorTest, KeepsCodeAndMessage)
 
 TEST(MakeErrorTest, KeepsUserMessage)
 {
+    RecordProperty(
+        "PartiallyVerifies",
+        "comp_req__health_monitor__cfg_no_monitor, comp_req__health_monitor__monitor_once, "
+        "comp_req__health_monitor__dl_failed_reuse, comp_req__health_monitor__lg_invalid_trans, "
+        "comp_req__health_monitor__lg_unknown_state");
+    RecordProperty("TestType", "interface-test");
+    RecordProperty("DerivationTechnique", "equivalence-classes");
+    RecordProperty("Description", "Check that an error made with a user message keeps that user message.");
+
     const score::result::Error error{MakeError(ErrorCode::kInvalidArgument, "cycle is zero")};
 
     EXPECT_EQ(error.Message(), "Invalid argument");
@@ -82,6 +127,15 @@ TEST(MakeErrorTest, KeepsUserMessage)
 
 TEST(MakeErrorTest, MakeUnexpectedFindsMakeErrorThroughAdl)
 {
+    RecordProperty(
+        "PartiallyVerifies",
+        "comp_req__health_monitor__cfg_no_monitor, comp_req__health_monitor__monitor_once, "
+        "comp_req__health_monitor__dl_failed_reuse, comp_req__health_monitor__lg_invalid_trans, "
+        "comp_req__health_monitor__lg_unknown_state");
+    RecordProperty("TestType", "interface-test");
+    RecordProperty("DerivationTechnique", "design-analysis");
+    RecordProperty("Description", "Check that MakeUnexpected builds a health monitor error from an error code.");
+
     const score::Result<int> result{score::MakeUnexpected(ErrorCode::kAlreadyStarted)};
 
     ASSERT_FALSE(result.has_value());
@@ -91,6 +145,15 @@ TEST(MakeErrorTest, MakeUnexpectedFindsMakeErrorThroughAdl)
 
 TEST(MakeErrorTest, ErrorsOfDifferentCodesAreUnequal)
 {
+    RecordProperty(
+        "PartiallyVerifies",
+        "comp_req__health_monitor__cfg_no_monitor, comp_req__health_monitor__monitor_once, "
+        "comp_req__health_monitor__dl_failed_reuse, comp_req__health_monitor__lg_invalid_trans, "
+        "comp_req__health_monitor__lg_unknown_state");
+    RecordProperty("TestType", "interface-test");
+    RecordProperty("DerivationTechnique", "equivalence-classes");
+    RecordProperty("Description", "Check that errors compare equal by code and unequal across codes.");
+
     EXPECT_EQ(MakeError(ErrorCode::kNoMonitors), MakeError(ErrorCode::kNoMonitors));
     EXPECT_NE(MakeError(ErrorCode::kNoMonitors), MakeError(ErrorCode::kNotTaken));
 }
