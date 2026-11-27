@@ -44,6 +44,19 @@ inline const char* FindArg(int argc, char** argv, std::string_view name)
     return nullptr;
 }
 
+/// @brief Checks if a standalone boolean flag (like "--help") is present in the arguments.
+inline bool HasFlag(int argc, char** argv, std::string_view name)
+{
+    for (int i = 1; i < argc; ++i)
+    {
+        if (argv[i] == name)
+        {
+            return true;
+        }
+    }
+    return false;
+}
+
 /// @brief Converts a raw argument string to T.
 /// @details Add specializations for further types.
 template <typename T>
@@ -55,27 +68,42 @@ inline int ConvertArg<int>(const char* raw_value)
     return std::atoi(raw_value);
 }
 
-/// @brief Parses all given arguments, if a flag is not given the
-///        `default_value` is used.
+/// @brief Parses all given arguments, supporting both valued arguments and boolean flags.
 ///
 /// Usage:
-///   struct arg
+///   struct HelpArg
 ///   {
-///       static constexpr std::string_view name = "--my-arg";
-///       using type = int;
-///       static constexpr type default_value = 0;
+///       static constexpr std::string_view name = "--help";
+///       using type = bool;
 ///   };
-///   auto [start] = ParseArgs<StartPos>(argc, argv);
+///
+///   struct PortArg
+///   {
+///       static constexpr std::string_view name = "--port";
+///       using type = int;
+///       static constexpr type default_value = 8080;
+///   };
+///
+///   auto [help, port] = ParseArgs<HelpArg, PortArg>(argc, argv);
 template <typename... Opts>
 std::tuple<typename Opts::type...> ParseArgs(int argc, char** argv)
 {
     return std::tuple<typename Opts::type...>{[&] {
-        const char* raw_value = FindArg(argc, argv, Opts::name);
-        if (raw_value == nullptr)
+        if constexpr (std::is_same_v<typename Opts::type, bool>)
         {
-            return Opts::default_value;
+            // For boolean flags, presence in the arguments evaluates to true
+            return HasFlag(argc, argv, Opts::name);
         }
-        return ConvertArg<typename Opts::type>(raw_value);
+        else
+        {
+            // For other types, search for the associated value
+            const char* raw_value = FindArg(argc, argv, Opts::name);
+            if (raw_value == nullptr)
+            {
+                return Opts::default_value;
+            }
+            return ConvertArg<typename Opts::type>(raw_value);
+        }
     }()...};
 }
 

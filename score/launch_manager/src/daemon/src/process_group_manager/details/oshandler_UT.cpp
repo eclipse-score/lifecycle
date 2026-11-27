@@ -61,7 +61,7 @@ TEST_F(OsHandlerTest, WaitReturnsProcessId_FindTerminatedIsCalled)
     process_map_.insertIfNotTerminated(1000, &component_);
 
     constexpr int32_t kExitStatus = 42;
-    EXPECT_CALL(ccontroller_, terminated(_, kExitStatus)).Times(AtLeast(1));
+    EXPECT_CALL(ccontroller_, terminated(_, _, kExitStatus)).Times(AtLeast(1));
 
     // sys_wait returns pid 1000 once, then blocks with error
     EXPECT_CALL(*sys_wait_mock_, wait(_))
@@ -151,7 +151,7 @@ TEST_F(OsHandlerTest, WaitReturnsProcessIdBeforeRegistration_LaterRegistrationRe
     // insertIfNotTerminated must detect the previously stored termination and return kMatched with the saved exit
     // status instead of creating a new live entry. Handling the termination is up to the caller, so the controller
     // is not notified.
-    EXPECT_CALL(ccontroller_, terminated(_, _)).Times(0);
+    EXPECT_CALL(ccontroller_, terminated(_, _, _)).Times(0);
     const SafeProcessMapInsertResult result = process_map_.insertIfNotTerminated(4000, &component_);
     EXPECT_EQ(result.type, score::mw::lifecycle::internal::SafeProcessMapReturnType::kMatched);
     EXPECT_EQ(result.exit_status, 99);
@@ -200,7 +200,7 @@ TEST_F(OsHandlerTest, WaitReturnsErrorThenProcessId_HandlerRecoversAndInvokesCal
     // given
     process_map_.insertIfNotTerminated(5000, &component_);
 
-    EXPECT_CALL(ccontroller_, terminated(_, 7)).Times(AtLeast(1));
+    EXPECT_CALL(ccontroller_, terminated(_, _, 7)).Times(AtLeast(1));
 
     EXPECT_CALL(*sys_wait_mock_, wait(_))
         .WillOnce(Return(score::cpp::unexpected(score::os::Error::createFromErrno(ECHILD))))

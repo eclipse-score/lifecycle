@@ -20,10 +20,6 @@
 namespace score::mw::lifecycle::internal
 {
 
-ProcessTerminatedReadyCondition::ProcessTerminatedReadyCondition(std::chrono::milliseconds timeout) : timeout_(timeout)
-{
-}
-
 void ProcessTerminatedReadyCondition::prepare() const
 {
     /// A termination of the previous process may still be reported after its wait
@@ -32,37 +28,40 @@ void ProcessTerminatedReadyCondition::prepare() const
     waiter_.reset();
 }
 
-Result<void> ProcessTerminatedReadyCondition::wait(cpp::stop_token stop_token, const Handle& handle) const
+Result<void> ProcessTerminatedReadyCondition::wait(
+    cpp::stop_token stop_token,
+    const Handle& handle,
+    std::chrono::milliseconds timeout) const
 {
     SCORE_LANGUAGE_FUTURECPP_ASSERT_MESSAGE(
         std::holds_alternative<ProcessHandle>(handle),
         "ProcessTerminatedReadyCondition should only be called with a ProcessHandle");
 
-    if (!waiter_.wait_with_timeout(stop_token, timeout_))
+    if (!waiter_.wait_with_timeout(stop_token, timeout))
     {
         // The wait also ends without a termination if a stop was requested, which is not a timeout.
         return MakeUnexpected(stop_token.stop_requested() ? ExecErrc::kGeneralError : ExecErrc::kTimeout);
     }
 
+    // Only a successful termination satisfies the ready condition.
+    if (status_.load() != 0)
+    {
+        return MakeUnexpected(ExecErrc::kGeneralError);
+    }
+
     return {};
 }
 
-bool ProcessTerminatedReadyCondition::tryHandleTermination(const Handle& handle, int32_t status) const
+void ProcessTerminatedReadyCondition::handleTermination(const Handle& handle, int32_t status) const
 {
     SCORE_LANGUAGE_FUTURECPP_ASSERT_MESSAGE(
         std::holds_alternative<ProcessHandle>(handle),
         "ProcessTerminatedReadyCondition should only be called with a ProcessHandle");
 
-    // Only a successful termination satisfies the ready condition. A rejected termination does not
-    // need to wake the waiter here: the caller treats it as unexpected and requests a stop on the
-    // token passed to wait(), which interrupts wait_with_timeout() (see IReadyCondition).
-    if (status != 0)
-    {
-        return false;
-    }
-
+    // Store the status before waking up the waiter, so that wait() sees it once it is woken up.
+    // Every termination wakes up the waiter: a failed termination must end the wait as well.
+    status_.store(status);
     waiter_.terminated();
-    return true;
 }
 
 }  // namespace score::mw::lifecycle::internal

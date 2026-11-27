@@ -25,7 +25,9 @@ from attribute_plugin import add_test_properties
     test_type="requirements-based",
     derivation_technique="requirements-analysis",
 )
-def test_lm_shutdown(target, setup_test, assert_test_results, remote_test_dir):
+def test_lm_shutdown_during_rt_switch(
+    target, setup_test, assert_test_results, remote_test_dir
+):
     """
     Objective: Verifies that the Launch Manager exits after performing a
     shutdown (stopping all processes it owns) when requested via SIGTERM, and

@@ -12,6 +12,7 @@
  ********************************************************************************/
 
 #include "score/mw/launch_manager/process_group_manager/details/safe_process_map.hpp"
+#include "score/mw/launch_manager/process_group_manager/details/handle.hpp"
 #include <score/assert.hpp>
 
 namespace score::mw::lifecycle::internal
@@ -45,7 +46,7 @@ SafeProcessMapReturnType SafeProcessMap::findTerminated(osal::ProcessID key, int
     // could deadlock.
     if (result.match.has_value())
     {
-        termination_handler_.terminated(result.match->get(), status);
+        termination_handler_.terminated(result.match->get(), ProcessHandle{key, nullptr}, status);
     }
 
     return result.type;

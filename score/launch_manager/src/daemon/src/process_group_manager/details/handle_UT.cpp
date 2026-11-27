@@ -13,6 +13,8 @@
 
 #include "score/mw/launch_manager/process_group_manager/details/handle.hpp"
 #include <gtest/gtest.h>
+#include <sstream>
+#include <string>
 
 namespace score::mw::lifecycle::internal
 {
@@ -51,6 +53,73 @@ TEST(HandleTest, InvalidatingEmptyHandleKeepsItEmpty)
     invalidate(handle);
 
     EXPECT_TRUE(std::holds_alternative<EmptyHandle>(handle));
+}
+
+TEST(HandleTest, ProcessHandlesWithSamePidAreSameResource)
+{
+    RecordProperty("Description", "ProcessHandles with the same pid refer to the same resource.");
+
+    EXPECT_TRUE(isSameResource(ProcessHandle{42, nullptr}, ProcessHandle{42, nullptr}));
+}
+
+TEST(HandleTest, ProcessHandlesWithDifferentPidAreNotSameResource)
+{
+    RecordProperty("Description", "ProcessHandles with different pids refer to different resources.");
+
+    EXPECT_FALSE(isSameResource(ProcessHandle{42, nullptr}, ProcessHandle{43, nullptr}));
+}
+
+TEST(HandleTest, EmptyHandleIsNeverSameResource)
+{
+    RecordProperty("Description", "An EmptyHandle does not refer to a resource, so it never matches any handle.");
+
+    EXPECT_FALSE(isSameResource(EmptyHandle{}, EmptyHandle{}));
+    EXPECT_FALSE(isSameResource(EmptyHandle{}, ProcessHandle{42, nullptr}));
+    EXPECT_FALSE(isSameResource(ProcessHandle{42, nullptr}, EmptyHandle{}));
+}
+
+TEST(HandleTest, InvalidatedHandleIsNeverSameResource)
+{
+    RecordProperty(
+        "Description", "An invalidated handle no longer refers to a resource, so it never matches any handle.");
+
+    Handle invalidated = ProcessHandle{42, nullptr};
+    invalidate(invalidated);
+
+    EXPECT_FALSE(isSameResource(invalidated, ProcessHandle{42, nullptr}));
+    EXPECT_FALSE(isSameResource(ProcessHandle{42, nullptr}, invalidated));
+    EXPECT_FALSE(isSameResource(invalidated, invalidated));
+}
+
+std::string toString(const Handle& handle)
+{
+    std::ostringstream stream;
+    stream << handle;
+    return stream.str();
+}
+
+TEST(HandleTest, ProcessHandleIsWrittenAsPid)
+{
+    RecordProperty("Description", "A ProcessHandle is written to a stream as its pid.");
+
+    EXPECT_EQ(toString(ProcessHandle{42, nullptr}), "pid: 42");
+}
+
+TEST(HandleTest, InvalidatedProcessHandleIsWrittenAsNothing)
+{
+    RecordProperty("Description", "Nothing is written for an invalidated ProcessHandle.");
+
+    Handle handle = ProcessHandle{42, nullptr};
+    invalidate(handle);
+
+    EXPECT_EQ(toString(handle), "");
+}
+
+TEST(HandleTest, EmptyHandleIsWrittenAsNothing)
+{
+    RecordProperty("Description", "Nothing is written for an EmptyHandle.");
+
+    EXPECT_EQ(toString(EmptyHandle{}), "");
 }
 
 }  // namespace

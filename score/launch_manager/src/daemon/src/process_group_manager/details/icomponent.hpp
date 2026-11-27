@@ -15,6 +15,7 @@
 #define SCORE_LCM_ICOMPONENT_HPP_INCLUDED
 
 #include "score/mw/launch_manager/common/identifier_hash.hpp"
+#include "score/mw/launch_manager/process_group_manager/details/handle.hpp"
 #include <score/stop_token.hpp>
 #include <chrono>
 #include <cstdint>
@@ -61,8 +62,11 @@ class IComponent
     /// @p stop_token Token that can be stopped to exit the deactivation early.
     virtual RequestResult deactivate(score::cpp::stop_token stop_token) = 0;
 
-    /// @brief Notify the component that it has terminated with status @p status
-    virtual TerminationResult tryHandleTermination(int32_t status) = 0;
+    /// @brief Notify the component that the resource identified by @p terminated has terminated with status @p status.
+    /// @details @p terminated only identifies the resource, it must not be used to interact with it (e.g. a
+    ///          ProcessHandle carries no IPC sync object). A termination of a resource which the component no
+    ///          longer tracks, e.g. a late termination of a previous instance, is ignored.
+    virtual TerminationResult tryHandleTermination(const Handle& terminated, int32_t status) = 0;
 
     /// @brief Notify the component that its alive supervision has failed.
     /// @p failure_timestamp Timestamp that pinpoints the supervision failure.

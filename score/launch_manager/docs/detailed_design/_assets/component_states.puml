@@ -1,0 +1,64 @@
+' *******************************************************************************
+' Copyright (c) 2026 Contributors to the Eclipse Foundation
+'
+' See the NOTICE file(s) distributed with this work for additional
+' information regarding copyright ownership.
+'
+' This program and the accompanying materials are made available under the
+' terms of the Apache License Version 2.0 which is available at
+' https://www.apache.org/licenses/LICENSE-2.0
+'
+' SPDX-License-Identifier: Apache-2.0
+' *******************************************************************************
+
+@startuml component_states
+
+title Component State Machine
+
+state Terminated : no resource is running
+state Starting : Executing start_action,\nthen waiting for the ready condition
+state Ready : resource has finished its startup,\nsupervision active if configured and the resource is still running
+state Terminating {
+  state GracefulShutdown : Deactivating supervision, executing stop_action,\nthen waiting up to the shutdown timeout
+  state StopRequestFailed : waiting up to kMaxSigKillDelay\nfor a termination which is already under way
+  state ForcedShutdown : Executing force_stop_action,\nthen waiting up to kMaxSigKillDelay\n(also if force_stop_action failed)
+
+  [*] --> GracefulShutdown
+  GracefulShutdown -[#red]-> StopRequestFailed : <color:red>stop_action failed</color>
+  GracefulShutdown -[#red]-> ForcedShutdown : <color:red>shutdown timeout expired</color>\n<color:red>/ force_stop_action</color>
+
+  note left of StopRequestFailed
+    A stop request also fails if the resource has
+    already terminated, but its termination is
+    not handled yet.
+  end note
+}
+
+[*] -d-> Terminated
+
+Terminated -down-> Starting : activate() [retries left, not cancelled]
+Starting --> Ready : ready condition met
+Starting -[#red]-> Terminating : <color:red>activation failed</color>
+note on link
+  Activation fails if
+  * the resource terminated unexpectedly during startup
+  * the ready condition timed out
+  * the ready condition failed, e.g. resource terminated or
+    activation got cancelled
+  * supervision could not be activated
+end note
+
+Ready --> Terminating : deactivate()
+Ready -up[#red]-> Terminated : <color:red>unexpected termination</color>
+
+Terminating -up-> Terminated : terminated
+StopRequestFailed -up[#red]-> Terminated : <color:red>kMaxSigKillDelay expired, giving up</color>
+ForcedShutdown -up[#red]-> Terminated : <color:red>kMaxSigKillDelay expired, giving up</color>
+
+legend bottom
+  A failed activation is retried up to //activation_retry_attempts// times; afterwards //activate()// fails.
+  A self-terminating resource exiting with 0 is expected and keeps the component **Ready**.
+  Every failure ends in **Terminated**, so the component can always be activated again.
+endlegend
+
+@enduml

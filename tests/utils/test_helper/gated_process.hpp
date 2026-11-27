@@ -33,6 +33,12 @@ inline std::string gatedReleasePath(const std::string_view component)
     return std::string{component} + "_release";
 }
 
+/// @return File that lets the gated_process deployed as `component` report running.
+inline std::string gatedExitingPath(const std::string_view component)
+{
+    return std::string{component} + "_exiting";
+}
+
 /// @brief Waits until the launch manager reports an activation in progress.
 ///
 /// An accepted request is only recorded as pending; its transition starts on a later

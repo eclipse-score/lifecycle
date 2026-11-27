@@ -80,6 +80,22 @@ The component deactivation sequence is executed synchronously on a worker thread
 .. uml:: _assets/component_deactivation.puml
    :align: center
 
+
+Component State Machine
+~~~~~~~~~~~~~~~~~~~~~~~
+
+A component manages one resource, currently only a POSIX process, and is always in one of four states:
+
+* **Terminated**: no resource is running. This is the initial state and the state every failure ends in,
+  so a component can always be activated again.
+* **Starting**: the resource has been started and the component waits for its ready condition.
+* **Ready**: the resource has finished its startup and, if configured, is supervised.
+* **Terminating**: the resource has been asked to stop and the component waits for its termination,
+  first gracefully up to the shutdown timeout, then forcefully terminating it.
+
+.. uml:: _assets/component_states.puml
+   :align: center
+
 Process Termination
 ~~~~~~~~~~~~~~~~~~~
 
@@ -132,6 +148,31 @@ may be safely cancelled.
 
 .. uml:: _assets/transition_cancellation_preemption.puml
    :align: center
+
+A cancellation is observed at three points, each of which leaves the component
+in a state the next transition can reason about:
+
+1. **Before the task is executed.** A worker that picks up a task for which
+   cancellation was already requested does not run it and reports it as skipped.
+   The component keeps the state it had before the transition.
+2. **While waiting for the ready condition.** Every ready condition is abortable:
+   the wait for the Running report, a configured file, the termination of the
+   process, or a sequence of these is interrupted and the startup attempt fails.
+   Its process is stopped (SIGTERM, then SIGKILL after the shutdown timeout), no
+   further attempt is started and the activation returns. The component is left
+   stopped.
+3. **Between two startup attempts.** Every failed attempt is stopped before the
+   cancellation is checked. No further attempt is started and the activation
+   returns. The component is left stopped.
+
+Stopping a process is not abortable, whether after a failed attempt or for a
+deactivation, and always runs to its end. The process may be writing its state
+to disk, so it always keeps its full shutdown timeout before SIGKILL follows.
+
+A component that reaches its ready condition despite the cancellation is
+reported as activated and left running. The next transition stops it if its
+target does not need it. The time a cancellation needs is therefore bounded by
+the shutdown timeouts of the components still in flight.
 
 
 

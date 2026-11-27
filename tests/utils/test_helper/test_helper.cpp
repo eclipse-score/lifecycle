@@ -97,7 +97,8 @@ testing::AssertionResult wait_for_files(
         }
         if (std::chrono::steady_clock::now() >= deadline)
         {
-            return testing::AssertionFailure() << "Not created within " << timeout.count() << " ms: " << missing.str();
+            return testing::AssertionFailure()
+                   << "Not created within " << timeout.count() << " ms: " << missing.str() << "\n";
         }
         std::this_thread::sleep_for(kPollInterval);
     }
@@ -137,7 +138,7 @@ void pop_event(
                 return event_received;
             }))
         {
-            ADD_FAILURE() << "No Run Target activation event received within " << timeout.count() << " ms";
+            ADD_FAILURE() << "No Run Target activation event received within " << timeout.count() << " ms\n";
             return;
         }
         std::cout << __FUNCTION__ << "Got event" << std::endl;
@@ -159,7 +160,7 @@ void expect_no_events(const std::chrono::milliseconds timeout)
                 return event_received;
             }))
         {
-            std::cout << "No run target activation event received within " << timeout.count() << " ms";
+            std::cout << "No run target activation event received within " << timeout.count() << " ms\n";
             return;
         }
         event_received = false;

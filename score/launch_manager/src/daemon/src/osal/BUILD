@@ -50,6 +50,7 @@ cc_library(
         ":ifile_waiter",
         ":return_types",
         "//score/launch_manager/src/daemon/src/configuration:component_config",
+        "@score_baselibs//score/concurrency:interruptible_wait",
         "@score_baselibs//score/language/futurecpp",
         "@score_baselibs//score/language/safecpp/string_view:zstring_view",
         "@score_baselibs//score/os:errno",

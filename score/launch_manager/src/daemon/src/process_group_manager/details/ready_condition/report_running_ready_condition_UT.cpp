@@ -16,6 +16,7 @@
 #include "score/mw/lifecycle/execution_error.h"
 #include <gmock/gmock.h>
 #include <gtest/gtest.h>
+#include <future>
 
 namespace score::mw::lifecycle::internal
 {
@@ -36,21 +37,21 @@ const ProcessHandle mock_handle = ProcessHandle{
 TEST(ReportRunningReadyConditionTest, WaitCallsWaitForkRunningWithSyncAndTimeout)
 {
     StrictMock<osal::MockIProcess> launcher;
-    const ReportRunningReadyCondition report_running_ready_condition(launcher, 10ms);
+    const ReportRunningReadyCondition report_running_ready_condition(launcher);
 
     EXPECT_CALL(launcher, waitForkRunning(mock_handle.sync, 10ms)).WillOnce(Return(osal::OsalReturnType::kSuccess));
 
-    static_cast<void>(report_running_ready_condition.wait(cpp::stop_token{}, mock_handle));
+    static_cast<void>(report_running_ready_condition.wait(cpp::stop_token{}, mock_handle, 10ms));
 }
 
 TEST(ReportRunningReadyConditionTest, WaitSucceedsReturnsSuccess)
 {
     NiceMock<osal::MockIProcess> launcher;
-    const ReportRunningReadyCondition report_running_ready_condition(launcher, 10ms);
+    const ReportRunningReadyCondition report_running_ready_condition(launcher);
 
     ON_CALL(launcher, waitForkRunning(_, _)).WillByDefault(Return(osal::OsalReturnType::kSuccess));
 
-    const Result<void> result = report_running_ready_condition.wait(cpp::stop_token{}, mock_handle);
+    const Result<void> result = report_running_ready_condition.wait(cpp::stop_token{}, mock_handle, 10ms);
 
     EXPECT_TRUE(result.has_value());
 }
@@ -58,11 +59,11 @@ TEST(ReportRunningReadyConditionTest, WaitSucceedsReturnsSuccess)
 TEST(ReportRunningReadyConditionTest, WaitFailsReturnsError)
 {
     NiceMock<osal::MockIProcess> launcher;
-    const ReportRunningReadyCondition report_running_ready_condition(launcher, 10ms);
+    const ReportRunningReadyCondition report_running_ready_condition(launcher);
 
     ON_CALL(launcher, waitForkRunning(_, _)).WillByDefault(Return(osal::OsalReturnType::kFail));
 
-    const Result<void> result = report_running_ready_condition.wait(cpp::stop_token{}, mock_handle);
+    const Result<void> result = report_running_ready_condition.wait(cpp::stop_token{}, mock_handle, 10ms);
 
     EXPECT_FALSE(result.has_value());
     EXPECT_EQ(result.error(), ExecErrc::kGeneralError);
@@ -77,17 +78,17 @@ TEST(ReportRunningReadyConditionTest, WaitTimesOutReturnsTimeout)
         "Then wait returns kTimeout.");
 
     NiceMock<osal::MockIProcess> launcher;
-    const ReportRunningReadyCondition report_running_ready_condition(launcher, 10ms);
+    const ReportRunningReadyCondition report_running_ready_condition(launcher);
     ON_CALL(launcher, waitForkRunning(_, _)).WillByDefault(Return(osal::OsalReturnType::kTimeout));
 
-    const Result<void> result = report_running_ready_condition.wait(cpp::stop_token{}, mock_handle);
+    const Result<void> result = report_running_ready_condition.wait(cpp::stop_token{}, mock_handle, 10ms);
 
     ASSERT_FALSE(result.has_value());
     EXPECT_EQ(result.error(), ExecErrc::kTimeout);
 }
 
 /// @brief Provides a ProcessHandle whose send semaphore is initialised, because
-///        tryHandleTermination() posts on it.
+///        handleTermination() and stop requests post on it.
 class ReportRunningReadyConditionTerminationTest : public ::testing::Test
 {
   protected:
@@ -107,19 +108,19 @@ class ReportRunningReadyConditionTerminationTest : public ::testing::Test
     const ProcessHandle handle_{42, sync_};
 };
 
-TEST_F(ReportRunningReadyConditionTerminationTest, TryHandleTerminationPostsExactlyOnce)
+TEST_F(ReportRunningReadyConditionTerminationTest, HandleTerminationPostsExactlyOnce)
 {
     RecordProperty(
         "Description",
         "Given a process which terminated during startup. "
-        "When tryHandleTermination is called. "
+        "When handleTermination is called. "
         "Then it posts exactly once, which completes the kRunning handshake only if the process "
         "already posted its kRunning report itself.");
 
     NiceMock<osal::MockIProcess> launcher;
-    const ReportRunningReadyCondition report_running_ready_condition(launcher, 10ms);
+    const ReportRunningReadyCondition report_running_ready_condition(launcher);
 
-    EXPECT_TRUE(report_running_ready_condition.tryHandleTermination(handle_, 0));
+    report_running_ready_condition.handleTermination(handle_, 0);
 
     EXPECT_EQ(sync_->send_sync_.timedWait(0ms), osal::OsalReturnType::kSuccess);
     EXPECT_EQ(sync_->send_sync_.timedWait(0ms), osal::OsalReturnType::kTimeout);
@@ -134,52 +135,113 @@ TEST_F(ReportRunningReadyConditionTerminationTest, TerminationDoesNotOverrideSuc
         "Then wait returns success, because the process did report kRunning.");
 
     NiceMock<osal::MockIProcess> launcher;
-    const ReportRunningReadyCondition report_running_ready_condition(launcher, 10ms);
+    const ReportRunningReadyCondition report_running_ready_condition(launcher);
     ON_CALL(launcher, waitForkRunning(_, _)).WillByDefault(Return(osal::OsalReturnType::kSuccess));
 
-    EXPECT_TRUE(report_running_ready_condition.tryHandleTermination(handle_, 0));
-    const Result<void> result = report_running_ready_condition.wait(cpp::stop_token{}, handle_);
+    report_running_ready_condition.handleTermination(handle_, 0);
+    const Result<void> result = report_running_ready_condition.wait(cpp::stop_token{}, handle_, 10ms);
 
     EXPECT_TRUE(result.has_value());
+}
+
+/// @brief Simulates ProcessLauncher::waitForkRunning(): blocks on the real semaphore of the given sync
+///        and succeeds only if the process reported kRunning, which never happens in these tests.
+osal::OsalReturnType blockOnSemaphore(osal::IpcCommsP sync, std::chrono::milliseconds timeout)
+{
+    const osal::OsalReturnType result = sync->send_sync_.timedWait(timeout);
+    return (result == osal::OsalReturnType::kSuccess) ? osal::OsalReturnType::kFail : result;
+}
+
+/// @brief A timeout which never expires during a test run. A wait which is not woken up shows up as a
+///        hanging test, never as a flake.
+constexpr std::chrono::milliseconds kNeverExpires{std::chrono::hours{1}};
+
+TEST_F(ReportRunningReadyConditionTerminationTest, StoppedTokenWakesWait)
+{
+    RecordProperty(
+        "Description",
+        "Given an already stopped stop token and a process which never reports kRunning. "
+        "When wait is called with a timeout which never expires. "
+        "Then wait returns kGeneralError without waiting for the timeout.");
+
+    NiceMock<osal::MockIProcess> launcher;
+    const ReportRunningReadyCondition report_running_ready_condition(launcher);
+    ON_CALL(launcher, waitForkRunning(_, _)).WillByDefault(Invoke(blockOnSemaphore));
+    cpp::stop_source stop_source;
+    static_cast<void>(stop_source.request_stop());
+
+    const Result<void> result = report_running_ready_condition.wait(stop_source.get_token(), handle_, kNeverExpires);
+
+    ASSERT_FALSE(result.has_value());
+    EXPECT_EQ(result.error(), ExecErrc::kGeneralError);
+}
+
+TEST_F(ReportRunningReadyConditionTerminationTest, StopRequestedMidWaitWakesWait)
+{
+    RecordProperty(
+        "Description",
+        "Given wait is blocking on another thread for a process which never reports kRunning. "
+        "When a stop is requested. "
+        "Then wait is unblocked and returns kGeneralError.");
+
+    NiceMock<osal::MockIProcess> launcher;
+    const ReportRunningReadyCondition report_running_ready_condition(launcher);
+    std::promise<void> waiting;
+    ON_CALL(launcher, waitForkRunning(_, _))
+        .WillByDefault(Invoke([&waiting](osal::IpcCommsP sync, std::chrono::milliseconds timeout) {
+            waiting.set_value();
+            return blockOnSemaphore(std::move(sync), timeout);
+        }));
+    cpp::stop_source stop_source;
+
+    auto future = std::async(std::launch::async, [&] {
+        return report_running_ready_condition.wait(stop_source.get_token(), handle_, kNeverExpires);
+    });
+    waiting.get_future().wait();
+    static_cast<void>(stop_source.request_stop());
+
+    const Result<void> result = future.get();
+    ASSERT_FALSE(result.has_value());
+    EXPECT_EQ(result.error(), ExecErrc::kGeneralError);
 }
 
 TEST(ReportRunningReadyConditionTest, WaitWithEmptyHandleAborts)
 {
     NiceMock<osal::MockIProcess> launcher;
-    const ReportRunningReadyCondition report_running_ready_condition(launcher, 10ms);
+    const ReportRunningReadyCondition report_running_ready_condition(launcher);
 
     EXPECT_DEATH(
-        static_cast<void>(report_running_ready_condition.wait(cpp::stop_token{}, EmptyHandle{})),
+        static_cast<void>(report_running_ready_condition.wait(cpp::stop_token{}, EmptyHandle{}, 10ms)),
         "ReportRunningReadyCondition should only be called with a ProcessHandle");
 }
 
 TEST(ReportRunningReadyConditionTest, WaitWithNullSyncAborts)
 {
     NiceMock<osal::MockIProcess> launcher;
-    const ReportRunningReadyCondition report_running_ready_condition(launcher, 10ms);
+    const ReportRunningReadyCondition report_running_ready_condition(launcher);
 
     EXPECT_DEATH(
-        static_cast<void>(report_running_ready_condition.wait(cpp::stop_token{}, ProcessHandle{42, nullptr})),
+        static_cast<void>(report_running_ready_condition.wait(cpp::stop_token{}, ProcessHandle{42, nullptr}, 10ms)),
         "ReportRunningReadyCondition should only be called with a ProcessHandle containing IPCCommsSync");
 }
 
-TEST(ReportRunningReadyConditionTest, TryHandleTerminationWithEmptyHandleAborts)
+TEST(ReportRunningReadyConditionTest, HandleTerminationWithEmptyHandleAborts)
 {
     NiceMock<osal::MockIProcess> launcher;
-    const ReportRunningReadyCondition report_running_ready_condition(launcher, 10ms);
+    const ReportRunningReadyCondition report_running_ready_condition(launcher);
 
     EXPECT_DEATH(
-        static_cast<void>(report_running_ready_condition.tryHandleTermination(EmptyHandle{}, 0)),
+        report_running_ready_condition.handleTermination(EmptyHandle{}, 0),
         "ReportRunningReadyCondition should only be called with a ProcessHandle");
 }
 
-TEST(ReportRunningReadyConditionTest, TryHandleTerminationWithNullSyncAborts)
+TEST(ReportRunningReadyConditionTest, HandleTerminationWithNullSyncAborts)
 {
     NiceMock<osal::MockIProcess> launcher;
-    const ReportRunningReadyCondition report_running_ready_condition(launcher, 10ms);
+    const ReportRunningReadyCondition report_running_ready_condition(launcher);
 
     EXPECT_DEATH(
-        static_cast<void>(report_running_ready_condition.tryHandleTermination(ProcessHandle{42, nullptr}, 0)),
+        report_running_ready_condition.handleTermination(ProcessHandle{42, nullptr}, 0),
         "ReportRunningReadyCondition should only be called with a ProcessHandle containing IPCCommsSync");
 }
 

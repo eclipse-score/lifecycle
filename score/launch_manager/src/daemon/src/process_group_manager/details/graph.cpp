@@ -31,18 +31,17 @@
 #include "score/mw/launch_manager/common/log.hpp"
 #include "score/mw/launch_manager/configuration/component_config.hpp"
 #include "score/mw/launch_manager/configuration/config.hpp"
-#include "score/mw/launch_manager/osal/return_types.hpp"
+#include "score/mw/launch_manager/process_group_manager/details/component.hpp"
 #include "score/mw/launch_manager/process_group_manager/details/component_event.hpp"
+#include "score/mw/launch_manager/process_group_manager/details/component_factory.hpp"
 #include "score/mw/launch_manager/process_group_manager/details/component_of.hpp"
 #include "score/mw/launch_manager/process_group_manager/details/component_task.hpp"
 #include "score/mw/launch_manager/process_group_manager/details/dependency_graph.hpp"
 #include "score/mw/launch_manager/process_group_manager/details/graph.hpp"
 #include "score/mw/launch_manager/process_group_manager/details/icomponent.hpp"
 #include "score/mw/launch_manager/process_group_manager/details/process_handling.hpp"
-#include "score/mw/launch_manager/process_group_manager/details/process_info_node.hpp"
 #include "score/mw/launch_manager/process_group_manager/details/run_target.hpp"
 #include "score/mw/launch_manager/process_group_manager/details/transition.hpp"
-#include "score/mw/launch_manager/process_group_manager/iprocess.hpp"
 #include "score/mw/launch_manager/process_group_manager/irun_target_control.hpp"
 #include "score/mw/lifecycle/execution_error.h"
 #include "score/mw/lifecycle/run_target_activation_source.hpp"
@@ -64,7 +63,7 @@ namespace
 /// @param run_target_map Map to keep the translation between IDHash to Index
 /// @return A populated dependency graph with all components and Run Targets.
 void CreateDependencyGraph(
-    DependencyGraph<IdentifierHash, Graph::Component>& graph,
+    DependencyGraph<IdentifierHash, Graph::Node>& graph,
     configuration::GraphConfig& config,
     ProcessHandling process_handling,
     std::chrono::milliseconds& off_state_transition_timeout)
@@ -74,14 +73,23 @@ void CreateDependencyGraph(
     std::vector<std::pair<IdentifierHash, std::vector<std::string>>> pending_dependencies;
     pending_dependencies.reserve(graph.capacity());
 
+    const ComponentFactory factory{
+        *process_handling.process_interface_,
+        *process_handling.process_map_,
+        *process_handling.file_waiter_,
+        process_handling.supervision_factory};
+
     // add all comps
     for (auto& component_config : config.components_)
     {
         const auto name = component_config.name;
         auto depends_on = std::move(component_config.component_properties.depends_on);
 
+        Result<std::unique_ptr<Component>> component =
+            factory.create(std::make_shared<configuration::ComponentConfig>(std::move(component_config)));
+        SCORE_LANGUAGE_FUTURECPP_ASSERT_DBG_MESSAGE(component.has_value(), "Failed to create component");
         const auto index = graph.try_emplace(
-            IdentifierHash{name}, std::in_place_type<ProcessInfoNode>, std::move(component_config), process_handling);
+            IdentifierHash{name}, std::in_place_type<std::unique_ptr<Component>>, std::move(component).value());
 
         LM_LOG_DEBUG() << "Creating component node:" << name;
         pending_dependencies.emplace_back(index, std::move(depends_on));
@@ -221,21 +229,17 @@ void Graph::queueReadyNodes()
         LM_LOG_DEBUG() << "Node" << node << "is ready for"
                        << (task_type == ComponentTaskType::kActivate ? std::string_view("activation")
                                                                      : std::string_view("deactivation"));
-        std::visit(
-            [this, task_type](auto& component) {
-                using ComponentT = std::decay_t<decltype(component)>;
-                if constexpr (std::is_same_v<ComponentT, RunTarget>)
-                {
-                    updateRunTargetInPlace(component, task_type);
-                }
-                else
-                {
-                    // Queue ProcessInfoNode for execution on worker thread; completion arrives later
-                    // via a ComponentEvent, draining into nodeExecuted() -> onNodeFinished().
-                    tryQueueNode(ComponentTask{task_type, component, stop_source_.get_token()});
-                }
-            },
-            nodes_[node]);
+        Graph::Node& graph_node = nodes_[node];
+        if (RunTarget* const run_target = std::get_if<RunTarget>(&graph_node))
+        {
+            updateRunTargetInPlace(*run_target, task_type);
+        }
+        else
+        {
+            // Queue processes for execution on worker thread; completion arrives later
+            // via a ComponentEvent, draining into nodeExecuted() -> onNodeFinished().
+            tryQueueNode(ComponentTask{task_type, componentOf(graph_node), stop_source_.get_token()});
+        }
     }
 }
 
@@ -387,10 +391,6 @@ void Graph::handleComponentEvent(const ComponentEvent& event)
 
                 setState(GraphState::kAborting);
 
-                // Need to clean up any leftover resources
-                IComponent& failingComponent = componentOf(nodes_[data.node_identifier]);
-                static_cast<void>(failingComponent.deactivate({}));
-
                 if (jobs_in_progress_ == 0)
                 {
                     handleNonTransitionExecution();
@@ -498,16 +498,11 @@ void Graph::cancel()
 
 void Graph::forceKillProcesses()
 {
-    for (const auto [id, component] : nodes_)
+    for (const auto [id, node] : nodes_)
     {
-        if (const ProcessInfoNode* process = std::get_if<ProcessInfoNode>(&component))
+        if (const auto* const process_component = std::get_if<std::unique_ptr<Component>>(&node))
         {
-            osal::ProcessID pid = process->getPid();
-            if (pid > 0)
-            {
-                // forceTermination already handles errors appropriately, so we can ignore its result.
-                static_cast<void>(process_handling_.process_interface_->forceTermination(pid));
-            }
+            (*process_component)->forceStop();
         }
     }
 }

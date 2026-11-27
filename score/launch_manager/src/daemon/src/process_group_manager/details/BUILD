@@ -27,6 +27,7 @@ cc_library(
         "//score/launch_manager:error",
         "//score/launch_manager/src/daemon/src/alive_monitor:ialive_supervision_handle",
         "//score/launch_manager/src/daemon/src/alive_monitor:isupervision_factory",
+        "//score/launch_manager/src/daemon/src/common:constants",
         "//score/launch_manager/src/daemon/src/common:identifier_hash",
         "//score/launch_manager/src/daemon/src/common:log",
         "//score/launch_manager/src/daemon/src/configuration:component_config",
@@ -59,6 +60,7 @@ lm_cc_test(
         "//score/launch_manager/src/daemon/src/process_group_manager/details/start_action:mock_start_action",
         "//score/launch_manager/src/daemon/src/process_group_manager/details/stop_action:mock_stop_action",
         "@googletest//:gtest_main",
+        "@score_baselibs//score/language/futurecpp",
     ],
 )
 
@@ -71,27 +73,22 @@ cc_library(
     visibility = ["//score/launch_manager/src/daemon/src/process_group_manager:__subpackages__"],
     deps = [
         ":component",
-        ":icomponent",
         ":safe_process_map",
-        "//score/launch_manager:error",
         "//score/launch_manager/src/daemon/src/alive_monitor:isupervision_factory",
-        "//score/launch_manager/src/daemon/src/common:log",
         "//score/launch_manager/src/daemon/src/configuration:component_config",
         "//score/launch_manager/src/daemon/src/osal:ifile_waiter",
         "//score/launch_manager/src/daemon/src/process_group_manager:iprocess",
-        "//score/launch_manager/src/daemon/src/process_group_manager/details/force_stop_action:empty_force_stop_action",
         "//score/launch_manager/src/daemon/src/process_group_manager/details/force_stop_action:process_force_stop_action",
         "//score/launch_manager/src/daemon/src/process_group_manager/details/ready_condition:empty_ready_condition",
         "//score/launch_manager/src/daemon/src/process_group_manager/details/ready_condition:file_ready_condition",
         "//score/launch_manager/src/daemon/src/process_group_manager/details/ready_condition:iready_condition",
+        "//score/launch_manager/src/daemon/src/process_group_manager/details/ready_condition:process_terminated_ready_condition",
         "//score/launch_manager/src/daemon/src/process_group_manager/details/ready_condition:report_running_ready_condition",
-        "//score/launch_manager/src/daemon/src/process_group_manager/details/start_action:empty_start_action",
+        "//score/launch_manager/src/daemon/src/process_group_manager/details/ready_condition:sequence_ready_condition",
         "//score/launch_manager/src/daemon/src/process_group_manager/details/start_action:process_start_action",
-        "//score/launch_manager/src/daemon/src/process_group_manager/details/stop_action:empty_stop_action",
         "//score/launch_manager/src/daemon/src/process_group_manager/details/stop_action:process_stop_action",
         "@score_baselibs//score/language/futurecpp",
         "@score_baselibs//score/result",
-        "@score_baselibs//score/result:error",
     ],
 )
 
@@ -102,6 +99,7 @@ lm_cc_test(
         ":component_factory",
         ":mock_safe_process_map_inserter",
         "//score/launch_manager:error",
+        "//score/launch_manager/src/daemon/src/alive_monitor:mock_alive_supervision_handle",
         "//score/launch_manager/src/daemon/src/alive_monitor:mock_supervision_factory",
         "//score/launch_manager/src/daemon/src/osal:mock_ifile_waiter",
         "//score/launch_manager/src/daemon/src/process_group_manager:mock_iprocess",
@@ -140,6 +138,7 @@ cc_library(
     strip_include_prefix = "/score/launch_manager/src/daemon/src/process_group_manager/details",
     visibility = ["//score:__subpackages__"],
     deps = [
+        ":handle",
         "//score/launch_manager/src/daemon/src/common:identifier_hash",
         "@score_baselibs//score/language/futurecpp",
     ],
@@ -161,8 +160,11 @@ cc_library(
     hdrs = ["handle.hpp"],
     include_prefix = "score/mw/launch_manager/process_group_manager/details",
     strip_include_prefix = "/score/launch_manager/src/daemon/src/process_group_manager/details",
-    visibility = ["//score/launch_manager/src/daemon/src/process_group_manager:__subpackages__"],
-    deps = ["//score/launch_manager/src/daemon/src/osal:ipc_comms"],
+    visibility = ["//score:__subpackages__"],
+    deps = [
+        "//score/launch_manager/src/daemon/src/common:log",
+        "//score/launch_manager/src/daemon/src/osal:ipc_comms",
+    ],
 )
 
 lm_cc_test(
@@ -314,50 +316,6 @@ cc_library(
 )
 
 cc_library(
-    name = "process_info_node",
-    srcs = ["process_info_node.cpp"],
-    hdrs = ["process_info_node.hpp"],
-    include_prefix = "score/mw/launch_manager/process_group_manager/details",
-    strip_include_prefix = "/score/launch_manager/src/daemon/src/process_group_manager/details",
-    visibility = ["//score/launch_manager/src/daemon/src/process_group_manager:__pkg__"],
-    deps = [
-        ":icomponent",
-        ":process_handling",
-        ":safe_process_map",
-        "//score/launch_manager/src/daemon/src/alive_monitor:ialive_supervision_handle",
-        "//score/launch_manager/src/daemon/src/alive_monitor:isupervision_factory",
-        "//score/launch_manager/src/daemon/src/common:constants",
-        "//score/launch_manager/src/daemon/src/common:identifier_hash",
-        "//score/launch_manager/src/daemon/src/common:log",
-        "//score/launch_manager/src/daemon/src/configuration:component_config",
-        "//score/launch_manager/src/daemon/src/configuration:environment_config",
-        "//score/launch_manager/src/daemon/src/configuration:process_command",
-        "//score/launch_manager/src/daemon/src/osal:ifile_waiter",
-        "//score/launch_manager/src/daemon/src/osal:ipc_comms",
-        "//score/launch_manager/src/daemon/src/osal:return_types",
-        "//score/launch_manager/src/daemon/src/osal:semaphore",
-        "//score/launch_manager/src/daemon/src/process_group_manager:iprocess",
-        "//score/launch_manager/src/daemon/src/process_group_manager:process_state",
-        "//score/launch_manager/src/daemon/src/process_group_manager/details/ready_condition:termination_waiter",
-        "@score_baselibs//score/language/futurecpp",
-    ],
-)
-
-lm_cc_test(
-    name = "process_info_node_UT",
-    srcs = ["process_info_node_UT.cpp"],
-    deps = [
-        ":process_info_node",
-        ":safe_process_map",
-        "//score/launch_manager/src/daemon/src/alive_monitor:mock_alive_supervision_handle",
-        "//score/launch_manager/src/daemon/src/alive_monitor:mock_supervision_factory",
-        "//score/launch_manager/src/daemon/src/osal:mock_ifile_waiter",
-        "//score/launch_manager/src/daemon/src/process_group_manager:mock_iprocess",
-        "@googletest//:gtest_main",
-    ],
-)
-
-cc_library(
     name = "run_target",
     hdrs = ["run_target.hpp"],
     include_prefix = "score/mw/launch_manager/process_group_manager/details",
@@ -378,13 +336,14 @@ cc_library(
         "//score/launch_manager/src/daemon/src/process_group_manager:__pkg__",
     ],
     deps = [
+        ":component",
         ":component_event",
+        ":component_factory",
         ":component_of",
         ":component_task",
         ":dependency_graph",
         ":icomponent",
         ":process_handling",
-        ":process_info_node",
         ":run_target",
         ":transition",
         "//score/launch_manager:error",
@@ -395,7 +354,6 @@ cc_library(
         "//score/launch_manager/src/daemon/src/common/concurrency:mpmc_concurrent_queue",
         "//score/launch_manager/src/daemon/src/configuration:component_config",
         "//score/launch_manager/src/daemon/src/configuration:config",
-        "//score/launch_manager/src/daemon/src/osal:return_types",
         "//score/launch_manager/src/daemon/src/osal:semaphore",
         "//score/launch_manager/src/daemon/src/process_group_manager:iprocess",
         "//score/launch_manager/src/daemon/src/process_group_manager:irun_target_control",
@@ -414,6 +372,8 @@ lm_cc_test(
         "//score/launch_manager/src/daemon/src/alive_monitor:mock_alive_supervision_handle",
         "//score/launch_manager/src/daemon/src/alive_monitor:mock_supervision_factory",
         "//score/launch_manager/src/daemon/src/configuration:config",
+        "//score/launch_manager/src/daemon/src/osal:ipc_comms",
+        "//score/launch_manager/src/daemon/src/osal:mock_ifile_waiter",
         "//score/launch_manager/src/daemon/src/process_group_manager:mock_iprocess",
         "@googletest//:gtest_main",
     ],
@@ -442,8 +402,8 @@ cc_library(
     strip_include_prefix = "/score/launch_manager/src/daemon/src/process_group_manager/details",
     visibility = ["//score/launch_manager/src/daemon/src/process_group_manager:__pkg__"],
     deps = [
+        ":component",
         ":icomponent",
-        ":process_info_node",
         ":run_target",
     ],
 )
@@ -456,6 +416,7 @@ cc_library(
     strip_include_prefix = "/score/launch_manager/src/daemon/src/process_group_manager/details",
     visibility = ["//score/launch_manager/src/daemon/src/process_group_manager:__subpackages__"],
     deps = [
+        ":handle",
         ":icomponent",
         ":icomponent_controller",
         "//score/launch_manager/src/daemon/src/common:init_only_resource",
@@ -501,6 +462,7 @@ cc_library(
     deps = [
         ":component_event",
         ":component_task",
+        ":handle",
         ":icomponent",
         ":icomponent_controller",
         ":icomponent_event_publisher_consumer",
@@ -543,6 +505,7 @@ lm_cc_test(
         "//score/launch_manager/src/daemon/src/alive_monitor:mock_alive_supervision_handle",
         "//score/launch_manager/src/daemon/src/alive_monitor:mock_supervision_factory",
         "//score/launch_manager/src/daemon/src/configuration:config",
+        "//score/launch_manager/src/daemon/src/osal:ipc_comms",
         "//score/launch_manager/src/daemon/src/process_group_manager",
         "//score/launch_manager/src/daemon/src/process_group_manager:mock_iprocess",
         "//score/launch_manager/src/daemon/src/recovery_client:mock_recovery_client",
