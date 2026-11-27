@@ -156,6 +156,42 @@
     "url": ""
   },
   {
+    "name": "test_request_during_recovery",
+    "file": "tests/integration/run_target_requests/request_during_recovery/non_forced/test.py",
+    "line": 19,
+    "need": "comp_req__launch_man__ra_rt_queue",
+    "verify_type": "fully",
+    "result": "passed",
+    "result_text": "",
+    "repo_name": "local_repo",
+    "hash": "",
+    "url": ""
+  },
+  {
+    "name": "test_request_during_recovery",
+    "file": "tests/integration/run_target_requests/request_during_recovery/non_forced/test.py",
+    "line": 19,
+    "need": "comp_req__launch_man__rt_queue",
+    "verify_type": "fully",
+    "result": "passed",
+    "result_text": "",
+    "repo_name": "local_repo",
+    "hash": "",
+    "url": ""
+  },
+  {
+    "name": "test_forced_request_during_recovery",
+    "file": "tests/integration/run_target_requests/request_during_recovery/forced/test.py",
+    "line": 19,
+    "need": "comp_req__launch_man__cancel_rt_force",
+    "verify_type": "fully",
+    "result": "passed",
+    "result_text": "",
+    "repo_name": "local_repo",
+    "hash": "",
+    "url": ""
+  },
+  {
     "name": "test_forced_selection",
     "file": "tests/integration/run_target_requests/forced_activation/test.py",
     "line": 19,
