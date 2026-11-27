@@ -34,7 +34,7 @@ The test verifies the following scenarios end-to-end:
 
 | Application | Description |
 |---|---|
-| `cpp_health_monitor_supervised_app` | C++ app with alive supervision and crash recovery |
+| `cpp_health_monitor_supervised_app` | C++ app with deadline, heartbeat and logic monitors of the C++ health monitor, alive supervision and crash recovery |
 | `cpp_alive_supervised_app` | C++ app demonstrating the Alive API |
 | `rust_supervised_app` | Rust app with alive supervision and crash recovery |
 | `cpp_lifecycle_app` | C++ app demonstrating basic lifecycle management |
