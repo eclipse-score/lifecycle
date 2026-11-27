@@ -31,7 +31,7 @@
 
     <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=8f2a1f02" />
     <link rel="stylesheet" type="text/css" href="../../../_static/graphviz.css?v=4ae1632d" />
-    <link rel="stylesheet" type="text/css" href="../../../_static/css/score.css?v=d7d4a875" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/css/score.css?v=5737673c" />
     <link rel="stylesheet" type="text/css" href="../../../_static/css/score_needs.css?v=6a6a7ab0" />
     <link rel="stylesheet" type="text/css" href="../../../_static/css/score_design.css?v=f381fa98" />
     <link rel="stylesheet" type="text/css" href="../../../_static/sphinx-design.min.css?v=6a604523" />
@@ -520,10 +520,11 @@
 <section id="component">
 <h3>Component<a class="headerlink" href="#component" title="Link to this heading">#</a></h3>
 <ul class="simple">
-<li><p>For ReadyCondition <code class="docutils literal notranslate"><span class="pre">process_state:Terminated</span></code>, the mapping is only
-supported for Components that have at least one Component depending on them.</p></li>
 <li><p>The <code class="docutils literal notranslate"><span class="pre">activation_retry_delay_ms</span></code> is currently not evaluated by the Launch Manager.
 This also applies to the start attempts of a <code class="docutils literal notranslate"><span class="pre">restart</span></code> recovery action.</p></li>
+<li><p>The <code class="docutils literal notranslate"><span class="pre">recovery_action</span></code> only supports <code class="docutils literal notranslate"><span class="pre">switch_run_target</span></code> with the
+<code class="docutils literal notranslate"><span class="pre">run_target</span></code> set to <code class="docutils literal notranslate"><span class="pre">fallback_run_target</span></code>.</p></li>
+<li><p>The case where a process does not terminate in response to SIGKILL is not yet correctly handled. See <a class="github reference external" href="https://github.com/eclipse-score/lifecycle/issues/1079">eclipse-score/lifecycle#1079</a></p></li>
 <li><p>The <code class="docutils literal notranslate"><span class="pre">recovery_action</span></code> <code class="docutils literal notranslate"><span class="pre">switch_run_target</span></code> only supports the <code class="docutils literal notranslate"><span class="pre">run_target</span></code>
 set to <code class="docutils literal notranslate"><span class="pre">fallback_run_target</span></code>.</p></li>
 <li><p>There is no limit on the number of <code class="docutils literal notranslate"><span class="pre">restart</span></code> recovery actions over time. Each

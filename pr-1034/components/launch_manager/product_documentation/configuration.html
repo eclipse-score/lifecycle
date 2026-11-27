@@ -31,7 +31,7 @@
 
     <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=8f2a1f02" />
     <link rel="stylesheet" type="text/css" href="../../../_static/graphviz.css?v=4ae1632d" />
-    <link rel="stylesheet" type="text/css" href="../../../_static/css/score.css?v=d7d4a875" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/css/score.css?v=5737673c" />
     <link rel="stylesheet" type="text/css" href="../../../_static/css/score_needs.css?v=6a6a7ab0" />
     <link rel="stylesheet" type="text/css" href="../../../_static/css/score_design.css?v=f381fa98" />
     <link rel="stylesheet" type="text/css" href="../../../_static/sphinx-design.min.css?v=6a604523" />
@@ -677,7 +677,9 @@ Allowed values:</p>
 <li><p><code class="docutils literal notranslate"><span class="pre">&quot;Terminated&quot;</span></code>: The process has started, reached its running state, and then terminated successfully.</p></li>
 </ul>
 </dd>
-<dt>ready_condition.file_state (object, optional)</dt><dd><p>Description: Specifies a ready condition based on the existence of a file at a given path.</p>
+<dt>ready_condition.file_state (object, optional)</dt><dd><p>Description: Specifies a ready condition based on the existence of a file at a given path.
+If the component’s process terminates before the file has reached the required state, the file state is checked once more and the component fails to become ready if it is not met.
+Exception: if <code class="docutils literal notranslate"><span class="pre">application_profile.is_self_terminating</span></code> is <code class="docutils literal notranslate"><span class="pre">true</span></code> and the process exits with status 0, the <strong>Launch Manager</strong> keeps checking the file state until it is met or the <code class="docutils literal notranslate"><span class="pre">ready_timeout_ms</span></code> expires.</p>
 </dd>
 <dt>ready_condition.file_state.file_path (string, required)</dt><dd><p>Description: Specifies the absolute path to the file being watched.</p>
 </dd>
