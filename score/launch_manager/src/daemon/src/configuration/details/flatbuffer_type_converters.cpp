@@ -307,18 +307,25 @@ SwitchRunTargetAction convertRequiredSwitchRunTargetAction(const fb::SwitchRunTa
     return convertSwitchRunTargetAction(sa).value();
 }
 
-std::optional<RecoveryAction> convertRecoveryAction(const fb::DeploymentConfig* dc)
+score::cpp::expected<std::optional<RecoveryAction>, IConfigLoader::Error> convertRecoveryAction(
+    const fb::RecoveryAction* ra)
 {
-    switch (dc->recovery_action_type())
+    if (ra == nullptr)
     {
-        case fb::RecoveryAction::SwitchRunTargetAction:
-            return RecoveryAction{convertRequiredSwitchRunTargetAction(dc->recovery_action_as_SwitchRunTargetAction())};
-        case fb::RecoveryAction::RestartAction:
-            return RecoveryAction{RestartAction{}};
-        case fb::RecoveryAction::NONE:
-        default:
-            return std::nullopt;
+        return std::optional<RecoveryAction>{};
     }
+    const bool has_switch = ra->switch_run_target() != nullptr;
+    const bool has_restart = ra->restart() != nullptr;
+    if (has_switch == has_restart)
+    {
+        LM_LOG_ERROR() << "RecoveryAction must have exactly one of switch_run_target or restart set";
+        return score::cpp::make_unexpected(IConfigLoader::Error::InvalidFormat);
+    }
+    if (has_switch)
+    {
+        return std::optional<RecoveryAction>{convertRequiredSwitchRunTargetAction(ra->switch_run_target())};
+    }
+    return std::optional<RecoveryAction>{RestartAction{}};
 }
 
 score::cpp::expected<ComponentAliveSupervision, IConfigLoader::Error> convertComponentAliveSupervision(
@@ -559,7 +566,12 @@ score::cpp::expected<DeploymentConfig, IConfigLoader::Error> convertDeploymentCo
         result.working_dir = fb_dc->working_dir()->str();
         result.activation_retry_attempts = *activation_retry_attempts;
         result.activation_retry_delay_ms = *activation_retry_delay_ms;
-        result.recovery_action = convertRecoveryAction(fb_dc);
+        auto recovery_action = convertRecoveryAction(fb_dc->recovery_action());
+        if (!recovery_action.has_value())
+        {
+            return score::cpp::make_unexpected(recovery_action.error());
+        }
+        result.recovery_action = std::move(*recovery_action);
         auto sandbox = convertSandbox(fb_dc->sandbox());
         if (!sandbox.has_value())
         {

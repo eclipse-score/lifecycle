@@ -435,9 +435,10 @@ def gen_config(output_dir, config, input_filename):
             # restart is intentionally not passed on to the flatbuffer.
             ra = depl_cfg["recovery_action"]
             if "switch_run_target" in ra:
-                deployment["recovery_action_type"] = "SwitchRunTargetAction"
                 deployment["recovery_action"] = {
-                    "run_target": ra["switch_run_target"]["run_target"]
+                    "switch_run_target": {
+                        "run_target": ra["switch_run_target"]["run_target"]
+                    }
                 }
 
         component["deployment_config"] = deployment
