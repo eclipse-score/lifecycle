@@ -48,7 +48,9 @@ test --test_output=errors
 
 # Code coverage configuration (LLVM source-based). See //quality/coverage.
 import %workspace%/quality/coverage/coverage.bazelrc
-import %workspace%/quality/sanitizer/sanitizer.bazelrc
+
+# GCC can emit false positives for -Wmaybe-uninitialized in TSan builds at -O1.
+build:tsan --copt=-Wno-error=maybe-uninitialized
 
 # CodeQL / MISRA static analysis configuration. See //quality/static_analysis.
 import %workspace%/quality/static_analysis/static_analysis.bazelrc
@@ -77,7 +79,6 @@ test:x86_64-linux --//config:unit_mode=host
 # Target configuration for CPU:AArch64|OS:Linux build (repository-specific addition leveraging central configuration)
 build:arm64-linux --config=stub
 build:arm64-linux --config=score-linux-aarch64
-build:arm64-linux --extra_toolchains=@score_toolchains_rust//toolchains/ferrocene:ferrocene_aarch64_unknown_linux_gnu
 build:arm64-linux --extra_toolchains=@score_toolchains_rust//toolchains/ferrocene:ferrocene_aarch64_unknown_linux_gnu_miri
 build:arm64-linux --copt=-mno-outline-atomics
 build:arm64-linux --linkopt=-latomic
@@ -94,14 +95,9 @@ test:x86_64-qnx --//config:qemu_image=//tests/utils/environments/x86_64-qnx:qemu
 test:x86_64-qnx --//config:qemu_config=//tests/utils/environments/x86_64-qnx:qemu_config.json
 test:x86_64-qnx --run_under=@score_itf//scripts:run_under_qemu
 
-# Target configuration for CPU:AArch64|OS:QNX build (repository-specific addition)
+# Target configuration for CPU:AArch64|OS:QNX build (leveraging central configuration)
 build:arm64-qnx --config=stub
-build:arm64-qnx --config=_score_common
-build:arm64-qnx --incompatible_strict_action_env
-build:arm64-qnx --platforms=@score_bazel_platforms//:aarch64-qnx-sdp_8.0.0-posix
-build:arm64-qnx --extra_toolchains=@score_qcc_aarch64_toolchain//:aarch64-qnx-sdp_8.0.0
-build:arm64-qnx --extra_toolchains=@score_toolchains_rust//toolchains/ferrocene:ferrocene_aarch64_unknown_nto_qnx800
-build:arm64-qnx --extra_toolchains=@score_qnx_aarch64_ifs_toolchain//:ifs-aarch64-qnx-sdp_8.0.0
+build:arm64-qnx --config=score-qnx-aarch64
 
 test:arm64-qnx --//config:integration_mode=qemu
 test:arm64-qnx --//config:qemu_image=//tests/utils/environments/arm64-qnx:qemu_image
