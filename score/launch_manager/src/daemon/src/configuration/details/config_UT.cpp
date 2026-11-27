@@ -336,5 +336,21 @@ TEST_F(ConfigTest, MoveAssignmentTransfersState)
     EXPECT_THAT(target.graph().run_targets_[0].name, Eq("Off"));
 }
 
+TEST(RecoveryActionTest, SwitchRunTargetActionHasGlobalScope)
+{
+    RecordProperty("Description", "A switch_run_target recovery action is executed outside of the component.");
+    const RecoveryAction action{SwitchRunTargetAction{"fallback_run_target"}};
+
+    EXPECT_EQ(getScope(action), RecoveryActionScope::kGlobal);
+}
+
+TEST(RecoveryActionTest, RestartActionHasLocalScope)
+{
+    RecordProperty("Description", "A restart recovery action is executed by the component itself.");
+    const RecoveryAction action{RestartAction{}};
+
+    EXPECT_EQ(getScope(action), RecoveryActionScope::kLocal);
+}
+
 }  // namespace
 }  // namespace score::mw::lifecycle::internal::configuration

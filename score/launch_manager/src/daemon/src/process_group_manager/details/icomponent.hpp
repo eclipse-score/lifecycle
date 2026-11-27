@@ -15,10 +15,12 @@
 #define SCORE_LCM_ICOMPONENT_HPP_INCLUDED
 
 #include "score/mw/launch_manager/common/identifier_hash.hpp"
+#include "score/mw/launch_manager/configuration/recovery_action_config.hpp"
 #include "score/mw/launch_manager/process_group_manager/details/handle.hpp"
 #include <score/stop_token.hpp>
 #include <chrono>
 #include <cstdint>
+#include <optional>
 
 namespace score::mw::lifecycle::internal
 {
@@ -72,6 +74,24 @@ class IComponent
     /// @p failure_timestamp Timestamp that pinpoints the supervision failure.
     virtual void handleSupervisionFailure(std::chrono::nanoseconds /* failure_timestamp */)
     {
+    }
+
+    /// @returns The recovery action to execute after the component failed unexpectedly, or std::nullopt if none is
+    ///          configured. Actions with scope configuration::RecoveryActionScope::kLocal are executed by
+    ///          @c recover(), all others by the caller.
+    [[nodiscard]] virtual const std::optional<configuration::RecoveryAction>& getRecoveryAction() const
+    {
+        static const std::optional<configuration::RecoveryAction> no_recovery_action{};
+        return no_recovery_action;
+    }
+
+    /// @brief Execute the component-local recovery action after the component failed unexpectedly.
+    /// @pre The component has been deactivated after the failure.
+    /// @pre @c getRecoveryAction() returns an action with scope configuration::RecoveryActionScope::kLocal.
+    /// @p stop_token Token that can be stopped to exit the recovery early.
+    virtual RequestResult recover(score::cpp::stop_token /* stop_token */)
+    {
+        return RequestResult::kFailure;
     }
 
     /// @returns the index of the component in the graph.

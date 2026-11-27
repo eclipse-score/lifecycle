@@ -565,6 +565,11 @@ bool Component::active() const
     return std::holds_alternative<ReadyState>(state_);
 }
 
+const std::optional<configuration::RecoveryAction>& Component::getRecoveryAction() const
+{
+    return config_->deployment_config.recovery_action;
+}
+
 std::optional<std::chrono::nanoseconds> Component::activateSupervision() const
 {
     if (!supervision_handle_)
