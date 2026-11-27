@@ -11,7 +11,7 @@
 # SPDX-License-Identifier: Apache-2.0
 # *******************************************************************************
 load("@rules_cc//cc:defs.bzl", "cc_library")
-load("//tests/utils/bazel:unit_test.bzl", "lm_cc_test")
+load("//tests/utils/bazel:unit_test.bzl", "MOCK_SYSCALLS_WRAPPED_SYMBOLS", "linker_wrap_symbols", "lm_cc_test")
 
 cc_library(
     name = "return_types",
@@ -243,32 +243,7 @@ cc_library(
 lm_cc_test(
     name = "start_process_linux_UT",
     srcs = ["details/linux/start_process_UT.cpp"],
-    linkopts = [
-        "-Wl,--wrap=fork",
-        "-Wl,--wrap=execve",
-        "-Wl,--wrap=kill",
-        "-Wl,--wrap=wait",
-        "-Wl,--wrap=access",
-        "-Wl,--wrap=shm_open",
-        "-Wl,--wrap=ftruncate",
-        "-Wl,--wrap=shm_unlink",
-        "-Wl,--wrap=mmap",
-        "-Wl,--wrap=munmap",
-        "-Wl,--wrap=setpgid",
-        "-Wl,--wrap=setgid",
-        "-Wl,--wrap=setuid",
-        "-Wl,--wrap=sched_setscheduler",
-        "-Wl,--wrap=chdir",
-        "-Wl,--wrap=setrlimit",
-        "-Wl,--wrap=getpid",
-        "-Wl,--wrap=fcntl",
-        "-Wl,--wrap=sem_destroy",
-        "-Wl,--wrap=msync",
-        "-Wl,--wrap=close",
-        "-Wl,--wrap=fstat",
-        "-Wl,--wrap=clock_gettime",
-        "-Wl,--wrap=clock_getres",
-    ],
+    linkopts = linker_wrap_symbols(MOCK_SYSCALLS_WRAPPED_SYMBOLS),
     linkstatic = True,
     target_compatible_with = ["@platforms//os:linux"],
     deps = [
@@ -282,7 +257,7 @@ lm_cc_test(
     name = "start_process_qnx_UT",
     srcs = ["details/qnx/start_process_UT.cpp"],
     # baselibs provides no abstraction for prlimit()
-    linkopts = ["-Wl,--wrap=prlimit"],
+    linkopts = linker_wrap_symbols(["prlimit"]),
     linkstatic = True,
     target_compatible_with = ["@platforms//os:qnx"],
     deps = [

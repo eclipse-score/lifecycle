@@ -12,8 +12,7 @@
 # *******************************************************************************
 
 load("@rules_cc//cc:defs.bzl", "cc_library")
-load("//tests/utils/bazel:unit_test.bzl", "lm_cc_test")
-load("//tests/utils/mocks:mock_syscalls.bzl", "MOCK_SYSCALLS_WRAPPED_SYMBOLS", "linker_wrap_symbols")
+load("//tests/utils/bazel:unit_test.bzl", "MOCK_SYSCALLS_WRAPPED_SYMBOLS", "linker_wrap_symbols", "lm_cc_test")
 
 cc_library(
     name = "component",
