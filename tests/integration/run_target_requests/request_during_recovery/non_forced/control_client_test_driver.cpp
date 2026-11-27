@@ -20,8 +20,10 @@ TEST_F(ActivationFixture, GivenAClientConnection_WhenRequestReceivedDuringRecove
     ASSERT_TRUE(check_clean(
         {gatedStartedPath("failing_component"),
          gatedReleasePath("failing_component"),
+         gatedExitingPath("failing_component"),
          gatedStartedPath("fallback_gated"),
-         gatedReleasePath("fallback_gated")}));
+         gatedReleasePath("fallback_gated"),
+         gatedExitingPath("fallback_gated")}));
 
     std::unique_ptr<ILmControl> client;
 
@@ -57,6 +59,11 @@ TEST_F(ActivationFixture, GivenAClientConnection_WhenRequestReceivedDuringRecove
     TEST_STEP("Release fallback_gated to complete recovery action")
     {
         UnblockRunTargetActivation("fallback_gated");
+    }
+
+    TEST_STEP("Wait for gated process to terminate")
+    {
+        WaitForGatedProcessExit("fallback_gated");
     }
 
     TEST_STEP("Wait for fallback_run_target activation (recovery action completes)")

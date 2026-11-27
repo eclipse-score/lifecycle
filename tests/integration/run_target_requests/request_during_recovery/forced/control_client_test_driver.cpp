@@ -20,8 +20,10 @@ TEST_F(ActivationFixture, GivenAClientConnection_WhenRequestReceivedDuringRecove
     ASSERT_TRUE(check_clean(
         {gatedStartedPath("failing_component"),
          gatedReleasePath("failing_component"),
+         gatedExitingPath("failing_component"),
          gatedStartedPath("fallback_gated"),
-         gatedReleasePath("fallback_gated")}));
+         gatedReleasePath("fallback_gated"),
+         gatedExitingPath("fallback_gated")}));
 
     std::unique_ptr<ILmControl> client;
 
@@ -53,6 +55,11 @@ TEST_F(ActivationFixture, GivenAClientConnection_WhenRequestReceivedDuringRecove
         const auto result = client->activate_run_target("forced_run_target", true);
         ASSERT_TRUE(result.has_value()) << "Forced request during recovery action should be accepted: "
                                         << result.error().Message();
+    }
+
+    TEST_STEP("Wait for gated process to terminate")
+    {
+        WaitForGatedProcessExit("fallback_gated");
     }
 
     TEST_STEP("Wait for forced_run_target activation (recovery cancelled)")

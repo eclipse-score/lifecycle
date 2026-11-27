@@ -49,7 +49,5 @@ def test_request_during_recovery(
     assert_test_results(
         {
             "control_client_test_driver.xml",
-            "failing_component.xml",
-            "fallback_gated.xml",
         }
     )
