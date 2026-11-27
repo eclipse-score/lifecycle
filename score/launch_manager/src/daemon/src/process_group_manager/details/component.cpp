@@ -196,8 +196,10 @@ IComponent::RequestResult Component::tryActivate(
     {
         const std::chrono::milliseconds duration =
             std::chrono::round<std::chrono::milliseconds>(std::chrono::steady_clock::now() - activation_start);
-        LM_LOG_DEBUG() << ComponentId{config_->name, &handle.value()} << "is ready, activation took" << duration.count()
-                       << "ms";
+
+        // req-id: comp_req__launch_man__process_log
+        LM_LOG_INFO() << ComponentId{config_->name, &handle.value()} << "is ready, activation took" << duration.count()
+                      << "ms";
     }
     return result;
 }
@@ -431,7 +433,8 @@ IComponent::TerminationResult Component::tryHandleTerminationInternally(const Ha
     // about the exit code.
     if (std::holds_alternative<TerminatingState>(state_))
     {
-        LM_LOG_DEBUG() << ComponentId{config_->name, &terminated} << "terminated after being stopped (expected)";
+        // req-id: comp_req__launch_man__process_log
+        LM_LOG_INFO() << ComponentId{config_->name, &terminated} << "terminated after being stopped (expected)";
         state_ = TerminatedState{};
         // Notified while still locked: once stopAndWait() sees the termination, the component may be
         // destroyed, so this thread must not touch it after releasing the lock.
@@ -448,7 +451,8 @@ IComponent::TerminationResult Component::tryHandleTerminationInternally(const Ha
     const std::string_view phase = (starting != nullptr) ? "while starting" : "while ready";
     if (terminationExpected)
     {
-        LM_LOG_DEBUG() << ComponentId{config_->name, &terminated} << "terminated" << phase << "(expected)";
+        // req-id: comp_req__launch_man__process_log
+        LM_LOG_INFO() << ComponentId{config_->name, &terminated} << "terminated" << phase << "(expected)";
     }
     else
     {

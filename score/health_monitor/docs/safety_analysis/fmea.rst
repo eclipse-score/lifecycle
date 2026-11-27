@@ -136,7 +136,7 @@ Rationale
 ==========
 - All code within process is developed according to **ASIL-B** development process
 - Library will use **protected pages** mechanism to detect `pass through` memory corruption
-- Lifecycle CFT will investigate the possibility to harden memory protection using **ARM MTE** extension (`more here <https://learn.arm.com/learning-paths/mobile-graphics-and-gaming/mte/>`_ ) in future releases - https://github.com/eclipse-score/score/issues/2397
+- Lifecycle CFT will investigate the possibility to harden memory protection using **ARM MTE** extension (`more here <https://learn.arm.com/learning-paths/mobile-graphics-and-gaming/mte/>`_ ) in future releases - https://github.com/eclipse-score/lifecycle/issues/166
 
 
 Failure Mode List

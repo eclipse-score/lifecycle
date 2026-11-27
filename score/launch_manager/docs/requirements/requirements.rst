@@ -1171,8 +1171,22 @@ Watchdog
 Logging
 =======
 
-.. comp_req:: Logging state transitions
-    :id: comp_req__launch_man__process_logging_support
+.. comp_req:: Logging Component State
+    :id: comp_req__launch_man__process_log
+    :reqtype: Functional
+    :security: NO
+    :safety: ASIL_B
+    :derived_from: feat_req__lifecycle__logging_support[version==1]
+    :status: valid
+    :version: 2
+    :satisfied_by: comp__lifecycle_launch_manager
+
+    The :term:`Launch Manager` shall log all :term:`Component` activations and
+    deactivations.
+    
+
+.. comp_req:: Logging Recovery Action
+    :id: comp_req__launch_man__ra_log
     :reqtype: Functional
     :security: NO
     :safety: ASIL_B
@@ -1182,8 +1196,9 @@ Logging
     :valid_from: v1.0.0
     :satisfied_by: comp__lifecycle_launch_manager
 
-    The :term:`Launch Manager` shall provide support for logging process launches,
-    :term:`Processes <Process>` exit/recovery, internal tasks, and interaction with an external monitor.
+    The :term:`Launch Manager` shall log all executions of :term:`Recovery
+    Actions <Recovery Action>`.
+
 
 .. comp_req:: Logging DAG
     :id: comp_req__launch_man__dag_logging_controlif
