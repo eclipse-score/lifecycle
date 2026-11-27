@@ -15,7 +15,6 @@
 #define SCORE_HEALTH_MONITOR_DEADLINE_MONITOR_DEADLINE_MONITOR_IMPL_H
 
 #include "score/containers/non_relocatable_vector.h"
-#include "score/health_monitor/deadline.h"
 #include "score/health_monitor/deadline_monitor.h"
 #include "score/health_monitor/src/cpp/deadline_monitor/deadline_impl.h"
 #include "score/health_monitor/src/cpp/deadline_monitor/deadline_state.h"

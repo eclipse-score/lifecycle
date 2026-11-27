@@ -15,6 +15,8 @@
 #define SCORE_HEALTH_MONITOR_ERROR_H
 
 #include "score/result/error.h"
+#include "score/result/error_code.h"
+#include "score/result/error_domain.h"
 
 #include <string_view>
 

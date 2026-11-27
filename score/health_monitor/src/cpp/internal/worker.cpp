@@ -17,6 +17,12 @@
 #include "score/health_monitor/src/cpp/internal/logger.h"
 #include "score/health_monitor/src/cpp/internal/monotonic_time.h"
 #include "score/health_monitor/src/cpp/internal/thread_setup.h"
+#include "score/mw/log/log_stream.h"
+#include "score/mw/log/logger.h"
+
+#include <score/span.hpp>
+
+#include <optional>
 
 namespace score::health_monitor::details
 {

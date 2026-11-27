@@ -22,8 +22,6 @@
 namespace score::health_monitor
 {
 
-class HealthMonitorBuilder;
-
 /// @brief Configuration of one deadline monitor, given to `HealthMonitorBuilder::AddDeadlineMonitor()`.
 class DeadlineMonitorBuilder final
 {

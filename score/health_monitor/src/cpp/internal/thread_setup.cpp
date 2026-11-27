@@ -15,6 +15,8 @@
 
 #include "score/health_monitor/error.h"
 #include "score/health_monitor/src/cpp/internal/logger.h"
+#include "score/mw/log/log_stream.h"
+#include "score/mw/log/logger.h"
 
 #include <pthread.h>
 #include <sched.h>
@@ -22,13 +24,15 @@
 
 #if defined(__QNX__)
 #include <sys/neutrino.h>
+
+#include <algorithm>
+#include <array>
 #endif
 
 #include <score/span.hpp>
 
-#include <algorithm>
-#include <array>
-#include <climits>
+#include <climits>  // IWYU pragma: keep (PTHREAD_STACK_MIN)
+// IWYU pragma: no_include <bits/pthread_stack_min-dynamic.h>
 #include <cstddef>
 #include <cstdint>
 #include <exception>

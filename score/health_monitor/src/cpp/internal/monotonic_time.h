@@ -17,6 +17,7 @@
 #include "score/os/time.h"
 
 #include <score/assert.hpp>
+#include <score/expected.hpp>
 
 #include <chrono>
 #include <cstdint>

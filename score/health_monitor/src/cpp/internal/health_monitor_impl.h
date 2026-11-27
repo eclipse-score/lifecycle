@@ -25,7 +25,6 @@
 #include "score/health_monitor/src/cpp/logic_monitor/logic_monitor_impl.h"
 #include "score/health_monitor/supervisor_client.h"
 #include "score/health_monitor/tag.h"
-#include "score/health_monitor/taken.h"
 #include "score/health_monitor/thread_parameters.h"
 #include "score/health_monitor/time_range.h"
 #include "score/os/time.h"

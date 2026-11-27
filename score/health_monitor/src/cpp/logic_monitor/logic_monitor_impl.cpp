@@ -16,6 +16,9 @@
 #include "score/health_monitor/error.h"
 #include "score/health_monitor/src/cpp/internal/log_string.h"
 #include "score/health_monitor/src/cpp/internal/logger.h"
+#include "score/mw/log/log_stream.h"
+#include "score/mw/log/log_types.h"
+#include "score/mw/log/logger.h"
 
 #include <score/utility.hpp>
 

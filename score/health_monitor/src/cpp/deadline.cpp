@@ -14,6 +14,7 @@
 #include "score/health_monitor/deadline.h"
 
 #include "score/health_monitor/error.h"
+#include "score/result/error.h"
 
 namespace score::health_monitor
 {

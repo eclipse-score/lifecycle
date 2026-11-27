@@ -13,10 +13,13 @@
 
 #include "score/health_monitor/health_monitor_builder.h"
 
-#include "score/health_monitor/error.h"
+#include "score/health_monitor/src/cpp/deadline_monitor/deadline_monitor_impl.h"
 #include "score/health_monitor/src/cpp/internal/health_monitor_impl.h"
+#include "score/health_monitor/src/cpp/logic_monitor/logic_monitor_impl.h"
 #include "score/health_monitor/supervisor_client.h"
+#include "score/health_monitor/time_range.h"
 #include "score/os/time.h"
+#include "score/result/error.h"
 
 #include <score/utility.hpp>
 

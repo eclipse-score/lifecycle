@@ -13,6 +13,7 @@
 
 #include "score/health_monitor/logic_monitor_builder.h"
 
+#include <score/span.hpp>
 #include <score/utility.hpp>
 
 #include <utility>

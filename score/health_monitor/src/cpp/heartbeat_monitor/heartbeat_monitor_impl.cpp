@@ -17,6 +17,9 @@
 #include "score/health_monitor/src/cpp/internal/log_string.h"
 #include "score/health_monitor/src/cpp/internal/logger.h"
 #include "score/health_monitor/src/cpp/internal/monotonic_time.h"
+#include "score/mw/log/log_stream.h"
+#include "score/mw/log/log_types.h"
+#include "score/mw/log/logger.h"
 
 #include <score/assert.hpp>
 #include <score/utility.hpp>

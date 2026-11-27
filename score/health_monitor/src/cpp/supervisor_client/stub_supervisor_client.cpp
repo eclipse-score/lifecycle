@@ -13,6 +13,9 @@
 
 #include "score/health_monitor/src/cpp/internal/logger.h"
 #include "score/health_monitor/supervisor_client.h"
+#include "score/mw/log/log_stream.h"
+#include "score/mw/log/logger.h"
+#include "score/result/result.h"
 
 #include <memory>
 

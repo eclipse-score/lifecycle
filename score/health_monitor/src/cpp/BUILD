@@ -103,9 +103,12 @@ cc_library(
         "@score_baselibs//score/containers:non_relocatable_vector",
         "@score_baselibs//score/language/futurecpp",
         "@score_baselibs//score/mw/log",
+        "@score_baselibs//score/mw/log:frontend",
+        "@score_baselibs//score/mw/log:log_stream",
         "@score_baselibs//score/mw/log:shared_types",
         "@score_baselibs//score/os:time",
         "@score_baselibs//score/result",
+        "@score_baselibs//score/result:error",
     ],
 )
 
@@ -121,6 +124,8 @@ cc_library(
         ":supervisor_client_interface",
         "//score/launch_manager:alive_cc",
         "@score_baselibs//score/language/futurecpp",
+        "@score_baselibs//score/mw/log:frontend",
+        "@score_baselibs//score/mw/log:log_stream",
         "@score_baselibs//score/result",
     ],
     alwayslink = True,
@@ -133,6 +138,9 @@ cc_library(
     deps = [
         ":logger",
         ":supervisor_client_interface",
+        "@score_baselibs//score/mw/log:frontend",
+        "@score_baselibs//score/mw/log:log_stream",
+        "@score_baselibs//score/result",
     ],
     alwayslink = True,
 )

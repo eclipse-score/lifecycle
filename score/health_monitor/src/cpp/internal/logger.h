@@ -14,8 +14,8 @@
 #ifndef SCORE_HEALTH_MONITOR_INTERNAL_LOGGER_H
 #define SCORE_HEALTH_MONITOR_INTERNAL_LOGGER_H
 
-#include "score/mw/log/log_stream.h"  // IWYU pragma: export
-#include "score/mw/log/logger.h"      // IWYU pragma: export
+#include "score/mw/log/log_stream.h"
+#include "score/mw/log/logger.h"
 
 #include <string_view>
 

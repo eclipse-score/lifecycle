@@ -23,8 +23,6 @@
 namespace score::health_monitor
 {
 
-class HealthMonitorBuilder;
-
 /// @brief State graph of one logic monitor, given to `HealthMonitorBuilder::AddLogicMonitor()`.
 class LogicMonitorBuilder final
 {

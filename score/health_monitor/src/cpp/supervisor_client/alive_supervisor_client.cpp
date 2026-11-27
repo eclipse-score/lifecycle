@@ -16,6 +16,8 @@
 #include "score/health_monitor/error.h"
 #include "score/health_monitor/src/cpp/internal/logger.h"
 #include "score/mw/lifecycle/alive.h"
+#include "score/mw/log/log_stream.h"
+#include "score/mw/log/logger.h"
 
 #include <score/assert.hpp>
 

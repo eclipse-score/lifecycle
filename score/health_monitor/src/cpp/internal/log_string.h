@@ -15,7 +15,7 @@
 #define SCORE_HEALTH_MONITOR_INTERNAL_LOG_STRING_H
 
 #include "score/health_monitor/tag.h"
-#include "score/mw/log/log_types.h"  // IWYU pragma: export
+#include "score/mw/log/log_types.h"
 
 namespace score::health_monitor::details
 {
