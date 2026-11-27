@@ -44,22 +44,17 @@ Changes to the Module
 New Features
 ~~~~~~~~~~~~
 
-- None
 
 Improvements
 ~~~~~~~~~~~~
 
-- None
 
 Bug Fixes
 ~~~~~~~~~
 
-- None
-
 Other Changes by Label
 ~~~~~~~~~~~~~~~~~~~~~~
 
-- None
 
 Compatibility
 ~~~~~~~~~~~~~
