@@ -25,7 +25,7 @@ namespace
 std::string component_name{""};
 
 /// @brief Flag signalling exit was requested by signal
-bool exit_requested{false};
+volatile std::sig_atomic_t exit_requested{false};
 
 /// @return The component this binary is deployed as (PROCESSIDENTIFIER).
 void store_component_name()
@@ -61,10 +61,10 @@ void register_signal_handlers()
 // On exit, we create gatedExitingPath(), so a test can wait for this process to exit.
 int main()
 {
+    register_signal_handlers();
+
     store_component_name();
     log("Started");
-
-    register_signal_handlers();
 
     log("Signal start");
     if (!touch_file(gatedStartedPath(component_name)))
