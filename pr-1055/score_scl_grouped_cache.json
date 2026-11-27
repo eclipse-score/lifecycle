@@ -311,7 +311,7 @@
       "CodeLinks": [],
       "TestLinks": [
         {
-          "name": "test_lm_shutdown",
+          "name": "test_lm_shutdown_during_rt_switch",
           "file": "tests/integration/lm_shutdown_during_rt_switch/test.py",
           "line": 19,
           "need": "feat_req__lifecycle__termination_dependency",
@@ -323,7 +323,7 @@
           "url": ""
         },
         {
-          "name": "test_lm_shutdown",
+          "name": "test_lm_shutdown_during_switch_to_off",
           "file": "tests/integration/lm_shutdown_during_switch_to_off/test.py",
           "line": 19,
           "need": "feat_req__lifecycle__termination_dependency",
@@ -367,7 +367,7 @@
       "CodeLinks": [],
       "TestLinks": [
         {
-          "name": "test_lm_shutdown",
+          "name": "test_lm_shutdown_during_rt_switch",
           "file": "tests/integration/lm_shutdown_during_rt_switch/test.py",
           "line": 19,
           "need": "comp_req__launch_man__launcher_exit_shutdown",
@@ -379,7 +379,7 @@
           "url": ""
         },
         {
-          "name": "test_lm_shutdown",
+          "name": "test_lm_shutdown_during_switch_to_off",
           "file": "tests/integration/lm_shutdown_during_switch_to_off/test.py",
           "line": 19,
           "need": "comp_req__launch_man__launcher_exit_shutdown",
@@ -1055,7 +1055,7 @@
           "file": "tests/integration/component_order/test.py",
           "line": 20,
           "need": "comp_req__launch_man__stop_process_dependents",
-          "verify_type": "partially",
+          "verify_type": "fully",
           "result": "passed",
           "result_text": "",
           "repo_name": "local_repo",
@@ -1394,6 +1394,26 @@
     }
   },
   {
+    "need": "comp_req__launch_man__secpol_non_root",
+    "links": {
+      "CodeLinks": [],
+      "TestLinks": [
+        {
+          "name": "test_sandbox_options_non_root",
+          "file": "tests/integration/sandbox_options/non_root/test.py",
+          "line": 49,
+          "need": "comp_req__launch_man__secpol_non_root",
+          "verify_type": "partially",
+          "result": "passed",
+          "result_text": "",
+          "repo_name": "local_repo",
+          "hash": "",
+          "url": ""
+        }
+      ]
+    }
+  },
+  {
     "need": "feat_req__lifecycle__sandbox_options",
     "links": {
       "CodeLinks": [],
@@ -1588,6 +1608,26 @@
           "line": 19,
           "need": "comp_req__launch_man__report_liveliness",
           "verify_type": "partially",
+          "result": "passed",
+          "result_text": "",
+          "repo_name": "local_repo",
+          "hash": "",
+          "url": ""
+        }
+      ]
+    }
+  },
+  {
+    "need": "comp_req__launch_man__ra_rt_sm_notify",
+    "links": {
+      "CodeLinks": [],
+      "TestLinks": [
+        {
+          "name": "test_complex_monitoring",
+          "file": "tests/integration/complex_monitoring/test.py",
+          "line": 19,
+          "need": "comp_req__launch_man__ra_rt_sm_notify",
+          "verify_type": "fully",
           "result": "passed",
           "result_text": "",
           "repo_name": "local_repo",
