@@ -16,6 +16,7 @@
 #include <cstdlib>
 #include <string_view>
 #include <tuple>
+#include <type_traits>
 
 namespace score::mw::lifecycle::test
 {
@@ -35,7 +36,7 @@ inline const char* FindArg(int argc, char** argv, std::string_view name)
         }
         // --name=value
         const bool flag_is_substr = arg.size() > name.size() && arg.substr(0, name.size()) == name;
-        const bool eq_at_end = arg[name.size()] == '=';
+        const bool eq_at_end = flag_is_substr && arg[name.size()] == '=';
         if (flag_is_substr && eq_at_end)
         {
             return argv[i] + name.size() + 1;
@@ -66,6 +67,12 @@ template <>
 inline int ConvertArg<int>(const char* raw_value)
 {
     return std::atoi(raw_value);
+}
+
+template <>
+inline std::string_view ConvertArg<std::string_view>(const char* raw_value)
+{
+    return std::string_view{raw_value};
 }
 
 /// @brief Parses all given arguments, supporting both valued arguments and boolean flags.

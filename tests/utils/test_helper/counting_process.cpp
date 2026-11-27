@@ -11,7 +11,7 @@
  * SPDX-License-Identifier: Apache-2.0
  ********************************************************************************/
 /*
- * ./counting_process [--help|-h] [--report-running|-r] [--post-to-semaphore=<name>|-p <name>]
+ * ./counting_process [--help] [--report-running] [--post-to-semaphore=<name>]
  *
  * This process will optionally post to a semaphore and also optionally report running.
  * This is designed to for hand-in-hand with the waiting_process, which can be used to wait
@@ -23,15 +23,39 @@
  * - Exit code 2: Failure posting to semaphore.
  */
 #include <fcntl.h>
-#include <getopt.h>
 #include <score/mw/lifecycle/report_running.h>
 #include <semaphore.h>
 #include <cerrno>
+#include <cstdio>
 #include <cstring>
 #include <string>
+#include <string_view>
+
+#include "tests/utils/test_helper/arg_parser.hpp"
 
 namespace
 {
+using score::mw::lifecycle::test::ParseArgs;
+
+struct HelpArg
+{
+    static constexpr std::string_view name = "--help";
+    using type = bool;
+};
+
+struct ReportRunningArg
+{
+    static constexpr std::string_view name = "--report-running";
+    using type = bool;
+};
+
+struct PostToSemaphoreArg
+{
+    static constexpr std::string_view name = "--post-to-semaphore";
+    using type = std::string_view;
+    static constexpr type default_value{};
+};
+
 /**
  * @brief Posts to a named POSIX semaphore, creating it if it doesn't exist
  * @param semaphore_name The name of the semaphore to post to
@@ -79,40 +103,11 @@ namespace
  */
 int main(int argc, char* argv[])
 {
-    bool help = false;
-    bool report_running = false;
-    bool post_to_semaphore = false;
-    std::string semaphore_name;
-
-    static struct option long_options[] = {
-        {"help", no_argument, nullptr, 'h'},
-        {"report-running", no_argument, nullptr, 'r'},
-        {"post-to-semaphore", required_argument, nullptr, 'p'},
-        {nullptr, 0, nullptr, 0}};
-
-    int opt;
-    int option_index = 0;
-
-    while ((opt = getopt_long(argc, argv, "hrp:", long_options, &option_index)) != -1)
-    {
-        switch (opt)
-        {
-            case 'h':
-                help = true;
-                break;
-            case 'r':
-                report_running = true;
-                break;
-            case 'p':
-                semaphore_name = std::string(optarg);
-                post_to_semaphore = true;
-                break;
-            case '?':
-            default:
-                std::fprintf(stderr, "Invalid or missing argument.\n");
-                return 1;
-        }
-    }
+    const auto [help, report_running, semaphore_arg] =
+        ParseArgs<HelpArg, ReportRunningArg, PostToSemaphoreArg>(argc, argv);
+    // A default-constructed string_view has a null data pointer, so this distinguishes "absent" from "empty".
+    const bool post_to_semaphore = semaphore_arg.data() != nullptr;
+    const std::string semaphore_name{semaphore_arg};
 
     if (!(help || report_running || post_to_semaphore))
     {
@@ -128,8 +123,7 @@ int main(int argc, char* argv[])
 
     if (help)
     {
-        std::printf(
-            "Usage: ./counting_process [--help|-h] [--report-running|-r] [--post-to-semaphore=<name>|-p <name>]\n");
+        std::printf("Usage: ./counting_process [--help] [--report-running] [--post-to-semaphore=<name>]\n");
         return 0;
     }
 
