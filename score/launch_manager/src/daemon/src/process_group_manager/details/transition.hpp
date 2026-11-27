@@ -198,13 +198,7 @@ class Transition
 
         if (state_.phase == Phase::Stopping)
         {
-            // The only place stopped_ is written outside of setup (see NodeInfo::stopped_):
-            // IComponent::active() is read once, when this transition started, and from then on
-            // a node only counts as stopped once its own deactivation has actually been reported
-            // finished here — not the moment active() happens to flip, which some components do
-            // before they are truly done (e.g. a process clearing its ready flag before blocking
-            // on the SIGTERM wait). Otherwise a dependency with several dependents could be
-            // stopped as soon as any single dependent merely started deactivating.
+            // Only place stopped_ is written outside of setup. See NodeInfo::stopped_.
             state_.node_information.at(node).stopped_ = true;
         }
 
@@ -323,14 +317,8 @@ class Transition
 
         /// @brief True once this node's deactivation for the current transition has actually been
         /// reported finished.
-        /// @details Seeded from the component's live active() state when the transition starts
-        /// (see setupTransition()); from then on, for the lifetime of this transition, updated
-        /// exclusively by onNodeFinished(). A node's own IComponent::active() may already report
-        /// false while it is still in the middle of its own graceful shutdown (e.g. a process
-        /// clears its ready flag before blocking on the SIGTERM wait), so re-reading active()
-        /// while a transition is in flight could stop a shared dependency as soon as any one of
-        /// several dependents merely starts deactivating, instead of waiting for every dependent
-        /// to actually finish.
+        /// @details Seeded from live active() in setupTransition(); from then on updated only by
+        /// onNodeFinished(), not by re-reading active().
         bool stopped_{true};
     };
 

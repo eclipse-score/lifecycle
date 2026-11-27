@@ -665,8 +665,7 @@ TEST_F(LinearGraphTest, TransitionToCStopsNodesNotNeededByC)
 // Shared dependency of two independent roots
 // ---------------------------------------------------------------------------
 
-/// @brief Fixture reproducing the scenario from the bug report: two independent root nodes, A and
-/// B, that both depend on a shared node D.
+/// @brief Fixture with two independent root nodes, A and B, that both depend on a shared node D.
 ///
 ///   A -> D <- B      (X -> Y means X depends on Y)
 ///   Off              (no dependencies: reaching it stops A, B and D)
@@ -701,10 +700,10 @@ TEST_F(SharedDependencyOfTwoRootsTest, SharedDependencyWaitsForEveryDependentToA
 {
     RecordProperty(
         "Description",
-        "Regression test for the scenario in the bug issue 1108: D must not be stopped as soon as A "
-        "has finished deactivating while B merely *reports* inactive -- e.g. because "
-        "IComponent::active() already flipped to false before B's own graceful shutdown actually "
-        "completed. D may only be stopped once B has itself reported onNodeFinished().");
+        "D must not be stopped as soon as A has finished deactivating while B merely *reports* "
+        "inactive -- e.g. because IComponent::active() already flipped to false before B's own "
+        "graceful shutdown actually completed. D may only be stopped once B has itself reported "
+        "onNodeFinished().");
 
     auto& transition = builder_->createTransition(off_);
 
