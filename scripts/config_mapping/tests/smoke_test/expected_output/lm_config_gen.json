@@ -64,7 +64,9 @@
                     }
                 ],
                 "recovery_action": {
-                    "run_target": "Off"
+                    "switch_run_target": {
+                        "run_target": "Off"
+                    }
                 }
             }
         },
@@ -134,7 +136,9 @@
                     }
                 ],
                 "recovery_action": {
-                    "run_target": "Off"
+                    "switch_run_target": {
+                        "run_target": "Off"
+                    }
                 }
             }
         },
@@ -208,7 +212,9 @@
                     }
                 ],
                 "recovery_action": {
-                    "run_target": "Off"
+                    "switch_run_target": {
+                        "run_target": "Off"
+                    }
                 }
             }
         },
@@ -285,7 +291,9 @@
                     }
                 ],
                 "recovery_action": {
-                    "run_target": "Off"
+                    "switch_run_target": {
+                        "run_target": "Off"
+                    }
                 }
             }
         },
@@ -361,7 +369,9 @@
                     }
                 ],
                 "recovery_action": {
-                    "run_target": "Off"
+                    "switch_run_target": {
+                        "run_target": "Off"
+                    }
                 }
             }
         }
