@@ -92,7 +92,10 @@ void CreateDependencyGraph(
     for (auto& run_target : config.run_targets_)
     {
         const auto index = graph.try_emplace(
-            IdentifierHash{run_target.name}, std::in_place_type<RunTarget>, IdentifierHash{run_target.name});
+            IdentifierHash{run_target.name},
+            std::in_place_type<RunTarget>,
+            IdentifierHash{run_target.name},
+            std::chrono::milliseconds{run_target.transition_timeout_ms});
         LM_LOG_DEBUG() << "Creating Run Target node:" << run_target.name << "at index" << index;
 
         if (run_target.name == Graph::off_state_name)
@@ -109,7 +112,8 @@ void CreateDependencyGraph(
         graph.try_emplace(
             IdentifierHash{Graph::off_state_name},
             std::in_place_type<RunTarget>,
-            IdentifierHash{Graph::off_state_name});
+            IdentifierHash{Graph::off_state_name},
+            internal::kDefaultOffStateTransitionTimeout);
         off_state_transition_timeout = internal::kDefaultOffStateTransitionTimeout;
     }
 
@@ -117,7 +121,8 @@ void CreateDependencyGraph(
     const auto fallback_index = graph.try_emplace(
         IdentifierHash{Graph::recovery_state_name},
         std::in_place_type<RunTarget>,
-        IdentifierHash{Graph::recovery_state_name});
+        IdentifierHash{Graph::recovery_state_name},
+        std::chrono::milliseconds{config.fallback_run_target_.transition_timeout_ms});
     pending_dependencies.emplace_back(fallback_index, config.fallback_run_target_.depends_on);
 
     // wire up deps
@@ -241,6 +246,15 @@ void Graph::queueReadyNodes()
 
 void Graph::finalizeTransitionSuccess()
 {
+    // Also checked here; the main loop only samples every kMainLoopCycleTimeMs.
+    if (hasExceededTransitionTimeout())
+    {
+        LM_LOG_WARN() << "Activation of Run Target" << getRequestedRunTarget()
+                      << "finished after its transition timeout had expired; failing the transition";
+        cancel();
+        return;
+    }
+
     if (active_run_target_callback_.has_value())
     {
         const IdentifierHash state = getRequestedRunTarget();
@@ -315,6 +329,9 @@ bool Graph::startTransition(IdentifierHash pg_state, RunTargetActivationSource s
         LM_LOG_ERROR() << "Invalid Run Target" << pg_state;
         return false;
     }
+
+    // Not request_start_time_, which also covers cancelling a transition that was still in flight.
+    transition_start_time_ = std::chrono::steady_clock::now();
 
     bool reached_transition = setState(GraphState::kInTransition);
     static_cast<void>(reached_transition);
@@ -571,6 +588,36 @@ void Graph::setRequestStartTime()
 std::chrono::time_point<std::chrono::steady_clock> Graph::getRequestStartTime()
 {
     return request_start_time_;
+}
+
+std::chrono::milliseconds Graph::getRequestedRunTargetTransitionTimeout()
+{
+    auto it = nodes_.find(getRequestedRunTarget());
+    if ((it == nodes_.end()) || !std::holds_alternative<RunTarget>((*it).second))
+    {
+        return std::chrono::milliseconds::zero();
+    }
+    return std::get<RunTarget>((*it).second).getTransitionTimeout();
+}
+
+bool Graph::hasExceededTransitionTimeout()
+{
+    // Off runs during shutdown and is already bounded by ProcessGroupManager.
+    if (getRequestedRunTarget() == off_state_)
+    {
+        return false;
+    }
+
+    const std::chrono::milliseconds timeout = getRequestedRunTargetTransitionTimeout();
+    if (timeout == std::chrono::milliseconds::zero())
+    {
+        // No transition timeout configured, so the activation is not time limited.
+        return false;
+    }
+
+    const auto elapsed = std::chrono::duration_cast<std::chrono::milliseconds>(
+        std::chrono::steady_clock::now() - transition_start_time_);
+    return elapsed >= timeout;
 }
 
 std::chrono::milliseconds Graph::getOffStateTransitionTimeout() const

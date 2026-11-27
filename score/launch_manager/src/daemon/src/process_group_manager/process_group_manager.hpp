@@ -130,6 +130,11 @@ class ProcessGroupManager final : public IRunTargetControl
     /// @param pg Reference of the process group to manage.
     void processGroupHandler(Graph& pg);
 
+    /// @brief Fail the transition in progress if it has exceeded its Run Target's transition timeout.
+    /// @details Cancels the transition, which leads to the Run Target's recovery action.
+    /// @param pg Reference of the process group to manage.
+    void failTransitionIfTimedOut(Graph& pg);
+
     /// @brief Start the initial transition to the machine process group startup state.
     /// @details initial machine process group state pointer is retrieved from configuration manager and if
     /// the value of not null and a graph for a process group with the correct name exists the

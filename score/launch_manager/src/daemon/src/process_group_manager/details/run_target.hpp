@@ -17,6 +17,7 @@
 #include "score/mw/launch_manager/process_group_manager/details/icomponent.hpp"
 
 #include <atomic>
+#include <chrono>
 
 namespace score::mw::lifecycle::internal
 {
@@ -27,11 +28,16 @@ namespace score::mw::lifecycle::internal
 class RunTarget final : public IComponent
 {
   public:
-    explicit RunTarget(const IdentifierHash& index) : identifier_(index)
+    /// @brief Creates a Run Target node.
+    /// @param index Unique identifier of this Run Target.
+    /// @param transition_timeout The transition timeout configured for this Run Target.
+    explicit RunTarget(const IdentifierHash& index, const std::chrono::milliseconds transition_timeout)
+        : identifier_(index), transition_timeout_(transition_timeout)
     {
     }
 
-    RunTarget(RunTarget&& other) noexcept : identifier_(other.identifier_), active_(other.active_.load())
+    RunTarget(RunTarget&& other) noexcept
+        : identifier_(other.identifier_), transition_timeout_(other.transition_timeout_), active_(other.active_.load())
     {
     }
     RunTarget(const RunTarget&) = delete;
@@ -66,9 +72,20 @@ class RunTarget final : public IComponent
         return active_;
     }
 
+    /// @brief Returns the transition timeout configured for this Run Target.
+    /// @details A transition to this Run Target that takes longer than this is
+    ///          considered to have failed.
+    /// @return The configured transition timeout.
+    std::chrono::milliseconds getTransitionTimeout() const noexcept
+    {
+        return transition_timeout_;
+    }
+
   private:
     /// @brief Unique identifier of this Run Target.
     IdentifierHash identifier_;
+    /// @brief Transition timeout configured for this Run Target.
+    std::chrono::milliseconds transition_timeout_;
     /// @brief True if the Run Target has been activated and has not yet been deactivated.
     std::atomic<bool> active_{false};
 };

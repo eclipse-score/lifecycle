@@ -239,6 +239,17 @@ class Graph final
     /// @return The timestamp recorded at the start of the current state transition request.
     std::chrono::time_point<std::chrono::steady_clock> getRequestStartTime();
 
+    /// @brief Returns the transition timeout configured for the Run Target currently being activated.
+    /// @details A timeout of zero means none was configured, in which case the activation is not time
+    ///          limited. Zero is also returned when the requested node is not a Run Target.
+    /// @return The configured transition timeout, or zero.
+    std::chrono::milliseconds getRequestedRunTargetTransitionTimeout();
+
+    /// @brief Checks the transition in progress against its Run Target's transition timeout.
+    /// @details Always false for the Off Run Target and when no timeout is configured.
+    /// @return True if the configured transition timeout has been reached.
+    bool hasExceededTransitionTimeout();
+
     /// @brief For forced shutdown, kill all leftover processes
     void forceKillProcesses();
 
@@ -329,6 +340,8 @@ class Graph final
 
     /// @brief Stores the timestamp based on the system clock when starting a request
     std::chrono::time_point<std::chrono::steady_clock> request_start_time_{};
+    /// @brief Stores the timestamp taken when the transition in progress started
+    std::chrono::time_point<std::chrono::steady_clock> transition_start_time_{};
 
     /// @brief Stop token generator for transitions.
     score::cpp::stop_source stop_source_;

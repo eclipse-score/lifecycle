@@ -33,7 +33,5 @@ Component
 Run Target
 ----------
 
-* The parameter ``run_targets/<RunTarget>/transition_timeout_ms`` is currently not
-  supported and is ignored.
 * The ``recovery_action`` only supports ``switch_run_target`` with the
   ``run_target`` set to ``fallback_run_target``.
