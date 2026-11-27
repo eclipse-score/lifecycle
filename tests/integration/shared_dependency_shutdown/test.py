@@ -60,8 +60,18 @@ def test_shared_dependency_shutdown(
     component_shared records a violation if its SIGTERM arrives while the stop counter is
     below 2. The test fails if any violation was recorded.
 
-    See shared_dependency_shutdown.puml for a sequence diagram of both the required and
-    the currently observed behaviour.
+    This is a regression test: Transition used to derive "is this dependent stopped" from
+    IComponent::active(), which some components (e.g. ProcessInfoNode) already report false
+    before their own graceful shutdown has actually finished. Transition now tracks a per-node
+    stopped_ bit that is seeded from active() once, when the transition starts, and from then
+    on is updated exclusively by onNodeFinished() -- see
+    score/launch_manager/src/daemon/src/process_group_manager/details/transition.hpp. The
+    corresponding unit-level regression test is
+    SharedDependencyOfTwoRootsTest.SharedDependencyWaitsForEveryDependentToActuallyFinish in
+    transition_UT.cpp.
+
+    See shared_dependency_shutdown.puml for a sequence diagram, including a note on the
+    pre-fix behaviour this test guards against.
     """
 
     run_test(

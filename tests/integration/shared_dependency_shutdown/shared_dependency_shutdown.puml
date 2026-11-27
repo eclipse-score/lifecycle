@@ -27,6 +27,11 @@ end box
 
 database "POSIX shm counters\nstart / stop / violation" as Shm
 
+note over Driver, Slow
+  component_fast, component_slow --> component_shared (diamond)
+  stop counter increments on exit, not on SIGTERM
+end note
+
 ' --- startup -----------------------------------------------------------------
 activate LM
 LM -> Driver ++: start (Run Target "Startup")
@@ -39,11 +44,7 @@ LM -> Shared ++: start
 Shared -> Shm: ++start counter
 Shared -> LM: report_running()
 
-note over LM
-  component_fast and component_slow only become ready once
-  component_shared is active, so they start afterwards —
-  and in parallel with each other.
-end note
+note over LM: start only once component_shared is active
 
 par
   LM -> Fast ++: start
@@ -64,11 +65,7 @@ Shm --> Driver: 0
 ' --- shutdown ----------------------------------------------------------------
 Driver -> LM: activate_run_target("Startup")
 
-note over LM
-  Stopping phase. component_fast and component_slow are not needed by
-  "Startup", have no remaining dependents, and are therefore both ready
-  to be deactivated at once.
-end note
+note over LM: not needed by "Startup"; both ready to stop at once
 
 par
   LM -> Fast: SIGTERM
@@ -79,69 +76,36 @@ else
 end
 
 Fast -> Shm: ++stop counter (now 1)
-Fast --> LM: process exited
+Fast --> LM: onNodeFinished(component_fast)
 destroy Fast
 
-note over LM
-  component_fast is gone, but component_slow is still inside its
-  graceful shutdown — it has been signalled, not stopped.
+note over LM #F2FAF2
+  stopped_ is set only by onNodeFinished(), not active() -- component_slow's
+  bit is still false, so component_shared stays blocked.
+  Pre-fix: active() was re-read here and already false -> signalled ~1.2s early.
+  See Transition::onNodeFinished(); transition_UT.cpp SharedDependencyOfTwoRootsTest.
 end note
 
-alt #Pink current behaviour — the defect this test reproduces
+Slow -> Shm: ++stop counter (now 2)
+Slow --> LM: onNodeFinished(component_slow)
+destroy Slow
 
-  note over LM
-    IComponent::active() already returns false for component_slow, because
-    ProcessInfoNode::deactivate() clears reached_ready_ before it blocks on
-    the shutdown wait. Transition::stopped() is !active(), so component_slow
-    counts as stopped and allDependentsStopped(component_shared) is true.
-  end note
+note over LM: both dependents now stopped
 
-  LM -> Shared: SIGTERM  (too early)
-  Shared -> Shm: read stop counter
-  Shm --> Shared: 1
-  Shared -> Shm: ++violation counter (expected 2, saw 1)
-  Shared -> Shm: ++stop counter (now 2)
-  Shared --> LM: process exited
-  destroy Shared
-
-  Slow -> Shm: ++stop counter (now 3)
-  Slow --> LM: process exited
-  destroy Slow
-
-  note over Shm
-    The stop counter still ends at 3, so counting stops alone does not
-    catch the bug. The violation counter is what discriminates.
-  end note
-
-else #F2FAF2 required behaviour — what the test asserts
-
-  Slow -> Shm: ++stop counter (now 2)
-  Slow --> LM: process exited
-  destroy Slow
-
-  note over LM
-    Only now is every dependent of component_shared actually gone.
-  end note
-
-  LM -> Shared: SIGTERM
-  Shared -> Shm: read stop counter
-  Shm --> Shared: 2
-  note right of Shared: expectation met — no violation recorded
-  Shared -> Shm: ++stop counter (now 3)
-  Shared --> LM: process exited
-  destroy Shared
-
-end
+LM -> Shared: SIGTERM
+Shared -> Shm: read stop counter
+Shm --> Shared: 2
+note right of Shared: no violation
+Shared -> Shm: ++stop counter (now 3)
+Shared --> LM: onNodeFinished(component_shared)
+destroy Shared
 
 ' --- verdict -----------------------------------------------------------------
 LM --> Driver: callback: "Startup" activated
 
 Driver -> Shm: read violation counter
-Shm --> Driver: 0 required / 1 observed
-note right of Driver
-  EXPECT_EQ(violation_counter.get(), 0)
-  <b>fails today</b> with 1.
-end note
+Shm --> Driver: 0
+note right of Driver: EXPECT_EQ(violation_counter.get(), 0) <b>passes</b>
 
 Driver -> Shm: read stop counter
 Shm --> Driver: 3
@@ -149,13 +113,7 @@ deactivate Driver
 deactivate LM
 
 legend bottom
-  The two dependents are stopped in parallel and both keep running after
-  SIGTERM, which is what makes the race observable: the fast one finishes
-  while the slow one is still shutting down.
-
-  Timings are chosen so the window is deterministic — 300 ms vs 1500 ms,
-  both well inside the configured shutdown_timeout_ms of 5000 ms, so no
-  SIGKILL escalation interferes.
+  Fast/slow stop in parallel (300ms vs 1500ms), both under the 5000ms shutdown_timeout_ms.
 end legend
 
 @enduml

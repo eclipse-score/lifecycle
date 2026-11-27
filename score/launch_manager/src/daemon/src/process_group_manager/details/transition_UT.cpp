@@ -661,4 +661,82 @@ TEST_F(LinearGraphTest, TransitionToCStopsNodesNotNeededByC)
     EXPECT_TRUE(componentAt(d_).active_);
 }
 
+// ---------------------------------------------------------------------------
+// Shared dependency of two independent roots
+// ---------------------------------------------------------------------------
+
+/// @brief Fixture reproducing the scenario from the bug report: two independent root nodes, A and
+/// B, that both depend on a shared node D.
+///
+///   A -> D <- B      (X -> Y means X depends on Y)
+///   Off              (no dependencies: reaching it stops A, B and D)
+///
+/// Neither A nor B has a dependent of its own, so both become ready to stop at the same time; D
+/// only becomes ready once *both* have actually finished.
+class SharedDependencyOfTwoRootsTest : public TransitionTest
+{
+  protected:
+    void SetUp() override
+    {
+        TransitionTest::SetUp();
+        makeGraph(4);
+        a_ = addNode();
+        b_ = addNode();
+        d_ = addNode();
+        off_ = addNode();
+        graph_->addDependency(a_, d_);
+        graph_->addDependency(b_, d_);
+        componentAt(a_).setActive(true);
+        componentAt(b_).setActive(true);
+        componentAt(d_).setActive(true);
+    }
+
+    IdentifierHash a_{};
+    IdentifierHash b_{};
+    IdentifierHash d_{};
+    IdentifierHash off_{};
+};
+
+TEST_F(SharedDependencyOfTwoRootsTest, SharedDependencyWaitsForEveryDependentToActuallyFinish)
+{
+    RecordProperty(
+        "Description",
+        "Regression test for the scenario in the bug issue 1108: D must not be stopped as soon as A "
+        "has finished deactivating while B merely *reports* inactive -- e.g. because "
+        "IComponent::active() already flipped to false before B's own graceful shutdown actually "
+        "completed. D may only be stopped once B has itself reported onNodeFinished().");
+
+    auto& transition = builder_->createTransition(off_);
+
+    // A and B are both roots (nothing depends on either), so both are ready to stop immediately;
+    // D is not, since neither of its dependents has stopped yet.
+    EXPECT_THAT(
+        collectReady(transition),
+        ::testing::UnorderedElementsAre(
+            ReadyNode<IdentifierHash>{a_, Action::Stop}, ReadyNode<IdentifierHash>{b_, Action::Stop}));
+
+    // B's component reports inactive early, mirroring IComponent::active() flipping to false
+    // while B is still in the middle of its own graceful shutdown (e.g. a process clearing its
+    // ready flag before blocking on the SIGTERM wait) -- but B has not itself reported finished.
+    componentAt(b_).setActive(false);
+
+    // A now actually finishes. If D's readiness were (re-)derived from live active() state, B's
+    // premature flip above would make D look fully unblocked; D must stay blocked until B's own
+    // onNodeFinished() arrives.
+    deactivate(transition, a_);
+    EXPECT_THAT(collectReady(transition), ::testing::IsEmpty())
+        << "D became ready to stop before B actually finished its own deactivation";
+
+    // Only once B is reported finished does D become ready.
+    transition.onNodeFinished(b_);
+    EXPECT_THAT(collectReady(transition), ::testing::ElementsAre(ReadyNode<IdentifierHash>{d_, Action::Stop}));
+
+    deactivate(transition, d_);
+    EXPECT_THAT(collectReady(transition), ::testing::ElementsAre(ReadyNode<IdentifierHash>{off_, Action::Start}));
+    activate(transition, off_);
+
+    EXPECT_THAT(collectReady(transition), ::testing::IsEmpty());
+    EXPECT_TRUE(transition.isFinished());
+}
+
 }  // namespace score::mw::lifecycle::internal
