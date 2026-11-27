@@ -22,6 +22,7 @@
 #include <score/utility.hpp>
 
 #include <utility>
+#include <vector>
 
 namespace score::health_monitor
 {
@@ -71,10 +72,10 @@ HealthMonitorBuilder HealthMonitorBuilder::WithThreadParameters(ThreadParameters
 
 score::Result<std::unique_ptr<HealthMonitor>> HealthMonitorBuilder::Build() && noexcept
 {
-    // The component has no deadline or logic monitor implementation.
-    if ((!deadline_monitors_.empty()) || (!logic_monitors_.empty()))
+    // The component has no deadline monitor implementation.
+    if (!deadline_monitors_.empty())
     {
-        details::GetLogger().LogError() << "Deadline and logic monitors are not supported.";
+        details::GetLogger().LogError() << "Deadline monitors are not supported.";
         return score::MakeUnexpected(ErrorCode::kInvalidArgument);
     }
 
@@ -85,6 +86,22 @@ score::Result<std::unique_ptr<HealthMonitor>> HealthMonitorBuilder::Build() && n
         score::cpp::ignore = config.heartbeat_monitors.emplace_back(
             details::HealthMonitorImpl::Config::HeartbeatMonitorConfig{
                 tag_and_monitor.first, tag_and_monitor.second.range_});
+    }
+
+    config.logic_monitors.reserve(logic_monitors_.size());
+    for (auto& tag_and_monitor : logic_monitors_)
+    {
+        LogicMonitorBuilder& monitor{tag_and_monitor.second};
+        std::vector<details::StateNode> states;
+        states.reserve(monitor.states_.size());
+        for (LogicMonitorBuilder::Node& node : monitor.states_)
+        {
+            score::cpp::ignore = states.emplace_back(details::StateNode{node.state, std::move(node.allowed_states)});
+        }
+
+        score::cpp::ignore = config.logic_monitors.emplace_back(
+            details::HealthMonitorImpl::Config::LogicMonitorConfig{
+                tag_and_monitor.first, monitor.initial_state_, std::move(states)});
     }
 
     config.supervisor_api_cycle = supervisor_api_cycle_;

@@ -62,6 +62,10 @@ cc_library(
         "internal/thread_setup.h",
         "internal/worker.cpp",
         "internal/worker.h",
+        "logic_monitor/logic_monitor_impl.cpp",
+        "logic_monitor/logic_monitor_impl.h",
+        "logic_monitor/logic_state.h",
+        "logic_monitor_builder.cpp",
         "thread_parameters.cpp",
     ],
     hdrs = [
@@ -172,6 +176,8 @@ cc_gtest_unit_test(
         "internal/test_helpers.h",
         "internal/thread_setup_test.cpp",
         "internal/worker_test.cpp",
+        "logic_monitor/logic_monitor_impl_test.cpp",
+        "logic_monitor/logic_state_test.cpp",
         "mock_usage_test.cpp",
         "supervisor_client/stub_supervisor_client_test.cpp",
         "tag_test.cpp",
@@ -188,6 +194,8 @@ cc_gtest_unit_test(
         ":health_monitor_base",
         ":mock",
         ":stub_supervisor_client",
+        "@score_baselibs//score/mw/log:frontend",
+        "@score_baselibs//score/mw/log:recorder_mock",
         "@score_baselibs//score/os/mocklib:time_mock",
     ],
 )

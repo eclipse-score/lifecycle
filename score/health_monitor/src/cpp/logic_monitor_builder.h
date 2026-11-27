@@ -31,15 +31,13 @@ class LogicMonitorBuilder final
   public:
     /// @brief Creates a state graph that starts in `initial_state`.
     /// @note `HealthMonitorBuilder::Build()` rejects an initial state that no `AddState()` call adds.
-    explicit LogicMonitorBuilder(const StateTag& initial_state) noexcept : initial_state_{initial_state}
-    {
-    }
+    explicit LogicMonitorBuilder(const StateTag& initial_state) noexcept;
 
     /// @brief Adds `state` and the states it can move to.
     /// @param allowed_states Targets of the transitions from `state`. The builder keeps a copy.
     /// A state can move to itself only if this list contains it.
-    /// @note A second call with the same `state` replaces the first.
-    /// `HealthMonitorBuilder::Build()` rejects a target that no `AddState()` call adds.
+    /// @note `HealthMonitorBuilder::Build()` rejects a second call with the same `state`,
+    /// and a target that no `AddState()` call adds.
     LogicMonitorBuilder AddState(
         const StateTag& state,
         const score::cpp::span<const StateTag> allowed_states) && noexcept;
@@ -56,7 +54,7 @@ class LogicMonitorBuilder final
 
     /// @brief State before the first transition.
     StateTag initial_state_;
-    /// @brief States of the graph, one per tag.
+    /// @brief States of the graph in the order of the `AddState()` calls.
     std::vector<Node> states_;
 };
 

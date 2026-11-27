@@ -93,6 +93,11 @@ class ExampleComponent
         return {};
     }
 
+    LogicMonitor& Logic()
+    {
+        return **logic_;
+    }
+
   private:
     std::optional<Taken<HeartbeatMonitor>> heartbeat_;
     std::optional<Taken<LogicMonitor>> logic_;
@@ -257,4 +262,19 @@ TEST_F(MockUsageCycleTest, CycleSurfacesDeadlineStartErrorWithoutStop)
 
     ASSERT_FALSE(result.has_value());
     EXPECT_EQ(result.error(), MakeError(ErrorCode::kDeadlineFailed));
+}
+
+TEST_F(MockUsageCycleTest, StateReportsTheMockedCurrentState)
+{
+    RecordProperty("PartiallyVerifies", "comp_req__health_monitor__lg_invalid_trans");
+    RecordProperty("TestType", "interface-test");
+    RecordProperty("DerivationTechnique", "design-analysis");
+    RecordProperty("Description", "Check that the mock lets a component read the current logic state.");
+
+    EXPECT_CALL(logic_, State()).WillOnce(::testing::Return(kRunningState));
+
+    const auto state{component_.Logic().State()};
+
+    ASSERT_TRUE(state.has_value());
+    EXPECT_EQ(state.value(), kRunningState);
 }

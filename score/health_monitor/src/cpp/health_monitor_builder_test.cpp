@@ -47,6 +47,13 @@ HealthMonitorBuilder OneHeartbeat()
     return HealthMonitorBuilder{}.AddHeartbeatMonitor(kHeartbeat, HeartbeatMonitorBuilder{kRange});
 }
 
+LogicMonitorBuilder TwoStateLogic()
+{
+    const std::array<StateTag, 1> from_a{{StateTag{"b"}}};
+    const std::array<StateTag, 1> from_b{{StateTag{"a"}}};
+    return LogicMonitorBuilder{StateTag{"a"}}.AddState(StateTag{"a"}, from_a).AddState(StateTag{"b"}, from_b);
+}
+
 HealthMonitorBuilder WithCycles(const std::chrono::milliseconds internal, const std::chrono::milliseconds supervisor)
 {
     return OneHeartbeat().WithInternalProcessingCycle(internal).WithSupervisorApiCycle(supervisor);
@@ -278,16 +285,95 @@ TEST(HealthMonitorBuilderTest, RejectsDeadlineMonitor)
     ExpectError(std::move(builder).Build(), ErrorCode::kInvalidArgument);
 }
 
-TEST(HealthMonitorBuilderTest, RejectsLogicMonitor)
+TEST(HealthMonitorBuilderTest, BuildsWithOneLogicMonitor)
 {
     RecordProperty("PartiallyVerifies", "comp_req__health_monitor__cfg_no_monitor");
     RecordProperty("TestType", "requirements-based");
-    RecordProperty("DerivationTechnique", "design-analysis");
-    RecordProperty("Description", "Check that a builder with a logic monitor fails with kInvalidArgument.");
+    RecordProperty("DerivationTechnique", "requirements-analysis");
+    RecordProperty("Description", "Check that a logic monitor alone counts as a monitor and builds a health monitor.");
 
-    auto builder = OneHeartbeat().AddLogicMonitor(kLogic, LogicMonitorBuilder{StateTag{"s"}});
+    auto result = HealthMonitorBuilder{}.AddLogicMonitor(kLogic, TwoStateLogic()).Build();
+
+    ASSERT_TRUE(result.has_value());
+    EXPECT_NE(result.value(), nullptr);
+}
+
+TEST(HealthMonitorBuilderTest, LogicGraphErrorPropagates)
+{
+    RecordProperty("PartiallyVerifies", "comp_req__health_monitor__lg_cfg_undef_target");
+    RecordProperty("TestType", "requirements-based");
+    RecordProperty("DerivationTechnique", "equivalence-classes");
+    RecordProperty(
+        "Description", "Check that a logic state that lists an undefined target fails with kInvalidArgument.");
+
+    const std::array<StateTag, 1> allowed{{StateTag{"missing"}}};
+    auto builder = HealthMonitorBuilder{}.AddLogicMonitor(
+        kLogic, LogicMonitorBuilder{StateTag{"a"}}.AddState(StateTag{"a"}, allowed));
 
     ExpectError(std::move(builder).Build(), ErrorCode::kInvalidArgument);
+}
+
+TEST(HealthMonitorBuilderTest, AcceptsHeartbeatAndLogicMonitorWithDistinctTags)
+{
+    RecordProperty("PartiallyVerifies", "comp_req__health_monitor__monitor_id");
+    RecordProperty("TestType", "requirements-based");
+    RecordProperty("DerivationTechnique", "equivalence-classes");
+    RecordProperty("Description", "Check that a heartbeat monitor and a logic monitor with different tags build.");
+
+    auto builder = OneHeartbeat().AddLogicMonitor(kLogic, TwoStateLogic());
+
+    EXPECT_TRUE(std::move(builder).Build().has_value());
+}
+
+TEST(HealthMonitorBuilderTest, RejectsLogicMonitorWithTheTagOfAHeartbeatMonitor)
+{
+    RecordProperty("PartiallyVerifies", "comp_req__health_monitor__monitor_id");
+    RecordProperty("TestType", "requirements-based");
+    RecordProperty("DerivationTechnique", "equivalence-classes");
+    RecordProperty(
+        "Description", "Check that a heartbeat and a logic monitor with one tag fail with kInvalidArgument.");
+
+    auto builder = OneHeartbeat().AddLogicMonitor(kHeartbeat, TwoStateLogic());
+
+    ExpectError(std::move(builder).Build(), ErrorCode::kInvalidArgument);
+}
+
+TEST(HealthMonitorBuilderTest, RejectsRepeatedLogicTag)
+{
+    RecordProperty("PartiallyVerifies", "comp_req__health_monitor__monitor_id");
+    RecordProperty("TestType", "requirements-based");
+    RecordProperty("DerivationTechnique", "equivalence-classes");
+    RecordProperty("Description", "Check that two logic monitors with the same tag fail with kInvalidArgument.");
+
+    auto builder =
+        HealthMonitorBuilder{}.AddLogicMonitor(kLogic, TwoStateLogic()).AddLogicMonitor(kLogic, TwoStateLogic());
+
+    ExpectError(std::move(builder).Build(), ErrorCode::kInvalidArgument);
+}
+
+TEST(HealthMonitorBuilderTest, LogicMonitorKeepsACopyOfTheAllowedStates)
+{
+    RecordProperty("PartiallyVerifies", "comp_req__health_monitor__lg_invalid_trans");
+    RecordProperty("TestType", "requirements-based");
+    RecordProperty("DerivationTechnique", "error-guessing");
+    RecordProperty(
+        "Description", "Check that an allowed transition works although the array given to AddState is gone at Build.");
+
+    auto builder = [] {
+        const std::array<StateTag, 1> from_a{{StateTag{"b"}}};
+        const std::array<StateTag, 1> from_b{{StateTag{"a"}}};
+        return HealthMonitorBuilder{}.AddLogicMonitor(
+            kLogic, LogicMonitorBuilder{StateTag{"a"}}.AddState(StateTag{"a"}, from_a).AddState(StateTag{"b"}, from_b));
+    }();
+    auto health_monitor = std::move(builder).Build();
+    ASSERT_TRUE(health_monitor.has_value());
+    auto logic = health_monitor.value()->GetLogicMonitor(kLogic);
+    ASSERT_TRUE(logic.has_value());
+
+    const auto transition = logic.value()->Transition(StateTag{"b"});
+
+    ASSERT_TRUE(transition.has_value());
+    EXPECT_EQ(transition.value(), StateTag{"b"});
 }
 
 TEST(HealthMonitorBuilderTest, DeadlineMonitorAloneCountsAsAMonitor)

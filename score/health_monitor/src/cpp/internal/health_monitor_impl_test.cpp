@@ -40,7 +40,11 @@ namespace
 
 const MonitorTag kHeartbeat{"heartbeat"};
 const MonitorTag kSecondHeartbeat{"second_heartbeat"};
+const MonitorTag kLogic{"logic"};
 const MonitorTag kUnknown{"unknown"};
+const StateTag kStateA{"a"};
+const StateTag kStateB{"b"};
+const StateTag kStateOther{"other"};
 score::Result<void> Success()
 {
     return {};
@@ -72,6 +76,24 @@ class HealthMonitorImplTest : public ::testing::Test
             config.heartbeat_monitors.push_back(
                 HealthMonitorImpl::Config::HeartbeatMonitorConfig{kSecondHeartbeat, TimeRange{range_min, range_max}});
         }
+        config.internal_processing_cycle = kInternalCycle;
+        config.supervisor_api_cycle = 10ms;
+
+        auto client = std::make_unique<StrictMock<SupervisorClientMock>>();
+        client_ = client.get();
+        auto result = HealthMonitorImpl::Create(std::move(config), std::move(client), score::os::Time::instance());
+        ASSERT_TRUE(result.has_value());
+        monitor_ = std::move(result).value();
+    }
+
+    void CreateWithLogic()
+    {
+        HealthMonitorImpl::Config config;
+        config.heartbeat_monitors.push_back(
+            HealthMonitorImpl::Config::HeartbeatMonitorConfig{kHeartbeat, TimeRange{kHealthyMin, kHealthyMax}});
+        config.logic_monitors.push_back(
+            HealthMonitorImpl::Config::LogicMonitorConfig{
+                kLogic, kStateA, {StateNode{kStateA, {kStateB}}, StateNode{kStateB, {kStateA}}}});
         config.internal_processing_cycle = kInternalCycle;
         config.supervisor_api_cycle = 10ms;
 
@@ -154,21 +176,127 @@ TEST_F(HealthMonitorImplTest, UnknownHeartbeatTagFailsWithUnknownTag)
     ExpectError(monitor_->GetHeartbeatMonitor(kUnknown), ErrorCode::kUnknownTag);
 }
 
-TEST_F(HealthMonitorImplTest, DeadlineAndLogicGettersFailWithUnknownTag)
+TEST_F(HealthMonitorImplTest, DeadlineGetterFailsWithUnknownTag)
+{
+    RecordProperty("PartiallyVerifies", "comp_req__health_monitor__monitor_once");
+    RecordProperty("TestType", "requirements-based");
+    RecordProperty("DerivationTechnique", "equivalence-classes");
+    RecordProperty("Description", "Check that GetDeadlineMonitor fails with kUnknownTag, also for a heartbeat tag.");
+
+    Create(kHealthyMin, kHealthyMax);
+
+    ExpectError(monitor_->GetDeadlineMonitor(kUnknown), ErrorCode::kUnknownTag);
+    ExpectError(monitor_->GetDeadlineMonitor(kHeartbeat), ErrorCode::kUnknownTag);
+}
+
+TEST_F(HealthMonitorImplTest, LogicMonitorCanBeTakenOnce)
+{
+    RecordProperty("PartiallyVerifies", "comp_req__health_monitor__monitor_once");
+    RecordProperty("TestType", "requirements-based");
+    RecordProperty("DerivationTechnique", "equivalence-classes");
+    RecordProperty("Description", "Check that GetLogicMonitor returns a configured monitor in its initial state.");
+
+    CreateWithLogic();
+
+    auto result = monitor_->GetLogicMonitor(kLogic);
+
+    ASSERT_TRUE(result.has_value());
+    const auto state = result.value()->State();
+    ASSERT_TRUE(state.has_value());
+    EXPECT_EQ(state.value(), kStateA);
+}
+
+TEST_F(HealthMonitorImplTest, SecondTakeOfTheLogicMonitorFailsWithAlreadyTaken)
+{
+    RecordProperty("PartiallyVerifies", "comp_req__health_monitor__monitor_once");
+    RecordProperty("TestType", "requirements-based");
+    RecordProperty("DerivationTechnique", "equivalence-classes");
+    RecordProperty("Description", "Check that taking a logic monitor twice fails with kAlreadyTaken.");
+
+    CreateWithLogic();
+    auto first = monitor_->GetLogicMonitor(kLogic);
+    ASSERT_TRUE(first.has_value());
+
+    ExpectError(monitor_->GetLogicMonitor(kLogic), ErrorCode::kAlreadyTaken);
+}
+
+TEST_F(HealthMonitorImplTest, LogicGetterFailsWithUnknownTagForOtherTags)
 {
     RecordProperty("PartiallyVerifies", "comp_req__health_monitor__monitor_once");
     RecordProperty("TestType", "requirements-based");
     RecordProperty("DerivationTechnique", "equivalence-classes");
     RecordProperty(
         "Description",
-        "Check that GetDeadlineMonitor and GetLogicMonitor fail with kUnknownTag, also for a heartbeat tag.");
+        "Check that GetLogicMonitor fails with kUnknownTag for an unconfigured tag and a heartbeat tag, "
+        "and GetHeartbeatMonitor for a logic tag.");
 
-    Create(kHealthyMin, kHealthyMax);
+    CreateWithLogic();
 
-    ExpectError(monitor_->GetDeadlineMonitor(kUnknown), ErrorCode::kUnknownTag);
-    ExpectError(monitor_->GetDeadlineMonitor(kHeartbeat), ErrorCode::kUnknownTag);
     ExpectError(monitor_->GetLogicMonitor(kUnknown), ErrorCode::kUnknownTag);
     ExpectError(monitor_->GetLogicMonitor(kHeartbeat), ErrorCode::kUnknownTag);
+    ExpectError(monitor_->GetHeartbeatMonitor(kLogic), ErrorCode::kUnknownTag);
+}
+
+TEST_F(HealthMonitorImplTest, StartFailsWithNotTakenWhileTheLogicMonitorIsUntaken)
+{
+    RecordProperty("PartiallyVerifies", "comp_req__health_monitor__monitor_once");
+    RecordProperty("TestType", "requirements-based");
+    RecordProperty("DerivationTechnique", "requirements-analysis");
+    RecordProperty(
+        "Description",
+        "Check that Start fails with kNotTaken without connecting while only the logic monitor is "
+        "untaken.");
+
+    CreateWithLogic();
+    auto heartbeat = monitor_->GetHeartbeatMonitor(kHeartbeat);
+    ASSERT_TRUE(heartbeat.has_value());
+
+    // The strict mock fails the test if Start connects.
+    ExpectError(monitor_->Start(), ErrorCode::kNotTaken);
+}
+
+TEST_F(HealthMonitorImplTest, InvalidLogicTransitionStopsTheAliveNotifications)
+{
+    RecordProperty(
+        "PartiallyVerifies", "comp_req__health_monitor__alive_withhold, comp_req__health_monitor__lg_invalid_trans");
+    RecordProperty("TestType", "requirements-based");
+    RecordProperty("DerivationTechnique", "requirements-analysis");
+    RecordProperty(
+        "Description",
+        "Check that the worker notifies alive while the logic monitor is healthy and stops after an "
+        "invalid transition.");
+
+    CreateWithLogic();
+    EXPECT_CALL(*client_, Connect()).WillOnce(Invoke(&Success));
+    EXPECT_CALL(*client_, NotifyAlive()).Times(AnyNumber()).WillRepeatedly(Invoke([this] {
+        ++notifications_;
+    }));
+    auto heartbeat = monitor_->GetHeartbeatMonitor(kHeartbeat);
+    ASSERT_TRUE(heartbeat.has_value());
+    auto logic = monitor_->GetLogicMonitor(kLogic);
+    ASSERT_TRUE(logic.has_value());
+    ASSERT_TRUE(monitor_->Start().has_value());
+    ASSERT_TRUE(WaitFor([&] {
+        return notifications_.load() >= 1;
+    }));
+
+    ExpectError(logic.value()->Transition(kStateOther), ErrorCode::kInvalidTransition);
+
+    // The worker counts as stopped once the notifications stay unchanged for five internal cycles.
+    int last_count{-1};
+    auto last_change = std::chrono::steady_clock::now();
+    EXPECT_TRUE(WaitFor(
+        [&] {
+            const int count{notifications_.load()};
+            const auto now = std::chrono::steady_clock::now();
+            if (count != last_count)
+            {
+                last_count = count;
+                last_change = now;
+            }
+            return (now - last_change >= 5 * kInternalCycle);
+        },
+        5s));
 }
 
 TEST_F(HealthMonitorImplTest, StartFailsWithNotTakenWhileAMonitorIsUntaken)
@@ -333,4 +461,30 @@ TEST_F(HealthMonitorImplTest, TakenMonitorAcceptsHeartbeatsAfterTheHealthMonitor
 
     taken->Heartbeat();
     taken->Heartbeat();
+}
+
+TEST_F(HealthMonitorImplTest, TakenLogicMonitorTransitionsAfterTheHealthMonitorIsDestroyed)
+{
+    RecordProperty("PartiallyVerifies", "comp_req__health_monitor__concurrency");
+    RecordProperty("TestType", "requirements-based");
+    RecordProperty("DerivationTechnique", "design-analysis");
+    RecordProperty(
+        "Description",
+        "Check that a taken logic monitor stays usable after the health monitor stopped its worker and "
+        "was destroyed.");
+
+    CreateWithLogic();
+    ExpectConnectAndNotify();
+    auto heartbeat = monitor_->GetHeartbeatMonitor(kHeartbeat);
+    ASSERT_TRUE(heartbeat.has_value());
+    auto result = monitor_->GetLogicMonitor(kLogic);
+    ASSERT_TRUE(result.has_value());
+    auto taken = std::move(result).value();
+    ASSERT_TRUE(monitor_->Start().has_value());
+
+    monitor_.reset();
+
+    const auto transition = taken->Transition(kStateB);
+    ASSERT_TRUE(transition.has_value());
+    EXPECT_EQ(transition.value(), kStateB);
 }

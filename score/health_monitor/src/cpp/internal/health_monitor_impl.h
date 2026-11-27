@@ -21,6 +21,7 @@
 #include "score/health_monitor/logic_monitor.h"
 #include "score/health_monitor/src/cpp/internal/monitor_evaluator.h"
 #include "score/health_monitor/src/cpp/internal/worker.h"
+#include "score/health_monitor/src/cpp/logic_monitor/logic_monitor_impl.h"
 #include "score/health_monitor/supervisor_client.h"
 #include "score/health_monitor/tag.h"
 #include "score/health_monitor/taken.h"
@@ -60,7 +61,16 @@ class HealthMonitorImpl final : public HealthMonitor
             TimeRange range;
         };
 
+        /// @brief State graph of one logic monitor.
+        struct LogicMonitorConfig
+        {
+            MonitorTag tag;
+            StateTag initial_state;
+            std::vector<StateNode> states;
+        };
+
         std::vector<HeartbeatMonitorConfig> heartbeat_monitors;
+        std::vector<LogicMonitorConfig> logic_monitors;
         std::chrono::milliseconds supervisor_api_cycle{500};
         std::chrono::milliseconds internal_processing_cycle{100};
         ThreadParameters thread_parameters;
@@ -89,12 +99,14 @@ class HealthMonitorImpl final : public HealthMonitor
   private:
     HealthMonitorImpl(
         score::containers::NonRelocatableVector<MonitorEntry<HeartbeatMonitor>>&& heartbeat_monitors,
+        score::containers::NonRelocatableVector<MonitorEntry<LogicMonitor>>&& logic_monitors,
         score::containers::NonRelocatableVector<MonitorEvaluator*>&& evaluators,
         Config&& config,
         std::unique_ptr<SupervisorClient> client,
         const score::os::Time& time) noexcept;
 
     score::containers::NonRelocatableVector<MonitorEntry<HeartbeatMonitor>> heartbeat_monitors_;
+    score::containers::NonRelocatableVector<MonitorEntry<LogicMonitor>> logic_monitors_;
     /// @brief The same monitors as the entries, as the worker evaluates them.
     score::containers::NonRelocatableVector<MonitorEvaluator*> evaluators_;
     std::chrono::milliseconds supervisor_api_cycle_;
