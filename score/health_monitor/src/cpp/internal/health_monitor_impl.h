@@ -19,6 +19,7 @@
 #include "score/health_monitor/health_monitor.h"
 #include "score/health_monitor/heartbeat_monitor.h"
 #include "score/health_monitor/logic_monitor.h"
+#include "score/health_monitor/src/cpp/deadline_monitor/deadline_monitor_impl.h"
 #include "score/health_monitor/src/cpp/internal/monitor_evaluator.h"
 #include "score/health_monitor/src/cpp/internal/worker.h"
 #include "score/health_monitor/src/cpp/logic_monitor/logic_monitor_impl.h"
@@ -54,6 +55,13 @@ class HealthMonitorImpl final : public HealthMonitor
     /// @brief Configuration copied from `HealthMonitorBuilder`.
     struct Config
     {
+        /// @brief Deadlines of one deadline monitor.
+        struct DeadlineMonitorConfig
+        {
+            MonitorTag tag;
+            std::vector<DeadlineConfig> deadlines;
+        };
+
         /// @brief Tag and time range of one heartbeat monitor.
         struct HeartbeatMonitorConfig
         {
@@ -69,6 +77,7 @@ class HealthMonitorImpl final : public HealthMonitor
             std::vector<StateNode> states;
         };
 
+        std::vector<DeadlineMonitorConfig> deadline_monitors;
         std::vector<HeartbeatMonitorConfig> heartbeat_monitors;
         std::vector<LogicMonitorConfig> logic_monitors;
         std::chrono::milliseconds supervisor_api_cycle{500};
@@ -98,6 +107,7 @@ class HealthMonitorImpl final : public HealthMonitor
 
   private:
     HealthMonitorImpl(
+        score::containers::NonRelocatableVector<MonitorEntry<DeadlineMonitor>>&& deadline_monitors,
         score::containers::NonRelocatableVector<MonitorEntry<HeartbeatMonitor>>&& heartbeat_monitors,
         score::containers::NonRelocatableVector<MonitorEntry<LogicMonitor>>&& logic_monitors,
         score::containers::NonRelocatableVector<MonitorEvaluator*>&& evaluators,
@@ -105,6 +115,7 @@ class HealthMonitorImpl final : public HealthMonitor
         std::unique_ptr<SupervisorClient> client,
         const score::os::Time& time) noexcept;
 
+    score::containers::NonRelocatableVector<MonitorEntry<DeadlineMonitor>> deadline_monitors_;
     score::containers::NonRelocatableVector<MonitorEntry<HeartbeatMonitor>> heartbeat_monitors_;
     score::containers::NonRelocatableVector<MonitorEntry<LogicMonitor>> logic_monitors_;
     /// @brief The same monitors as the entries, as the worker evaluates them.

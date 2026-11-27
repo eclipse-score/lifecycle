@@ -39,6 +39,8 @@ class Deadline
     /// @return The handle of the running deadline, or one of these errors:
     /// `ErrorCode::kDeadlineRunning` if a handle of this deadline exists, without a change to the running deadline.
     /// `ErrorCode::kDeadlineFailed` if the deadline missed its range earlier.
+    /// @note The process terminates if the deadline would end later than 2^32 - 1 ms (about 49.7 days)
+    /// after the creation of its monitor.
     score::Result<DeadlineHandle> Start() noexcept;
 
   protected:

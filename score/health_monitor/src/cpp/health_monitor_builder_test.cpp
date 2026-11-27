@@ -37,10 +37,18 @@ namespace
 const MonitorTag kHeartbeat{"heartbeat"};
 const MonitorTag kOtherHeartbeat{"other_heartbeat"};
 const MonitorTag kDeadline{"deadline"};
+const MonitorTag kOtherDeadline{"other_deadline"};
 const MonitorTag kLogic{"logic"};
+const DeadlineTag kDeadlineA{"deadline_a"};
+const DeadlineTag kDeadlineB{"deadline_b"};
 
 // Valid for the default internal processing cycle of 100 ms.
 const TimeRange kRange{100ms, 200ms};
+
+DeadlineMonitorBuilder OneDeadline()
+{
+    return DeadlineMonitorBuilder{}.AddDeadline(kDeadlineA, kRange);
+}
 
 HealthMonitorBuilder OneHeartbeat()
 {
@@ -273,16 +281,17 @@ TEST(HealthMonitorBuilderTest, AcceptsDistinctHeartbeatTags)
     EXPECT_TRUE(std::move(builder).Build().has_value());
 }
 
-TEST(HealthMonitorBuilderTest, RejectsDeadlineMonitor)
+TEST(HealthMonitorBuilderTest, BuildsWithOneDeadlineMonitor)
 {
     RecordProperty("PartiallyVerifies", "comp_req__health_monitor__cfg_no_monitor");
     RecordProperty("TestType", "requirements-based");
-    RecordProperty("DerivationTechnique", "design-analysis");
-    RecordProperty("Description", "Check that a builder with a deadline monitor fails with kInvalidArgument.");
+    RecordProperty("DerivationTechnique", "requirements-analysis");
+    RecordProperty("Description", "Check that a heartbeat monitor and a deadline monitor with one deadline build.");
 
-    auto builder = OneHeartbeat().AddDeadlineMonitor(kDeadline, DeadlineMonitorBuilder{});
+    auto result = OneHeartbeat().AddDeadlineMonitor(kDeadline, OneDeadline()).Build();
 
-    ExpectError(std::move(builder).Build(), ErrorCode::kInvalidArgument);
+    ASSERT_TRUE(result.has_value());
+    EXPECT_NE(result.value(), nullptr);
 }
 
 TEST(HealthMonitorBuilderTest, BuildsWithOneLogicMonitor)
@@ -380,14 +389,145 @@ TEST(HealthMonitorBuilderTest, DeadlineMonitorAloneCountsAsAMonitor)
 {
     RecordProperty("PartiallyVerifies", "comp_req__health_monitor__cfg_no_monitor");
     RecordProperty("TestType", "requirements-based");
-    RecordProperty("DerivationTechnique", "design-analysis");
+    RecordProperty("DerivationTechnique", "requirements-analysis");
+    RecordProperty(
+        "Description", "Check that a deadline monitor with one deadline alone counts as a monitor and builds.");
+
+    auto result = HealthMonitorBuilder{}.AddDeadlineMonitor(kDeadline, OneDeadline()).Build();
+
+    ASSERT_TRUE(result.has_value());
+    EXPECT_NE(result.value(), nullptr);
+}
+
+TEST(HealthMonitorBuilderTest, RejectsDeadlineMonitorWithoutDeadlines)
+{
+    RecordProperty("PartiallyVerifies", "comp_req__health_monitor__dl_cfg");
+    RecordProperty("TestType", "requirements-based");
+    RecordProperty("DerivationTechnique", "equivalence-classes");
+    RecordProperty("Description", "Check that a deadline monitor without a deadline fails with kInvalidArgument.");
+
+    auto builder = OneHeartbeat().AddDeadlineMonitor(kDeadline, DeadlineMonitorBuilder{});
+
+    ExpectError(std::move(builder).Build(), ErrorCode::kInvalidArgument);
+}
+
+TEST(HealthMonitorBuilderTest, RejectsDeadlineMonitorWithoutDeadlinesAlone)
+{
+    RecordProperty("PartiallyVerifies", "comp_req__health_monitor__dl_cfg");
+    RecordProperty("TestType", "requirements-based");
+    RecordProperty("DerivationTechnique", "equivalence-classes");
     RecordProperty(
         "Description",
-        "Check that a deadline monitor without heartbeat monitors fails with kInvalidArgument and not kNoMonitors.");
+        "Check that a deadline monitor without a deadline fails with kInvalidArgument and not "
+        "kNoMonitors.");
 
     auto builder = HealthMonitorBuilder{}.AddDeadlineMonitor(kDeadline, DeadlineMonitorBuilder{});
 
     ExpectError(std::move(builder).Build(), ErrorCode::kInvalidArgument);
+}
+
+TEST(HealthMonitorBuilderTest, RejectsRepeatedDeadlineTag)
+{
+    RecordProperty("PartiallyVerifies", "comp_req__health_monitor__deadline_id");
+    RecordProperty("TestType", "requirements-based");
+    RecordProperty("DerivationTechnique", "equivalence-classes");
+    RecordProperty(
+        "Description", "Check that two deadlines with the same tag in one monitor fail with kInvalidArgument.");
+
+    auto builder = HealthMonitorBuilder{}.AddDeadlineMonitor(
+        kDeadline, DeadlineMonitorBuilder{}.AddDeadline(kDeadlineA, kRange).AddDeadline(kDeadlineA, kRange));
+
+    ExpectError(std::move(builder).Build(), ErrorCode::kInvalidArgument);
+}
+
+TEST(HealthMonitorBuilderTest, AcceptsDistinctDeadlineTags)
+{
+    RecordProperty("PartiallyVerifies", "comp_req__health_monitor__deadline_id");
+    RecordProperty("TestType", "requirements-based");
+    RecordProperty("DerivationTechnique", "equivalence-classes");
+    RecordProperty("Description", "Check that two deadlines with different tags in one monitor build.");
+
+    auto builder = HealthMonitorBuilder{}.AddDeadlineMonitor(
+        kDeadline, DeadlineMonitorBuilder{}.AddDeadline(kDeadlineA, kRange).AddDeadline(kDeadlineB, kRange));
+
+    EXPECT_TRUE(std::move(builder).Build().has_value());
+}
+
+TEST(HealthMonitorBuilderTest, BuiltDeadlineMonitorHandsOutEachAddedDeadline)
+{
+    RecordProperty("PartiallyVerifies", "comp_req__health_monitor__deadline_id");
+    RecordProperty("TestType", "requirements-based");
+    RecordProperty("DerivationTechnique", "design-analysis");
+    RecordProperty(
+        "Description", "Check that the built deadline monitor hands out each added deadline and no other deadline.");
+
+    auto result =
+        HealthMonitorBuilder{}
+            .AddDeadlineMonitor(
+                kDeadline, DeadlineMonitorBuilder{}.AddDeadline(kDeadlineA, kRange).AddDeadline(kDeadlineB, kRange))
+            .Build();
+    ASSERT_TRUE(result.has_value());
+    auto deadline_monitor = result.value()->GetDeadlineMonitor(kDeadline);
+    ASSERT_TRUE(deadline_monitor.has_value());
+
+    EXPECT_TRUE(deadline_monitor.value()->GetDeadline(kDeadlineA).has_value());
+    EXPECT_TRUE(deadline_monitor.value()->GetDeadline(kDeadlineB).has_value());
+    ExpectError(deadline_monitor.value()->GetDeadline(DeadlineTag{"unknown"}), ErrorCode::kUnknownTag);
+}
+
+TEST(HealthMonitorBuilderTest, RejectsDeadlineMonitorWithTheTagOfAHeartbeatMonitor)
+{
+    RecordProperty("PartiallyVerifies", "comp_req__health_monitor__monitor_id");
+    RecordProperty("TestType", "requirements-based");
+    RecordProperty("DerivationTechnique", "equivalence-classes");
+    RecordProperty(
+        "Description", "Check that a heartbeat and a deadline monitor with one tag fail with kInvalidArgument.");
+
+    auto builder = OneHeartbeat().AddDeadlineMonitor(kHeartbeat, OneDeadline());
+
+    ExpectError(std::move(builder).Build(), ErrorCode::kInvalidArgument);
+}
+
+TEST(HealthMonitorBuilderTest, RejectsDeadlineMonitorWithTheTagOfALogicMonitor)
+{
+    RecordProperty("PartiallyVerifies", "comp_req__health_monitor__monitor_id");
+    RecordProperty("TestType", "requirements-based");
+    RecordProperty("DerivationTechnique", "equivalence-classes");
+    RecordProperty("Description", "Check that a logic and a deadline monitor with one tag fail with kInvalidArgument.");
+
+    auto builder =
+        HealthMonitorBuilder{}.AddLogicMonitor(kLogic, TwoStateLogic()).AddDeadlineMonitor(kLogic, OneDeadline());
+
+    ExpectError(std::move(builder).Build(), ErrorCode::kInvalidArgument);
+}
+
+TEST(HealthMonitorBuilderTest, RejectsRepeatedDeadlineMonitorTag)
+{
+    RecordProperty("PartiallyVerifies", "comp_req__health_monitor__monitor_id");
+    RecordProperty("TestType", "requirements-based");
+    RecordProperty("DerivationTechnique", "equivalence-classes");
+    RecordProperty("Description", "Check that two deadline monitors with the same tag fail with kInvalidArgument.");
+
+    auto builder = HealthMonitorBuilder{}
+                       .AddDeadlineMonitor(kDeadline, OneDeadline())
+                       .AddDeadlineMonitor(kDeadline, OneDeadline());
+
+    ExpectError(std::move(builder).Build(), ErrorCode::kInvalidArgument);
+}
+
+TEST(HealthMonitorBuilderTest, AcceptsDeadlineHeartbeatAndLogicMonitorWithDistinctTags)
+{
+    RecordProperty("PartiallyVerifies", "comp_req__health_monitor__monitor_id");
+    RecordProperty("TestType", "requirements-based");
+    RecordProperty("DerivationTechnique", "equivalence-classes");
+    RecordProperty("Description", "Check that two deadline monitors, a heartbeat and a logic monitor build.");
+
+    auto builder = OneHeartbeat()
+                       .AddLogicMonitor(kLogic, TwoStateLogic())
+                       .AddDeadlineMonitor(kDeadline, OneDeadline())
+                       .AddDeadlineMonitor(kOtherDeadline, OneDeadline());
+
+    EXPECT_TRUE(std::move(builder).Build().has_value());
 }
 
 TEST(HealthMonitorBuilderTest, HeartbeatRangeErrorPropagates)

@@ -59,7 +59,8 @@ class HealthMonitorBuilder final
     /// @brief Creates the health monitor with all its monitors.
     /// @return The health monitor, or one of these errors:
     /// `ErrorCode::kNoMonitors` if no monitor was added.
-    /// `ErrorCode::kInvalidArgument` if a tag repeats or a cycle, range, state graph or thread parameter is not valid.
+    /// `ErrorCode::kInvalidArgument` if a tag repeats or a deadline monitor has no deadline.
+    /// `ErrorCode::kInvalidArgument` also if a cycle, range, state graph or thread parameter is not valid.
     /// The setter or builder of each input states its rule.
     score::Result<std::unique_ptr<HealthMonitor>> Build() && noexcept;
 

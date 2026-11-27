@@ -91,7 +91,7 @@ score::Result<void> CheckCycles(
 score::Result<void> CheckUniqueTags(const HealthMonitorImpl::Config& config) noexcept
 {
     score::containers::NonRelocatableVector<MonitorTag> seen{
-        config.heartbeat_monitors.size() + config.logic_monitors.size()};
+        config.deadline_monitors.size() + config.heartbeat_monitors.size() + config.logic_monitors.size()};
     const auto add = [&seen](const MonitorTag& tag) noexcept {
         if (std::find(seen.cbegin(), seen.cend(), tag) != seen.cend())
         {
@@ -102,6 +102,13 @@ score::Result<void> CheckUniqueTags(const HealthMonitorImpl::Config& config) noe
         return true;
     };
 
+    for (const HealthMonitorImpl::Config::DeadlineMonitorConfig& deadline_monitor : config.deadline_monitors)
+    {
+        if (!add(deadline_monitor.tag))
+        {
+            return score::MakeUnexpected(ErrorCode::kInvalidArgument);
+        }
+    }
     for (const HealthMonitorImpl::Config::HeartbeatMonitorConfig& heartbeat_monitor : config.heartbeat_monitors)
     {
         if (!add(heartbeat_monitor.tag))
@@ -151,7 +158,7 @@ score::Result<std::unique_ptr<HealthMonitorImpl>> HealthMonitorImpl::Create(
         return score::MakeUnexpected<std::unique_ptr<HealthMonitorImpl>>(cycles.error());
     }
 
-    if (config.heartbeat_monitors.empty() && config.logic_monitors.empty())
+    if (config.deadline_monitors.empty() && config.heartbeat_monitors.empty() && config.logic_monitors.empty())
     {
         GetLogger().LogError() << "No monitors have been added. HealthMonitor cannot be created.";
         return score::MakeUnexpected(ErrorCode::kNoMonitors);
@@ -169,10 +176,26 @@ score::Result<std::unique_ptr<HealthMonitorImpl>> HealthMonitorImpl::Create(
         return score::MakeUnexpected<std::unique_ptr<HealthMonitorImpl>>(thread_parameters.error());
     }
 
+    score::containers::NonRelocatableVector<MonitorEvaluator*> evaluators{
+        config.deadline_monitors.size() + config.heartbeat_monitors.size() + config.logic_monitors.size()};
+
+    score::containers::NonRelocatableVector<MonitorEntry<DeadlineMonitor>> deadline_monitors{
+        config.deadline_monitors.size()};
+    for (const HealthMonitorImpl::Config::DeadlineMonitorConfig& deadline_monitor : config.deadline_monitors)
+    {
+        auto monitor = DeadlineMonitorImpl::Create(deadline_monitor.tag, deadline_monitor.deadlines, time);
+        if (!monitor.has_value())
+        {
+            return score::MakeUnexpected<std::unique_ptr<HealthMonitorImpl>>(monitor.error());
+        }
+
+        score::cpp::ignore = evaluators.emplace_back(monitor->get());
+        score::cpp::ignore = deadline_monitors.emplace_back(
+            MonitorEntry<DeadlineMonitor>{deadline_monitor.tag, *std::move(monitor), false});
+    }
+
     score::containers::NonRelocatableVector<MonitorEntry<HeartbeatMonitor>> heartbeat_monitors{
         config.heartbeat_monitors.size()};
-    score::containers::NonRelocatableVector<MonitorEvaluator*> evaluators{
-        config.heartbeat_monitors.size() + config.logic_monitors.size()};
     for (const HealthMonitorImpl::Config::HeartbeatMonitorConfig& heartbeat_monitor : config.heartbeat_monitors)
     {
         auto monitor = HeartbeatMonitorImpl::Create(
@@ -203,6 +226,7 @@ score::Result<std::unique_ptr<HealthMonitorImpl>> HealthMonitorImpl::Create(
     }
 
     return std::unique_ptr<HealthMonitorImpl>{new HealthMonitorImpl{
+        std::move(deadline_monitors),
         std::move(heartbeat_monitors),
         std::move(logic_monitors),
         std::move(evaluators),
@@ -212,6 +236,7 @@ score::Result<std::unique_ptr<HealthMonitorImpl>> HealthMonitorImpl::Create(
 }
 
 HealthMonitorImpl::HealthMonitorImpl(
+    score::containers::NonRelocatableVector<MonitorEntry<DeadlineMonitor>>&& deadline_monitors,
     score::containers::NonRelocatableVector<MonitorEntry<HeartbeatMonitor>>&& heartbeat_monitors,
     score::containers::NonRelocatableVector<MonitorEntry<LogicMonitor>>&& logic_monitors,
     score::containers::NonRelocatableVector<MonitorEvaluator*>&& evaluators,
@@ -219,6 +244,7 @@ HealthMonitorImpl::HealthMonitorImpl(
     std::unique_ptr<SupervisorClient> client,
     const score::os::Time& time) noexcept
     : HealthMonitor{},
+      deadline_monitors_{std::move(deadline_monitors)},
       heartbeat_monitors_{std::move(heartbeat_monitors)},
       logic_monitors_{std::move(logic_monitors)},
       evaluators_{std::move(evaluators)},
@@ -230,15 +256,14 @@ HealthMonitorImpl::HealthMonitorImpl(
 {
 }
 
-score::Result<Taken<DeadlineMonitor>> HealthMonitorImpl::GetDeadlineMonitor(const MonitorTag&) noexcept
+score::Result<Taken<DeadlineMonitor>> HealthMonitorImpl::GetDeadlineMonitor(const MonitorTag& tag) noexcept
 {
     if (worker_.has_value())
     {
         return score::MakeUnexpected(ErrorCode::kAlreadyStarted);
     }
 
-    // `HealthMonitorBuilder::Build()` rejects every deadline monitor.
-    return score::MakeUnexpected(ErrorCode::kUnknownTag);
+    return TakeMonitor(deadline_monitors_, tag);
 }
 
 score::Result<Taken<HeartbeatMonitor>> HealthMonitorImpl::GetHeartbeatMonitor(const MonitorTag& tag) noexcept
@@ -268,7 +293,11 @@ score::Result<void> HealthMonitorImpl::Start() noexcept
         return score::MakeUnexpected(ErrorCode::kAlreadyStarted);
     }
 
-    std::optional<MonitorTag> untaken{FindUntaken(heartbeat_monitors_)};
+    std::optional<MonitorTag> untaken{FindUntaken(deadline_monitors_)};
+    if (!untaken.has_value())
+    {
+        untaken = FindUntaken(heartbeat_monitors_);
+    }
     if (!untaken.has_value())
     {
         untaken = FindUntaken(logic_monitors_);

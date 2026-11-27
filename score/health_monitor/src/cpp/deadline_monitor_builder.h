@@ -29,7 +29,8 @@ class DeadlineMonitorBuilder final
 {
   public:
     /// @brief Adds a deadline that must stop within `range` after it starts.
-    /// @note A second deadline with the same tag replaces the first.
+    /// @note A second deadline with the same tag makes `HealthMonitorBuilder::Build()` fail.
+    /// @note A monitor without deadlines makes `HealthMonitorBuilder::Build()` fail.
     DeadlineMonitorBuilder AddDeadline(const DeadlineTag& tag, const TimeRange& range) && noexcept;
 
   private:
@@ -42,7 +43,7 @@ class DeadlineMonitorBuilder final
         TimeRange range;
     };
 
-    /// @brief Deadlines of the monitor, one per tag.
+    /// @brief Deadlines of the monitor, one per `AddDeadline()` call.
     std::vector<Entry> deadlines_;
 };
 

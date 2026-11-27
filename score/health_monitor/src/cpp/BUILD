@@ -46,6 +46,12 @@ cc_library(
     name = "health_monitor_base",
     srcs = [
         "deadline.cpp",
+        "deadline_monitor/deadline_impl.cpp",
+        "deadline_monitor/deadline_impl.h",
+        "deadline_monitor/deadline_monitor_impl.cpp",
+        "deadline_monitor/deadline_monitor_impl.h",
+        "deadline_monitor/deadline_state.h",
+        "deadline_monitor_builder.cpp",
         "health_monitor_builder.cpp",
         "heartbeat_monitor/heartbeat_monitor_impl.cpp",
         "heartbeat_monitor/heartbeat_monitor_impl.h",
@@ -162,6 +168,8 @@ cc_library(
 cc_gtest_unit_test(
     name = "tests",
     srcs = [
+        "deadline_monitor/deadline_monitor_impl_test.cpp",
+        "deadline_monitor/deadline_state_test.cpp",
         "deadline_test.cpp",
         "error_test.cpp",
         "health_monitor_builder_test.cpp",

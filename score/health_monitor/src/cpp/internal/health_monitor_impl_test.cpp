@@ -41,6 +41,8 @@ namespace
 const MonitorTag kHeartbeat{"heartbeat"};
 const MonitorTag kSecondHeartbeat{"second_heartbeat"};
 const MonitorTag kLogic{"logic"};
+const MonitorTag kDeadlineMonitor{"deadline"};
+const DeadlineTag kDeadlineA{"deadline_a"};
 const MonitorTag kUnknown{"unknown"};
 const StateTag kStateA{"a"};
 const StateTag kStateB{"b"};
@@ -94,6 +96,36 @@ class HealthMonitorImplTest : public ::testing::Test
         config.logic_monitors.push_back(
             HealthMonitorImpl::Config::LogicMonitorConfig{
                 kLogic, kStateA, {StateNode{kStateA, {kStateB}}, StateNode{kStateB, {kStateA}}}});
+        config.internal_processing_cycle = kInternalCycle;
+        config.supervisor_api_cycle = 10ms;
+
+        auto client = std::make_unique<StrictMock<SupervisorClientMock>>();
+        client_ = client.get();
+        auto result = HealthMonitorImpl::Create(std::move(config), std::move(client), score::os::Time::instance());
+        ASSERT_TRUE(result.has_value());
+        monitor_ = std::move(result).value();
+    }
+
+    /// @brief Creates `monitor_` with a heartbeat monitor and a deadline monitor with "deadline_a" in `[min, max]`.
+    /// Adds a logic monitor if `with_logic` is set.
+    void CreateWithDeadline(
+        const std::chrono::milliseconds min,
+        const std::chrono::milliseconds max,
+        const bool with_logic = false)
+    {
+        HealthMonitorImpl::Config config;
+        config.heartbeat_monitors.push_back(
+            HealthMonitorImpl::Config::HeartbeatMonitorConfig{kHeartbeat, TimeRange{kHealthyMin, kHealthyMax}});
+        std::vector<DeadlineConfig> deadlines;
+        deadlines.push_back(DeadlineConfig{kDeadlineA, TimeRange{min, max}});
+        config.deadline_monitors.push_back(
+            HealthMonitorImpl::Config::DeadlineMonitorConfig{kDeadlineMonitor, std::move(deadlines)});
+        if (with_logic)
+        {
+            config.logic_monitors.push_back(
+                HealthMonitorImpl::Config::LogicMonitorConfig{
+                    kLogic, kStateA, {StateNode{kStateA, {kStateB}}, StateNode{kStateB, {kStateA}}}});
+        }
         config.internal_processing_cycle = kInternalCycle;
         config.supervisor_api_cycle = 10ms;
 
@@ -176,17 +208,159 @@ TEST_F(HealthMonitorImplTest, UnknownHeartbeatTagFailsWithUnknownTag)
     ExpectError(monitor_->GetHeartbeatMonitor(kUnknown), ErrorCode::kUnknownTag);
 }
 
-TEST_F(HealthMonitorImplTest, DeadlineGetterFailsWithUnknownTag)
+TEST_F(HealthMonitorImplTest, DeadlineMonitorCanBeTakenOnce)
 {
     RecordProperty("PartiallyVerifies", "comp_req__health_monitor__monitor_once");
     RecordProperty("TestType", "requirements-based");
     RecordProperty("DerivationTechnique", "equivalence-classes");
-    RecordProperty("Description", "Check that GetDeadlineMonitor fails with kUnknownTag, also for a heartbeat tag.");
+    RecordProperty("Description", "Check that GetDeadlineMonitor returns a configured monitor with its deadline.");
+
+    CreateWithDeadline(0ms, 5000ms);
+    ASSERT_NE(monitor_, nullptr);
+
+    auto result = monitor_->GetDeadlineMonitor(kDeadlineMonitor);
+
+    ASSERT_TRUE(result.has_value());
+    EXPECT_TRUE(result.value()->GetDeadline(kDeadlineA).has_value());
+}
+
+TEST_F(HealthMonitorImplTest, SecondTakeOfTheDeadlineMonitorFailsWithAlreadyTaken)
+{
+    RecordProperty("PartiallyVerifies", "comp_req__health_monitor__monitor_once");
+    RecordProperty("TestType", "requirements-based");
+    RecordProperty("DerivationTechnique", "equivalence-classes");
+    RecordProperty("Description", "Check that taking a deadline monitor twice fails with kAlreadyTaken.");
+
+    CreateWithDeadline(0ms, 5000ms);
+    ASSERT_NE(monitor_, nullptr);
+    auto first = monitor_->GetDeadlineMonitor(kDeadlineMonitor);
+    ASSERT_TRUE(first.has_value());
+
+    ExpectError(monitor_->GetDeadlineMonitor(kDeadlineMonitor), ErrorCode::kAlreadyTaken);
+}
+
+TEST_F(HealthMonitorImplTest, DeadlineGetterFailsWithUnknownTagForOtherTags)
+{
+    RecordProperty("PartiallyVerifies", "comp_req__health_monitor__monitor_once");
+    RecordProperty("TestType", "requirements-based");
+    RecordProperty("DerivationTechnique", "equivalence-classes");
+    RecordProperty(
+        "Description",
+        "Check that GetDeadlineMonitor fails with kUnknownTag for an unconfigured tag, a heartbeat tag and "
+        "a logic tag, and the other getters for a deadline monitor tag.");
+
+    CreateWithDeadline(0ms, 5000ms, true);
+    ASSERT_NE(monitor_, nullptr);
+
+    ExpectError(monitor_->GetDeadlineMonitor(kUnknown), ErrorCode::kUnknownTag);
+    ExpectError(monitor_->GetDeadlineMonitor(kHeartbeat), ErrorCode::kUnknownTag);
+    ExpectError(monitor_->GetDeadlineMonitor(kLogic), ErrorCode::kUnknownTag);
+    ExpectError(monitor_->GetHeartbeatMonitor(kDeadlineMonitor), ErrorCode::kUnknownTag);
+    ExpectError(monitor_->GetLogicMonitor(kDeadlineMonitor), ErrorCode::kUnknownTag);
+}
+
+TEST_F(HealthMonitorImplTest, DeadlineGetterFailsWithUnknownTagWithoutDeadlineMonitors)
+{
+    RecordProperty("PartiallyVerifies", "comp_req__health_monitor__monitor_once");
+    RecordProperty("TestType", "requirements-based");
+    RecordProperty("DerivationTechnique", "equivalence-classes");
+    RecordProperty(
+        "Description",
+        "Check that GetDeadlineMonitor fails with kUnknownTag when none is configured, also for a "
+        "heartbeat tag.");
 
     Create(kHealthyMin, kHealthyMax);
 
     ExpectError(monitor_->GetDeadlineMonitor(kUnknown), ErrorCode::kUnknownTag);
     ExpectError(monitor_->GetDeadlineMonitor(kHeartbeat), ErrorCode::kUnknownTag);
+}
+
+TEST_F(HealthMonitorImplTest, StartFailsWithNotTakenWhileTheDeadlineMonitorIsUntaken)
+{
+    RecordProperty("PartiallyVerifies", "comp_req__health_monitor__monitor_once");
+    RecordProperty("TestType", "requirements-based");
+    RecordProperty("DerivationTechnique", "requirements-analysis");
+    RecordProperty(
+        "Description",
+        "Check that Start fails with kNotTaken without connecting while only the deadline monitor is "
+        "untaken.");
+
+    CreateWithDeadline(0ms, 5000ms);
+    ASSERT_NE(monitor_, nullptr);
+    auto heartbeat = monitor_->GetHeartbeatMonitor(kHeartbeat);
+    ASSERT_TRUE(heartbeat.has_value());
+
+    // The strict mock fails the test if Start connects.
+    ExpectError(monitor_->Start(), ErrorCode::kNotTaken);
+}
+
+TEST_F(HealthMonitorImplTest, StartSucceedsWithUntakenDeadlinesOfATakenDeadlineMonitor)
+{
+    RecordProperty("PartiallyVerifies", "comp_req__health_monitor__monitor_once");
+    RecordProperty("TestType", "requirements-based");
+    RecordProperty("DerivationTechnique", "requirements-analysis");
+    RecordProperty(
+        "Description",
+        "Check that Start connects when every monitor is taken although no deadline of the deadline "
+        "monitor is.");
+
+    CreateWithDeadline(0ms, 5000ms);
+    ASSERT_NE(monitor_, nullptr);
+    ExpectConnectAndNotify();
+    auto heartbeat = monitor_->GetHeartbeatMonitor(kHeartbeat);
+    ASSERT_TRUE(heartbeat.has_value());
+    auto deadline_monitor = monitor_->GetDeadlineMonitor(kDeadlineMonitor);
+    ASSERT_TRUE(deadline_monitor.has_value());
+
+    EXPECT_TRUE(monitor_->Start().has_value());
+}
+
+TEST_F(HealthMonitorImplTest, DeadlineRunningPastItsMaximumStopsTheAliveNotifications)
+{
+    RecordProperty(
+        "PartiallyVerifies", "comp_req__health_monitor__alive_withhold, comp_req__health_monitor__dl_no_stop");
+    RecordProperty("TestType", "requirements-based");
+    RecordProperty("DerivationTechnique", "requirements-analysis");
+    RecordProperty(
+        "Description",
+        "Check that the worker notifies alive while the deadline is stopped and stops after the started "
+        "deadline passed its maximum.");
+
+    CreateWithDeadline(0ms, 30ms);
+    ASSERT_NE(monitor_, nullptr);
+    EXPECT_CALL(*client_, Connect()).WillOnce(Invoke(&Success));
+    EXPECT_CALL(*client_, NotifyAlive()).Times(AnyNumber()).WillRepeatedly(Invoke([this] {
+        ++notifications_;
+    }));
+    auto heartbeat = monitor_->GetHeartbeatMonitor(kHeartbeat);
+    ASSERT_TRUE(heartbeat.has_value());
+    auto deadline_monitor = monitor_->GetDeadlineMonitor(kDeadlineMonitor);
+    ASSERT_TRUE(deadline_monitor.has_value());
+    auto deadline = deadline_monitor.value()->GetDeadline(kDeadlineA);
+    ASSERT_TRUE(deadline.has_value());
+    ASSERT_TRUE(monitor_->Start().has_value());
+    ASSERT_TRUE(WaitFor([&] {
+        return notifications_.load() >= 1;
+    }));
+
+    auto handle = deadline.value()->Start();
+    ASSERT_TRUE(handle.has_value());
+
+    // The worker counts as stopped once the notifications stay unchanged for five internal cycles.
+    int last_count{-1};
+    auto last_change = std::chrono::steady_clock::now();
+    EXPECT_TRUE(WaitFor(
+        [&] {
+            const int count{notifications_.load()};
+            const auto now = std::chrono::steady_clock::now();
+            if (count != last_count)
+            {
+                last_count = count;
+                last_change = now;
+            }
+            return (now - last_change >= 5 * kInternalCycle);
+        },
+        1s));
 }
 
 TEST_F(HealthMonitorImplTest, LogicMonitorCanBeTakenOnce)
@@ -296,7 +470,7 @@ TEST_F(HealthMonitorImplTest, InvalidLogicTransitionStopsTheAliveNotifications)
             }
             return (now - last_change >= 5 * kInternalCycle);
         },
-        5s));
+        1s));
 }
 
 TEST_F(HealthMonitorImplTest, StartFailsWithNotTakenWhileAMonitorIsUntaken)
@@ -487,4 +661,35 @@ TEST_F(HealthMonitorImplTest, TakenLogicMonitorTransitionsAfterTheHealthMonitorI
     const auto transition = taken->Transition(kStateB);
     ASSERT_TRUE(transition.has_value());
     EXPECT_EQ(transition.value(), kStateB);
+}
+
+TEST_F(HealthMonitorImplTest, TakenDeadlineMonitorAndDeadlineWorkAfterTheHealthMonitorIsDestroyed)
+{
+    RecordProperty("PartiallyVerifies", "comp_req__health_monitor__concurrency");
+    RecordProperty("TestType", "requirements-based");
+    RecordProperty("DerivationTechnique", "design-analysis");
+    RecordProperty(
+        "Description",
+        "Check that a taken deadline monitor and a deadline taken from it stay usable after the health "
+        "monitor stopped its worker and was destroyed.");
+
+    CreateWithDeadline(0ms, 5000ms);
+    ASSERT_NE(monitor_, nullptr);
+    ExpectConnectAndNotify();
+    auto heartbeat = monitor_->GetHeartbeatMonitor(kHeartbeat);
+    ASSERT_TRUE(heartbeat.has_value());
+    auto result = monitor_->GetDeadlineMonitor(kDeadlineMonitor);
+    ASSERT_TRUE(result.has_value());
+    auto taken = std::move(result).value();
+    auto deadline_before = taken->GetDeadline(kDeadlineA);
+    ASSERT_TRUE(deadline_before.has_value());
+    ASSERT_TRUE(monitor_->Start().has_value());
+
+    monitor_.reset();
+
+    ExpectError(taken->GetDeadline(kDeadlineA), ErrorCode::kAlreadyTaken);
+    auto handle = deadline_before.value()->Start();
+    ASSERT_TRUE(handle.has_value());
+    handle.value().Stop();
+    EXPECT_TRUE(deadline_before.value()->Start().has_value());
 }

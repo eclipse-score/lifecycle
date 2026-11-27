@@ -18,6 +18,7 @@
 #include <gtest/gtest.h>
 
 #include <memory>
+#include <optional>
 #include <type_traits>
 #include <utility>
 
@@ -51,6 +52,40 @@ struct DestructionFlag
     }
 
     bool& destroyed_;
+};
+
+/// @brief Counts its runs and records whether the watched object was alive at the first run.
+class RecordingHook final : public ReleaseHook
+{
+  public:
+    void Watch(std::weak_ptr<Counter> object) noexcept
+    {
+        watched_ = std::move(object);
+    }
+
+    void OnRelease() noexcept override
+    {
+        if (runs_ == 0)
+        {
+            object_alive_at_first_run_ = !watched_.expired();
+        }
+        ++runs_;
+    }
+
+    int Runs() const noexcept
+    {
+        return runs_;
+    }
+
+    bool ObjectAliveAtFirstRun() const noexcept
+    {
+        return object_alive_at_first_run_;
+    }
+
+  private:
+    std::weak_ptr<Counter> watched_{};
+    int runs_{0};
+    bool object_alive_at_first_run_{false};
 };
 
 }  // namespace
@@ -230,6 +265,109 @@ TEST(TakenTest, MoveAssignmentReleasesTheReplacedObject)
 
     EXPECT_FALSE(first_destroyed);
     EXPECT_TRUE(second_destroyed);
+}
+
+TEST(TakenTest, DestructionRunsTheReleaseHookOnce)
+{
+    RecordProperty("PartiallyVerifies", "comp_req__health_monitor__deadline_exclusive");
+    RecordProperty("TestType", "requirements-based");
+    RecordProperty("DerivationTechnique", "design-analysis");
+    RecordProperty("Description", "Check that destroying a handle runs its release hook exactly once.");
+
+    RecordingHook hook{};
+    {
+        const Taken<Counter> taken{std::make_shared<Counter>(), hook};
+        EXPECT_EQ(hook.Runs(), 0);
+    }
+
+    EXPECT_EQ(hook.Runs(), 1);
+}
+
+TEST(TakenTest, ReleaseHookRunsWhileTheHandleHoldsTheObject)
+{
+    RecordProperty("PartiallyVerifies", "comp_req__health_monitor__deadline_exclusive");
+    RecordProperty("TestType", "requirements-based");
+    RecordProperty("DerivationTechnique", "design-analysis");
+    RecordProperty(
+        "Description", "Check that the release hook runs before the handle drops the last share of the object.");
+
+    RecordingHook hook{};
+    {
+        auto object{std::make_shared<Counter>()};
+        hook.Watch(object);
+        const Taken<Counter> taken{std::move(object), hook};
+    }
+
+    EXPECT_EQ(hook.Runs(), 1);
+    EXPECT_TRUE(hook.ObjectAliveAtFirstRun());
+}
+
+TEST(TakenTest, MoveConstructionMovesTheReleaseHook)
+{
+    RecordProperty("PartiallyVerifies", "comp_req__health_monitor__deadline_exclusive");
+    RecordProperty("TestType", "requirements-based");
+    RecordProperty("DerivationTechnique", "design-analysis");
+    RecordProperty(
+        "Description", "Check that a moved-from handle runs no release hook and the moved-to handle runs it once.");
+
+    RecordingHook hook{};
+    std::optional<Taken<Counter>> target{};
+    {
+        Taken<Counter> source{std::make_shared<Counter>(), hook};
+        target.emplace(std::move(source));
+    }
+    EXPECT_EQ(hook.Runs(), 0);
+
+    target.reset();
+
+    EXPECT_EQ(hook.Runs(), 1);
+}
+
+TEST(TakenTest, ConversionToBaseMovesTheReleaseHook)
+{
+    RecordProperty("PartiallyVerifies", "comp_req__health_monitor__deadline_exclusive");
+    RecordProperty("TestType", "requirements-based");
+    RecordProperty("DerivationTechnique", "design-analysis");
+    RecordProperty("Description", "Check that converting a handle to a handle of a base type keeps one release hook.");
+
+    RecordingHook hook{};
+    std::optional<Taken<Counter>> target{};
+    {
+        Taken<DerivedCounter> source{std::make_shared<DerivedCounter>(), hook};
+        target.emplace(std::move(source));
+    }
+    EXPECT_EQ(hook.Runs(), 0);
+
+    target.reset();
+
+    EXPECT_EQ(hook.Runs(), 1);
+}
+
+TEST(TakenTest, MoveAssignmentRunsTheReleaseHookOfTheReplacedHandle)
+{
+    RecordProperty("PartiallyVerifies", "comp_req__health_monitor__deadline_exclusive");
+    RecordProperty("TestType", "requirements-based");
+    RecordProperty("DerivationTechnique", "design-analysis");
+    RecordProperty(
+        "Description",
+        "Check that move assignment runs the release hook of the target and moves the hook of the source.");
+
+    RecordingHook source_hook{};
+    RecordingHook target_hook{};
+    std::optional<Taken<Counter>> target{std::in_place, std::make_shared<Counter>(), target_hook};
+    {
+        Taken<Counter> source{std::make_shared<Counter>(), source_hook};
+
+        *target = std::move(source);
+
+        EXPECT_EQ(target_hook.Runs(), 1);
+    }
+    EXPECT_EQ(source_hook.Runs(), 0);
+
+    target.reset();
+
+    EXPECT_EQ(source_hook.Runs(), 1);
+    EXPECT_EQ(target_hook.Runs(), 1);
 }
 
 TEST(TakenDeathTest, ConstructionFromNullAborts)

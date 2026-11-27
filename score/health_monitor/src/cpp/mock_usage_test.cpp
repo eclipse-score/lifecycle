@@ -152,6 +152,24 @@ TEST_F(MockUsageTest, InitTakesMonitorsThenStartsHealthMonitor)
     EXPECT_TRUE(component_.Init(health_monitor_).has_value());
 }
 
+TEST_F(MockUsageTest, SecondStartWhileAHandleExistsFailsWithDeadlineRunning)
+{
+    RecordProperty("PartiallyVerifies", "comp_req__health_monitor__dl_no_stop");
+    RecordProperty("TestType", "interface-test");
+    RecordProperty("DerivationTechnique", "design-analysis");
+    RecordProperty("Description", "Check that the mock reports kDeadlineRunning for a start while a handle exists.");
+
+    EXPECT_CALL(deadline_, DoStart()).WillOnce(::testing::Return(score::Result<void>{}));
+    EXPECT_CALL(deadline_, DoStop());
+    auto first{deadline_.Start()};
+    ASSERT_TRUE(first.has_value());
+
+    const auto second{deadline_.Start()};
+
+    ASSERT_FALSE(second.has_value());
+    EXPECT_EQ(second.error(), MakeError(ErrorCode::kDeadlineRunning));
+}
+
 TEST_F(MockUsageTest, InitFailsOnUnknownTagAndNeverStarts)
 {
     RecordProperty("PartiallyVerifies", "comp_req__health_monitor__monitor_once");

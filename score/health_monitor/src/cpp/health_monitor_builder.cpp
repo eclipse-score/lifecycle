@@ -15,7 +15,6 @@
 
 #include "score/health_monitor/error.h"
 #include "score/health_monitor/src/cpp/internal/health_monitor_impl.h"
-#include "score/health_monitor/src/cpp/internal/logger.h"
 #include "score/health_monitor/supervisor_client.h"
 #include "score/os/time.h"
 
@@ -72,14 +71,22 @@ HealthMonitorBuilder HealthMonitorBuilder::WithThreadParameters(ThreadParameters
 
 score::Result<std::unique_ptr<HealthMonitor>> HealthMonitorBuilder::Build() && noexcept
 {
-    // The component has no deadline monitor implementation.
-    if (!deadline_monitors_.empty())
+    details::HealthMonitorImpl::Config config{};
+    config.deadline_monitors.reserve(deadline_monitors_.size());
+    for (const auto& tag_and_monitor : deadline_monitors_)
     {
-        details::GetLogger().LogError() << "Deadline monitors are not supported.";
-        return score::MakeUnexpected(ErrorCode::kInvalidArgument);
+        const DeadlineMonitorBuilder& monitor{tag_and_monitor.second};
+        std::vector<details::DeadlineConfig> deadlines;
+        deadlines.reserve(monitor.deadlines_.size());
+        for (const DeadlineMonitorBuilder::Entry& deadline : monitor.deadlines_)
+        {
+            score::cpp::ignore = deadlines.emplace_back(details::DeadlineConfig{deadline.tag, deadline.range});
+        }
+
+        score::cpp::ignore = config.deadline_monitors.emplace_back(
+            details::HealthMonitorImpl::Config::DeadlineMonitorConfig{tag_and_monitor.first, std::move(deadlines)});
     }
 
-    details::HealthMonitorImpl::Config config{};
     config.heartbeat_monitors.reserve(heartbeat_monitors_.size());
     for (const auto& tag_and_monitor : heartbeat_monitors_)
     {

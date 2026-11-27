@@ -188,6 +188,26 @@ TEST_F(DeadlineHandleTest, StartAfterStopWorksAgain)
     EXPECT_EQ(deadline_.start_calls, 2);
 }
 
+TEST_F(DeadlineHandleTest, StartAfterTheHandleDestructorWorksAgain)
+{
+    RecordProperty("PartiallyVerifies", "comp_req__health_monitor__dl_no_stop, comp_req__health_monitor__dl_late_stop");
+    RecordProperty("TestType", "requirements-based");
+    RecordProperty("DerivationTechnique", "design-analysis");
+    RecordProperty("Description", "Check that a deadline whose handle was destroyed can be started again.");
+
+    {
+        auto first{deadline_.Start()};
+        ASSERT_TRUE(first.has_value());
+    }
+    ASSERT_EQ(deadline_.stop_calls, 1);
+
+    auto second{deadline_.Start()};
+
+    ASSERT_TRUE(second.has_value());
+    EXPECT_EQ(deadline_.start_calls, 2);
+    EXPECT_EQ(deadline_.stop_calls, 1);
+}
+
 TEST_F(DeadlineHandleTest, DoStartErrorIsPassedThrough)
 {
     RecordProperty("PartiallyVerifies", "comp_req__health_monitor__dl_failed_reuse");

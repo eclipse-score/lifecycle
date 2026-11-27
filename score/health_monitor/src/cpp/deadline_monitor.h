@@ -23,7 +23,7 @@ namespace score::health_monitor
 {
 
 /// @brief Owns the deadlines added with `DeadlineMonitorBuilder::AddDeadline()`.
-/// @note The class is not thread-safe.
+/// @note Threads can call `GetDeadline()` concurrently. Of the calls for one tag, at most one gets the deadline.
 class DeadlineMonitor
 {
   public:
@@ -33,10 +33,12 @@ class DeadlineMonitor
     DeadlineMonitor& operator=(const DeadlineMonitor&) = delete;
     DeadlineMonitor& operator=(DeadlineMonitor&&) = delete;
 
-    /// @brief Returns the deadline with this tag, once per tag, before or after `HealthMonitor::Start()`.
+    /// @brief Returns the deadline with this tag, before or after `HealthMonitor::Start()`.
     /// @return The deadline, valid also after the health monitor is destroyed, or one of these errors:
     /// `ErrorCode::kUnknownTag` if the monitor has no deadline with this tag.
-    /// `ErrorCode::kAlreadyTaken` if an earlier call returned this deadline.
+    /// `ErrorCode::kAlreadyTaken` if a handle of this deadline exists.
+    /// @note Destroying the handle frees the deadline for the next call. A failed deadline stays failed.
+    /// A call concurrent with the destruction of the handle gets the deadline or `ErrorCode::kAlreadyTaken`.
     virtual score::Result<Taken<Deadline>> GetDeadline(const DeadlineTag& tag) noexcept = 0;
 
   protected:
