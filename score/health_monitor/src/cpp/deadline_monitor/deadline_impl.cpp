@@ -29,6 +29,7 @@
 namespace score::health_monitor::details
 {
 
+// codeql[cpp/number-of-parameters-per-function] Dismiss: Each parameter is a different dependency of the deadline, and a parameter struct would only move the same fields to a different type.
 DeadlineImpl::DeadlineImpl(
     const MonitorTag& monitor_tag,
     const DeadlineTag& tag,

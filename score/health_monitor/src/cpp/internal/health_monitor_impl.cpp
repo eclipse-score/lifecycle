@@ -242,6 +242,7 @@ score::Result<std::unique_ptr<HealthMonitorImpl>> HealthMonitorImpl::Create(
         time}};
 }
 
+// codeql[cpp/number-of-parameters-per-function] Dismiss: The private constructor only takes the parts that Create() builds, and a parameter struct would add indirection without a better API.
 HealthMonitorImpl::HealthMonitorImpl(
     score::containers::NonRelocatableVector<MonitorEntry<DeadlineMonitor>>&& deadline_monitors,
     score::containers::NonRelocatableVector<MonitorEntry<HeartbeatMonitor>>&& heartbeat_monitors,

@@ -46,6 +46,7 @@ std::chrono::steady_clock::time_point CycleEnd(
 
 }  // namespace
 
+// codeql[cpp/number-of-parameters-per-function] Dismiss: All parameters are injected dependencies of the worker, and a parameter struct would add indirection without making the calls easier to read.
 Worker::Worker(
     const score::cpp::span<MonitorEvaluator* const> evaluators,
     const std::chrono::milliseconds supervisor_api_cycle,
