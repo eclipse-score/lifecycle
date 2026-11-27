@@ -11774,6 +11774,20 @@
     "FullyVerifies": null
   },
   {
+    "name": "ComponentTest__RecoverRestartsComponentWithActivationRetries",
+    "file": "score/launch_manager/src/daemon/src/process_group_manager/details/component_UT.cpp",
+    "line": "2807",
+    "result": "passed",
+    "repo_name": "local_repo",
+    "hash": "",
+    "url": "",
+    "TestType": null,
+    "DerivationTechnique": null,
+    "result_text": "",
+    "PartiallyVerifies": null,
+    "FullyVerifies": null
+  },
+  {
     "name": "ComponentTest/ComponentProcessTerminatedReadyConditionTest__TerminationDuringActivationDecidesActivation/SucceedsOnExitZero",
     "file": "score/launch_manager/src/daemon/src/process_group_manager/details/component_UT.cpp",
     "line": "2469",
@@ -11811,6 +11825,34 @@
     "url": "",
     "TestType": "interface-test",
     "DerivationTechnique": "equivalence-classes",
+    "result_text": "",
+    "PartiallyVerifies": null,
+    "FullyVerifies": null
+  },
+  {
+    "name": "RecoveryActions/ComponentRecoverWithoutRestartActionTest__RecoverFailsWithoutStarting/0",
+    "file": "score/launch_manager/src/daemon/src/process_group_manager/details/component_UT.cpp",
+    "line": "2857",
+    "result": "passed",
+    "repo_name": "local_repo",
+    "hash": "",
+    "url": "",
+    "TestType": null,
+    "DerivationTechnique": null,
+    "result_text": "",
+    "PartiallyVerifies": null,
+    "FullyVerifies": null
+  },
+  {
+    "name": "RecoveryActions/ComponentRecoverWithoutRestartActionTest__RecoverFailsWithoutStarting/1",
+    "file": "score/launch_manager/src/daemon/src/process_group_manager/details/component_UT.cpp",
+    "line": "2857",
+    "result": "passed",
+    "repo_name": "local_repo",
+    "hash": "",
+    "url": "",
+    "TestType": null,
+    "DerivationTechnique": null,
     "result_text": "",
     "PartiallyVerifies": null,
     "FullyVerifies": null
