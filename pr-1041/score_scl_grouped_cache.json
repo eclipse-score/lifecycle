@@ -311,7 +311,7 @@
       "CodeLinks": [],
       "TestLinks": [
         {
-          "name": "test_lm_shutdown",
+          "name": "test_lm_shutdown_during_rt_switch",
           "file": "tests/integration/lm_shutdown_during_rt_switch/test.py",
           "line": 19,
           "need": "feat_req__lifecycle__termination_dependency",
@@ -323,7 +323,7 @@
           "url": ""
         },
         {
-          "name": "test_lm_shutdown",
+          "name": "test_lm_shutdown_during_switch_to_off",
           "file": "tests/integration/lm_shutdown_during_switch_to_off/test.py",
           "line": 19,
           "need": "feat_req__lifecycle__termination_dependency",
@@ -367,7 +367,7 @@
       "CodeLinks": [],
       "TestLinks": [
         {
-          "name": "test_lm_shutdown",
+          "name": "test_lm_shutdown_during_rt_switch",
           "file": "tests/integration/lm_shutdown_during_rt_switch/test.py",
           "line": 19,
           "need": "comp_req__launch_man__launcher_exit_shutdown",
@@ -379,7 +379,7 @@
           "url": ""
         },
         {
-          "name": "test_lm_shutdown",
+          "name": "test_lm_shutdown_during_switch_to_off",
           "file": "tests/integration/lm_shutdown_during_switch_to_off/test.py",
           "line": 19,
           "need": "comp_req__launch_man__launcher_exit_shutdown",
