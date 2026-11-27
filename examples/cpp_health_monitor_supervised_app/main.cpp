@@ -23,10 +23,14 @@
 #include <sys/prctl.h>
 #endif
 
-#include <score/mw/health/common.h>
-#include <score/mw/health/health_monitor.h>
+#include <score/health_monitor/deadline.h>
+#include <score/health_monitor/deadline_monitor.h>
+#include <score/health_monitor/deadline_monitor_builder.h>
+#include <score/health_monitor/health_monitor.h>
+#include <score/health_monitor/health_monitor_builder.h>
+#include <score/health_monitor/tag.h>
+#include <score/health_monitor/time_range.h>
 #include <score/mw/lifecycle/report_running.h>
-#include <score/mw/log/rust/stdout_logger_init.h>
 #include <thread>
 
 /// @brief CLI configuration options for the demo_application process
@@ -119,27 +123,24 @@ int main(int argc, char** argv)
         return EXIT_FAILURE;
     }
 
-    score::mw::log::rust::StdoutLoggerBuilder builder;
-    builder.Context("APP").LogLevel(score::mw::log::rust::LogLevel::Verbose).SetAsDefaultLogger();
-
-    using namespace score::mw::health;
+    using namespace score::health_monitor;
 
     auto builder_mon =
-        deadline::DeadlineMonitorBuilder()
+        DeadlineMonitorBuilder{}
             .AddDeadline(
-                DeadlineTag("deadline_1"),
-                TimeRange(std::chrono::milliseconds(50), std::chrono::milliseconds(config->deadlineMaxInMs)))
+                DeadlineTag{"deadline_1"},
+                TimeRange{std::chrono::milliseconds(50), std::chrono::milliseconds(config->deadlineMaxInMs)})
             .AddDeadline(
-                DeadlineTag("deadline_2"),
-                TimeRange(
+                DeadlineTag{"deadline_2"},
+                TimeRange{
                     std::chrono::milliseconds(2),
-                    std::chrono::milliseconds(20)));  // Not used, only shows
+                    std::chrono::milliseconds(20)});  // Not used, only shows
                                                       // that multiple deadlines can be added
 
-    MonitorTag ident("monitor");
+    constexpr MonitorTag ident{"monitor"};
 
     {
-        auto hm_res = HealthMonitorBuilder()
+        auto hm_res = HealthMonitorBuilder{}
                           .AddDeadlineMonitor(ident, std::move(builder_mon))
                           .WithInternalProcessingCycle(std::chrono::milliseconds(50))
                           .WithSupervisorApiCycle(std::chrono::milliseconds(50))
@@ -149,22 +150,32 @@ int main(int argc, char** argv)
             std::cerr << "Failed to build health monitor" << std::endl;
             return EXIT_FAILURE;
         }
-        auto hm = std::move(*hm_res);
+        const auto hm = std::move(hm_res).value();
 
-        auto deadline_monitor_res = hm.GetDeadlineMonitor(ident);
+        auto deadline_monitor_res = hm->GetDeadlineMonitor(ident);
         if (!deadline_monitor_res.has_value())
         {
             std::cerr << "Failed to get deadline monitor" << std::endl;
             return EXIT_FAILURE;
         }
+        const auto deadline_mon = std::move(deadline_monitor_res).value();
 
-        hm.Start();
+        if (!hm->Start().has_value())
+        {
+            std::cerr << "Failed to start health monitor" << std::endl;
+            return EXIT_FAILURE;
+        }
 
         score::mw::lifecycle::report_running();
 
-        auto deadline_mon = std::move(*deadline_monitor_res);
+        auto deadline_res = deadline_mon->GetDeadline(DeadlineTag{"deadline_1"});
+        if (!deadline_res.has_value())
+        {
+            std::cerr << "Failed to get deadline" << std::endl;
+            return EXIT_FAILURE;
+        }
+        const auto deadline = std::move(deadline_res).value();
 
-        auto deadline_res = deadline_mon.GetDeadline(DeadlineTag("deadline_1"));
         while (!exitRequested)
         {
             if (stopReportingCheckpoints.load())
@@ -172,12 +183,10 @@ int main(int argc, char** argv)
                 break;
             }
 
-            auto deadline_guard = deadline_res.value().Start();
+            // The handle stops the deadline when it goes out of scope.
+            const auto deadline_guard = deadline->Start();
 
             std::this_thread::sleep_for(std::chrono::milliseconds(config->delayInMs));
-
-            // deadline_guard.Stop(); // Optional, will be stopped automatically when going out of scope - this way we
-            // dont check Result from start() call
         }
     }
 
