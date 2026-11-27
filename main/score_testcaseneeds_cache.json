@@ -238,6 +238,34 @@
     "FullyVerifies": "comp_req__launch_man__dep_based_startup_order, comp_req__launch_man__stop_process_dependents"
   },
   {
+    "name": "test_component_activation_log",
+    "file": "tests/integration/logs/activations/test.py",
+    "line": "25",
+    "result": "passed",
+    "repo_name": "local_repo",
+    "hash": "",
+    "url": "",
+    "TestType": "requirements-based",
+    "DerivationTechnique": "requirements-analysis",
+    "result_text": "",
+    "PartiallyVerifies": "comp_req__launch_man__process_log",
+    "FullyVerifies": null
+  },
+  {
+    "name": "test_component_recovery_log",
+    "file": "tests/integration/logs/recovery/test.py",
+    "line": "22",
+    "result": "passed",
+    "repo_name": "local_repo",
+    "hash": "",
+    "url": "",
+    "TestType": "requirements-based",
+    "DerivationTechnique": "requirements-analysis",
+    "result_text": "",
+    "PartiallyVerifies": "comp_req__launch_man__ra_log",
+    "FullyVerifies": null
+  },
+  {
     "name": "test_recovery_action_complex_rep_failure",
     "file": "tests/integration/process_complex_rep_failure/test.py",
     "line": "19",

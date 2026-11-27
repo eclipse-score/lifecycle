@@ -408,6 +408,30 @@
     "url": ""
   },
   {
+    "name": "test_component_activation_log",
+    "file": "tests/integration/logs/activations/test.py",
+    "line": 25,
+    "need": "comp_req__launch_man__process_log",
+    "verify_type": "partially",
+    "result": "passed",
+    "result_text": "",
+    "repo_name": "local_repo",
+    "hash": "",
+    "url": ""
+  },
+  {
+    "name": "test_component_recovery_log",
+    "file": "tests/integration/logs/recovery/test.py",
+    "line": 22,
+    "need": "comp_req__launch_man__ra_log",
+    "verify_type": "partially",
+    "result": "passed",
+    "result_text": "",
+    "repo_name": "local_repo",
+    "hash": "",
+    "url": ""
+  },
+  {
     "name": "test_recovery_action_complex_rep_failure",
     "file": "tests/integration/process_complex_rep_failure/test.py",
     "line": 19,

@@ -803,6 +803,40 @@
         }
       },
       {
+        "need": "comp_req__launch_man__process_log",
+        "links": {
+          "CodeLinks": [],
+          "TestLinks": [
+            {
+              "name": "test_component_activation_log",
+              "file": "tests/integration/logs/activations/test.py",
+              "line": 25,
+              "need": "comp_req__launch_man__process_log",
+              "verify_type": "partially",
+              "result": "passed",
+              "result_text": ""
+            }
+          ]
+        }
+      },
+      {
+        "need": "comp_req__launch_man__ra_log",
+        "links": {
+          "CodeLinks": [],
+          "TestLinks": [
+            {
+              "name": "test_component_recovery_log",
+              "file": "tests/integration/logs/recovery/test.py",
+              "line": 22,
+              "need": "comp_req__launch_man__ra_log",
+              "verify_type": "partially",
+              "result": "passed",
+              "result_text": ""
+            }
+          ]
+        }
+      },
+      {
         "need": "comp_req__launch_man__ra_comp_switch_rt",
         "links": {
           "CodeLinks": [],
