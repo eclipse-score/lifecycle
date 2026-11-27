@@ -62,11 +62,21 @@ score::cpp::expected<TargetT, IConfigLoader::Error> requireScalarInRange(
 }
 
 /// @brief Clamps @p priority to the range the OS supports for @p policy, logging a warning if it is changed.
-/// @details Done once at load time, so all process start implementations apply the same priority.
-std::int32_t clampSchedulingPriority(const std::int32_t policy, const std::int32_t priority)
+/// @details Done once at load time, so all process start implementations apply the same priority. The range of
+///          each policy is only read from the OS the first time the policy is encountered.
+std::int32_t clampSchedulingPriority(
+    const std::int32_t policy,
+    const std::int32_t priority,
+    SchedulingPriorityRanges& priority_ranges)
 {
-    const std::int32_t min_priority = sched_get_priority_min(policy);
-    const std::int32_t max_priority = sched_get_priority_max(policy);
+    auto range = priority_ranges.find(policy);
+    if (range == priority_ranges.end())
+    {
+        const SchedulingPriorityRange os_range{sched_get_priority_min(policy), sched_get_priority_max(policy)};
+        range = priority_ranges.emplace(policy, os_range).first;
+    }
+    const std::int32_t min_priority = range->second.min;
+    const std::int32_t max_priority = range->second.max;
     if (priority < min_priority)
     {
         LM_LOG_WARN() << "Scheduling priority" << priority << "is below minimum" << min_priority << "for policy"
@@ -452,7 +462,9 @@ score::cpp::expected<ComponentProperties, IConfigLoader::Error> convertComponent
     return result;
 }
 
-score::cpp::expected<Sandbox, IConfigLoader::Error> convertSandbox(const fb::Sandbox* fb_sb)
+score::cpp::expected<Sandbox, IConfigLoader::Error> convertSandbox(
+    const fb::Sandbox* fb_sb,
+    SchedulingPriorityRanges& priority_ranges)
 {
     SCORE_LANGUAGE_FUTURECPP_ASSERT_PRD_MESSAGE(fb_sb, "Sandbox must never be nullptr as it is required in the schema");
     auto uid = requireScalarInRange<uid_t>(fb_sb->uid(), "Sandbox::uid");
@@ -488,7 +500,7 @@ score::cpp::expected<Sandbox, IConfigLoader::Error> convertSandbox(const fb::San
                                  ? std::optional<std::string>{fb_sb->security_policy()->str()}
                                  : std::nullopt;
     result.scheduling_policy = *scheduling_policy;
-    result.scheduling_priority = clampSchedulingPriority(*scheduling_policy, *scheduling_priority);
+    result.scheduling_priority = clampSchedulingPriority(*scheduling_policy, *scheduling_priority, priority_ranges);
     auto rlimits = convertRlimits(fb_sb->rlimits());
     if (!rlimits.has_value())
     {
@@ -502,7 +514,8 @@ score::cpp::expected<Sandbox, IConfigLoader::Error> convertSandbox(const fb::San
 score::cpp::expected<DeploymentConfig, IConfigLoader::Error> convertDeploymentConfig(
     const fb::DeploymentConfig* fb_dc,
     std::string_view binary_name,
-    const std::vector<std::string>& process_arguments)
+    const std::vector<std::string>& process_arguments,
+    SchedulingPriorityRanges& priority_ranges)
 {
     DeploymentConfig result{};
     if (fb_dc != nullptr)
@@ -546,7 +559,7 @@ score::cpp::expected<DeploymentConfig, IConfigLoader::Error> convertDeploymentCo
         result.activation_retry_attempts = *activation_retry_attempts;
         result.activation_retry_delay_ms = *activation_retry_delay_ms;
         result.recovery_action = convertSwitchRunTargetAction(fb_dc->recovery_action());
-        auto sandbox = convertSandbox(fb_dc->sandbox());
+        auto sandbox = convertSandbox(fb_dc->sandbox(), priority_ranges);
         if (!sandbox.has_value())
         {
             return score::cpp::make_unexpected(sandbox.error());
@@ -556,7 +569,9 @@ score::cpp::expected<DeploymentConfig, IConfigLoader::Error> convertDeploymentCo
     return result;
 }
 
-score::cpp::expected<ComponentConfig, IConfigLoader::Error> convertComponent(const fb::Component* fb_comp)
+score::cpp::expected<ComponentConfig, IConfigLoader::Error> convertComponent(
+    const fb::Component* fb_comp,
+    SchedulingPriorityRanges& priority_ranges)
 {
     ComponentConfig result{};
     if (fb_comp != nullptr)
@@ -583,7 +598,8 @@ score::cpp::expected<ComponentConfig, IConfigLoader::Error> convertComponent(con
         auto deployment_config = convertDeploymentConfig(
             fb_comp->deployment_config(),
             fb_comp->component_properties()->binary_name()->string_view(),
-            convertStringVector(fb_comp->component_properties()->process_arguments()));
+            convertStringVector(fb_comp->component_properties()->process_arguments()),
+            priority_ranges);
         if (!deployment_config.has_value())
         {
             LM_LOG_ERROR() << "Invalid deployment_config for Component '" << result.name << "'";
@@ -688,11 +704,13 @@ score::cpp::expected<std::vector<ComponentConfig>, IConfigLoader::Error> convert
 {
     std::vector<ComponentConfig> components;
     components.reserve(fb_components->size());
+    // Shared by all components, so the OS is asked only once for the priority range of each scheduling policy.
+    SchedulingPriorityRanges priority_ranges;
     for (const auto* comp : *fb_components)
     {
         if (comp != nullptr)
         {
-            auto component = convertComponent(comp);
+            auto component = convertComponent(comp, priority_ranges);
             if (!component.has_value())
             {
                 LM_LOG_ERROR() << "Failed to load configuration for Component '" << safeString(comp->name()) << "'";

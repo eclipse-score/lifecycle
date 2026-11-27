@@ -300,6 +300,8 @@ TYPED_TEST(ValidateRangeTest, RejectsValueBelowMin)
 
 class ConverterTest : public TypeConverterTestBase
 {
+  protected:
+    SchedulingPriorityRanges priority_ranges_{};
 };
 
 TEST_F(ConverterTest, ConvertSwitchRunTargetActionNullReturnsNullopt)
@@ -636,7 +638,7 @@ TEST_F(ConverterTest, ConvertSandboxValid)
     fbb.Finish(sandbox);
     const auto* ptr = ::flatbuffers::GetRoot<fb::Sandbox>(fbb.GetBufferPointer());
 
-    auto result = convertSandbox(ptr);
+    auto result = convertSandbox(ptr, priority_ranges_);
     ASSERT_THAT(result.has_value(), IsTrue());
     EXPECT_THAT(result->uid, Eq(1000U));
     EXPECT_THAT(result->gid, Eq(1000U));
@@ -664,7 +666,7 @@ TEST_F(ConverterTest, ConvertSandboxNoRlimitsYieldsEmptyVector)
     fbb.Finish(sandbox);
     const auto* ptr = ::flatbuffers::GetRoot<fb::Sandbox>(fbb.GetBufferPointer());
 
-    auto result = convertSandbox(ptr);
+    auto result = convertSandbox(ptr, priority_ranges_);
     ASSERT_THAT(result.has_value(), IsTrue());
     EXPECT_THAT(result->rlimits, ::testing::IsEmpty());
 }
@@ -677,7 +679,7 @@ TEST_F(ConverterTest, ConvertSandboxWithoutAffinityMaskHasNoValue)
     fbb.Finish(sandbox);
     const auto* ptr = ::flatbuffers::GetRoot<fb::Sandbox>(fbb.GetBufferPointer());
 
-    auto result = convertSandbox(ptr);
+    auto result = convertSandbox(ptr, priority_ranges_);
     ASSERT_THAT(result.has_value(), IsTrue());
     EXPECT_THAT(result->affinity_mask.has_value(), IsFalse());
 }
@@ -760,7 +762,7 @@ TEST_F(ConverterTest, ConvertSandboxMissingUidReturnsError)
     fbb.Finish(sandbox);
     const auto* ptr = ::flatbuffers::GetRoot<fb::Sandbox>(fbb.GetBufferPointer());
 
-    auto result = convertSandbox(ptr);
+    auto result = convertSandbox(ptr, priority_ranges_);
     ASSERT_THAT(result.has_value(), IsFalse());
     EXPECT_THAT(result.error(), Eq(IConfigLoader::Error::InvalidFormat));
 }
@@ -780,7 +782,7 @@ TEST_F(ConverterTest, ConvertSandboxMissingGidReturnsError)
     fbb.Finish(sandbox);
     const auto* ptr = ::flatbuffers::GetRoot<fb::Sandbox>(fbb.GetBufferPointer());
 
-    auto result = convertSandbox(ptr);
+    auto result = convertSandbox(ptr, priority_ranges_);
     ASSERT_THAT(result.has_value(), IsFalse());
     EXPECT_THAT(result.error(), Eq(IConfigLoader::Error::InvalidFormat));
 }
@@ -800,7 +802,7 @@ TEST_F(ConverterTest, ConvertSandboxMissingSchedulingPolicyReturnsError)
     fbb.Finish(sandbox);
     const auto* ptr = ::flatbuffers::GetRoot<fb::Sandbox>(fbb.GetBufferPointer());
 
-    auto result = convertSandbox(ptr);
+    auto result = convertSandbox(ptr, priority_ranges_);
     ASSERT_THAT(result.has_value(), IsFalse());
     EXPECT_THAT(result.error(), Eq(IConfigLoader::Error::InvalidFormat));
 }
@@ -820,7 +822,7 @@ TEST_F(ConverterTest, ConvertSandboxMissingSchedulingPriorityReturnsError)
     fbb.Finish(sandbox);
     const auto* ptr = ::flatbuffers::GetRoot<fb::Sandbox>(fbb.GetBufferPointer());
 
-    auto result = convertSandbox(ptr);
+    auto result = convertSandbox(ptr, priority_ranges_);
     ASSERT_THAT(result.has_value(), IsFalse());
     EXPECT_THAT(result.error(), Eq(IConfigLoader::Error::InvalidFormat));
 }
@@ -836,6 +838,8 @@ struct SchedulingPriorityClampTestParam
 
 class ConvertSandboxSchedulingPriorityClampTest : public ::testing::TestWithParam<SchedulingPriorityClampTestParam>
 {
+  protected:
+    SchedulingPriorityRanges priority_ranges_{};
 };
 
 TEST_P(ConvertSandboxSchedulingPriorityClampTest, PriorityOutOfRangeIsClamped)
@@ -855,7 +859,7 @@ TEST_P(ConvertSandboxSchedulingPriorityClampTest, PriorityOutOfRangeIsClamped)
     fbb.Finish(sandbox);
     const auto* ptr = ::flatbuffers::GetRoot<fb::Sandbox>(fbb.GetBufferPointer());
 
-    auto result = convertSandbox(ptr);
+    auto result = convertSandbox(ptr, priority_ranges_);
     ASSERT_THAT(result.has_value(), IsTrue());
     const int32_t expected =
         param.expect_max ? sched_get_priority_max(param.posix_policy) : sched_get_priority_min(param.posix_policy);
@@ -891,9 +895,60 @@ TEST_F(ConverterTest, ConvertSandboxSchedulingPriorityInRangeIsKept)
     fbb.Finish(sandbox);
     const auto* ptr = ::flatbuffers::GetRoot<fb::Sandbox>(fbb.GetBufferPointer());
 
-    auto result = convertSandbox(ptr);
+    auto result = convertSandbox(ptr, priority_ranges_);
     ASSERT_THAT(result.has_value(), IsTrue());
     EXPECT_THAT(result->scheduling_priority, Eq(priority));
+}
+
+TEST_F(ConverterTest, ConvertSandboxStoresPriorityRangeOfPolicy)
+{
+    RecordProperty(
+        "Description", "The priority range of a newly encountered scheduling policy is read from the OS and stored.");
+    ::flatbuffers::FlatBufferBuilder fbb;
+    auto sandbox = fb::CreateSandbox(
+        fbb,
+        0 /*uid*/,
+        0 /*gid*/,
+        0 /*supplementary_group_ids*/,
+        0 /*security_policy*/,
+        fb::SchedulingPolicy::FIFO,
+        sched_get_priority_min(SCHED_FIFO));
+    fbb.Finish(sandbox);
+    const auto* ptr = ::flatbuffers::GetRoot<fb::Sandbox>(fbb.GetBufferPointer());
+
+    auto result = convertSandbox(ptr, priority_ranges_);
+    ASSERT_THAT(result.has_value(), IsTrue());
+    ASSERT_THAT(priority_ranges_.size(), Eq(1U));
+    ASSERT_THAT(priority_ranges_.count(SCHED_FIFO), Eq(1U));
+    EXPECT_THAT(priority_ranges_.at(SCHED_FIFO).min, Eq(sched_get_priority_min(SCHED_FIFO)));
+    EXPECT_THAT(priority_ranges_.at(SCHED_FIFO).max, Eq(sched_get_priority_max(SCHED_FIFO)));
+}
+
+TEST_F(ConverterTest, ConvertSandboxUsesStoredPriorityRange)
+{
+    RecordProperty(
+        "Description",
+        "For an already encountered scheduling policy, the stored priority range is used instead of asking the OS.");
+    // A range that differs from the one of the OS, so the result shows which range was used.
+    const SchedulingPriorityRange stored_range{
+        sched_get_priority_min(SCHED_FIFO) + 1, sched_get_priority_min(SCHED_FIFO) + 2};
+    priority_ranges_.emplace(SCHED_FIFO, stored_range);
+    ::flatbuffers::FlatBufferBuilder fbb;
+    auto sandbox = fb::CreateSandbox(
+        fbb,
+        0 /*uid*/,
+        0 /*gid*/,
+        0 /*supplementary_group_ids*/,
+        0 /*security_policy*/,
+        fb::SchedulingPolicy::FIFO,
+        sched_get_priority_max(SCHED_FIFO));
+    fbb.Finish(sandbox);
+    const auto* ptr = ::flatbuffers::GetRoot<fb::Sandbox>(fbb.GetBufferPointer());
+
+    auto result = convertSandbox(ptr, priority_ranges_);
+    ASSERT_THAT(result.has_value(), IsTrue());
+    EXPECT_THAT(result->scheduling_priority, Eq(stored_range.max));
+    EXPECT_THAT(priority_ranges_.size(), Eq(1U));
 }
 
 TEST_F(ConverterTest, ConvertSandboxUidOutOfRangeReturnsError)
@@ -912,7 +967,7 @@ TEST_F(ConverterTest, ConvertSandboxUidOutOfRangeReturnsError)
     fbb.Finish(sandbox);
     const auto* ptr = ::flatbuffers::GetRoot<fb::Sandbox>(fbb.GetBufferPointer());
 
-    auto result = convertSandbox(ptr);
+    auto result = convertSandbox(ptr, priority_ranges_);
     ASSERT_THAT(result.has_value(), IsFalse());
     EXPECT_THAT(result.error(), Eq(IConfigLoader::Error::InvalidFormat));
 }
@@ -934,7 +989,7 @@ TEST_F(ConverterTest, ConvertSandboxSupplementaryGidOutOfRangeReturnsError)
     fbb.Finish(sandbox);
     const auto* ptr = ::flatbuffers::GetRoot<fb::Sandbox>(fbb.GetBufferPointer());
 
-    auto result = convertSandbox(ptr);
+    auto result = convertSandbox(ptr, priority_ranges_);
     ASSERT_THAT(result.has_value(), IsFalse());
     EXPECT_THAT(result.error(), Eq(IConfigLoader::Error::InvalidFormat));
 }
@@ -960,7 +1015,7 @@ TEST_F(ConverterTest, ConvertDeploymentConfigValid)
     fbb.Finish(deploy);
     const auto* ptr = ::flatbuffers::GetRoot<fb::DeploymentConfig>(fbb.GetBufferPointer());
 
-    auto result = convertDeploymentConfig(ptr, "my_binary", {"--flag"});
+    auto result = convertDeploymentConfig(ptr, "my_binary", {"--flag"}, priority_ranges_);
     ASSERT_THAT(result.has_value(), IsTrue());
     EXPECT_THAT(result->ready_timeout_ms, Eq(1500U));
     EXPECT_THAT(result->shutdown_timeout_ms, Eq(2500U));
@@ -992,7 +1047,7 @@ TEST_F(ConverterTest, ConvertDeploymentConfigActivationRetryAttemptsCarriedThrou
     fbb.Finish(deploy);
     const auto* ptr = ::flatbuffers::GetRoot<fb::DeploymentConfig>(fbb.GetBufferPointer());
 
-    auto result = convertDeploymentConfig(ptr, "my_binary", {});
+    auto result = convertDeploymentConfig(ptr, "my_binary", {}, priority_ranges_);
     ASSERT_THAT(result.has_value(), IsTrue());
     EXPECT_THAT(result->activation_retry_attempts, Eq(3U));
 }
@@ -1018,7 +1073,7 @@ TEST_F(ConverterTest, ConvertDeploymentConfigMissingActivationRetryAttemptsRetur
     fbb.Finish(deploy);
     const auto* ptr = ::flatbuffers::GetRoot<fb::DeploymentConfig>(fbb.GetBufferPointer());
 
-    auto result = convertDeploymentConfig(ptr, "my_binary", {});
+    auto result = convertDeploymentConfig(ptr, "my_binary", {}, priority_ranges_);
     ASSERT_THAT(result.has_value(), IsFalse());
     EXPECT_THAT(result.error(), Eq(IConfigLoader::Error::InvalidFormat));
 }
@@ -1044,7 +1099,7 @@ TEST_F(ConverterTest, ConvertDeploymentConfigActivationRetryDelayCarriedThrough)
     fbb.Finish(deploy);
     const auto* ptr = ::flatbuffers::GetRoot<fb::DeploymentConfig>(fbb.GetBufferPointer());
 
-    auto result = convertDeploymentConfig(ptr, "my_binary", {});
+    auto result = convertDeploymentConfig(ptr, "my_binary", {}, priority_ranges_);
     ASSERT_THAT(result.has_value(), IsTrue());
     EXPECT_THAT(result->activation_retry_delay_ms, Eq(250U));
 }
@@ -1070,7 +1125,7 @@ TEST_F(ConverterTest, ConvertDeploymentConfigMissingActivationRetryDelayReturnsE
     fbb.Finish(deploy);
     const auto* ptr = ::flatbuffers::GetRoot<fb::DeploymentConfig>(fbb.GetBufferPointer());
 
-    auto result = convertDeploymentConfig(ptr, "my_binary", {});
+    auto result = convertDeploymentConfig(ptr, "my_binary", {}, priority_ranges_);
     ASSERT_THAT(result.has_value(), IsFalse());
     EXPECT_THAT(result.error(), Eq(IConfigLoader::Error::InvalidFormat));
 }
@@ -1096,7 +1151,7 @@ TEST_F(ConverterTest, ConvertDeploymentConfigMissingReadyTimeoutReturnsError)
     fbb.Finish(deploy);
     const auto* ptr = ::flatbuffers::GetRoot<fb::DeploymentConfig>(fbb.GetBufferPointer());
 
-    auto result = convertDeploymentConfig(ptr, "my_binary", {});
+    auto result = convertDeploymentConfig(ptr, "my_binary", {}, priority_ranges_);
     ASSERT_THAT(result.has_value(), IsFalse());
     EXPECT_THAT(result.error(), Eq(IConfigLoader::Error::InvalidFormat));
 }
@@ -1122,7 +1177,7 @@ TEST_F(ConverterTest, ConvertDeploymentConfigMissingShutdownTimeoutReturnsError)
     fbb.Finish(deploy);
     const auto* ptr = ::flatbuffers::GetRoot<fb::DeploymentConfig>(fbb.GetBufferPointer());
 
-    auto result = convertDeploymentConfig(ptr, "my_binary", {});
+    auto result = convertDeploymentConfig(ptr, "my_binary", {}, priority_ranges_);
     ASSERT_THAT(result.has_value(), IsFalse());
     EXPECT_THAT(result.error(), Eq(IConfigLoader::Error::InvalidFormat));
 }
@@ -1159,7 +1214,7 @@ TEST_F(ConverterTest, ConvertComponentValid)
     fbb.Finish(component);
     const auto* ptr = ::flatbuffers::GetRoot<fb::Component>(fbb.GetBufferPointer());
 
-    auto result = convertComponent(ptr);
+    auto result = convertComponent(ptr, priority_ranges_);
     ASSERT_THAT(result.has_value(), IsTrue());
     EXPECT_THAT(result->name, Eq("TestComp"));
     EXPECT_THAT(result->deployment_config.process_command.executablePath(), Eq("/opt/my_binary"));
