@@ -520,13 +520,10 @@
 <section id="component">
 <h3>Component<a class="headerlink" href="#component" title="Link to this heading">#</a></h3>
 <ul class="simple">
-<li><p>For ReadyCondition <code class="docutils literal notranslate"><span class="pre">process_state:Terminated</span></code>, the mapping is only
-supported for Components that have at least one Component depending on them.</p></li>
 <li><p>The <code class="docutils literal notranslate"><span class="pre">activation_retry_delay_ms</span></code> is currently not evaluated by the Launch Manager.</p></li>
 <li><p>The <code class="docutils literal notranslate"><span class="pre">recovery_action</span></code> only supports <code class="docutils literal notranslate"><span class="pre">switch_run_target</span></code> with the
 <code class="docutils literal notranslate"><span class="pre">run_target</span></code> set to <code class="docutils literal notranslate"><span class="pre">fallback_run_target</span></code>.</p></li>
-<li><p>The <code class="docutils literal notranslate"><span class="pre">ready_timeout_ms</span></code> is used as the timeout until process state Running is
-reached, even in case the ReadyCondition is <code class="docutils literal notranslate"><span class="pre">process_state:Terminated</span></code>.</p></li>
+<li><p>The case where a process does not terminate in response to SIGKILL is not yet correctly handled. See <a class="github reference external" href="https://github.com/eclipse-score/lifecycle/issues/1079">eclipse-score/lifecycle#1079</a></p></li>
 </ul>
 </section>
 <section id="run-target">
