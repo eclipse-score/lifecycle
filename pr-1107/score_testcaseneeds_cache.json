@@ -84,6 +84,34 @@
     "FullyVerifies": null
   },
   {
+    "name": "test_request_during_recovery",
+    "file": "tests/integration/run_target_requests/request_during_recovery/non_forced/test.py",
+    "line": "19",
+    "result": "passed",
+    "repo_name": "local_repo",
+    "hash": "",
+    "url": "",
+    "TestType": "requirements-based",
+    "DerivationTechnique": "requirements-analysis",
+    "result_text": "",
+    "PartiallyVerifies": null,
+    "FullyVerifies": "comp_req__launch_man__ra_rt_queue, comp_req__launch_man__rt_queue"
+  },
+  {
+    "name": "test_forced_request_during_recovery",
+    "file": "tests/integration/run_target_requests/request_during_recovery/forced/test.py",
+    "line": "19",
+    "result": "passed",
+    "repo_name": "local_repo",
+    "hash": "",
+    "url": "",
+    "TestType": "requirements-based",
+    "DerivationTechnique": "requirements-analysis",
+    "result_text": "",
+    "PartiallyVerifies": null,
+    "FullyVerifies": "comp_req__launch_man__cancel_rt_force"
+  },
+  {
     "name": "test_forced_selection",
     "file": "tests/integration/run_target_requests/forced_activation/test.py",
     "line": "19",
@@ -236,6 +264,34 @@
     "result_text": "",
     "PartiallyVerifies": "feat_req__lifecycle__launch_support, feat_req__lifecycle__termination_dependency",
     "FullyVerifies": "comp_req__launch_man__dep_based_startup_order, comp_req__launch_man__stop_process_dependents"
+  },
+  {
+    "name": "test_component_activation_log",
+    "file": "tests/integration/logs/activations/test.py",
+    "line": "25",
+    "result": "passed",
+    "repo_name": "local_repo",
+    "hash": "",
+    "url": "",
+    "TestType": "requirements-based",
+    "DerivationTechnique": "requirements-analysis",
+    "result_text": "",
+    "PartiallyVerifies": "comp_req__launch_man__process_log",
+    "FullyVerifies": null
+  },
+  {
+    "name": "test_component_recovery_log",
+    "file": "tests/integration/logs/recovery/test.py",
+    "line": "22",
+    "result": "passed",
+    "repo_name": "local_repo",
+    "hash": "",
+    "url": "",
+    "TestType": "requirements-based",
+    "DerivationTechnique": "requirements-analysis",
+    "result_text": "",
+    "PartiallyVerifies": "comp_req__launch_man__ra_log",
+    "FullyVerifies": null
   },
   {
     "name": "test_recovery_action_complex_rep_failure",

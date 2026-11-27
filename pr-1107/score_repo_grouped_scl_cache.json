@@ -461,6 +461,57 @@
         }
       },
       {
+        "need": "comp_req__launch_man__ra_rt_queue",
+        "links": {
+          "CodeLinks": [],
+          "TestLinks": [
+            {
+              "name": "test_request_during_recovery",
+              "file": "tests/integration/run_target_requests/request_during_recovery/non_forced/test.py",
+              "line": 19,
+              "need": "comp_req__launch_man__ra_rt_queue",
+              "verify_type": "fully",
+              "result": "passed",
+              "result_text": ""
+            }
+          ]
+        }
+      },
+      {
+        "need": "comp_req__launch_man__rt_queue",
+        "links": {
+          "CodeLinks": [],
+          "TestLinks": [
+            {
+              "name": "test_request_during_recovery",
+              "file": "tests/integration/run_target_requests/request_during_recovery/non_forced/test.py",
+              "line": 19,
+              "need": "comp_req__launch_man__rt_queue",
+              "verify_type": "fully",
+              "result": "passed",
+              "result_text": ""
+            }
+          ]
+        }
+      },
+      {
+        "need": "comp_req__launch_man__cancel_rt_force",
+        "links": {
+          "CodeLinks": [],
+          "TestLinks": [
+            {
+              "name": "test_forced_request_during_recovery",
+              "file": "tests/integration/run_target_requests/request_during_recovery/forced/test.py",
+              "line": 19,
+              "need": "comp_req__launch_man__cancel_rt_force",
+              "verify_type": "fully",
+              "result": "passed",
+              "result_text": ""
+            }
+          ]
+        }
+      },
+      {
         "need": "comp_req__launch_man__force_rt_selection",
         "links": {
           "CodeLinks": [],
@@ -796,6 +847,40 @@
               "line": 20,
               "need": "comp_req__launch_man__stop_process_dependents",
               "verify_type": "fully",
+              "result": "passed",
+              "result_text": ""
+            }
+          ]
+        }
+      },
+      {
+        "need": "comp_req__launch_man__process_log",
+        "links": {
+          "CodeLinks": [],
+          "TestLinks": [
+            {
+              "name": "test_component_activation_log",
+              "file": "tests/integration/logs/activations/test.py",
+              "line": 25,
+              "need": "comp_req__launch_man__process_log",
+              "verify_type": "partially",
+              "result": "passed",
+              "result_text": ""
+            }
+          ]
+        }
+      },
+      {
+        "need": "comp_req__launch_man__ra_log",
+        "links": {
+          "CodeLinks": [],
+          "TestLinks": [
+            {
+              "name": "test_component_recovery_log",
+              "file": "tests/integration/logs/recovery/test.py",
+              "line": 22,
+              "need": "comp_req__launch_man__ra_log",
+              "verify_type": "partially",
               "result": "passed",
               "result_text": ""
             }
