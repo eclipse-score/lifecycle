@@ -14,6 +14,7 @@
 #ifndef PROCESS_MONITOR_HPP_INCLUDED
 #define PROCESS_MONITOR_HPP_INCLUDED
 
+#include "score/mw/launch_manager/process_group_manager/details/handle.hpp"
 #include "score/mw/launch_manager/process_group_manager/details/icomponent_controller.hpp"
 #include "score/mw/launch_manager/process_group_manager/details/icomponent_event_publisher_consumer.hpp"
 #include <stdint.h>
@@ -37,9 +38,9 @@ class ProcessMonitor final : public IComponentController
     /// @brief Start work on @p task and push the result to the event queue if the task completes
     void doWork(ComponentTask&& task) override;
 
-    /// @brief Notify @p component that it has terminated with status @p status. If this is an error or finishes a
-    /// component activation, report to the event queue
-    void terminated(IComponent& component, int32_t status) override;
+    /// @brief Notify @p component that the resource identified by @p terminated has terminated with status @p status.
+    /// If this is an error or finishes a component activation, report to the event queue
+    void terminated(IComponent& component, const Handle& terminated, int32_t status) override;
 
   private:
     IComponentEventPublisher& event_queue_;

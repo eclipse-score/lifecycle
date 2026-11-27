@@ -31,8 +31,8 @@ namespace score::mw::lifecycle::internal
 /// if no processes are detected to be terminating.
 constexpr std::chrono::milliseconds OS_HANDLER_LOOP_DELAY{100};  // TODO - Define actual delay value
 
-/// @brief The OsHandler class notifies a ProcessInfoNode when a child process terminates.
-/// The ProcessInfoNode object is responsible for handling process termination.
+/// @brief The OsHandler class notifies a Component when a child process terminates.
+/// The Component object is responsible for handling process termination.
 /// The OsHandler runs as a separate thread, usually initiated by the process group manager.
 /// There will only be one instance of OsHandler during the Launch Manager's lifetime.
 class OsHandler final
@@ -74,8 +74,8 @@ class OsHandler final
   private:
     /// @brief Main run function for the os handler's thread.
     /// This method continuously checks for terminated processes using the OSAL waitForProcessTermination method
-    /// If a terminated process is found, it locates the corresponding ProcessInfoNode by calling the findTerminated
-    /// method of SafeProcessMap, and then notifies the ProcessInfoNode by calling its terminated method. If no
+    /// If a terminated process is found, it passes the exit status to the findTerminated method of SafeProcessMap,
+    /// which matches it with the corresponding Component and notifies the termination handler. If no
     /// processes are terminating, it sleeps for a short duration to prevent CPU hogging.
     void run();
 

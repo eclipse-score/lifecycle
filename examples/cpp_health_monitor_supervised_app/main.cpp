@@ -33,13 +33,14 @@
 struct Config
 {
     std::uint32_t delayInMs{50};
+    std::uint32_t deadlineMaxInMs{150};
 };
 
 std::optional<Config> parseOptions(int argc, char* const* argv) noexcept
 {
     Config config{};
     int c;
-    while ((c = getopt(argc, argv, "d:s:h")) != -1)
+    while ((c = getopt(argc, argv, "d:m:s:h")) != -1)
     {
         switch (static_cast<char>(c))
         {
@@ -48,14 +49,24 @@ std::optional<Config> parseOptions(int argc, char* const* argv) noexcept
                 config.delayInMs = static_cast<std::uint32_t>(std::stoi(optarg));
                 break;
 
+            case 'm':
+                config.deadlineMaxInMs = static_cast<std::uint32_t>(std::stoi(optarg));
+                break;
+
             case 'h':
                 std::cout << "Usage: \n\
-                            -d <The app is configured to measure deadline between 50ms and 150ms. You configure the delay inside this deadline measurement> \n";
+                            -d <The app measures a deadline between 50ms and the maximum set with -m. You configure the delay inside this deadline measurement> \n\
+                            -m <Upper bound of the deadline in ms, default 150. Raise it on targets with unpredictable CPU availability> \n";
                 return std::nullopt;
 
             default:
                 break;
         }
+    }
+    if (config.deadlineMaxInMs < 50U)
+    {
+        std::cerr << "-m must be at least 50 (the lower bound of the deadline)" << std::endl;
+        return std::nullopt;
     }
     return config;
 }
@@ -116,7 +127,8 @@ int main(int argc, char** argv)
     auto builder_mon =
         deadline::DeadlineMonitorBuilder()
             .AddDeadline(
-                DeadlineTag("deadline_1"), TimeRange(std::chrono::milliseconds(50), std::chrono::milliseconds(150)))
+                DeadlineTag("deadline_1"),
+                TimeRange(std::chrono::milliseconds(50), std::chrono::milliseconds(config->deadlineMaxInMs)))
             .AddDeadline(
                 DeadlineTag("deadline_2"),
                 TimeRange(

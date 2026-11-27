@@ -20,6 +20,7 @@ exports_files(
 py_library(
     name = "testing_utils",
     srcs = [
+        "logs.py",
         "realtime_docker.py",
         "run_test.py",
         "setup_test.py",
@@ -33,5 +34,6 @@ py_library(
     deps = [
         "@score_itf//score/itf/core/process",
         "@score_itf//score/itf/core/target",
+        "@score_itf//score/itf/plugins/dlt",
     ],
 )

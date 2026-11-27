@@ -28,12 +28,12 @@
 #include "score/mw/launch_manager/common/identifier_hash.hpp"
 #include "score/mw/launch_manager/configuration/config.hpp"
 #include "score/mw/launch_manager/osal/semaphore.hpp"
+#include "score/mw/launch_manager/process_group_manager/details/component.hpp"
 #include "score/mw/launch_manager/process_group_manager/details/component_event.hpp"
 #include "score/mw/launch_manager/process_group_manager/details/component_of.hpp"
 #include "score/mw/launch_manager/process_group_manager/details/component_task.hpp"
 #include "score/mw/launch_manager/process_group_manager/details/dependency_graph.hpp"
 #include "score/mw/launch_manager/process_group_manager/details/process_handling.hpp"
-#include "score/mw/launch_manager/process_group_manager/details/process_info_node.hpp"
 #include "score/mw/launch_manager/process_group_manager/details/run_target.hpp"
 #include "score/mw/launch_manager/process_group_manager/details/transition.hpp"
 #include "score/mw/launch_manager/process_group_manager/iprocess.hpp"
@@ -126,7 +126,7 @@ struct PendingTransition
 
 /// @brief Manages the processes and state transitions for a single process group.
 ///
-/// Each Graph holds a set of ProcessInfoNode instances (one per process) arranged in a
+/// Each Graph holds a set of Component instances (one per process) arranged in a
 /// dependency graph. During a state transition the Graph stops processes that are no longer
 /// needed and starts the ones required for the new state, respecting dependency order. If
 /// the transition completes without errors the graph enters kSuccess. Otherwise it enters
@@ -134,8 +134,9 @@ struct PendingTransition
 class Graph final
 {
   public:
-    /// @brief All currently supported component implementations.
-    using Component = std::variant<ProcessInfoNode, RunTarget>;
+    /// @brief A node of the graph, holding one of the currently supported component implementations.
+    /// @details A Component cannot be moved, so it is held by pointer.
+    using Node = std::variant<std::unique_ptr<Component>, RunTarget>;
 
     static constexpr std::string_view off_state_name{"Off"};
     static constexpr std::string_view recovery_state_name{"fallback_run_target"};
@@ -267,7 +268,7 @@ class Graph final
     void tryQueueNode(ComponentTask task);
 
     /// @brief Every node that is ready to execute is either executed in place (RunTarget) or queued for execution
-    /// (ProcessInfoNode).
+    /// (Component).
     void queueReadyNodes();
 
     /// @brief Executes a RunTarget's activation/deactivation in place
@@ -289,13 +290,13 @@ class Graph final
 
     /// @brief Nodes for all unique processes in this process group, plus a virtual RunTarget node
     /// per configured ProcessGroupState.
-    DependencyGraph<IdentifierHash, Component> nodes_;
+    DependencyGraph<IdentifierHash, Node> nodes_;
 
     /// @brief Builder for creating the transition object for the current state transition.
-    TransitionBuilder<IdentifierHash, Component> transition_builder_;
+    TransitionBuilder<IdentifierHash, Node> transition_builder_;
 
     /// @brief The currently active transition or nullptr before the first one starts.
-    Transition<IdentifierHash, Component>* current_transition_{nullptr};
+    Transition<IdentifierHash, Node>* current_transition_{nullptr};
 
     /// @brief Current state of the graph.
     GraphState state_{GraphState::kSuccess};

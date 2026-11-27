@@ -14,6 +14,9 @@
 #include <gtest/gtest.h>
 
 #include <algorithm>
+#include <array>
+#include <cstddef>
+#include <future>
 #include <memory>
 #include <optional>
 #include <string>
@@ -24,6 +27,8 @@
 #include "score/mw/launch_manager/alive_monitor/mock_alive_supervision_handle.hpp"
 #include "score/mw/launch_manager/alive_monitor/mock_supervision_factory.hpp"
 #include "score/mw/launch_manager/configuration/config.hpp"
+#include "score/mw/launch_manager/osal/ipc_comms.hpp"
+#include "score/mw/launch_manager/osal/mock_ifile_waiter.hpp"
 #include "score/mw/launch_manager/process_group_manager/details/graph.hpp"
 #include "score/mw/launch_manager/process_group_manager/mock_iprocess.hpp"
 
@@ -33,6 +38,9 @@ namespace score::mw::lifecycle::internal
 using namespace testing;
 using namespace configuration;
 using namespace std::chrono_literals;
+
+/// @brief Pid of every process started by the tests.
+constexpr osal::ProcessID kPid = 100;
 
 class MockProcessMap : public SafeProcessMapInserter
 {
@@ -55,6 +63,9 @@ class GraphTest : public ::testing::Test
         ON_CALL(mock_alive_supervision_handle_, activateSupervision).WillByDefault(Return(true));
         ON_CALL(mock_alive_supervision_handle_, deactivateSupervision).WillByDefault(Return(true));
 
+        // A reporting component waits on and posts to the semaphore, so it must be initialised.
+        ASSERT_EQ(sync_->send_sync_.init(0U, false), osal::OsalReturnType::kSuccess);
+
         SetConfig();
 
         // The Graph builds its nodes from the configuration, so it can only be created once the
@@ -63,7 +74,14 @@ class GraphTest : public ::testing::Test
             10U,
             graph_config_,
             job_queue_,
-            ProcessHandling{&process_interface_, mock_process_map_, nullptr, mock_factory_});
+            ProcessHandling{&process_interface_, mock_process_map_, &file_waiter_, mock_factory_});
+    }
+
+    void TearDown() override
+    {
+        // The components share the semaphore, so they are destroyed before it is deinitialised.
+        graph_.reset();
+        static_cast<void>(sync_->send_sync_.deinit());
     }
 
     virtual void SetConfig()
@@ -88,8 +106,11 @@ class GraphTest : public ::testing::Test
         {
             ComponentConfig config{};
             config.name = process_name(i);
-            // ProcessInfoNode requires a ready condition to decide when an activation is complete.
+            // A Component requires a ready condition to decide when an activation is complete.
             config.component_properties.ready_condition = ReadyCondition{configuration::ProcessState::Running};
+            // The termination of a stopped process is reported asynchronously, see executeJobSuccessfully().
+            // Without a shutdown timeout the component would not wait for it and stop the process forcefully.
+            config.deployment_config.shutdown_timeout_ms = 1000U;
             components.push_back(std::move(config));
         }
         return components;
@@ -124,22 +145,29 @@ class GraphTest : public ::testing::Test
         IComponent::RequestResult res;
         if (job.type == ComponentTaskType::kActivate)
         {
-            const osal::ProcessID pid = 100;
             EXPECT_CALL(process_interface_, startProcess)
-                .WillOnce(DoAll(SetArgReferee<0>(pid), Return(osal::OsalReturnType::kSuccess)));
+                .WillOnce(
+                    DoAll(SetArgReferee<0>(kPid), SetArgReferee<1>(sync_), Return(osal::OsalReturnType::kSuccess)));
             EXPECT_CALL(*mock_process_map_, insertIfNotTerminated)
                 .WillOnce(Return(SafeProcessMapInsertResult{SafeProcessMapReturnType::kInserted}));
             res = job.component.get().activate(job.stop_token);
         }
         else if (job.type == ComponentTaskType::kDeactivate)
         {
+            // The termination is reported from another thread, like the OsHandler does. The component holds its
+            // state lock while it requests the termination, so reporting it synchronously would deadlock.
+            std::future<void> termination{};
             EXPECT_CALL(process_interface_, requestTermination)
                 .WillOnce(DoAll(
-                    InvokeWithoutArgs([job] {
-                        static_cast<void>(job.component.get().tryHandleTermination(0));
+                    InvokeWithoutArgs([job, &termination] {
+                        termination = std::async(std::launch::async, [job] {
+                            static_cast<void>(
+                                job.component.get().tryHandleTermination(ProcessHandle{kPid, nullptr}, 0));
+                        });
                     }),
                     Return(osal::OsalReturnType::kSuccess)));
             res = job.component.get().deactivate(job.stop_token);
+            termination.wait();
         }
 
         ASSERT_EQ(res, IComponent::RequestResult::kSuccess);
@@ -190,10 +218,15 @@ class GraphTest : public ::testing::Test
         return it == activated_components_.end() ? nullptr : *it;
     }
 
+    /// @brief Shared memory of a started process. The launcher is mocked, so only the semaphore is used.
+    alignas(osal::IpcCommsSync) std::array<std::byte, sizeof(osal::IpcCommsSync)> sync_buffer_{};
+    const osal::IpcCommsP sync_{reinterpret_cast<osal::IpcCommsSync*>(sync_buffer_.data()), [](osal::IpcCommsSync*) {
+                                }};
     std::vector<IComponent*> activated_components_{};
     GraphConfig graph_config_{};
     std::shared_ptr<WorkerQueue> job_queue_ = std::make_shared<WorkerQueue>();
     StrictMock<osal::MockIProcess> process_interface_{};
+    StrictMock<osal::MockIFileWaiter> file_waiter_{};
     std::shared_ptr<MockProcessMap> mock_process_map_ = std::make_shared<MockProcessMap>();
     NiceMock<MockAliveSupervisionHandle> mock_alive_supervision_handle_{};
     MockSupervisionFactory mock_factory_{};
@@ -754,19 +787,16 @@ TEST_F(GraphHandleComponentEventTest, unexpectedTerminationDuringSuccess)
 {
     RecordProperty(
         "Description",
-        "Test that an unexpected termination after a successful transition causes the graph to deactivate the "
-        "component and enter an undefined state");
+        "Test that an unexpected termination after a successful transition causes the graph to enter an "
+        "undefined state");
 
     completeTransition(IdentifierHash{run_target_name(0)});
 
     auto* const component = findActivatedComponent(IdentifierHash{process_name(0)});
     ASSERT_NE(component, nullptr);
-    EXPECT_CALL(process_interface_, requestTermination)
-        .WillOnce(DoAll(
-            InvokeWithoutArgs([component] {
-                static_cast<void>(component->tryHandleTermination(134));
-            }),
-            Return(osal::OsalReturnType::kSuccess)));
+
+    EXPECT_EQ(
+        component->tryHandleTermination(ProcessHandle{kPid, nullptr}, 134), IComponent::TerminationResult::kFailure);
 
     graph_->handleComponentEvent(UnexpectedTermination{component->getIdentifier()});
 
@@ -788,14 +818,10 @@ TEST_F(GraphHandleComponentEventTest, unexpectedTerminationDuringTransition)
     graph_->handleComponentEvent(ActivationSuccessful{component_index});
 
     auto* const component = &first_job.value()->component.get();
-    EXPECT_CALL(process_interface_, requestTermination)
-        .WillOnce(DoAll(
-            InvokeWithoutArgs([component] {
-                static_cast<void>(component->tryHandleTermination(134));
-            }),
-            Return(osal::OsalReturnType::kSuccess)));
 
-    // The active component then crashes
+    EXPECT_EQ(
+        component->tryHandleTermination(ProcessHandle{kPid, nullptr}, 134), IComponent::TerminationResult::kFailure);
+
     graph_->handleComponentEvent(UnexpectedTermination{component_index});
 
     const auto second_job = job_queue_->pop();
@@ -810,7 +836,10 @@ class GraphSupervisionFailureTest : public GraphTest
     void SetUp() override
     {
         ON_CALL(mock_factory_, constructSupervision).WillByDefault(InvokeWithoutArgs([]() {
-            return std::make_unique<NiceMock<MockAliveSupervisionHandle>>();
+            auto handle = std::make_unique<NiceMock<MockAliveSupervisionHandle>>();
+            ON_CALL(*handle, activateSupervision).WillByDefault(Return(true));
+            ON_CALL(*handle, deactivateSupervision).WillByDefault(Return(true));
+            return handle;
         }));
         GraphTest::SetUp();
     }
@@ -867,10 +896,6 @@ TEST_F(GraphTransitionFailuresTest, UnusualOrderOfFailures)
 
     const auto first_job = job_queue_->pop();
     const auto component_id = first_job.value()->component.get().getIdentifier();
-
-    EXPECT_CALL(process_interface_, requestTermination)
-        .WillOnce(Return(osal::OsalReturnType::kSuccess));  // Process is already gone, semaphore will time out
-    EXPECT_CALL(process_interface_, forceTermination).WillOnce(Return(osal::OsalReturnType::kFail));
 
     graph_->handleComponentEvent(UnexpectedTermination{component_id});
     graph_->handleComponentEvent(ActivationSuccessful{component_id});

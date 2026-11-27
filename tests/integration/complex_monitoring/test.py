@@ -17,7 +17,9 @@ from attribute_plugin import add_test_properties
 
 
 @add_test_properties(
-    fully_verifies=[],
+    fully_verifies=[
+        "comp_req__launch_man__ra_rt_sm_notify",
+    ],
     partially_verifies=[
         # Health monitoring requirements not yet ready
     ],

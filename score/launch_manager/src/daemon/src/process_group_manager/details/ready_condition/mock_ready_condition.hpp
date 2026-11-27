@@ -24,7 +24,12 @@ class MockReadyCondition : public IReadyCondition
 {
   public:
     MOCK_METHOD(void, prepare, (), (override, const));
-    MOCK_METHOD(Result<void>, wait, (cpp::stop_token, const Handle& handle), (override, const));
+    MOCK_METHOD(
+        Result<void>,
+        wait,
+        (cpp::stop_token, const Handle& handle, std::chrono::milliseconds timeout),
+        (override, const));
+    MOCK_METHOD(void, handleTermination, (const Handle& handle, int32_t status), (override, const));
 };
 
 }  // namespace score::mw::lifecycle::internal

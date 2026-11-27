@@ -144,7 +144,10 @@ cc_library(
     include_prefix = "score/mw/lifecycle",
     strip_include_prefix = "/score/launch_manager/src/lifecycle_client/src",
     tags = ["FUSA"],
-    visibility = ["//score/launch_manager:__subpackages__"],
+    visibility = [
+        "//score/launch_manager:__subpackages__",
+        "//tests/utils/test_helper:__subpackages__",
+    ],
     deps = [
         "//score/launch_manager/src/lifecycle_client/src/details:report_running_impl",
     ],

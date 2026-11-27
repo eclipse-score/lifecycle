@@ -382,7 +382,7 @@ void ProcessLauncher::handleChildProcess(ChildProcessConfig& param)
 
 OsalReturnType ProcessLauncher::requestTermination(ProcessID pid)
 {
-    LM_LOG_DEBUG() << "Request termination received for" << pid;
+    LM_LOG_DEBUG() << "Request termination received for pid" << pid;
 
     OsalReturnType result = OsalReturnType::kFail;
 
@@ -469,7 +469,6 @@ OsalReturnType ProcessLauncher::waitForkRunning(IpcCommsP sync, std::chrono::mil
     const auto result = sync->send_sync_.timedWait(timeout);
     if (result != OsalReturnType::kSuccess)
     {
-        LM_LOG_ERROR() << "Semaphore timedWait failed: Did not receive kRunning within the specified timeout.";
         return result;
     }
 
@@ -477,7 +476,6 @@ OsalReturnType ProcessLauncher::waitForkRunning(IpcCommsP sync, std::chrono::mil
     // process actually reported kRunning.
     if (!sync->hasReportedRunning())
     {
-        LM_LOG_ERROR() << "Process terminated without reporting kRunning.";
         return OsalReturnType::kFail;
     }
 

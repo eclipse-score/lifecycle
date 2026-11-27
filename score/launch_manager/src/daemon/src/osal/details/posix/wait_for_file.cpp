@@ -15,8 +15,8 @@
 #include <errno.h>
 #include <algorithm>
 #include <chrono>
-#include <thread>
 
+#include "score/concurrency/interruptible_wait.h"
 #include "score/language/safecpp/string_view/zstring_view.h"
 #include "score/mw/launch_manager/configuration/component_config.hpp"
 #include "score/mw/launch_manager/osal/return_types.hpp"
@@ -83,9 +83,13 @@ OsalReturnType FileWaiter::waitForFile(
             return OsalReturnType::kTimeout;
         }
 
-        // never sleep past the deadline
+        // never sleep past the deadline; a stop request ends the sleep early
         const auto remaining = deadline - now;
-        std::this_thread::sleep_for(std::min<std::chrono::steady_clock::duration>(poll_interval, remaining));
+        if (score::concurrency::wait_for(
+                stop_token, std::min<std::chrono::steady_clock::duration>(poll_interval, remaining)))
+        {
+            return OsalReturnType::kFail;
+        }
     }
 }
 

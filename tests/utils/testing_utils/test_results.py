@@ -102,6 +102,12 @@ def assert_test_results(target, remote_test_dir, test_output_dir):
     ):
         # Show the error as coming from the call in the test rather than here
         __tracebackhide__ = True
+
+        try:
+            target.download("/tmp/LM.dlt", test_output_dir / "LM.dlt")
+        except Exception:
+            print("ERROR: Couldn't download dlt log")
+
         search_dirs = [remote_test_dir, *additional_search_dirs]
         download_xml_results(target, search_dirs, test_output_dir)
         all_files, failing_files = get_failing_files(test_output_dir)

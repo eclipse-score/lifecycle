@@ -47,7 +47,7 @@ class MockComponent : public IComponent
   public:
     MOCK_METHOD(RequestResult, activate, (score::cpp::stop_token stop_token), (override));
     MOCK_METHOD(RequestResult, deactivate, (score::cpp::stop_token stop_token), (override));
-    MOCK_METHOD(TerminationResult, tryHandleTermination, (int32_t status), (override));
+    MOCK_METHOD(TerminationResult, tryHandleTermination, (const Handle& terminated, int32_t status), (override));
     MOCK_METHOD(bool, active, (), (const override));
     MOCK_METHOD(bool, stopped, (), (const override));
     MOCK_METHOD(score::mw::lifecycle::IdentifierHash, getIdentifier, (), (const override));
@@ -109,8 +109,15 @@ TEST_F(SafeProcessMapTest, FindTerminatedMatchesExistingInsertAndCallsCallback)
     // given
     sut_.insertIfNotTerminated(1000, &callback_);
 
-    // then
-    EXPECT_CALL(controller_, terminated(Ref(callback_), 42));
+    // then — the termination is reported for the process with the matched pid
+    EXPECT_CALL(
+        controller_,
+        terminated(
+            Ref(callback_),
+            Truly([](const Handle& h) {
+                return isSameResource(h, ProcessHandle{1000, nullptr});
+            }),
+            42));
 
     // when
     score::mw::lifecycle::internal::SafeProcessMapReturnType result = sut_.findTerminated(1000, 42);
@@ -141,7 +148,7 @@ TEST_F(SafeProcessMapTest, InsertMatchesExistingFindTerminatedEntry)
     sut_.findTerminated(1000, 42);
 
     // then — the termination handler is not invoked, the caller handles the termination
-    EXPECT_CALL(controller_, terminated(_, _)).Times(0);
+    EXPECT_CALL(controller_, terminated(_, _, _)).Times(0);
 
     // when
     const SafeProcessMapInsertResult result = sut_.insertIfNotTerminated(1000, &callback_);
@@ -181,11 +188,12 @@ TEST_F(SafeProcessMapTest, TerminationHandlerMayAccessMapWhenFindTerminatedMatch
     sut_.insertIfNotTerminated(1000, &callback_);
 
     // then — re-entering the map from the handler must not deadlock
-    EXPECT_CALL(controller_, terminated(Ref(callback_), 42)).WillOnce(Invoke([this](IComponent& component, int32_t) {
-        EXPECT_EQ(
-            sut_.insertIfNotTerminated(2000, &component).type,
-            score::mw::lifecycle::internal::SafeProcessMapReturnType::kInserted);
-    }));
+    EXPECT_CALL(controller_, terminated(Ref(callback_), _, 42))
+        .WillOnce(Invoke([this](IComponent& component, const Handle&, int32_t) {
+            EXPECT_EQ(
+                sut_.insertIfNotTerminated(2000, &component).type,
+                score::mw::lifecycle::internal::SafeProcessMapReturnType::kInserted);
+        }));
 
     // when
     EXPECT_EQ(sut_.findTerminated(1000, 42), score::mw::lifecycle::internal::SafeProcessMapReturnType::kMatched);

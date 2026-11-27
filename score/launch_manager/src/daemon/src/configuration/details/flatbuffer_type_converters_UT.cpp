@@ -871,8 +871,8 @@ INSTANTIATE_TEST_SUITE_P(
         SchedulingPriorityClampTestParam{fb::SchedulingPolicy::RR, SCHED_RR, 1000, true, "RrAboveMax"},
         SchedulingPriorityClampTestParam{fb::SchedulingPolicy::OTHER, SCHED_OTHER, 1000, true, "OtherAboveMax"},
         SchedulingPriorityClampTestParam{fb::SchedulingPolicy::OTHER, SCHED_OTHER, -10, false, "OtherBelowMin"}),
-    [](const ::testing::TestParamInfo<SchedulingPriorityClampTestParam>& info) {
-        return std::string{info.param.name};
+    [](const ::testing::TestParamInfo<SchedulingPriorityClampTestParam>& param_info) {
+        return std::string{param_info.param.name};
     });
 
 TEST_F(ConverterTest, ConvertSandboxSchedulingPriorityInRangeIsKept)

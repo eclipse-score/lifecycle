@@ -79,6 +79,14 @@ void ProcessMonitor::doWork(ComponentTask&& task)
                 }
                 break;
             case ComponentTaskType::kDeactivate:
+                // TODO: Report a dedicated failure event once the graph can handle it. Until then, the
+                //       deactivation is reported as complete, so that the graph's job accounting finishes.
+                LM_LOG_ERROR() << "Deactivation of component" << node_identifier
+                               << "failed, the resource may still be running";
+                if (!event_queue_.push(DeactivationComplete{node_identifier}))
+                {
+                    LM_LOG_ERROR() << "Failed to send deactivation complete event to event queue!";
+                }
                 break;
         }
     };
@@ -106,16 +114,15 @@ void ProcessMonitor::doWork(ComponentTask&& task)
     }
 }
 
-void ProcessMonitor::terminated(IComponent& component, int32_t status)
+void ProcessMonitor::terminated(IComponent& component, const Handle& terminated, int32_t status)
 {
     bool push_res = true;
-    switch (component.tryHandleTermination(status))
+    switch (component.tryHandleTermination(terminated, status))
     {
         case IComponent::TerminationResult::kFailure:
             push_res = event_queue_.push(UnexpectedTermination{component.getIdentifier()});
             break;
         case IComponent::TerminationResult::kIgnore:
-            LM_LOG_DEBUG() << "Termination of component" << component.getIdentifier() << "is expected";
             break;
     }
 
