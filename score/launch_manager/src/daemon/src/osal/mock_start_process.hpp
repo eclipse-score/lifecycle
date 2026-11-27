@@ -45,6 +45,12 @@ namespace score::mw::lifecycle::internal::osal
 OsalReturnType
 startProcess(ProcessID& pid, const configuration::ComponentConfig& config, int comms_fd, const IpcCommsP& comms)
 {
+    if (!g_start_process_mock)
+    {
+        ADD_FAILURE() << "osal::startProcess() called without g_start_process_mock being set";
+        return OsalReturnType::kFail;
+    }
+
     return g_start_process_mock->startProcess(pid, config, comms_fd, comms);
 }
 }  // namespace score::mw::lifecycle::internal::osal
