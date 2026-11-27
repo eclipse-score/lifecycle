@@ -28,7 +28,9 @@ class HeartbeatMonitorBuilder final
     /// @brief Creates the configuration of a heartbeat monitor.
     /// @param range Allowed time between two heartbeats.
     /// @note `HealthMonitorBuilder::Build()` rejects a range whose minimum is at most half the internal cycle.
-    explicit HeartbeatMonitorBuilder(const TimeRange& range) noexcept;
+    explicit HeartbeatMonitorBuilder(const TimeRange& range) noexcept : range_{range}
+    {
+    }
 
   private:
     friend class HealthMonitorBuilder;

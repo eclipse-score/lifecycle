@@ -40,7 +40,7 @@ class Tag final
 
     /// @brief Rejects a mutable buffer: it is not a string literal, and its size is not the text length.
     template <std::size_t N>
-    Tag(char (&text)[N]) = delete;
+    explicit Tag(char (&text)[N]) = delete;
 
     /// @brief Returns the text. It ends with a null character that `Size()` does not count.
     constexpr const char* Data() const noexcept
@@ -55,15 +55,15 @@ class Tag final
     }
 
     /// @brief Compares the text, not the pointer.
-    constexpr bool operator==(const Tag& other) const noexcept
+    friend constexpr bool operator==(const Tag& lhs, const Tag& rhs) noexcept
     {
-        return text_ == other.text_;
+        return lhs.text_ == rhs.text_;
     }
 
     /// @brief Returns true if the texts differ.
-    constexpr bool operator!=(const Tag& other) const noexcept
+    friend constexpr bool operator!=(const Tag& lhs, const Tag& rhs) noexcept
     {
-        return !(*this == other);
+        return !(lhs == rhs);
     }
 
   private:

@@ -20,6 +20,13 @@ cc_library(
     srcs = [
         "deadline.cpp",
         "error.cpp",
+        "heartbeat_monitor/heartbeat_monitor_impl.cpp",
+        "heartbeat_monitor/heartbeat_monitor_impl.h",
+        "heartbeat_monitor/heartbeat_state.h",
+        "internal/fetch_update.h",
+        "internal/logger.h",
+        "internal/monitor_evaluator.h",
+        "internal/monotonic_time.h",
     ],
     hdrs = [
         "deadline.h",
@@ -42,6 +49,8 @@ cc_library(
     visibility = ["//visibility:public"],
     deps = [
         "@score_baselibs//score/language/futurecpp",
+        "@score_baselibs//score/mw/log",
+        "@score_baselibs//score/os:time",
         "@score_baselibs//score/result",
         "@score_baselibs//score/result:error",
     ],
@@ -73,6 +82,11 @@ cc_gtest_unit_test(
     srcs = [
         "deadline_test.cpp",
         "error_test.cpp",
+        "heartbeat_monitor/heartbeat_monitor_impl_test.cpp",
+        "heartbeat_monitor/heartbeat_state_test.cpp",
+        "internal/fake_monotonic_time.h",
+        "internal/fetch_update_test.cpp",
+        "internal/monotonic_time_test.cpp",
         "mock_usage_test.cpp",
         "tag_test.cpp",
         "taken_test.cpp",
@@ -86,5 +100,6 @@ cc_gtest_unit_test(
     deps = [
         ":health_monitor",
         ":mock",
+        "@score_baselibs//score/os/mocklib:time_mock",
     ],
 )

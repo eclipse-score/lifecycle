@@ -36,6 +36,8 @@ static_assert(!std::is_same_v<DeadlineTag, StateTag>);
 static_assert(!std::is_convertible_v<MonitorTag, DeadlineTag>);
 static_assert(!std::is_convertible_v<DeadlineTag, StateTag>);
 static_assert(!std::is_convertible_v<StateTag, MonitorTag>);
+static_assert(!std::is_constructible_v<MonitorTag, char (&)[4]>);
+static_assert(!std::is_convertible_v<char (&)[4], MonitorTag>);
 
 TEST(TagTest, EqualityComparesTextNotPointer)
 {
