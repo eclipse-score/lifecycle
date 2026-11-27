@@ -44,6 +44,7 @@ test_suite(
         "//tests/integration/run_target_requests/unknown_run_target",
         "//tests/integration/sandbox_options/non_root:sandbox_options_non_root",
         "//tests/integration/sandbox_options/root:sandbox_options",
+        "//tests/integration/shared_dependency_shutdown",
         "//tests/integration/shutdown_signal",
         "//tests/integration/smoke",
         "//tests/integration/switch_run_target",

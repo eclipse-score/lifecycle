@@ -93,11 +93,11 @@ template <typename Key, typename T>
 class Transition
 {
     // The transition is split into two phases:
-    // - Stopping Phase: Every node that is currently running (@ref stopped() is false) and is
-    //   not part of the target subgraph is deactivated. The stop set is derived from live component state across
-    //   the whole graph rather than from a source subgraph, so it also captures nodes left running by a previously
-    //   aborted transition. Once all nodes in the Stopping phase are finished, the transition moves to the Starting
-    //   phase.
+    // - Stopping Phase: Every node that is currently running (per live IComponent::active() state read once, when
+    //   the transition starts — see NodeInfo::stopped_) and is not part of the target subgraph is deactivated. The
+    //   stop set is derived from live component state across the whole graph rather than from a source subgraph, so
+    //   it also captures nodes left running by a previously aborted transition. Once all nodes in the Stopping phase
+    //   are finished, the transition moves to the Starting phase.
     // - Starting Phase: The nodes that need to be activated are processed next. Once all nodes in the
     //   Starting phase are finished, the transition is complete.
     //
@@ -196,6 +196,12 @@ class Transition
     {
         SCORE_LANGUAGE_FUTURECPP_ASSERT(isValidNode(node));
 
+        if (state_.phase == Phase::Stopping)
+        {
+            // Only place stopped_ is written outside of setup. See NodeInfo::stopped_.
+            state_.node_information.at(node).stopped_ = true;
+        }
+
         --state_.pending;  // completion counter; only detects done-ness, never gates order
 
         if (state_.pending == 0)  // active phase drained
@@ -263,6 +269,10 @@ class Transition
             NodeInfo& info = state_.node_information[key];
             info.enqueued_ = false;
             info.in_target_subgraph_ = false;
+            // Seeded once, here, from live component state; from this point on, stopped_ is
+            // updated exclusively by onNodeFinished() for the duration of this transition. See
+            // NodeInfo::stopped_.
+            info.stopped_ = !active(key);
         }
 
         state_.target_root = target;
@@ -304,6 +314,12 @@ class Transition
         /// processed in sequence. Both onNodeFinished() calls detect that all dependents are ready and try to enqueue
         /// successors. Detection of dependency readiness should be reworked to remove this. See #427
         bool enqueued_{false};
+
+        /// @brief True once this node's deactivation for the current transition has actually been
+        /// reported finished.
+        /// @details Seeded from live active() in setupTransition(); from then on updated only by
+        /// onNodeFinished(), not by re-reading active().
+        bool stopped_{true};
     };
 
     struct State
@@ -332,12 +348,6 @@ class Transition
         return componentOf(graph_[i]).active();
     }
 
-    /// @brief Check if the node is stopped
-    bool stopped(Key i)
-    {
-        return !componentOf(graph_[i]).active();
-    }
-
     /// @brief Check if all dependencies of the given node are active
     bool allDepsActive(Key i)
     {
@@ -347,12 +357,15 @@ class Transition
         });
     }
 
-    /// @brief Check if all dependents of the given node are stopped
+    /// @brief Check if all dependents of the given node have actually finished stopping.
+    /// @details Reads each dependent's tracked stopped_ (see NodeInfo::stopped_), not its live
+    /// active() state, so a dependency is only considered stopped once its own onNodeFinished()
+    /// has been reported for this transition.
     bool allDependentsStopped(Key i)
     {
         const auto& d = graph_.dependents(i);
         return std::all_of(d.begin(), d.end(), [this](Key dep) {
-            return stopped(dep);
+            return state_.node_information.at(dep).stopped_;
         });
     }
 
@@ -370,7 +383,8 @@ class Transition
     {
         return state_.phase == Phase::Starting
                    ? (state_.node_information.at(s).in_target_subgraph_ && !active(s) && allDepsActive(s))
-                   : (!state_.node_information.at(s).in_target_subgraph_ && !stopped(s) && allDependentsStopped(s));
+                   : (!state_.node_information.at(s).in_target_subgraph_ && !state_.node_information.at(s).stopped_ &&
+                      allDependentsStopped(s));
     }
 
     void clearNextNodes()
@@ -428,10 +442,10 @@ class Transition
     /// Then scans the complete graph to initialize:
     /// - pending: the count of running nodes that must be deactivated
     /// - next_nodes: those already ready to be deactivated (dependents all stopped)
-    /// The stop set is every node that is currently running (@ref stopped() is false) and is not in the target
-    /// subgraph. Deriving it from live component state rather than from a source root makes it independent of how the
-    /// previous transition ended, so nodes left running by an aborted transition — even ones outside any assumed
-    /// source subgraph — are still stopped.
+    /// The stop set is every node that is currently running (per live IComponent::active() state — see
+    /// NodeInfo::stopped_) and is not in the target subgraph. Deriving it from live component state rather than from
+    /// a source root makes it independent of how the previous transition ended, so nodes left running by an aborted
+    /// transition — even ones outside any assumed source subgraph — are still stopped.
     void setupDeactivation(Key target)
     {
         graph_.traverse(target, [this](Key i) -> const std::vector<Key>& {
@@ -441,7 +455,7 @@ class Transition
 
         for (const auto& [key, value] : state_.node_information)
         {
-            if (!value.in_target_subgraph_ && !stopped(key))
+            if (!value.in_target_subgraph_ && !value.stopped_)
             {
                 ++state_.pending;
                 if (allDependentsStopped(key))
