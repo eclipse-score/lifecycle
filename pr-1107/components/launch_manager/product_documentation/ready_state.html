@@ -571,7 +571,11 @@ configuration) that signal completion by exiting cleanly.</p>
 </pre></div>
 </div>
 <p>The component is considered ready once the file specified in <code class="docutils literal notranslate"><span class="pre">file_path</span></code>
-reaches the desired state (<code class="docutils literal notranslate"><span class="pre">Exists</span></code> or <code class="docutils literal notranslate"><span class="pre">NotExisting</span></code>).</p>
+reaches the desired state (<code class="docutils literal notranslate"><span class="pre">Exists</span></code> or <code class="docutils literal notranslate"><span class="pre">NotExisting</span></code>).
+For a component whose process reports via the lifecycle API (application types
+<code class="docutils literal notranslate"><span class="pre">Reporting</span></code>, <code class="docutils literal notranslate"><span class="pre">Reporting_And_Supervised</span></code> and <code class="docutils literal notranslate"><span class="pre">State_Manager</span></code>), the process
+must first report <code class="docutils literal notranslate"><span class="pre">kRunning</span></code>; only then is the file state waited for.
+Both share the <code class="docutils literal notranslate"><span class="pre">ready_timeout_ms</span></code>.</p>
 <p>The Launch Manager polls for the existence or deletion of the file with the
 configured <code class="docutils literal notranslate"><span class="pre">polling_interval</span></code>.</p>
 </section>
