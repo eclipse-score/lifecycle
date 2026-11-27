@@ -24,20 +24,22 @@ namespace score::health_monitor
 {
 
 /// @brief Action that a `Taken` handle runs once, when it gives up its object.
+/// @note A handle keeps the address of its hook, so a hook is neither copyable nor movable.
 class ReleaseHook
 {
   public:
+    ReleaseHook(const ReleaseHook&) = delete;
+    ReleaseHook(ReleaseHook&&) = delete;
+    ReleaseHook& operator=(const ReleaseHook&) = delete;
+    ReleaseHook& operator=(ReleaseHook&&) = delete;
+
     /// @brief Makes the object available to the next `Get*` call.
     /// @note The handle still holds its share of the object during the call.
     virtual void OnRelease() noexcept = 0;
 
   protected:
     ReleaseHook() = default;
-    ReleaseHook(const ReleaseHook&) = default;
-    ReleaseHook(ReleaseHook&&) = default;
     ~ReleaseHook() = default;
-    ReleaseHook& operator=(const ReleaseHook&) = default;
-    ReleaseHook& operator=(ReleaseHook&&) = default;
 };
 
 /// @brief Move-only access to a monitor or a deadline that a `Get*` call returned.
@@ -76,20 +78,21 @@ class Taken final
 
     /// @brief Takes over the object of a handle to a derived type and leaves `other` empty.
     template <typename U, typename = std::enable_if_t<std::is_convertible<U*, T*>::value>>
-    Taken(Taken<U>&& other) noexcept
+    explicit Taken(Taken<U>&& other) noexcept
         : object_{std::move(other.object_)}, release_hook_{std::exchange(other.release_hook_, nullptr)}
     {
     }
 
     ~Taken()
     {
-        Reset();
+        // `this->` keeps CodeQL from reading the call as a function-to-pointer conversion (MISRA 7.11.3).
+        this->Reset();
     }
 
-    Taken& operator=(const Taken&) = delete;
+    Taken& operator=(const Taken&) & = delete;
 
     /// @brief Gives up the object of this handle, takes over the object of `other` and leaves `other` empty.
-    Taken& operator=(Taken&& other) noexcept
+    Taken& operator=(Taken&& other) & noexcept
     {
         if (this != &other)
         {

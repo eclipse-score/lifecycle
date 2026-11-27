@@ -91,11 +91,20 @@ class RecordingHook final : public ReleaseHook
 }  // namespace
 
 static_assert(
-    std::is_convertible<Taken<DerivedCounter>&&, Taken<Counter>>::value,
+    std::is_constructible<Taken<Counter>, Taken<DerivedCounter>&&>::value,
     "A handle to a derived type must convert to a handle to its base");
 static_assert(
-    !std::is_convertible<Taken<Counter>&&, Taken<DerivedCounter>>::value,
+    !std::is_convertible<Taken<DerivedCounter>&&, Taken<Counter>>::value,
+    "The conversion to a handle to a base must be explicit");
+static_assert(
+    !std::is_constructible<Taken<DerivedCounter>, Taken<Counter>&&>::value,
     "A handle to a base must not convert to a handle to a derived type");
+static_assert(
+    !std::is_assignable<Taken<Counter>&&, Taken<Counter>&&>::value,
+    "Only an lvalue handle must be assignable");
+
+static_assert(!std::is_copy_constructible<RecordingHook>::value, "A release hook must not be copyable");
+static_assert(!std::is_move_constructible<RecordingHook>::value, "A release hook must not be movable");
 
 static_assert(!std::is_copy_constructible<Taken<Counter>>::value, "Taken must not be copyable");
 static_assert(!std::is_copy_assignable<Taken<Counter>>::value, "Taken must not be copy-assignable");
