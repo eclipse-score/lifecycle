@@ -54,16 +54,19 @@ def test_component_activation_log(
     logs = parse_dlt_file(test_output_dir / "LM.dlt")
 
     start_pattern = re.compile(
-        r"Name:\s*component_logging\s*,\s*PID:\s*-?\d+\s*startProcess done"
+        r"Component:\s*component_logging\s*pid:\s*(\d+)\s*is ready, activation took\s*\d+\s*ms"
     )
     termination_pattern = re.compile(
-        r"Name:\s*component_logging\s*,\s*PID:\s*(\d+)\s*Process terminated with status\s*(-?\d+)"
+        r"Component:\s*component_logging\s*pid:\s*(\d+)\s*terminated after being stopped \(expected\)"
     )
 
-    starts = [log for log in logs if start_pattern.search(log.message)]
+    starts = [match for log in logs if (match := start_pattern.search(log.message))]
     assert len(starts) == 1, (
-        f"Expected one start log for component_logging, got {len(starts)} "
+        f"Expected one activation log for component_logging, got {len(starts)} "
         f"in {len(logs)} log messages"
+    )
+    assert starts[0].group(1) == pid, (
+        f"Activation log reports the wrong pid (got: {starts[0].group(1)}, expected: {pid})"
     )
 
     terminations = [
@@ -75,7 +78,4 @@ def test_component_activation_log(
     )
     assert terminations[0].group(1) == pid, (
         f"Termination log reports the wrong pid (got: {terminations[0].group(1)}, expected: {pid})"
-    )
-    assert terminations[0].group(2) == "0", (
-        f"Termination log reports the wrong status (got: {terminations[0].group(2)}, expected 0)"
     )
