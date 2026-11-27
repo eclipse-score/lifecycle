@@ -15,15 +15,18 @@
 #include <gtest/gtest.h>
 
 #include <algorithm>
+#include <atomic>
 #include <chrono>
 #include <cstddef>
 #include <functional>
 #include <memory>
+#include <mutex>
 #include <new>
 #include <optional>
 #include <sstream>
 #include <stdexcept>
 #include <string_view>
+#include <thread>
 #include <utility>
 #include <vector>
 
@@ -63,7 +66,6 @@ class MwComMock
     MOCK_METHOD(score::Result<void>, CreateProxy, ());
 
     MOCK_METHOD(score::Result<void>, Subscribe, (std::size_t max_sample_count));
-    MOCK_METHOD(score::Result<void>, SetReceiveHandler, (std::function<void()> handler));
     MOCK_METHOD(void, Unsubscribe, ());
     MOCK_METHOD((score::Result<std::vector<ActivationResult>>), GetNewSamples, (std::size_t max_count));
 
@@ -88,11 +90,6 @@ struct FakeActivationEvent
             subscribed_max_count = max_sample_count;
         }
         return result;
-    }
-
-    score::Result<void> SetReceiveHandler(std::function<void()> handler)
-    {
-        return mock->SetReceiveHandler(std::move(handler));
     }
 
     void Unsubscribe()
@@ -215,6 +212,81 @@ std::vector<ActivationResult> MakeSamples(std::initializer_list<std::string_view
     return samples;
 }
 
+/// @brief GetNewSamples action: nothing left to read.
+auto NoSamples()
+{
+    return Invoke([](std::size_t) {
+        return score::Result<std::vector<ActivationResult>>{std::vector<ActivationResult>{}};
+    });
+}
+
+/// @brief GetNewSamples action: one batch, one sample per Run Target name.
+auto DeliverSamples(std::initializer_list<std::string_view> run_target_names)
+{
+    return Invoke([samples = MakeSamples(run_target_names)](std::size_t) {
+        return score::Result<std::vector<ActivationResult>>{samples};
+    });
+}
+
+/// @brief GetNewSamples action: one batch holding a single sample with the given activation source.
+auto DeliverSample(std::string_view run_target_name, RunTargetActivationSource source)
+{
+    return Invoke([sample = ActivationResult{RunTargetName{run_target_name}, source}](std::size_t) {
+        return score::Result<std::vector<ActivationResult>>{std::vector<ActivationResult>{sample}};
+    });
+}
+
+/// @brief Waits for a condition the polling thread brings about.
+bool waitFor(const std::function<bool()>& condition)
+{
+    const auto deadline = std::chrono::steady_clock::now() + std::chrono::seconds(5);
+    while (std::chrono::steady_clock::now() < deadline)
+    {
+        if (condition())
+        {
+            return true;
+        }
+        std::this_thread::sleep_for(std::chrono::milliseconds(1));
+    }
+    return false;
+}
+
+/// @brief Collects what the activation callback receives. Declare it before the SUT, whose polling
+///        thread writes to it until the destructor joins.
+class CallbackRecorder
+{
+  public:
+    void record(RunTargetActivationSource source, RunTargetName name)
+    {
+        const std::lock_guard<std::mutex> lock{mutex_};
+        sources_.push_back(source);
+        names_.push_back(name);
+    }
+
+    std::size_t count() const
+    {
+        const std::lock_guard<std::mutex> lock{mutex_};
+        return names_.size();
+    }
+
+    std::vector<RunTargetName> names() const
+    {
+        const std::lock_guard<std::mutex> lock{mutex_};
+        return names_;
+    }
+
+    std::vector<RunTargetActivationSource> sources() const
+    {
+        const std::lock_guard<std::mutex> lock{mutex_};
+        return sources_;
+    }
+
+  private:
+    mutable std::mutex mutex_{};
+    std::vector<RunTargetName> names_{};
+    std::vector<RunTargetActivationSource> sources_{};
+};
+
 class LmControlUT : public ::testing::Test
 {
   protected:
@@ -232,11 +304,7 @@ class LmControlUT : public ::testing::Test
         ON_CALL(mock_, StopFindService()).WillByDefault(Return(score::Result<void>{}));
         ON_CALL(mock_, CreateProxy()).WillByDefault(Return(score::Result<void>{}));
         ON_CALL(mock_, Subscribe(_)).WillByDefault(Return(score::Result<void>{}));
-        ON_CALL(mock_, SetReceiveHandler(_))
-            .WillByDefault(DoAll(SaveArg<0>(&receive_handler_), Return(score::Result<void>{})));
-        ON_CALL(mock_, GetNewSamples(_)).WillByDefault(Invoke([](std::size_t) {
-            return score::Result<std::vector<ActivationResult>>{std::vector<ActivationResult>{}};
-        }));
+        ON_CALL(mock_, GetNewSamples(_)).WillByDefault(NoSamples());
         ON_CALL(mock_, ActivateRunTarget(_)).WillByDefault(Invoke([](const ActivateRunTargetRequest&) {
             return score::Result<ActivateRunTargetResponse>{Accepted()};
         }));
@@ -275,7 +343,6 @@ class LmControlUT : public ::testing::Test
 
     NiceMock<MwComMock> mock_;
     FindHandler find_handler_{};
-    std::function<void()> receive_handler_{};
 };
 
 // ---------------------------------------------------------------------------
@@ -377,19 +444,15 @@ TEST_F(LmControlUT, MethodsFailWhileNotYetConnected)
     EXPECT_EQ(get.error(), ExecErrc::kCommunicationError);
 }
 
-TEST_F(LmControlUT, DiscoveryCreatesProxySubscribesAndSetsHandler)
+TEST_F(LmControlUT, DiscoveryCreatesProxyAndSubscribes)
 {
     RecordProperty(
-        "Description",
-        "On discovering the service, the SUT creates the proxy, subscribes to activation results and sets the "
-        "receive handler.");
+        "Description", "On discovering the service, the SUT creates the proxy and subscribes to activation results.");
 
     EXPECT_CALL(mock_, CreateProxy());
     EXPECT_CALL(mock_, Subscribe(4U));  // must match kActivationResultSampleCount
-    EXPECT_CALL(mock_, SetReceiveHandler(_));
 
     auto sut = MakeConnected();
-    EXPECT_TRUE(receive_handler_);
 }
 
 TEST_F(LmControlUT, WaitForConnectionTimesOut)
@@ -499,22 +562,6 @@ TEST_F(LmControlUT, SubscribeFailureLeavesInstanceDisconnected)
         "kCommunicationError.");
 
     EXPECT_CALL(mock_, Subscribe(_)).WillOnce(Return(score::MakeUnexpected(ExecErrc::kCommunicationError)));
-
-    auto sut = MakeConnected();
-
-    auto get = sut->get_active_run_target();
-    ASSERT_FALSE(get.has_value());
-    EXPECT_EQ(get.error(), ExecErrc::kCommunicationError);
-}
-
-TEST_F(LmControlUT, SetReceiveHandlerFailureLeavesInstanceDisconnected)
-{
-    RecordProperty(
-        "Description",
-        "When installing the receive handler fails during discovery, the instance stays disconnected and method "
-        "calls return kCommunicationError.");
-
-    EXPECT_CALL(mock_, SetReceiveHandler(_)).WillOnce(Return(score::MakeUnexpected(ExecErrc::kCommunicationError)));
 
     auto sut = MakeConnected();
 
@@ -681,58 +728,87 @@ TEST_F(LmControlUT, CallbackRegisteredBeforeConnectionIsUsedOnceConnected)
         "Registering an activation callback before the service is discovered succeeds without reading samples, "
         "and the callback receives activation results once connected.");
 
+    CallbackRecorder recorder{};
     auto sut = MakeLmControl();
 
-    std::optional<RunTargetName> name{};
     EXPECT_CALL(mock_, GetNewSamples(_)).Times(0);
-    ASSERT_TRUE(sut->register_run_target_activation_callback([&](RunTargetActivationSource, RunTargetName n) {
-                       name = n;
+    ASSERT_TRUE(sut->register_run_target_activation_callback([&recorder](RunTargetActivationSource s, RunTargetName n) {
+                       recorder.record(s, n);
                    })
                     .has_value());
     ::testing::Mock::VerifyAndClearExpectations(&mock_);
 
+    EXPECT_CALL(mock_, GetNewSamples(_)).WillOnce(DeliverSamples({"Running"})).WillRepeatedly(NoSamples());
+
     ConnectService();
 
-    EXPECT_CALL(mock_, GetNewSamples(_)).WillOnce(Invoke([](std::size_t) {
-        return score::Result<std::vector<ActivationResult>>{MakeSamples({"Running"})};
+    ASSERT_TRUE(waitFor([&recorder] {
+        return recorder.count() >= 1U;
+    }));
+    EXPECT_THAT(recorder.names(), ::testing::ElementsAre("Running"));
+}
+
+TEST_F(LmControlUT, CallbackRegisteredAfterConnectionReceivesSamples)
+{
+    RecordProperty(
+        "Description",
+        "Registering the activation callback on an already connected instance succeeds and that callback "
+        "receives the activation results.");
+
+    CallbackRecorder recorder{};
+    // Made available only once the callback is registered, so the result does not depend on the
+    // registration winning a race against the polling thread.
+    std::atomic<bool> sample_available{false};
+    auto sut = MakeLmControl();
+
+    EXPECT_CALL(mock_, GetNewSamples(_)).WillRepeatedly(Invoke([&sample_available](std::size_t) {
+        if (sample_available.exchange(false))
+        {
+            return score::Result<std::vector<ActivationResult>>{MakeSamples({"Startup"})};
+        }
+        return score::Result<std::vector<ActivationResult>>{std::vector<ActivationResult>{}};
     }));
 
-    ASSERT_TRUE(receive_handler_);
-    receive_handler_();
+    ConnectService();
 
-    ASSERT_TRUE(name.has_value());
-    EXPECT_EQ(name.value(), "Running");
+    ASSERT_TRUE(sut->register_run_target_activation_callback([&recorder](RunTargetActivationSource s, RunTargetName n) {
+                       recorder.record(s, n);
+                   })
+                    .has_value());
+    sample_available = true;
+
+    ASSERT_TRUE(waitFor([&recorder] {
+        return recorder.count() >= 1U;
+    }));
+    EXPECT_THAT(recorder.names(), ::testing::ElementsAre("Startup"));
 }
 
 TEST_F(LmControlUT, ActivationResultInvokesRegisteredCallback)
 {
     RecordProperty(
         "Description",
-        "A received activation_result sample is forwarded to the registered callback with its source and "
+        "A polled activation_result sample is forwarded to the registered callback with its source and "
         "Run Target.");
 
-    auto sut = MakeConnected();
+    CallbackRecorder recorder{};
+    auto sut = MakeLmControl();
 
-    std::optional<RunTargetActivationSource> source{};
-    std::optional<RunTargetName> name{};
-    ASSERT_TRUE(sut->register_run_target_activation_callback([&](RunTargetActivationSource s, RunTargetName n) {
-                       source = s;
-                       name = n;
+    ASSERT_TRUE(sut->register_run_target_activation_callback([&recorder](RunTargetActivationSource s, RunTargetName n) {
+                       recorder.record(s, n);
                    })
                     .has_value());
 
-    EXPECT_CALL(mock_, GetNewSamples(_)).WillOnce(Invoke([](std::size_t) {
-        std::vector<ActivationResult> samples;
-        samples.push_back(ActivationResult{RunTargetName{"Recovery"}, RunTargetActivationSource::kRecoveryAction});
-        return score::Result<std::vector<ActivationResult>>{std::move(samples)};
+    EXPECT_CALL(mock_, GetNewSamples(_))
+        .WillOnce(DeliverSample("Recovery", RunTargetActivationSource::kRecoveryAction))
+        .WillRepeatedly(NoSamples());
+
+    ConnectService();
+
+    ASSERT_TRUE(waitFor([&recorder] {
+        return recorder.count() >= 1U;
     }));
-
-    ASSERT_TRUE(receive_handler_);
-    receive_handler_();
-
-    ASSERT_TRUE(name.has_value());
-    EXPECT_EQ(name.value(), "Recovery");
-    EXPECT_EQ(source.value(), RunTargetActivationSource::kRecoveryAction);
+    EXPECT_THAT(recorder.names(), ::testing::ElementsAre("Recovery"));
+    EXPECT_THAT(recorder.sources(), ::testing::ElementsAre(RunTargetActivationSource::kRecoveryAction));
 }
 
 TEST_F(LmControlUT, InitialActivationSourceIsForwardedToCallback)
@@ -742,28 +818,25 @@ TEST_F(LmControlUT, InitialActivationSourceIsForwardedToCallback)
         "An activation_result sample carrying kInitialActivation (the automatic first transition started by the "
         "Launch Manager on startup) is forwarded verbatim to the registered callback.");
 
-    auto sut = MakeConnected();
+    CallbackRecorder recorder{};
+    auto sut = MakeLmControl();
 
-    std::optional<RunTargetActivationSource> source{};
-    std::optional<RunTargetName> name{};
-    ASSERT_TRUE(sut->register_run_target_activation_callback([&](RunTargetActivationSource s, RunTargetName n) {
-                       source = s;
-                       name = n;
+    ASSERT_TRUE(sut->register_run_target_activation_callback([&recorder](RunTargetActivationSource s, RunTargetName n) {
+                       recorder.record(s, n);
                    })
                     .has_value());
 
-    EXPECT_CALL(mock_, GetNewSamples(_)).WillOnce(Invoke([](std::size_t) {
-        std::vector<ActivationResult> samples;
-        samples.push_back(ActivationResult{RunTargetName{"Initial"}, RunTargetActivationSource::kInitialActivation});
-        return score::Result<std::vector<ActivationResult>>{std::move(samples)};
+    EXPECT_CALL(mock_, GetNewSamples(_))
+        .WillOnce(DeliverSample("Initial", RunTargetActivationSource::kInitialActivation))
+        .WillRepeatedly(NoSamples());
+
+    ConnectService();
+
+    ASSERT_TRUE(waitFor([&recorder] {
+        return recorder.count() >= 1U;
     }));
-
-    ASSERT_TRUE(receive_handler_);
-    receive_handler_();
-
-    ASSERT_TRUE(name.has_value());
-    EXPECT_EQ(name.value(), "Initial");
-    EXPECT_EQ(source.value(), RunTargetActivationSource::kInitialActivation);
+    EXPECT_THAT(recorder.names(), ::testing::ElementsAre("Initial"));
+    EXPECT_THAT(recorder.sources(), ::testing::ElementsAre(RunTargetActivationSource::kInitialActivation));
 }
 
 TEST_F(LmControlUT, ActivationResultBacklogExceedingSubscriptionIsDrainedInSeveralCalls)
@@ -773,64 +846,114 @@ TEST_F(LmControlUT, ActivationResultBacklogExceedingSubscriptionIsDrainedInSever
         "Number of available samples larger than subscribed max_sample_count is read with repeated GetNewSamples "
         "calls until a batch smaller than the maximum signals an empty queue; every sample is forwarded exactly once.");
 
-    auto sut = MakeConnected();
+    CallbackRecorder recorder{};
+    auto sut = MakeLmControl();
 
-    std::vector<RunTargetName> received{};
-    ASSERT_TRUE(sut->register_run_target_activation_callback([&](RunTargetActivationSource, RunTargetName n) {
-                       received.push_back(n);
+    ASSERT_TRUE(sut->register_run_target_activation_callback([&recorder](RunTargetActivationSource s, RunTargetName n) {
+                       recorder.record(s, n);
                    })
                     .has_value());
 
     // Nine pending samples, but Subscribe(kActivationResultSampleCount == 4) caps every single
     // GetNewSamples call at four: two full batches, then a short one that ends the drain.
     EXPECT_CALL(mock_, GetNewSamples(4U))
-        .WillOnce(Invoke([](std::size_t) {
-            return score::Result<std::vector<ActivationResult>>{MakeSamples({"T0", "T1", "T2", "T3"})};
-        }))
-        .WillOnce(Invoke([](std::size_t) {
-            return score::Result<std::vector<ActivationResult>>{MakeSamples({"T4", "T5", "T6", "T7"})};
-        }))
-        .WillOnce(Invoke([](std::size_t) {
-            return score::Result<std::vector<ActivationResult>>{MakeSamples({"T8"})};
-        }));
+        .WillOnce(DeliverSamples({"T0", "T1", "T2", "T3"}))
+        .WillOnce(DeliverSamples({"T4", "T5", "T6", "T7"}))
+        .WillOnce(DeliverSamples({"T8"}))
+        .WillRepeatedly(NoSamples());
 
-    ASSERT_TRUE(receive_handler_);
-    receive_handler_();
+    ConnectService();
 
-    EXPECT_THAT(received, ::testing::ElementsAre("T0", "T1", "T2", "T3", "T4", "T5", "T6", "T7", "T8"));
+    ASSERT_TRUE(waitFor([&recorder] {
+        return recorder.count() >= 9U;
+    }));
+    EXPECT_THAT(recorder.names(), ::testing::ElementsAre("T0", "T1", "T2", "T3", "T4", "T5", "T6", "T7", "T8"));
 }
 
-TEST_F(LmControlUT, ActivationResultDrainStopsOnEmptyBatch)
+TEST_F(LmControlUT, PollingKeepsReadingWhileNothingIsAvailable)
 {
     RecordProperty(
         "Description",
-        "A receive handler firing with nothing retrievable issues exactly one GetNewSamples call and does not spin.");
+        "With no samples available the polling thread keeps reading the activation_result event instead of "
+        "stopping after the first empty batch.");
 
-    auto sut = MakeConnected();
+    std::atomic<int> polls{0};
+    auto sut = MakeLmControl();
 
-    EXPECT_CALL(mock_, GetNewSamples(4U)).WillOnce(Invoke([](std::size_t) {
+    ASSERT_TRUE(sut->register_run_target_activation_callback([](RunTargetActivationSource, RunTargetName) {
+                   })
+                    .has_value());
+
+    EXPECT_CALL(mock_, GetNewSamples(_)).WillRepeatedly(Invoke([&polls](std::size_t) {
+        ++polls;
         return score::Result<std::vector<ActivationResult>>{std::vector<ActivationResult>{}};
     }));
 
-    ASSERT_TRUE(receive_handler_);
-    receive_handler_();
+    ConnectService();
+
+    EXPECT_TRUE(waitFor([&polls] {
+        return polls.load() >= 2;
+    }));
 }
 
-TEST_F(LmControlUT, ActivationResultWithoutCallbackIsDroppedSafely)
+TEST_F(LmControlUT, NothingIsReadWhileNoCallbackIsRegistered)
 {
     RecordProperty(
-        "Description", "An activation_result received with no registered callback is dropped without crashing.");
+        "Description",
+        "The polling thread does not read the activation_result event while no callback is registered, so "
+        "that a pending sample is not consumed before there is a callback to forward it to.");
 
-    auto sut = MakeConnected();
+    std::atomic<int> polls{0};
+    auto sut = MakeLmControl();
 
-    EXPECT_CALL(mock_, GetNewSamples(_)).WillOnce(Invoke([](std::size_t) {
-        std::vector<ActivationResult> samples;
-        samples.push_back(ActivationResult{RunTargetName{"Running"}, RunTargetActivationSource::kStateManagerRequest});
-        return score::Result<std::vector<ActivationResult>>{std::move(samples)};
+    EXPECT_CALL(mock_, GetNewSamples(_)).WillRepeatedly(Invoke([&polls](std::size_t) {
+        ++polls;
+        return score::Result<std::vector<ActivationResult>>{std::vector<ActivationResult>{}};
     }));
 
-    ASSERT_TRUE(receive_handler_);
-    receive_handler_();  // no callback registered — must not crash
+    ConnectService();
+
+    // Several poll intervals, so a reading thread would have been caught.
+    std::this_thread::sleep_for(std::chrono::milliseconds(100));
+    EXPECT_EQ(polls.load(), 0);
+}
+
+TEST_F(LmControlUT, SamplePendingBeforeLateCallbackRegistrationIsDelivered)
+{
+    RecordProperty(
+        "Description",
+        "A sample that is pending when the instance connects is still delivered to a callback that is "
+        "registered after wait_for_connection().");
+
+    CallbackRecorder recorder{};
+    std::atomic<bool> sample_pending{true};
+    auto sut = MakeLmControl();
+
+    // Like mw::com: the pending sample is handed out once and is gone afterwards.
+    EXPECT_CALL(mock_, GetNewSamples(_)).WillRepeatedly(Invoke([&sample_pending](std::size_t) {
+        if (sample_pending.exchange(false))
+        {
+            return score::Result<std::vector<ActivationResult>>{MakeSamples({"Startup"})};
+        }
+        return score::Result<std::vector<ActivationResult>>{std::vector<ActivationResult>{}};
+    }));
+
+    ConnectService();
+    // The one-argument overload lives on the interface; the override takes a stop token too.
+    ILmControl& lm_control = *sut;
+    ASSERT_TRUE(lm_control.wait_for_connection(std::chrono::milliseconds(100)).has_value());
+    // A real client may register a bit later; give the polling thread several intervals to run first.
+    std::this_thread::sleep_for(std::chrono::milliseconds(100));
+
+    ASSERT_TRUE(sut->register_run_target_activation_callback([&recorder](RunTargetActivationSource s, RunTargetName n) {
+                       recorder.record(s, n);
+                   })
+                    .has_value());
+
+    ASSERT_TRUE(waitFor([&recorder] {
+        return recorder.count() >= 1U;
+    }));
+    EXPECT_THAT(recorder.names(), ::testing::ElementsAre("Startup"));
 }
 
 TEST_F(LmControlUT, ThrowingActivationCallbackIsContainedAndDrainContinues)
@@ -840,11 +963,11 @@ TEST_F(LmControlUT, ThrowingActivationCallbackIsContainedAndDrainContinues)
         "An exception escaping the user activation callback is caught, the offending sample is dropped and "
         "the remaining samples of the batch are still forwarded.");
 
-    auto sut = MakeConnected();
+    CallbackRecorder recorder{};
+    auto sut = MakeLmControl();
 
-    std::vector<RunTargetName> received{};
-    ASSERT_TRUE(sut->register_run_target_activation_callback([&](RunTargetActivationSource, RunTargetName n) {
-                       received.push_back(n);
+    ASSERT_TRUE(sut->register_run_target_activation_callback([&recorder](RunTargetActivationSource s, RunTargetName n) {
+                       recorder.record(s, n);
                        if (n == "Boom")
                        {
                            throw std::runtime_error{"callback failure"};
@@ -852,14 +975,14 @@ TEST_F(LmControlUT, ThrowingActivationCallbackIsContainedAndDrainContinues)
                    })
                     .has_value());
 
-    EXPECT_CALL(mock_, GetNewSamples(_)).WillOnce(Invoke([](std::size_t) {
-        return score::Result<std::vector<ActivationResult>>{MakeSamples({"T0", "Boom", "T1"})};
+    EXPECT_CALL(mock_, GetNewSamples(_)).WillOnce(DeliverSamples({"T0", "Boom", "T1"})).WillRepeatedly(NoSamples());
+
+    ConnectService();
+
+    ASSERT_TRUE(waitFor([&recorder] {
+        return recorder.count() >= 3U;
     }));
-
-    ASSERT_TRUE(receive_handler_);
-    receive_handler_();  // must neither terminate nor abort the drain
-
-    EXPECT_THAT(received, ::testing::ElementsAre("T0", "Boom", "T1"));
+    EXPECT_THAT(recorder.names(), ::testing::ElementsAre("T0", "Boom", "T1"));
 }
 
 TEST_F(LmControlUT, ActivationCallbackThrowingNonStdExceptionIsContained)
@@ -867,19 +990,22 @@ TEST_F(LmControlUT, ActivationCallbackThrowingNonStdExceptionIsContained)
     RecordProperty(
         "Description", "An activation callback throwing something not derived from std::exception is caught as well.");
 
-    auto sut = MakeConnected();
+    std::atomic<int> invocations{0};
+    auto sut = MakeLmControl();
 
-    ASSERT_TRUE(sut->register_run_target_activation_callback([](RunTargetActivationSource, RunTargetName) {
+    ASSERT_TRUE(sut->register_run_target_activation_callback([&invocations](RunTargetActivationSource, RunTargetName) {
+                       ++invocations;
                        throw 42;
                    })
                     .has_value());
 
-    EXPECT_CALL(mock_, GetNewSamples(_)).WillOnce(Invoke([](std::size_t) {
-        return score::Result<std::vector<ActivationResult>>{MakeSamples({"Running"})};
-    }));
+    EXPECT_CALL(mock_, GetNewSamples(_)).WillOnce(DeliverSamples({"Running"})).WillRepeatedly(NoSamples());
 
-    ASSERT_TRUE(receive_handler_);
-    receive_handler_();  // must not terminate
+    ConnectService();
+
+    EXPECT_TRUE(waitFor([&invocations] {
+        return invocations.load() >= 1;
+    }));
 }
 
 TEST_F(LmControlUT, ActivationResultGetNewSamplesFailureIsTolerated)
@@ -887,121 +1013,53 @@ TEST_F(LmControlUT, ActivationResultGetNewSamplesFailureIsTolerated)
     RecordProperty(
         "Description", "A GetNewSamples failure while reading activation results is tolerated without crashing.");
 
-    auto sut = MakeConnected();
+    std::atomic<int> failures{0};
+    auto sut = MakeLmControl();
 
-    EXPECT_CALL(mock_, GetNewSamples(_)).WillOnce(Return(score::MakeUnexpected(ExecErrc::kCommunicationError)));
+    ASSERT_TRUE(sut->register_run_target_activation_callback([](RunTargetActivationSource, RunTargetName) {
+                   })
+                    .has_value());
 
-    ASSERT_TRUE(receive_handler_);
-    receive_handler_();  // error branch — must not crash
+    EXPECT_CALL(mock_, GetNewSamples(_))
+        .WillOnce(Invoke([&failures](std::size_t) -> score::Result<std::vector<ActivationResult>> {
+            ++failures;
+            return score::MakeUnexpected(ExecErrc::kCommunicationError);
+        }))
+        .WillRepeatedly(NoSamples());
+
+    ConnectService();
+
+    EXPECT_TRUE(waitFor([&failures] {
+        return failures.load() >= 1;
+    }));
 }
 
 TEST_F(LmControlUT, LatestRegisteredCallbackWins)
 {
     RecordProperty("Description", "The most recently registered activation callback replaces any earlier ones.");
 
-    auto sut = MakeConnected();
+    std::atomic<int> first_calls{0};
+    std::atomic<int> second_calls{0};
+    auto sut = MakeLmControl();
 
-    int first_calls{0};
-    int second_calls{0};
-    ASSERT_TRUE(sut->register_run_target_activation_callback([&](RunTargetActivationSource, RunTargetName) {
+    ASSERT_TRUE(sut->register_run_target_activation_callback([&first_calls](RunTargetActivationSource, RunTargetName) {
                        ++first_calls;
                    })
                     .has_value());
-    ASSERT_TRUE(sut->register_run_target_activation_callback([&](RunTargetActivationSource, RunTargetName) {
+    ASSERT_TRUE(sut->register_run_target_activation_callback([&second_calls](RunTargetActivationSource, RunTargetName) {
                        ++second_calls;
                    })
                     .has_value());
 
-    EXPECT_CALL(mock_, GetNewSamples(_)).WillOnce(Invoke([](std::size_t) {
-        std::vector<ActivationResult> samples;
-        samples.push_back(ActivationResult{RunTargetName{"Running"}, RunTargetActivationSource::kStateManagerRequest});
-        return score::Result<std::vector<ActivationResult>>{std::move(samples)};
-    }));
+    EXPECT_CALL(mock_, GetNewSamples(_)).WillOnce(DeliverSamples({"Running"})).WillRepeatedly(NoSamples());
 
-    ASSERT_TRUE(receive_handler_);
-    receive_handler_();
-
-    EXPECT_EQ(first_calls, 0);
-    EXPECT_EQ(second_calls, 1);
-}
-
-class LmControlWaitForConnectionTest : public LmControlUT
-{
-};
-
-TEST_F(LmControlWaitForConnectionTest, ConfirmsNotificationRegistrationBeforeCallbackDrains)
-{
-    RecordProperty(
-        "Description",
-        "Once connected run wait_for_connection."
-        "Registering the callback afterwards reads the pending activation results."
-        "Sample sent before the registration took effect (no notification) is therefore still delivered.");
-
-    auto sut = MakeLmControl();
     ConnectService();
 
-    EXPECT_CALL(mock_, GetActiveRunTarget())
-        .WillOnce(Return(score::Result<GetActiveRunTargetResponse>{Available(RunTargetName{"Startup"})}));
-    EXPECT_CALL(mock_, GetNewSamples(_)).Times(0);
-
-    ILmControl& lm_control = *sut;
-    ASSERT_TRUE(lm_control.wait_for_connection(std::chrono::milliseconds(1)).has_value());
-    ::testing::Mock::VerifyAndClearExpectations(&mock_);
-
-    // A sample the LM sent before it processed our registration: stored, but never notified.
-    EXPECT_CALL(mock_, GetActiveRunTarget()).Times(0);
-    EXPECT_CALL(mock_, GetNewSamples(_)).WillOnce(Invoke([](std::size_t) {
-        std::vector<ActivationResult> samples;
-        samples.push_back(ActivationResult{RunTargetName{"Startup"}, RunTargetActivationSource::kInitialActivation});
-        return score::Result<std::vector<ActivationResult>>{std::move(samples)};
+    ASSERT_TRUE(waitFor([&second_calls] {
+        return second_calls.load() >= 1;
     }));
-
-    std::optional<RunTargetActivationSource> source{};
-    std::optional<RunTargetName> name{};
-    ASSERT_TRUE(sut->register_run_target_activation_callback([&](RunTargetActivationSource s, RunTargetName n) {
-                       source = s;
-                       name = n;
-                   })
-                    .has_value());
-
-    ASSERT_TRUE(name.has_value());
-    EXPECT_EQ(name.value(), "Startup");
-    EXPECT_EQ(source.value(), RunTargetActivationSource::kInitialActivation);
-}
-
-TEST_F(LmControlWaitForConnectionTest, NoWaitMeansNoGetActive)
-{
-    RecordProperty(
-        "Description",
-        "Registering the activation callback without waiting for the connection, only drain the pending samples.");
-
-    auto sut = MakeConnected();
-
-    EXPECT_CALL(mock_, GetActiveRunTarget()).Times(0);
-    EXPECT_CALL(mock_, GetNewSamples(_)).Times(1);
-
-    EXPECT_TRUE(sut->register_run_target_activation_callback([](RunTargetActivationSource, RunTargetName) {
-                   })
-                    .has_value());
-}
-
-TEST_F(LmControlWaitForConnectionTest, Failed)
-{
-    RecordProperty(
-        "Description",
-        "If the round trip that confirms the notification registration fails, wait_for_connection still succeeds "
-        "and registering the callback still reads the pending activation results.");
-
-    auto sut = MakeConnected();
-
-    EXPECT_CALL(mock_, GetActiveRunTarget()).WillOnce(Return(score::MakeUnexpected(ExecErrc::kCommunicationError)));
-    EXPECT_CALL(mock_, GetNewSamples(_)).Times(1);
-
-    ILmControl& lm_control = *sut;
-    EXPECT_TRUE(lm_control.wait_for_connection(std::chrono::milliseconds(1)).has_value());
-    EXPECT_TRUE(sut->register_run_target_activation_callback([](RunTargetActivationSource, RunTargetName) {
-                   })
-                    .has_value());
+    EXPECT_EQ(first_calls.load(), 0);
+    EXPECT_EQ(second_calls.load(), 1);
 }
 
 // ---------------------------------------------------------------------------
