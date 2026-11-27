@@ -17,7 +17,10 @@
 namespace score::mw::lifecycle::internal
 {
 
-Result<void> EmptyReadyCondition::wait(cpp::stop_token /*stop_token*/, const Handle& /*handle*/) const
+Result<void> EmptyReadyCondition::wait(
+    cpp::stop_token /*stop_token*/,
+    const Handle& /*handle*/,
+    std::chrono::milliseconds /*timeout*/) const
 {
     return {};
 }

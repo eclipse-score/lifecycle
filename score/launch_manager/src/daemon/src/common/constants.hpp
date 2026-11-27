@@ -36,7 +36,7 @@ constexpr std::chrono::milliseconds kMaxQueueDelay{500};
 constexpr std::chrono::milliseconds kGraphTimeout{10000};
 
 /// @brief The maximum time to wait for a process termination
-constexpr std::chrono::milliseconds kMaxSigKillDelay{500};
+constexpr std::chrono::milliseconds kMaxSigKillDelay{2000};
 
 /// @brief Default timeout for Off state transition
 constexpr std::chrono::milliseconds kDefaultOffStateTransitionTimeout{3000};

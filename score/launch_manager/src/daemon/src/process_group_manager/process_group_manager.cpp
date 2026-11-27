@@ -169,7 +169,7 @@ void ProcessGroupManager::deinitialize()
     alive_monitor_->stopMonitoring();
 
     // Join the worker threads before destroying the process groups: a worker may
-    // still be (de)activating a ProcessInfoNode owned by a graph, so tearing the
+    // still be (de)activating a Component owned by a graph, so tearing the
     // graphs down first would be a use-after-free.
     thread_pool_.reset();
     worker_jobs_.reset();

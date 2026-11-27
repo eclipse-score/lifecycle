@@ -13,22 +13,33 @@
 #ifndef SCORE_LCM_COMPONENT_OF_HPP_INCLUDED
 #define SCORE_LCM_COMPONENT_OF_HPP_INCLUDED
 
+#include "score/mw/launch_manager/process_group_manager/details/component.hpp"
 #include "score/mw/launch_manager/process_group_manager/details/icomponent.hpp"
-#include "score/mw/launch_manager/process_group_manager/details/process_info_node.hpp"
 #include "score/mw/launch_manager/process_group_manager/details/run_target.hpp"
 
+#include <memory>
+#include <type_traits>
 #include <variant>
 
 namespace score::mw::lifecycle::internal
 {
 
 /// @brief Returns the IComponent reference from a variant type
-/// @details All types in the variant must implement the IComponent interface.
-inline IComponent& componentOf(std::variant<ProcessInfoNode, RunTarget>& node)
+/// @details All types in the variant must implement the IComponent interface. A Component is held by
+///          pointer, because it cannot be moved.
+inline IComponent& componentOf(std::variant<std::unique_ptr<Component>, RunTarget>& node)
 {
     return std::visit(
         [](auto& component) -> IComponent& {
-            return component;
+            using ComponentT = std::decay_t<decltype(component)>;
+            if constexpr (std::is_same_v<ComponentT, std::unique_ptr<Component>>)
+            {
+                return *component;
+            }
+            else
+            {
+                return component;
+            }
         },
         node);
 }

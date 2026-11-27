@@ -28,9 +28,9 @@ class IComponentController
     /// @brief Start work on @p task and push the result to the event queue if the task completes
     virtual void doWork(ComponentTask&& task) = 0;
 
-    /// @brief Notify @p component that it has terminated with status @p status. Forward the appropriate event to the
-    /// event queue
-    virtual void terminated(IComponent& component, int32_t status) = 0;
+    /// @brief Notify @p component that the resource identified by @p terminated has terminated with status @p status.
+    /// Forward the appropriate event to the event queue
+    virtual void terminated(IComponent& component, const Handle& terminated, int32_t status) = 0;
 
     virtual ~IComponentController() = default;
 };

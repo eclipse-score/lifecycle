@@ -75,13 +75,21 @@ TEST_F(ProcessMonitorTest, TerminatedUnexpectedly)
 
     // Given a terminated signal on a component that is not expected to terminate:
     // Then
-    EXPECT_CALL(mock_component_, tryHandleTermination).WillOnce(Return(IComponent::TerminationResult::kFailure));
+    const Handle terminated = ProcessHandle{42, nullptr};
+    EXPECT_CALL(
+        mock_component_,
+        tryHandleTermination(
+            Truly([&terminated](const Handle& h) {
+                return isSameResource(h, terminated);
+            }),
+            0))
+        .WillOnce(Return(IComponent::TerminationResult::kFailure));
     EXPECT_CALL(
         mock_queue_,
         push(VariantWith<UnexpectedTermination>(Field(&UnexpectedTermination::node_identifier, kDefaultIdentifier))))
         .Times(1);
 
-    process_monitor_.terminated(mock_component_, 0);
+    process_monitor_.terminated(mock_component_, terminated, 0);
 }
 
 TEST_F(ProcessMonitorTest, ActivationFailed)
@@ -97,4 +105,22 @@ TEST_F(ProcessMonitorTest, ActivationFailed)
     EXPECT_CALL(mock_queue_, push(VariantWith<ActivationFailed>(Field(&ActivationFailed::reason, errc)))).Times(1);
     // When
     process_monitor_.doWork(ComponentTask{ComponentTaskType::kActivate, mock_component_, stop_source_.get_token()});
+}
+
+TEST_F(ProcessMonitorTest, FailedDeactivationIsReportedAsComplete)
+{
+    RecordProperty(
+        "Description",
+        "Verify that a failed deactivation is still reported as complete, so that the graph's job accounting "
+        "finishes");
+
+    // Given a task that will fail to deactivate
+    // Then
+    EXPECT_CALL(mock_component_, deactivate).WillOnce(Return(IComponent::RequestResult::kFailure));
+    EXPECT_CALL(
+        mock_queue_,
+        push(VariantWith<DeactivationComplete>(Field(&DeactivationComplete::node_identifier, kDefaultIdentifier))))
+        .Times(1);
+    // When
+    process_monitor_.doWork(ComponentTask{ComponentTaskType::kDeactivate, mock_component_, stop_source_.get_token()});
 }

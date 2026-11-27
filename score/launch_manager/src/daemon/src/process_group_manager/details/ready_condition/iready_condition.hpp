@@ -17,6 +17,7 @@
 #include "score/mw/launch_manager/process_group_manager/details/handle.hpp"
 #include "score/result/result.h"
 #include <score/stop_token.hpp>
+#include <chrono>
 
 namespace score::mw::lifecycle::internal
 {
@@ -38,22 +39,29 @@ class IReadyCondition
     /// @brief Wait until the resource represented by the given handle is ready.
     /// @param stop_token Token which can be used to interrupt the wait.
     /// @param handle The resource to wait on.
-    /// @return Whether the wait was successful, or failed with an error.
-    virtual Result<void> wait(cpp::stop_token stop_token, const Handle& handle) const = 0;
+    /// @param timeout The maximum duration to wait for the condition. A timeout of zero still
+    ///                checks the condition once.
+    /// @return Nothing if the condition is met, otherwise one of these errors:
+    ///         - ExecErrc::kTimeout if the condition was not met within the timeout.
+    ///         - ExecErrc::kGeneralError if the wait was interrupted by a stop request or a termination
+    ///           which does not fulfil the condition, or if it failed for any other reason.
+    virtual Result<void> wait(cpp::stop_token stop_token, const Handle& handle, std::chrono::milliseconds timeout)
+        const = 0;
 
-    /// @brief Notify the ready condition that a POSIX process has terminated.
-    /// @details Only called while wait() may be running for the same activation. If the termination is
-    ///          accepted, the ready condition itself is responsible for waking wait(). If it is not
-    ///          accepted, the caller treats the termination as unexpected and requests a stop on the
-    ///          stop token passed to wait(), which interrupts the wait.
-    /// @param handle The process that terminated.
-    /// @param status Exit code of the process.
-    /// @return Whether this ready condition accepts the event.
+    /// @brief Notify the ready condition that the component has already terminated.
+    /// @details Called after prepare(), possibly before, during or after wait() of the same activation.
+    ///          Each ready condition decides how a termination affects a wait() which has not returned yet:
+    ///          it may end the wait, successfully if the termination fulfils the condition or with an error
+    ///          otherwise, or it may keep waiting if the condition can still be met after the resource is
+    ///          gone. In the latter case, the wait still ends at the latest when its timeout expires or a
+    ///          stop is requested. A ready condition which can no longer be met once the resource is gone
+    ///          must end the wait, so that it does not wait for its timeout in vain.
+    /// @param handle The component that terminated.
+    /// @param status Exit code of the component.
     // FIXME: This should be a more generic event which makes sense for any
     //        handle type.
-    virtual bool tryHandleTermination(const Handle& /*handle*/, int32_t /*status*/) const
+    virtual void handleTermination(const Handle& /*handle*/, int32_t /*status*/) const
     {
-        return false;
     }
 };
 

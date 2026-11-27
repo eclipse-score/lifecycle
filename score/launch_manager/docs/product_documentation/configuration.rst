@@ -235,6 +235,8 @@ ready_condition.process_state (string, optional)
 
 ready_condition.file_state (object, optional)
     Description: Specifies a ready condition based on the existence of a file at a given path.
+    If the component's process terminates before the file has reached the required state, the file state is checked once more and the component fails to become ready if it is not met.
+    Exception: if ``application_profile.is_self_terminating`` is ``true`` and the process exits with status 0, the **Launch Manager** keeps checking the file state until it is met or the ``ready_timeout_ms`` expires.
 
 ready_condition.file_state.file_path (string, required)
     Description: Specifies the absolute path to the file being watched.
