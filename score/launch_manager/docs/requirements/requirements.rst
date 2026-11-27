@@ -577,8 +577,8 @@ Process Configuration
 Terminating Processes
 ^^^^^^^^^^^^^^^^^^^^^
 
-.. comp_req:: Stop timeout
-    :id: comp_req__launch_man__configurable_timeout
+.. comp_req:: Graceful Process Shutdown
+    :id: comp_req__launch_man__graceful_p_shutd
     :reqtype: Functional
     :security: NO
     :safety: ASIL_B
@@ -588,11 +588,18 @@ Terminating Processes
     :valid_from: v1.0.0
     :satisfied_by: comp__lifecycle_launch_manager
 
-    The :term:`Launch Manager` shall provide support for a configurable timeout
-    :term:`Interval` to wait for the process to be stopped.
+    If ``deployment_config.shutdown_timeout_ms`` is configured to a value greater than zero,
+    the :term:`Launch Manager` shall send SIGTERM to the child process and wait up to
+    the configured timeout for termination. If the process has not terminated within this interval,
+    the :term:`Launch Manager` shall send SIGKILL.
 
-.. comp_req:: Configurable delay between SIGTERM and SIGKILL
-    :id: comp_req__launch_man__time_to_wait_config
+    .. note::
+        **Rationale:** A child process should be given the opportunity to terminate gracefully,
+        allowing it to release allocated resources and perform necessary cleanup operations,
+        such as closing file descriptors or shutting down hardware peripherals.
+
+.. comp_req:: Immediate Process Shutdown
+    :id: comp_req__launch_man__instant_p_shutd
     :reqtype: Functional
     :security: NO
     :safety: ASIL_B
@@ -602,22 +609,11 @@ Terminating Processes
     :valid_from: v1.0.0
     :satisfied_by: comp__lifecycle_launch_manager
 
-    The :term:`Launch Manager` shall offer a configuration of the time to wait before
-    SIGKILL is sent. In case "0" is stated, the SIGKILL shall be sent immediately.
+    If ``deployment_config.shutdown_timeout_ms`` is configured to zero, the :term:`Launch Manager`
+    shall immediately send SIGKILL to the child process without first sending SIGTERM.
 
-.. comp_req:: Shutdown signal handling
-    :id: comp_req__launch_man__shutdown_signal
-    :reqtype: Functional
-    :security: NO
-    :safety: ASIL_B
-    :derived_from: feat_req__lifecycle__process_termination[version==1]
-    :status: valid
-    :version: 1
-    :valid_from: v1.0.0
-    :satisfied_by: comp__lifecycle_launch_manager
-
-    The :term:`Launch Manager` shall implement a shutdown by sending a SIGTERM to
-    the process. In case the process does not terminate itself, a SIGKILL shall be sent.
+    .. note::
+        **Rationale:** Allows immediate termination of child processes when graceful shutdown is not required.
 
 
 Containers

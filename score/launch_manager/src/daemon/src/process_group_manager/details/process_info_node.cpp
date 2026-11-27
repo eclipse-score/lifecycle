@@ -527,6 +527,12 @@ void ProcessInfoNode::handleTerminationProcess(const score::cpp::stop_token& sto
     termination_requested_.store(true);
     LM_LOG_DEBUG() << ProcId{identifier_, pid_.load()} << "Requesting termination of process";
 
+    if (config_.deployment_config.shutdown_timeout_ms == 0U)
+    {
+        handleForcedTermination(stop_token);
+        return;
+    }
+
     // handle request termination
     // Allow timeout to play out even if stop token is set, to allow proper shutdown
     if ((process_handling_.process_interface_->requestTermination(pid_) == osal::OsalReturnType::kFail) ||

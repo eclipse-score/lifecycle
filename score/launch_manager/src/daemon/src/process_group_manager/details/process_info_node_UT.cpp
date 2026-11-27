@@ -951,7 +951,7 @@ TEST_F(ProcessInfoNodeDeactivationTest, ProcessIgnoresSigterm_ForcedWithSigkill)
 
     EXPECT_CALL(mock_process_if_, waitForkRunning(_, _)).WillOnce(Return(osal::OsalReturnType::kSuccess));
 
-    auto node = createRunningProcessInfoNode_TermTimeout(std::chrono::milliseconds{0});
+    auto node = createRunningProcessInfoNode_TermTimeout(std::chrono::milliseconds{10});
     EXPECT_CALL(mock_process_if_, requestTermination(_)).WillOnce(Return(osal::OsalReturnType::kSuccess));
     // Simulate the OS handler reporting the exit in response to SIGKILL.
     EXPECT_CALL(mock_process_if_, forceTermination(_))

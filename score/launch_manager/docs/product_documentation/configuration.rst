@@ -268,8 +268,7 @@ ready_timeout_ms (integer, optional)
     Constraint: Must be greater than 0.
 
 shutdown_timeout_ms (integer, optional)
-    Description: Specifies the maximum time, in milliseconds, allowed for the component to terminate after it receives a SIGTERM signal from the **Launch Manager**. The timeout is measured from when the **Launch Manager** sends the SIGTERM signal until the operating system notifies the **Launch Manager** that the child process has terminated.
-    Constraint: Must be greater than 0.
+    Description: Specifies the maximum time, in milliseconds, allowed for the component to terminate after it receives a SIGTERM signal from the **Launch Manager**. The timeout is measured from when the **Launch Manager** sends the SIGTERM signal until the operating system notifies the **Launch Manager** that the child process has terminated. **Please note** that if ``deployment_config.shutdown_timeout_ms`` is configured to zero, the Launch Manager sends SIGKILL instead of SIGTERM, terminating the component immediately.
 
 environmental_variables (object, optional)
     Description: Defines the set of environment variables passed to the component at startup.
