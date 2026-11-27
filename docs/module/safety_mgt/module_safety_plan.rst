@@ -181,7 +181,7 @@ Component Health Monitor Work products List
         * - :need:`wp__verification_sw_unit_test`
           - :need:`gd_guidl__verification_guide`
           - :ndf:`copy('status', need_id='gd_guidl__verification_guide')`
-          - Bazel tests ``//score/health_monitor/src/cpp:cpp_unit_tests`` (C++) and
+          - Bazel tests ``//score/health_monitor/src/cpp:tests``, ``:alive_supervisor_client_tests`` (C++) and
             ``//score/health_monitor/src/rust:tests``, ``:loom_tests``, ``:miri_tests`` (Rust),
             results in :need:`mod_vrep__lifecycle__report`
 
@@ -193,7 +193,7 @@ Component Health Monitor Work products List
         * - :need:`wp__verification_comp_int_test`
           - :need:`gd_guidl__verification_guide`
           - :ndf:`copy('status', need_id='gd_guidl__verification_guide')`
-          - Bazel test ``//score/health_monitor/src/cpp:cpp_integration_tests``,
+          - Bazel test ``//score/health_monitor/src/cpp:tests`` (``StubSupervisorClientTest`` cases, which run the public API end to end),
             results in :need:`mod_vrep__lifecycle__report`
 
 Component Launch Manager Work products List

@@ -43,6 +43,7 @@ Description
 HealthMonitor component consists of these units:
 
 - `deadline_monitor`
+- `heartbeat_monitor`
 - `logic_monitor`
 - `health_monitor`
 
@@ -56,20 +57,24 @@ Implementation structure
 .. code-block:: bash
 
     src
-    └── health_monitoring_lib
-        ├── cpp             # C++ API using Rust FFI
-        │   ├── include     # C++ public header files.
-        │   │   └── ...
-        │   └── tests
-        └── rust            # Rust implementation + FFI for C++
-            └── deadline
+    ├── cpp                     # C++ implementation, public headers included as score/health_monitor/<file>.h
+    │   ├── deadline_monitor
+    │   ├── heartbeat_monitor
+    │   ├── logic_monitor
+    │   ├── internal            # Worker thread, monitoring logic and thread setup
+    │   └── supervisor_client   # Launch manager alive client and stub backend
+    └── rust                    # Rust implementation and its C-compatible FFI
+        ├── deadline
+        ├── heartbeat
+        ├── logic
+        └── supervisor_api_client
 
 Implementation approach for multi language
 *******************************************
 
-The implementation is done primarily in `Rust` language to leverage its memory safety features and concurrency model.
-Due to a need to interface with existing C++ codebases, a C-compatible Foreign Function Interface (FFI) is provided by this `Rust` implementation.
-`C++` API is designed to be an idiomatic wrapper around the `Rust` FFI, ensuring ease of use for C++ developers while maintaining the safe usage.
+The Health Monitor has two independent implementations with the same monitoring behaviour: `Rust` in ``src/rust`` and `C++` in ``src/cpp``.
+An application uses the implementation of its own language and links no code of the other.
+The `Rust` implementation also provides a C-compatible Foreign Function Interface (FFI); no `C++` code uses it.
 
 Rationale Behind Decomposition into Units
 ******************************************
