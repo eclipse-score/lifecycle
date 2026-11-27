@@ -9912,9 +9912,23 @@
     "FullyVerifies": null
   },
   {
-    "name": "ComponentFactoryTest__DeactivateRequestsProcessTermination",
+    "name": "ComponentFactoryTest__SelfTerminatingFileStateComponentKeepsWaitingAfterExitWithZero",
     "file": "score/launch_manager/src/daemon/src/process_group_manager/details/component_factory_UT.cpp",
     "line": "501",
+    "result": "passed",
+    "repo_name": "local_repo",
+    "hash": "",
+    "url": "",
+    "TestType": "interface-test",
+    "DerivationTechnique": "equivalence-classes",
+    "result_text": "",
+    "PartiallyVerifies": null,
+    "FullyVerifies": null
+  },
+  {
+    "name": "ComponentFactoryTest__DeactivateRequestsProcessTermination",
+    "file": "score/launch_manager/src/daemon/src/process_group_manager/details/component_factory_UT.cpp",
+    "line": "531",
     "result": "passed",
     "repo_name": "local_repo",
     "hash": "",
@@ -9928,7 +9942,7 @@
   {
     "name": "ComponentFactoryTest__StartFailureFailsActivation",
     "file": "score/launch_manager/src/daemon/src/process_group_manager/details/component_factory_UT.cpp",
-    "line": "523",
+    "line": "553",
     "result": "passed",
     "repo_name": "local_repo",
     "hash": "",
@@ -9942,7 +9956,7 @@
   {
     "name": "ComponentFactoryTest__SupervisedComponentSetsUpAliveSupervision",
     "file": "score/launch_manager/src/daemon/src/process_group_manager/details/component_factory_UT.cpp",
-    "line": "543",
+    "line": "573",
     "result": "passed",
     "repo_name": "local_repo",
     "hash": "",
@@ -9956,7 +9970,7 @@
   {
     "name": "ComponentFactoryTest__TerminatedComponentIsReadyOnceProcessTerminatedSuccessfully",
     "file": "score/launch_manager/src/daemon/src/process_group_manager/details/component_factory_UT.cpp",
-    "line": "565",
+    "line": "595",
     "result": "passed",
     "repo_name": "local_repo",
     "hash": "",
@@ -9970,7 +9984,7 @@
   {
     "name": "ComponentFactoryTest__TerminatedComponentWaitsForTermination",
     "file": "score/launch_manager/src/daemon/src/process_group_manager/details/component_factory_UT.cpp",
-    "line": "590",
+    "line": "620",
     "result": "passed",
     "repo_name": "local_repo",
     "hash": "",
@@ -9984,7 +9998,7 @@
   {
     "name": "ComponentFactoryTest__ComponentKeepsConfigAlive",
     "file": "score/launch_manager/src/daemon/src/process_group_manager/details/component_factory_UT.cpp",
-    "line": "612",
+    "line": "642",
     "result": "passed",
     "repo_name": "local_repo",
     "hash": "",
@@ -9998,7 +10012,7 @@
   {
     "name": "ComponentFactoryTest__NullConfigIsRejected",
     "file": "score/launch_manager/src/daemon/src/process_group_manager/details/component_factory_UT.cpp",
-    "line": "637",
+    "line": "667",
     "result": "passed",
     "repo_name": "local_repo",
     "hash": "",
@@ -10012,7 +10026,7 @@
   {
     "name": "ComponentFactoryTest__ComponentRemainsUsableAfterFactoryIsDestroyed",
     "file": "score/launch_manager/src/daemon/src/process_group_manager/details/component_factory_UT.cpp",
-    "line": "650",
+    "line": "680",
     "result": "passed",
     "repo_name": "local_repo",
     "hash": "",
@@ -10026,7 +10040,7 @@
   {
     "name": "ComponentFactoryTest__ActivatedComponentTracksItsProcess",
     "file": "score/launch_manager/src/daemon/src/process_group_manager/details/component_factory_UT.cpp",
-    "line": "674",
+    "line": "704",
     "result": "passed",
     "repo_name": "local_repo",
     "hash": "",
@@ -10040,7 +10054,7 @@
   {
     "name": "ComponentFactoryTest__ComponentActivationFailsWhenProcessCannotBeTracked",
     "file": "score/launch_manager/src/daemon/src/process_group_manager/details/component_factory_UT.cpp",
-    "line": "696",
+    "line": "726",
     "result": "passed",
     "repo_name": "local_repo",
     "hash": "",
@@ -11888,7 +11902,7 @@
   {
     "name": "HandleTest__EmptyHandleIsNotAlive",
     "file": "score/launch_manager/src/daemon/src/process_group_manager/details/handle_UT.cpp",
-    "line": "22",
+    "line": "24",
     "result": "passed",
     "repo_name": "local_repo",
     "hash": "",
@@ -11902,7 +11916,7 @@
   {
     "name": "HandleTest__ProcessHandleIsAlive",
     "file": "score/launch_manager/src/daemon/src/process_group_manager/details/handle_UT.cpp",
-    "line": "29",
+    "line": "31",
     "result": "passed",
     "repo_name": "local_repo",
     "hash": "",
@@ -11916,7 +11930,7 @@
   {
     "name": "HandleTest__InvalidatedProcessHandleIsNotAlive",
     "file": "score/launch_manager/src/daemon/src/process_group_manager/details/handle_UT.cpp",
-    "line": "36",
+    "line": "38",
     "result": "passed",
     "repo_name": "local_repo",
     "hash": "",
@@ -11930,7 +11944,7 @@
   {
     "name": "HandleTest__InvalidatingEmptyHandleKeepsItEmpty",
     "file": "score/launch_manager/src/daemon/src/process_group_manager/details/handle_UT.cpp",
-    "line": "46",
+    "line": "48",
     "result": "passed",
     "repo_name": "local_repo",
     "hash": "",
@@ -11944,7 +11958,7 @@
   {
     "name": "HandleTest__ProcessHandlesWithSamePidAreSameResource",
     "file": "score/launch_manager/src/daemon/src/process_group_manager/details/handle_UT.cpp",
-    "line": "56",
+    "line": "58",
     "result": "passed",
     "repo_name": "local_repo",
     "hash": "",
@@ -11958,7 +11972,7 @@
   {
     "name": "HandleTest__ProcessHandlesWithDifferentPidAreNotSameResource",
     "file": "score/launch_manager/src/daemon/src/process_group_manager/details/handle_UT.cpp",
-    "line": "63",
+    "line": "65",
     "result": "passed",
     "repo_name": "local_repo",
     "hash": "",
@@ -11972,7 +11986,7 @@
   {
     "name": "HandleTest__EmptyHandleIsNeverSameResource",
     "file": "score/launch_manager/src/daemon/src/process_group_manager/details/handle_UT.cpp",
-    "line": "70",
+    "line": "72",
     "result": "passed",
     "repo_name": "local_repo",
     "hash": "",
@@ -11986,7 +12000,49 @@
   {
     "name": "HandleTest__InvalidatedHandleIsNeverSameResource",
     "file": "score/launch_manager/src/daemon/src/process_group_manager/details/handle_UT.cpp",
-    "line": "79",
+    "line": "81",
+    "result": "passed",
+    "repo_name": "local_repo",
+    "hash": "",
+    "url": "",
+    "TestType": null,
+    "DerivationTechnique": null,
+    "result_text": "",
+    "PartiallyVerifies": null,
+    "FullyVerifies": null
+  },
+  {
+    "name": "HandleTest__ProcessHandleIsWrittenAsPid",
+    "file": "score/launch_manager/src/daemon/src/process_group_manager/details/handle_UT.cpp",
+    "line": "101",
+    "result": "passed",
+    "repo_name": "local_repo",
+    "hash": "",
+    "url": "",
+    "TestType": null,
+    "DerivationTechnique": null,
+    "result_text": "",
+    "PartiallyVerifies": null,
+    "FullyVerifies": null
+  },
+  {
+    "name": "HandleTest__InvalidatedProcessHandleIsWrittenAsNothing",
+    "file": "score/launch_manager/src/daemon/src/process_group_manager/details/handle_UT.cpp",
+    "line": "108",
+    "result": "passed",
+    "repo_name": "local_repo",
+    "hash": "",
+    "url": "",
+    "TestType": null,
+    "DerivationTechnique": null,
+    "result_text": "",
+    "PartiallyVerifies": null,
+    "FullyVerifies": null
+  },
+  {
+    "name": "HandleTest__EmptyHandleIsWrittenAsNothing",
+    "file": "score/launch_manager/src/daemon/src/process_group_manager/details/handle_UT.cpp",
+    "line": "118",
     "result": "passed",
     "repo_name": "local_repo",
     "hash": "",
@@ -13400,7 +13456,7 @@
   {
     "name": "FileReadyConditionTest__WaitCallsWaitForFile",
     "file": "score/launch_manager/src/daemon/src/process_group_manager/details/ready_condition/file_ready_condition_UT.cpp",
-    "line": "33",
+    "line": "39",
     "result": "passed",
     "repo_name": null,
     "hash": null,
@@ -13414,7 +13470,7 @@
   {
     "name": "FileReadyConditionTest__WaitSucceedsReturnsSuccess",
     "file": "score/launch_manager/src/daemon/src/process_group_manager/details/ready_condition/file_ready_condition_UT.cpp",
-    "line": "46",
+    "line": "52",
     "result": "passed",
     "repo_name": null,
     "hash": null,
@@ -13428,7 +13484,7 @@
   {
     "name": "FileReadyConditionTest__WaitFailsReturnsError",
     "file": "score/launch_manager/src/daemon/src/process_group_manager/details/ready_condition/file_ready_condition_UT.cpp",
-    "line": "59",
+    "line": "65",
     "result": "passed",
     "repo_name": null,
     "hash": null,
@@ -13442,7 +13498,7 @@
   {
     "name": "FileReadyConditionTest__WaitTimesOutReturnsTimeout",
     "file": "score/launch_manager/src/daemon/src/process_group_manager/details/ready_condition/file_ready_condition_UT.cpp",
-    "line": "73",
+    "line": "79",
     "result": "passed",
     "repo_name": null,
     "hash": null,
@@ -13456,7 +13512,7 @@
   {
     "name": "FileReadyConditionTest__WaitAcceptsVariousHandles",
     "file": "score/launch_manager/src/daemon/src/process_group_manager/details/ready_condition/file_ready_condition_UT.cpp",
-    "line": "87",
+    "line": "93",
     "result": "passed",
     "repo_name": null,
     "hash": null,
@@ -13470,7 +13526,7 @@
   {
     "name": "FileReadyConditionTest__TerminationBeforeWaitSucceedsIfFileReachedState",
     "file": "score/launch_manager/src/daemon/src/process_group_manager/details/ready_condition/file_ready_condition_UT.cpp",
-    "line": "129",
+    "line": "135",
     "result": "passed",
     "repo_name": "local_repo",
     "hash": "",
@@ -13484,7 +13540,7 @@
   {
     "name": "FileReadyConditionTest__TerminationFailsWaitIfFileDidNotReachState",
     "file": "score/launch_manager/src/daemon/src/process_group_manager/details/ready_condition/file_ready_condition_UT.cpp",
-    "line": "152",
+    "line": "158",
     "result": "passed",
     "repo_name": "local_repo",
     "hash": "",
@@ -13498,7 +13554,7 @@
   {
     "name": "FileReadyConditionTest__TerminationDuringWaitEndsWait",
     "file": "score/launch_manager/src/daemon/src/process_group_manager/details/ready_condition/file_ready_condition_UT.cpp",
-    "line": "177",
+    "line": "183",
     "result": "passed",
     "repo_name": "local_repo",
     "hash": "",
@@ -13512,7 +13568,7 @@
   {
     "name": "FileReadyConditionTest__StopRequestedBeforeWaitSucceedsIfFileReachedState",
     "file": "score/launch_manager/src/daemon/src/process_group_manager/details/ready_condition/file_ready_condition_UT.cpp",
-    "line": "210",
+    "line": "216",
     "result": "passed",
     "repo_name": "local_repo",
     "hash": "",
@@ -13526,7 +13582,7 @@
   {
     "name": "FileReadyConditionTest__StopRequestedBeforeWaitFailsIfFileDidNotReachState",
     "file": "score/launch_manager/src/daemon/src/process_group_manager/details/ready_condition/file_ready_condition_UT.cpp",
-    "line": "243",
+    "line": "249",
     "result": "passed",
     "repo_name": "local_repo",
     "hash": "",
@@ -13540,7 +13596,7 @@
   {
     "name": "FileReadyConditionTest__StopRequestedDuringWaitSucceedsIfFileReachedState",
     "file": "score/launch_manager/src/daemon/src/process_group_manager/details/ready_condition/file_ready_condition_UT.cpp",
-    "line": "271",
+    "line": "277",
     "result": "passed",
     "repo_name": "local_repo",
     "hash": "",
@@ -13554,7 +13610,63 @@
   {
     "name": "FileReadyConditionTest__PrepareDiscardsTerminationOfPreviousActivation",
     "file": "score/launch_manager/src/daemon/src/process_group_manager/details/ready_condition/file_ready_condition_UT.cpp",
-    "line": "303",
+    "line": "309",
+    "result": "passed",
+    "repo_name": "local_repo",
+    "hash": "",
+    "url": "",
+    "TestType": null,
+    "DerivationTechnique": null,
+    "result_text": "",
+    "PartiallyVerifies": null,
+    "FullyVerifies": null
+  },
+  {
+    "name": "FileReadyConditionTest__SelfTerminatingExitZeroBeforeWaitDoesNotEndWait",
+    "file": "score/launch_manager/src/daemon/src/process_group_manager/details/ready_condition/file_ready_condition_UT.cpp",
+    "line": "337",
+    "result": "passed",
+    "repo_name": "local_repo",
+    "hash": "",
+    "url": "",
+    "TestType": null,
+    "DerivationTechnique": null,
+    "result_text": "",
+    "PartiallyVerifies": null,
+    "FullyVerifies": null
+  },
+  {
+    "name": "FileReadyConditionTest__SelfTerminatingExitZeroDuringWaitDoesNotEndWait",
+    "file": "score/launch_manager/src/daemon/src/process_group_manager/details/ready_condition/file_ready_condition_UT.cpp",
+    "line": "359",
+    "result": "passed",
+    "repo_name": "local_repo",
+    "hash": "",
+    "url": "",
+    "TestType": null,
+    "DerivationTechnique": null,
+    "result_text": "",
+    "PartiallyVerifies": null,
+    "FullyVerifies": null
+  },
+  {
+    "name": "FileReadyConditionTest__SelfTerminatingExitZeroTimesOutIfFileDidNotReachState",
+    "file": "score/launch_manager/src/daemon/src/process_group_manager/details/ready_condition/file_ready_condition_UT.cpp",
+    "line": "382",
+    "result": "passed",
+    "repo_name": "local_repo",
+    "hash": "",
+    "url": "",
+    "TestType": null,
+    "DerivationTechnique": null,
+    "result_text": "",
+    "PartiallyVerifies": null,
+    "FullyVerifies": null
+  },
+  {
+    "name": "FileReadyConditionTest__SelfTerminatingNonZeroExitEndsWait",
+    "file": "score/launch_manager/src/daemon/src/process_group_manager/details/ready_condition/file_ready_condition_UT.cpp",
+    "line": "406",
     "result": "passed",
     "repo_name": "local_repo",
     "hash": "",
