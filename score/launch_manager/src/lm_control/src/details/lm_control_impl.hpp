@@ -170,7 +170,26 @@ class BasicLmControlImpl final : public ILmControl
             // Unsubscribe waits for any currently running receive handler to finish before unsubscribing.
             // Unsubscribe also unsets the receive handler, no need for explicit UnsetReceiveHandler() call.
             proxy_->activation_result.Unsubscribe();
+            proxy_.reset();
         }
+    }
+
+    bool is_connected() const noexcept override
+    {
+        std::lock_guard<std::mutex> lock{mutex_};
+        return proxy_.has_value();
+    }
+
+    score::Result<void> register_connection_status_callback(ConnectionStatusCallback callback) override
+    {
+        if (!callback)
+        {
+            return score::MakeUnexpected(ExecErrc::kInvalidArguments);
+        }
+
+        std::lock_guard<std::mutex> lock{connection_callback_mutex_};
+        connection_callback_ = std::move(callback);
+        return {};
     }
 
     score::Result<void> activate_run_target(RunTargetName runTargetName, bool force) override
@@ -321,21 +340,76 @@ class BasicLmControlImpl final : public ILmControl
         return proxy_.has_value() ? &proxy_.value() : nullptr;
     }
 
-    /// @brief Invoked by mw::com whenever service availability changes. On the first matching
-    ///        instance it creates the proxy and subscribes to activation results.
+    /// @brief Invoked by mw::com whenever service availability changes.
+    ///        When matching handles are discovered and no proxy exists, creates the proxy
+    ///        and subscribes to activation results.
+    ///        When handles are empty and a proxy exists (service went away / Launch Manager terminated),
+    ///        unsubscribes and tears down the proxy.
     void onServiceFound(score::mw::com::ServiceHandleContainer<HandleType> handles) noexcept
     {
-        std::lock_guard<std::mutex> lock{mutex_};
-
-        // Ignore "service went away" notifications and any callbacks after we are set up.
-        if (handles.empty() || proxy_.has_value())
+        if (handles.empty())
         {
+            handleServiceTerminated();
             return;
         }
 
-        if (createProxy(handles.front()) && subscribeToActivationResults())
+        handleServiceDiscovered(handles.front());
+    }
+
+    /// @brief Handles Launch Manager service termination ("service went away").
+    void handleServiceTerminated() noexcept
+    {
+        std::optional<ProxyType> dying_proxy;
+        ConnectionStatusCallback callback;
         {
-            connection_cv_.notify_all();
+            std::lock_guard<std::mutex> lock{mutex_};
+            if (!proxy_.has_value())
+            {
+                return;
+            }
+
+            LM_LOG_WARN() << "LmControl: Launch Manager service went away";
+            dying_proxy = std::move(proxy_);
+            proxy_.reset();
+            callback = currentConnectionCallback();
+        }
+
+        // Unsubscribe and destroy dying_proxy without holding mutex_ to prevent
+        // lock-order inversion with mw::com internal service discovery mutexes.
+        if (dying_proxy.has_value())
+        {
+            dying_proxy->activation_result.Unsubscribe();
+            dying_proxy.reset();
+        }
+
+        if (callback)
+        {
+            invokeConnectionCallback(callback, false);
+        }
+    }
+
+    /// @brief Handles Launch Manager service discovery.
+    void handleServiceDiscovered(const HandleType& handle) noexcept
+    {
+        ConnectionStatusCallback callback;
+        {
+            std::lock_guard<std::mutex> lock{mutex_};
+
+            if (proxy_.has_value())
+            {
+                return;
+            }
+
+            if (createProxy(handle) && subscribeToActivationResults())
+            {
+                connection_cv_.notify_all();
+                callback = currentConnectionCallback();
+            }
+        }
+
+        if (callback)
+        {
+            invokeConnectionCallback(callback, true);
         }
     }
 
@@ -479,8 +553,42 @@ class BasicLmControlImpl final : public ILmControl
         LM_LOG_DEBUG() << "LmControl: activation_result: user callback invoked";
     }
 
+    /// @brief Returns a copy of the currently registered connection status callback, empty if none.
+    ConnectionStatusCallback currentConnectionCallback() noexcept
+    {
+        std::lock_guard<std::mutex> lock{connection_callback_mutex_};
+        return connection_callback_;
+    }
+
+    /// @brief Forwards a connection status change to the given callback.
+    static void invokeConnectionCallback(const ConnectionStatusCallback& callback, bool connected) noexcept
+    {
+        LM_LOG_DEBUG() << "LmControl: connection status changed: connected=" << connected;
+        if (!callback)
+        {
+            return;
+        }
+
+        try
+        {
+            callback(connected);
+        }
+        catch (const std::exception& e)
+        {
+            LM_LOG_ERROR() << "LmControl: connection status callback threw:" << std::string_view{e.what()};
+            return;
+        }
+        catch (...)
+        {
+            LM_LOG_ERROR() << "LmControl: connection status callback threw an unknown exception";
+            return;
+        }
+
+        LM_LOG_DEBUG() << "LmControl: connection status callback invoked";
+    }
+
     /// @brief Guards proxy_
-    std::mutex mutex_;
+    mutable std::mutex mutex_;
 
     /// @brief Signalled (under mutex_) once proxy_ is set up, wakes wait_for_connection()
     concurrency::InterruptibleConditionalVariableBasic<std::mutex, std::condition_variable> connection_cv_;
@@ -503,6 +611,12 @@ class BasicLmControlImpl final : public ILmControl
 
     // Guards callback_
     std::mutex callback_mutex_;
+
+    /// @brief The connection status callback registered by the user.
+    ConnectionStatusCallback connection_callback_;
+
+    // Guards connection_callback_
+    std::mutex connection_callback_mutex_;
 
     /// @brief Serializes onActivationResult() against itself: mw::com may
     ///        dispatch the receive handler concurrently, but proxy-event API

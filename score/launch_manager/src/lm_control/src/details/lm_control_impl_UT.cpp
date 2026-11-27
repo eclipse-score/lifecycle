@@ -257,6 +257,13 @@ class LmControlUT : public ::testing::Test
         find_handler_(score::mw::com::ServiceHandleContainer<FakeHandle>{FakeHandle{}}, FakeFindHandle{});
     }
 
+    /// @brief Simulate mw::com notifying that the service went away.
+    void DisconnectService()
+    {
+        ASSERT_TRUE(find_handler_) << "StartFindService was never called";
+        find_handler_(score::mw::com::ServiceHandleContainer<FakeHandle>{}, FakeFindHandle{});
+    }
+
     /// @brief Build a successfully-constructed (but not yet connected) SUT.
     std::unique_ptr<LmControlImplType> MakeLmControl()
     {
@@ -489,6 +496,124 @@ TEST_F(LmControlUT, DiscoveryCallbackAfterDestructionIsANoOp)
 
     // mw::com may still dispatch here - StopFindService() does not wait for an in-flight callback.
     find_handler_(score::mw::com::ServiceHandleContainer<FakeHandle>{FakeHandle{}}, FakeFindHandle{});
+}
+
+TEST_F(LmControlUT, ServiceWentAwayDisconnectsInstanceAndUnsubscribes)
+{
+    RecordProperty(
+        "Description",
+        "When the Launch Manager service goes away (empty handles container), the instance un-subscribes, "
+        "is_connected() returns false, and subsequent method calls return kCommunicationError.");
+
+    auto sut = MakeConnected();
+    EXPECT_TRUE(sut->is_connected());
+    ASSERT_TRUE(sut->get_active_run_target().has_value());
+
+    EXPECT_CALL(mock_, Unsubscribe()).Times(1);
+
+    DisconnectService();
+
+    EXPECT_FALSE(sut->is_connected());
+    auto get = sut->get_active_run_target();
+    ASSERT_FALSE(get.has_value());
+    EXPECT_EQ(get.error(), ExecErrc::kCommunicationError);
+}
+
+TEST_F(LmControlUT, ServiceWentAwayAllowsReconnectionWhenServiceReturns)
+{
+    RecordProperty(
+        "Description",
+        "When the Launch Manager service terminates and then reappears, the client reconnects cleanly, "
+        "re-creates proxy, re-subscribes, and methods succeed again.");
+
+    auto sut = MakeConnected();
+    EXPECT_TRUE(sut->is_connected());
+
+    // Expect Unsubscribe once on disconnect, and once on final destruction of the reconnected proxy
+    EXPECT_CALL(mock_, Unsubscribe()).Times(2);
+    DisconnectService();
+    EXPECT_FALSE(sut->is_connected());
+
+    // Service comes back up: expects new proxy creation and subscription
+    EXPECT_CALL(mock_, CreateProxy()).Times(1);
+    EXPECT_CALL(mock_, Subscribe(_)).Times(1);
+    EXPECT_CALL(mock_, SetReceiveHandler(_)).Times(1);
+
+    ConnectService();
+    EXPECT_TRUE(sut->is_connected());
+    EXPECT_TRUE(sut->get_active_run_target().has_value());
+}
+
+TEST_F(LmControlUT, IsConnectedReflectsConnectionStatus)
+{
+    RecordProperty(
+        "Description",
+        "is_connected() reports false before discovery, true once connected, and false after service went away.");
+
+    auto sut = MakeLmControl();
+    EXPECT_FALSE(sut->is_connected());
+
+    ConnectService();
+    EXPECT_TRUE(sut->is_connected());
+
+    DisconnectService();
+    EXPECT_FALSE(sut->is_connected());
+}
+
+TEST_F(LmControlUT, ConnectionStatusCallbackInvokedOnConnectAndDisconnect)
+{
+    RecordProperty(
+        "Description",
+        "A registered ConnectionStatusCallback is notified when connected, when disconnected, and on re-connection.");
+
+    auto sut = MakeLmControl();
+    std::vector<bool> status_history{};
+
+    const auto reg_result = sut->register_connection_status_callback([&](bool connected) {
+        status_history.push_back(connected);
+    });
+    ASSERT_TRUE(reg_result.has_value());
+
+    ConnectService();
+    ASSERT_EQ(status_history.size(), 1U);
+    EXPECT_TRUE(status_history.back());
+
+    DisconnectService();
+    ASSERT_EQ(status_history.size(), 2U);
+    EXPECT_FALSE(status_history.back());
+
+    ConnectService();
+    ASSERT_EQ(status_history.size(), 3U);
+    EXPECT_TRUE(status_history.back());
+}
+
+TEST_F(LmControlUT, RegisterEmptyConnectionStatusCallbackIsRejected)
+{
+    RecordProperty("Description", "Registering an empty ConnectionStatusCallback returns kInvalidArguments.");
+
+    auto sut = MakeLmControl();
+    const auto result = sut->register_connection_status_callback({});
+    ASSERT_FALSE(result.has_value());
+    EXPECT_EQ(result.error(), ExecErrc::kInvalidArguments);
+}
+
+TEST_F(LmControlUT, ConnectionStatusCallbackThrowingIsContained)
+{
+    RecordProperty(
+        "Description",
+        "Exceptions thrown by the user ConnectionStatusCallback are caught and logged without aborting.");
+
+    auto sut = MakeLmControl();
+    const auto reg_result = sut->register_connection_status_callback([](bool) {
+        throw std::runtime_error("callback exception");
+    });
+    ASSERT_TRUE(reg_result.has_value());
+
+    EXPECT_NO_THROW(ConnectService());
+    EXPECT_TRUE(sut->is_connected());
+
+    EXPECT_NO_THROW(DisconnectService());
+    EXPECT_FALSE(sut->is_connected());
 }
 
 TEST_F(LmControlUT, SubscribeFailureLeavesInstanceDisconnected)
