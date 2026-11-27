@@ -12,7 +12,7 @@
 # *******************************************************************************
 
 load("@rules_cc//cc:defs.bzl", "cc_library")
-load("//tests/utils/bazel:unit_test.bzl", "lm_cc_test")
+load("//tests/utils/bazel:unit_test.bzl", "MOCK_SYSCALLS_WRAPPED_SYMBOLS", "linker_wrap_symbols", "lm_cc_test")
 
 cc_library(
     name = "component",
@@ -525,16 +525,12 @@ cc_library(
         "//score/launch_manager/src/daemon/src/common:log",
         "//score/launch_manager/src/daemon/src/common:signal_safe_log",
         "//score/launch_manager/src/daemon/src/configuration:component_config",
-        "//score/launch_manager/src/daemon/src/configuration:environment_config",
         "//score/launch_manager/src/daemon/src/configuration:process_command",
         "//score/launch_manager/src/daemon/src/osal:ipc_comms",
         "//score/launch_manager/src/daemon/src/osal:return_types",
-        "//score/launch_manager/src/daemon/src/osal:security_policy",
         "//score/launch_manager/src/daemon/src/osal:semaphore",
-        "//score/launch_manager/src/daemon/src/osal:set_affinity",
-        "//score/launch_manager/src/daemon/src/osal:set_groups",
         "//score/launch_manager/src/daemon/src/osal:shm_open_anon",
-        "//score/launch_manager/src/daemon/src/osal:sys_exit",
+        "//score/launch_manager/src/daemon/src/osal:start_process",
         "//score/launch_manager/src/daemon/src/process_group_manager:iprocess",
         "@score_baselibs//score/language/futurecpp",
     ],
@@ -543,35 +539,11 @@ cc_library(
 lm_cc_test(
     name = "process_launcher_UT",
     srcs = ["process_launcher_UT.cpp"],
-    linkopts = [
-        "-Wl,--wrap=fork",
-        "-Wl,--wrap=execve",
-        "-Wl,--wrap=kill",
-        "-Wl,--wrap=wait",
-        "-Wl,--wrap=access",
-        "-Wl,--wrap=shm_open",
-        "-Wl,--wrap=ftruncate",
-        "-Wl,--wrap=shm_unlink",
-        "-Wl,--wrap=mmap",
-        "-Wl,--wrap=munmap",
-        "-Wl,--wrap=setpgid",
-        "-Wl,--wrap=setgid",
-        "-Wl,--wrap=setuid",
-        "-Wl,--wrap=sched_setscheduler",
-        "-Wl,--wrap=chdir",
-        "-Wl,--wrap=setrlimit",
-        "-Wl,--wrap=getpid",
-        "-Wl,--wrap=fcntl",
-        "-Wl,--wrap=sem_destroy",
-        "-Wl,--wrap=msync",
-        "-Wl,--wrap=close",
-        "-Wl,--wrap=fstat",
-        "-Wl,--wrap=clock_gettime",
-        "-Wl,--wrap=clock_getres",
-    ],
+    linkopts = linker_wrap_symbols(MOCK_SYSCALLS_WRAPPED_SYMBOLS),
     linkstatic = True,
     deps = [
         ":process_launcher",
+        "//score/launch_manager/src/daemon/src/osal:mock_start_process",
         "//tests/utils/mocks:mock_syscalls",
         "@googletest//:gtest_main",
         "@score_baselibs//score/os/mocklib:semaphore_mock",
