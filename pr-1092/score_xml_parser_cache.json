@@ -60,7 +60,7 @@
     "url": ""
   },
   {
-    "name": "test_lm_shutdown",
+    "name": "test_lm_shutdown_during_rt_switch",
     "file": "tests/integration/lm_shutdown_during_rt_switch/test.py",
     "line": 19,
     "need": "feat_req__lifecycle__termination_dependency",
@@ -72,7 +72,7 @@
     "url": ""
   },
   {
-    "name": "test_lm_shutdown",
+    "name": "test_lm_shutdown_during_rt_switch",
     "file": "tests/integration/lm_shutdown_during_rt_switch/test.py",
     "line": 19,
     "need": "comp_req__launch_man__launcher_exit_shutdown",
@@ -149,6 +149,42 @@
     "line": 19,
     "need": "feat_req__lifecycle__conditional_startup",
     "verify_type": "partially",
+    "result": "passed",
+    "result_text": "",
+    "repo_name": "local_repo",
+    "hash": "",
+    "url": ""
+  },
+  {
+    "name": "test_request_during_recovery",
+    "file": "tests/integration/run_target_requests/request_during_recovery/non_forced/test.py",
+    "line": 19,
+    "need": "comp_req__launch_man__ra_rt_queue",
+    "verify_type": "fully",
+    "result": "passed",
+    "result_text": "",
+    "repo_name": "local_repo",
+    "hash": "",
+    "url": ""
+  },
+  {
+    "name": "test_request_during_recovery",
+    "file": "tests/integration/run_target_requests/request_during_recovery/non_forced/test.py",
+    "line": 19,
+    "need": "comp_req__launch_man__rt_queue",
+    "verify_type": "fully",
+    "result": "passed",
+    "result_text": "",
+    "repo_name": "local_repo",
+    "hash": "",
+    "url": ""
+  },
+  {
+    "name": "test_forced_request_during_recovery",
+    "file": "tests/integration/run_target_requests/request_during_recovery/forced/test.py",
+    "line": 19,
+    "need": "comp_req__launch_man__cancel_rt_force",
+    "verify_type": "fully",
     "result": "passed",
     "result_text": "",
     "repo_name": "local_repo",
@@ -264,7 +300,7 @@
     "url": ""
   },
   {
-    "name": "test_lm_shutdown",
+    "name": "test_lm_shutdown_during_switch_to_off",
     "file": "tests/integration/lm_shutdown_during_switch_to_off/test.py",
     "line": 19,
     "need": "feat_req__lifecycle__termination_dependency",
@@ -276,7 +312,7 @@
     "url": ""
   },
   {
-    "name": "test_lm_shutdown",
+    "name": "test_lm_shutdown_during_switch_to_off",
     "file": "tests/integration/lm_shutdown_during_switch_to_off/test.py",
     "line": 19,
     "need": "comp_req__launch_man__launcher_exit_shutdown",
@@ -375,18 +411,6 @@
     "name": "test_component_order",
     "file": "tests/integration/component_order/test.py",
     "line": 20,
-    "need": "comp_req__launch_man__stop_process_dependents",
-    "verify_type": "partially",
-    "result": "passed",
-    "result_text": "",
-    "repo_name": "local_repo",
-    "hash": "",
-    "url": ""
-  },
-  {
-    "name": "test_component_order",
-    "file": "tests/integration/component_order/test.py",
-    "line": 20,
     "need": "feat_req__lifecycle__termination_dependency",
     "verify_type": "partially",
     "result": "passed",
@@ -401,6 +425,42 @@
     "line": 20,
     "need": "comp_req__launch_man__dep_based_startup_order",
     "verify_type": "fully",
+    "result": "passed",
+    "result_text": "",
+    "repo_name": "local_repo",
+    "hash": "",
+    "url": ""
+  },
+  {
+    "name": "test_component_order",
+    "file": "tests/integration/component_order/test.py",
+    "line": 20,
+    "need": "comp_req__launch_man__stop_process_dependents",
+    "verify_type": "fully",
+    "result": "passed",
+    "result_text": "",
+    "repo_name": "local_repo",
+    "hash": "",
+    "url": ""
+  },
+  {
+    "name": "test_component_activation_log",
+    "file": "tests/integration/logs/activations/test.py",
+    "line": 25,
+    "need": "comp_req__launch_man__process_log",
+    "verify_type": "partially",
+    "result": "passed",
+    "result_text": "",
+    "repo_name": "local_repo",
+    "hash": "",
+    "url": ""
+  },
+  {
+    "name": "test_component_recovery_log",
+    "file": "tests/integration/logs/recovery/test.py",
+    "line": 22,
+    "need": "comp_req__launch_man__ra_log",
+    "verify_type": "partially",
     "result": "passed",
     "result_text": "",
     "repo_name": "local_repo",
@@ -700,6 +760,18 @@
     "file": "tests/integration/sandbox_options/non_root/test.py",
     "line": 49,
     "need": "comp_req__launch_man__process_rlimit_support",
+    "verify_type": "partially",
+    "result": "passed",
+    "result_text": "",
+    "repo_name": "local_repo",
+    "hash": "",
+    "url": ""
+  },
+  {
+    "name": "test_sandbox_options_non_root",
+    "file": "tests/integration/sandbox_options/non_root/test.py",
+    "line": 49,
+    "need": "comp_req__launch_man__secpol_non_root",
     "verify_type": "partially",
     "result": "passed",
     "result_text": "",
@@ -1156,6 +1228,18 @@
     "file": "tests/integration/process_simple_rep_failure/test.py",
     "line": 19,
     "need": "comp_req__launch_man__rt_comp_dep",
+    "verify_type": "fully",
+    "result": "passed",
+    "result_text": "",
+    "repo_name": "local_repo",
+    "hash": "",
+    "url": ""
+  },
+  {
+    "name": "test_complex_monitoring",
+    "file": "tests/integration/complex_monitoring/test.py",
+    "line": 19,
+    "need": "comp_req__launch_man__ra_rt_sm_notify",
     "verify_type": "fully",
     "result": "passed",
     "result_text": "",
