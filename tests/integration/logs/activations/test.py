@@ -34,8 +34,8 @@ def test_component_activation_log(
     Objective: Verifies that the launch manager logs the launch and the
     termination of a component.
 
-    A process is launched via the initial Run Target and records its own pid.
-    The Launch Manager then shuts down, terminating the process.
+    A process is launched via the initial Run Target, records its own pid and
+    exits successfully on its own.
     Expected Behaviour: The launch manager's DLT log contains an entry for the
     activation of the the component, and another entry for its termination.
     """
@@ -57,7 +57,7 @@ def test_component_activation_log(
         r"Component:\s*component_logging\s*pid:\s*(\d+)\s*is ready, activation took\s*\d+\s*ms"
     )
     termination_pattern = re.compile(
-        r"Component:\s*component_logging\s*pid:\s*(\d+)\s*terminated after being stopped \(expected\)"
+        r"Component:\s*component_logging\s*pid:\s*(\d+)\s*terminated\s.*\(expected\)"
     )
 
     starts = [match for log in logs if (match := start_pattern.search(log.message))]

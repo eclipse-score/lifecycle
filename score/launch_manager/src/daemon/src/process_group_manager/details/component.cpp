@@ -199,7 +199,7 @@ IComponent::RequestResult Component::tryActivate(
 
         // req-id: comp_req__launch_man__process_log
         LM_LOG_INFO() << ComponentId{config_->name, &handle.value()} << "is ready, activation took" << duration.count()
-                       << "ms";
+                      << "ms";
     }
     return result;
 }
@@ -451,7 +451,8 @@ IComponent::TerminationResult Component::tryHandleTerminationInternally(const Ha
     const std::string_view phase = (starting != nullptr) ? "while starting" : "while ready";
     if (terminationExpected)
     {
-        LM_LOG_DEBUG() << ComponentId{config_->name, &terminated} << "terminated" << phase << "(expected)";
+        // req-id: comp_req__launch_man__process_log
+        LM_LOG_INFO() << ComponentId{config_->name, &terminated} << "terminated" << phase << "(expected)";
     }
     else
     {
