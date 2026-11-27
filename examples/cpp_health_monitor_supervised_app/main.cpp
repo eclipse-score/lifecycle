@@ -23,10 +23,19 @@
 #include <sys/prctl.h>
 #endif
 
-#include <score/mw/health/common.h>
-#include <score/mw/health/health_monitor.h>
+#include <score/health_monitor/deadline.h>
+#include <score/health_monitor/deadline_monitor.h>
+#include <score/health_monitor/deadline_monitor_builder.h>
+#include <score/health_monitor/health_monitor.h>
+#include <score/health_monitor/health_monitor_builder.h>
+#include <score/health_monitor/heartbeat_monitor.h>
+#include <score/health_monitor/heartbeat_monitor_builder.h>
+#include <score/health_monitor/logic_monitor.h>
+#include <score/health_monitor/logic_monitor_builder.h>
+#include <score/health_monitor/tag.h>
+#include <score/health_monitor/time_range.h>
 #include <score/mw/lifecycle/report_running.h>
-#include <score/mw/log/rust/stdout_logger_init.h>
+#include <array>
 #include <thread>
 
 /// @brief CLI configuration options for the demo_application process
@@ -119,29 +128,43 @@ int main(int argc, char** argv)
         return EXIT_FAILURE;
     }
 
-    score::mw::log::rust::StdoutLoggerBuilder builder;
-    builder.Context("APP").LogLevel(score::mw::log::rust::LogLevel::Verbose).SetAsDefaultLogger();
+    using namespace score::health_monitor;
 
-    using namespace score::mw::health;
-
-    auto builder_mon =
-        deadline::DeadlineMonitorBuilder()
+    // Each loop iteration measures deadline_1 around the configured delay, sends one heartbeat, and moves the logic
+    // monitor from "idle" to "measuring" and back.
+    auto deadline_builder =
+        DeadlineMonitorBuilder{}
             .AddDeadline(
-                DeadlineTag("deadline_1"),
-                TimeRange(std::chrono::milliseconds(50), std::chrono::milliseconds(config->deadlineMaxInMs)))
+                DeadlineTag{"deadline_1"},
+                TimeRange{std::chrono::milliseconds(50), std::chrono::milliseconds(config->deadlineMaxInMs)})
             .AddDeadline(
-                DeadlineTag("deadline_2"),
-                TimeRange(
+                DeadlineTag{"deadline_2"},
+                TimeRange{
                     std::chrono::milliseconds(2),
-                    std::chrono::milliseconds(20)));  // Not used, only shows
+                    std::chrono::milliseconds(20)});  // Not used, only shows
                                                       // that multiple deadlines can be added
 
-    MonitorTag ident("monitor");
+    // The time between two heartbeats is one loop iteration, about the delay of the deadline measurement.
+    HeartbeatMonitorBuilder heartbeat_builder{
+        TimeRange{std::chrono::milliseconds(10), std::chrono::milliseconds(config->deadlineMaxInMs + 100U)}};
+
+    constexpr StateTag kIdle{"idle"};
+    constexpr StateTag kMeasuring{"measuring"};
+    const std::array<StateTag, 1> from_idle{{kMeasuring}};
+    const std::array<StateTag, 1> from_measuring{{kIdle}};
+    auto logic_builder = LogicMonitorBuilder{kIdle}.AddState(kIdle, from_idle).AddState(kMeasuring, from_measuring);
+
+    constexpr MonitorTag kDeadlineMonitor{"deadline_monitor"};
+    constexpr MonitorTag kHeartbeatMonitor{"heartbeat_monitor"};
+    constexpr MonitorTag kLogicMonitor{"logic_monitor"};
 
     {
-        auto hm_res = HealthMonitorBuilder()
-                          .AddDeadlineMonitor(ident, std::move(builder_mon))
-                          .WithInternalProcessingCycle(std::chrono::milliseconds(50))
+        // The internal processing cycle is well below the heartbeat period, so no cycle sees two heartbeats.
+        auto hm_res = HealthMonitorBuilder{}
+                          .AddDeadlineMonitor(kDeadlineMonitor, std::move(deadline_builder))
+                          .AddHeartbeatMonitor(kHeartbeatMonitor, std::move(heartbeat_builder))
+                          .AddLogicMonitor(kLogicMonitor, std::move(logic_builder))
+                          .WithInternalProcessingCycle(std::chrono::milliseconds(10))
                           .WithSupervisorApiCycle(std::chrono::milliseconds(50))
                           .Build();
         if (!hm_res.has_value())
@@ -149,22 +172,37 @@ int main(int argc, char** argv)
             std::cerr << "Failed to build health monitor" << std::endl;
             return EXIT_FAILURE;
         }
-        auto hm = std::move(*hm_res);
+        const auto hm = std::move(hm_res).value();
 
-        auto deadline_monitor_res = hm.GetDeadlineMonitor(ident);
-        if (!deadline_monitor_res.has_value())
+        // Every monitor must be taken before Start().
+        auto deadline_monitor_res = hm->GetDeadlineMonitor(kDeadlineMonitor);
+        auto heartbeat_monitor_res = hm->GetHeartbeatMonitor(kHeartbeatMonitor);
+        auto logic_monitor_res = hm->GetLogicMonitor(kLogicMonitor);
+        if (!deadline_monitor_res.has_value() || !heartbeat_monitor_res.has_value() || !logic_monitor_res.has_value())
         {
-            std::cerr << "Failed to get deadline monitor" << std::endl;
+            std::cerr << "Failed to get the monitors" << std::endl;
+            return EXIT_FAILURE;
+        }
+        const auto deadline_mon = std::move(deadline_monitor_res).value();
+        const auto heartbeat_mon = std::move(heartbeat_monitor_res).value();
+        const auto logic_mon = std::move(logic_monitor_res).value();
+
+        auto deadline_res = deadline_mon->GetDeadline(DeadlineTag{"deadline_1"});
+        if (!deadline_res.has_value())
+        {
+            std::cerr << "Failed to get deadline" << std::endl;
+            return EXIT_FAILURE;
+        }
+        const auto deadline = std::move(deadline_res).value();
+
+        if (!hm->Start().has_value())
+        {
+            std::cerr << "Failed to start health monitor" << std::endl;
             return EXIT_FAILURE;
         }
 
-        hm.Start();
-
         score::mw::lifecycle::report_running();
 
-        auto deadline_mon = std::move(*deadline_monitor_res);
-
-        auto deadline_res = deadline_mon.GetDeadline(DeadlineTag("deadline_1"));
         while (!exitRequested)
         {
             if (stopReportingCheckpoints.load())
@@ -172,12 +210,15 @@ int main(int argc, char** argv)
                 break;
             }
 
-            auto deadline_guard = deadline_res.value().Start();
-
-            std::this_thread::sleep_for(std::chrono::milliseconds(config->delayInMs));
-
-            // deadline_guard.Stop(); // Optional, will be stopped automatically when going out of scope - this way we
-            // dont check Result from start() call
+            // A failed transition is a supervision failure: the worker stops the alive notifications.
+            static_cast<void>(logic_mon->Transition(kMeasuring));
+            {
+                // The handle stops the deadline when it goes out of scope.
+                const auto deadline_guard = deadline->Start();
+                std::this_thread::sleep_for(std::chrono::milliseconds(config->delayInMs));
+            }
+            static_cast<void>(logic_mon->Transition(kIdle));
+            heartbeat_mon->Heartbeat();
         }
     }
 

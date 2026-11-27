@@ -14,100 +14,252 @@
 load("@rules_cc//cc:defs.bzl", "cc_library")
 load("//tests/utils/bazel:unit_test.bzl", "cc_gtest_unit_test")
 
+# The package root is the include root: headers are included as "score/health_monitor/<name>.h".
 cc_library(
-    name = "tag",
-    hdrs = ["tag.h"],
-    include_prefix = "score/mw/health",
-    strip_include_prefix = "/score/health_monitor/src/cpp",
+    name = "error",
+    srcs = ["error.cpp"],
+    hdrs = ["error.h"],
+    include_prefix = "score/health_monitor",
+    strip_include_prefix = "",
     visibility = ["//visibility:public"],
+    deps = ["@score_baselibs//score/result:error"],
 )
 
+# Interface that every supervisor client backend implements, together with SupervisorClient::Create().
 cc_library(
-    name = "common",
-    srcs = ["common.cpp"],
-    hdrs = ["common.h"],
-    include_prefix = "score/mw/health",
-    strip_include_prefix = "/score/health_monitor/src/cpp",
+    name = "supervisor_client_interface",
+    hdrs = ["supervisor_client.h"],
+    include_prefix = "score/health_monitor",
+    strip_include_prefix = "",
     visibility = ["//visibility:public"],
-    deps = ["@score_baselibs//score/language/futurecpp"],
+    deps = ["@score_baselibs//score/result"],
+)
+
+# Shared logger of the health monitor and of the supervisor client backends.
+cc_library(
+    name = "logger",
+    hdrs = ["internal/logger.h"],
+    deps = [
+        "@score_baselibs//score/mw/log:frontend",
+        "@score_baselibs//score/mw/log:log_stream",
+    ],
+)
+
+# Everything except a supervisor client backend.
+cc_library(
+    name = "health_monitor_base",
+    srcs = [
+        "deadline.cpp",
+        "deadline_monitor/deadline_impl.cpp",
+        "deadline_monitor/deadline_impl.h",
+        "deadline_monitor/deadline_monitor_impl.cpp",
+        "deadline_monitor/deadline_monitor_impl.h",
+        "deadline_monitor/deadline_state.h",
+        "deadline_monitor_builder.cpp",
+        "health_monitor_builder.cpp",
+        "heartbeat_monitor/heartbeat_monitor_impl.cpp",
+        "heartbeat_monitor/heartbeat_monitor_impl.h",
+        "heartbeat_monitor/heartbeat_state.h",
+        "internal/fetch_update.h",
+        "internal/health_monitor_impl.cpp",
+        "internal/health_monitor_impl.h",
+        "internal/log_string.h",
+        "internal/monitor_evaluator.h",
+        "internal/monitoring_logic.cpp",
+        "internal/monitoring_logic.h",
+        "internal/monotonic_time.h",
+        "internal/thread_setup.cpp",
+        "internal/thread_setup.h",
+        "internal/worker.cpp",
+        "internal/worker.h",
+        "logic_monitor/logic_monitor_impl.cpp",
+        "logic_monitor/logic_monitor_impl.h",
+        "logic_monitor/logic_state.h",
+        "logic_monitor_builder.cpp",
+        "thread_parameters.cpp",
+    ],
+    hdrs = [
+        "deadline.h",
+        "deadline_monitor.h",
+        "deadline_monitor_builder.h",
+        "health_monitor.h",
+        "health_monitor_builder.h",
+        "heartbeat_monitor.h",
+        "heartbeat_monitor_builder.h",
+        "logic_monitor.h",
+        "logic_monitor_builder.h",
+        "tag.h",
+        "taken.h",
+        "thread_parameters.h",
+        "time_range.h",
+    ],
+    include_prefix = "score/health_monitor",
+    strip_include_prefix = "",
+    deps = [
+        ":error",
+        ":logger",
+        ":supervisor_client_interface",
+        "@score_baselibs//score/concurrency:interruptible_wait",
+        "@score_baselibs//score/containers:non_relocatable_vector",
+        "@score_baselibs//score/language/futurecpp",
+        "@score_baselibs//score/mw/log",
+        "@score_baselibs//score/mw/log:frontend",
+        "@score_baselibs//score/mw/log:log_stream",
+        "@score_baselibs//score/mw/log:shared_types",
+        "@score_baselibs//score/os:time",
+        "@score_baselibs//score/result",
+        "@score_baselibs//score/result:error",
+    ],
+)
+
+# Supervisor client over the alive API of the launch manager.
+# The process needs the IDENTIFIER environment variable.
+cc_library(
+    name = "alive_supervisor_client",
+    srcs = ["supervisor_client/alive_supervisor_client.cpp"],
+    hdrs = ["supervisor_client/alive_supervisor_client.h"],
+    deps = [
+        ":error",
+        ":logger",
+        ":supervisor_client_interface",
+        "//score/launch_manager:alive_cc",
+        "@score_baselibs//score/language/futurecpp",
+        "@score_baselibs//score/mw/log:frontend",
+        "@score_baselibs//score/mw/log:log_stream",
+        "@score_baselibs//score/result",
+    ],
+    alwayslink = True,
+)
+
+# Supervisor client that needs no supervisor: it connects at once and only logs each alive notification.
+cc_library(
+    name = "stub_supervisor_client",
+    srcs = ["supervisor_client/stub_supervisor_client.cpp"],
+    deps = [
+        ":logger",
+        ":supervisor_client_interface",
+        "@score_baselibs//score/mw/log:frontend",
+        "@score_baselibs//score/mw/log:log_stream",
+        "@score_baselibs//score/result",
+    ],
+    alwayslink = True,
+)
+
+# Supervisor client backend that :health_monitor links.
+# Built in: :alive_supervisor_client (default) and :stub_supervisor_client.
+# An external backend is a cc_library that depends on :supervisor_client_interface and defines SupervisorClient::Create().
+# Its visibility must include this package.
+# Every backend sets alwayslink: only :health_monitor_base calls Create(), and a static link may place it after the backend.
+label_flag(
+    name = "supervisor_client",
+    build_setting_default = ":alive_supervisor_client",
 )
 
 cc_library(
     name = "health_monitor",
-    srcs = ["health_monitor.cpp"],
-    hdrs = ["health_monitor.h"],
-    include_prefix = "score/mw/health",
-    strip_include_prefix = "/score/health_monitor/src/cpp",
-    visibility = ["//score:__subpackages__"],
+    visibility = ["//visibility:public"],
     deps = [
-        ":common",
-        ":tag",
-        "//score/health_monitor/src/cpp/deadline:deadline_monitor",
-        "//score/health_monitor/src/cpp/details:thread",
-        "//score/health_monitor/src/cpp/heartbeat:heartbeat_monitor",
-        "//score/health_monitor/src/cpp/logic:logic_monitor",
-        "@score_baselibs//score/language/futurecpp",
+        ":health_monitor_base",
+        ":supervisor_client",
     ],
 )
 
+# gmock classes for tests of application code that takes the health monitor interfaces.
 cc_library(
-    name = "health_monitoring_cc",
-    visibility = ["//score/health_monitor:__pkg__"],
+    name = "mock",
+    testonly = True,
+    hdrs = [
+        "mock_deadline.h",
+        "mock_deadline_monitor.h",
+        "mock_health_monitor.h",
+        "mock_heartbeat_monitor.h",
+        "mock_logic_monitor.h",
+        "mock_taken.h",
+    ],
+    include_prefix = "score/health_monitor",
+    strip_include_prefix = "",
+    visibility = ["//visibility:public"],
     deps = [
-        "//score/health_monitor/src/cpp:health_monitor",
-        "//score/health_monitor/src/rust:health_monitoring_lib_ffi",
+        ":health_monitor_base",
+        "@googletest//:gtest",
     ],
 )
 
-cc_library(
-    name = "health_monitoring_cc_stub_supervisor",
-    visibility = ["//score/health_monitor/src/cpp:__pkg__"],
-    deps = [
-        "//score/health_monitor/src/cpp:health_monitor",
-        "//score/health_monitor/src/rust:health_monitoring_lib_stub_supervisor",
-    ],
-)
-
+# Links the stub backend directly, so the tests pass under every value of :supervisor_client.
 cc_gtest_unit_test(
-    name = "cpp_unit_tests",
+    name = "tests",
     srcs = [
-        "tests/deadline_monitor_test.cpp",
-        "tests/health_monitor_test.cpp",
-        "tests/heartbeat_monitor_test.cpp",
-        "tests/logic_monitor_test.cpp",
-        "tests/time_range_test.cpp",
+        "deadline_monitor/deadline_monitor_impl_test.cpp",
+        "deadline_monitor/deadline_state_test.cpp",
+        "deadline_test.cpp",
+        "error_test.cpp",
+        "health_monitor_builder_test.cpp",
+        "heartbeat_monitor/heartbeat_monitor_impl_test.cpp",
+        "heartbeat_monitor/heartbeat_state_test.cpp",
+        "internal/fake_monotonic_time.h",
+        "internal/fetch_update_test.cpp",
+        "internal/health_monitor_impl_test.cpp",
+        "internal/mock_supervisor_client.h",
+        "internal/monitoring_logic_test.cpp",
+        "internal/monotonic_time_test.cpp",
+        "internal/test_helpers.h",
+        "internal/thread_setup_test.cpp",
+        "internal/worker_test.cpp",
+        "logic_monitor/logic_monitor_impl_test.cpp",
+        "logic_monitor/logic_state_test.cpp",
+        "mock_usage_test.cpp",
+        "supervisor_client/stub_supervisor_client_test.cpp",
+        "tag_test.cpp",
+        "taken_test.cpp",
+        "thread_parameters_test.cpp",
+        "time_range_test.cpp",
     ],
-    linkopts = select({
-        "@platforms//os:qnx": ["-lsocket"],
-        "@platforms//os:linux": [],
-    }),
     target_compatible_with = select({
         "//config:unit_qemu": [],
         "//config:unit_host": [],
         "//conditions:default": ["@platforms//:incompatible"],
     }),
     deps = [
-        "//score/health_monitor/src/cpp:health_monitoring_cc_stub_supervisor",
-        "//score/health_monitor/src/cpp/details:log_init",
+        ":health_monitor_base",
+        ":mock",
+        ":stub_supervisor_client",
+        "@score_baselibs//score/mw/log:frontend",
+        "@score_baselibs//score/mw/log:recorder_mock",
+        "@score_baselibs//score/os/mocklib:time_mock",
     ],
 )
 
+# Separate from :tests, because a binary links one backend.
 cc_gtest_unit_test(
-    name = "cpp_integration_tests",
-    srcs = [
-        "tests/integrated_test.cpp",
-    ],
-    linkopts = select({
-        "@platforms//os:qnx": ["-lsocket"],
-        "@platforms//os:linux": [],
-    }),
-    target_compatible_with = ["@score_cpp_policies//sanitizers/constraints:no_tsan"] + select({
+    name = "alive_supervisor_client_tests",
+    srcs = ["supervisor_client/alive_supervisor_client_test.cpp"],
+    target_compatible_with = select({
         "//config:unit_qemu": [],
         "//config:unit_host": [],
         "//conditions:default": ["@platforms//:incompatible"],
     }),
     deps = [
-        "//score/health_monitor/src/cpp:health_monitoring_cc_stub_supervisor",
-        "//score/health_monitor/src/cpp/details:log_init",
+        ":alive_supervisor_client",
+        ":health_monitor_base",
+    ],
+)
+
+# Separate from :tests, because it replaces the global operator new of the whole binary to count allocations.
+cc_gtest_unit_test(
+    name = "static_memory_tests",
+    srcs = [
+        "internal/static_memory_test.cpp",
+        "internal/test_helpers.h",
+    ],
+    target_compatible_with = select({
+        "//config:unit_qemu": [],
+        "//config:unit_host": [],
+        "//conditions:default": ["@platforms//:incompatible"],
+    }),
+    deps = [
+        ":health_monitor_base",
+        ":stub_supervisor_client",
+        "@score_baselibs//score/mw/log:frontend",
+        "@score_baselibs//score/os:time",
     ],
 )

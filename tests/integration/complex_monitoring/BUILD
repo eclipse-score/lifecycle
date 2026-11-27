@@ -42,7 +42,6 @@ cc_binary(
         "//score/launch_manager:lifecycle_cc",
         "//tests/utils/test_helper",
         "@googletest//:gtest_main",
-        "@score_baselibs//score/log_rust/stdout_logger_cpp_init",
     ],
 )
 

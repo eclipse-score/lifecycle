@@ -26,7 +26,7 @@ URL+sha256 in `MODULE.bazel`; nothing is compiled or downloaded at analysis time
 ```bash
 # Default: MISRA C++ default suite only (misra-cpp-default.qls)
 bazel run //quality/static_analysis:codeql_lint -- \
-  --target //score/health_monitor/src/cpp:common
+  --target //score/health_monitor/src/cpp:health_monitor
 ```
 
 Run several specific checks in one go — CERT C++ L1 + CERT C L1 + cpp-code-scanning + complexity:

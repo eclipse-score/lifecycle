@@ -11,8 +11,11 @@
 # SPDX-License-Identifier: Apache-2.0
 # *******************************************************************************
 
-# IWYU mappings for score_baselibs headers that have no IWYU pragmas.
+# IWYU mappings for score_baselibs headers that have no or incomplete IWYU pragmas.
 # score::Result<T> is an alias of score::details::expected<T, Error>, the public header is result.h.
+# score::cpp::span is forward-declared in is_span.hpp, which type_traits.hpp exports.
+# The public header of score::cpp::span is span.hpp.
 [
   { "include": [ "\"score/result/details/expected/expected.h\"", "private", "\"score/result/result.h\"", "public" ] },
+  { "include": [ "<score/private/type_traits/is_span.hpp>", "private", "<score/span.hpp>", "public" ] },
 ]

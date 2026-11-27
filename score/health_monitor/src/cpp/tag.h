@@ -11,65 +11,98 @@
  * SPDX-License-Identifier: Apache-2.0
  ********************************************************************************/
 
-#ifndef SCORE_HM_TAG_H
-#define SCORE_HM_TAG_H
+#ifndef SCORE_HEALTH_MONITOR_TAG_H
+#define SCORE_HEALTH_MONITOR_TAG_H
 
 #include <cstddef>
 #include <string_view>
+#include <type_traits>
 
-namespace score::mw::health
+namespace score::health_monitor
+{
+namespace details
 {
 
-/// @brief Common string-based tag.
-template <typename T>
-class Tag
+/// @brief Name of a monitor, deadline or state, compared by text.
+/// @tparam Kind Empty type that makes each tag kind a distinct type.
+/// @warning The tag keeps a pointer to the text and does not copy it.
+/// A tag made from a local `char` array dangles when the array goes out of scope.
+template <typename Kind>
+class Tag final
 {
   public:
-    /// @brief Create a new tag from a C-style string.
-    template <size_t N>
-    explicit Tag(const char (&tag)[N]) : data_(tag), length_(N - 1)
+    /// @brief Creates a tag that refers to `text`.
+    /// @pre `text` has static storage duration, which is always true for a string literal.
+    template <std::size_t N>
+    constexpr explicit Tag(const char (&text)[N]) noexcept : text_{text, N - 1U}
     {
     }
 
-    bool operator==(const T& other) const noexcept
+    /// @brief Rejects a mutable buffer: it is not a string literal, and its size is not the text length.
+    template <std::size_t N>
+    explicit Tag(char (&text)[N]) = delete;
+
+    /// @brief Returns the text. It ends with a null character that `Size()` does not count.
+    constexpr const char* Data() const noexcept
     {
-        std::string_view this_sv{data_, length_};
-        std::string_view other_sv{other.data_, other.length_};
-        return this_sv.compare(other_sv) == 0;
+        return text_.data();
     }
 
-    bool operator!=(const T& other) const noexcept
+    /// @brief Returns the length of the text without the terminating null character.
+    constexpr std::size_t Size() const noexcept
     {
-        return !(*this == other);
+        return text_.size();
+    }
+
+    /// @brief Compares the text, not the pointer.
+    friend constexpr bool operator==(const Tag& lhs, const Tag& rhs) noexcept
+    {
+        return lhs.text_ == rhs.text_;
+    }
+
+    /// @brief Returns true if the texts differ.
+    friend constexpr bool operator!=(const Tag& lhs, const Tag& rhs) noexcept
+    {
+        return !(lhs == rhs);
     }
 
   private:
-    /// @brief SAFETY: This has to be FFI compatible with the Rust side representation.
-    const char* data_;
-    size_t length_;
+    /// @brief Text without the terminating null character. The tag does not own it.
+    std::string_view text_;
 };
 
-/// @brief Monitor tag.
-class MonitorTag : public Tag<MonitorTag>
+/// @brief Kind of `MonitorTag`.
+struct MonitorTagKind
 {
-  public:
-    using Tag::Tag;
 };
-
-/// @brief Deadline tag.
-class DeadlineTag : public Tag<DeadlineTag>
+/// @brief Kind of `DeadlineTag`.
+struct DeadlineTagKind
 {
-  public:
-    using Tag::Tag;
 };
-
-/// @brief State tag.
-class StateTag : public Tag<StateTag>
+/// @brief Kind of `StateTag`.
+struct StateTagKind
 {
-  public:
-    using Tag::Tag;
 };
 
-}  // namespace score::mw::health
+}  // namespace details
 
-#endif  // SCORE_HM_TAG_H
+/// @brief Names a monitor in the health monitor.
+using MonitorTag = details::Tag<details::MonitorTagKind>;
+/// @brief Names a deadline in a deadline monitor.
+using DeadlineTag = details::Tag<details::DeadlineTagKind>;
+/// @brief Names a state in a logic monitor.
+using StateTag = details::Tag<details::StateTagKind>;
+
+static_assert(
+    std::is_standard_layout_v<MonitorTag> && std::is_trivially_copyable_v<MonitorTag>,
+    "A C interface passes tags by value.");
+static_assert(
+    std::is_standard_layout_v<DeadlineTag> && std::is_trivially_copyable_v<DeadlineTag>,
+    "A C interface passes tags by value.");
+static_assert(
+    std::is_standard_layout_v<StateTag> && std::is_trivially_copyable_v<StateTag>,
+    "A C interface passes tags by value.");
+
+}  // namespace score::health_monitor
+
+#endif  // SCORE_HEALTH_MONITOR_TAG_H
