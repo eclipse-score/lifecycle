@@ -850,12 +850,18 @@ class GraphComponentRecoveryTest : public GraphTest
         graph_config_ = config.takeGraph();
     }
 
+    /// @brief PID of a process restarted by a recovery job.
+    static constexpr osal::ProcessID kRestartedPid{101};
+
     /// @brief Simulates a crash of an active process as reported by the OS handler.
-    void crash(int process_index)
+    /// @param process_index Index of the crashing process.
+    /// @param pid PID of the crashing process: kPid after the initial activation, kRestartedPid after a recovery.
+    void crash(int process_index, osal::ProcessID pid = kPid)
     {
         auto* const node = findActivatedComponent(IdentifierHash{process_name(process_index)});
         ASSERT_NE(node, nullptr);
-        ASSERT_EQ(node->tryHandleTermination(134), IComponent::TerminationResult::kFailure);
+        ASSERT_EQ(
+            node->tryHandleTermination(ProcessHandle{pid, nullptr}, 134), IComponent::TerminationResult::kFailure);
         graph_->handleComponentEvent(UnexpectedTermination{node->getIdentifier()});
     }
 
@@ -870,13 +876,16 @@ class GraphComponentRecoveryTest : public GraphTest
     }
 
     /// @brief Executes a recovery job whose restart reaches the ready condition.
+    /// @details The restart itself is the responsibility of the component, so it is simulated by activating the
+    ///          component again. Only the reaction of the graph to the recovery result is under test here.
     void executeRecoveryJobSuccessfully(const ComponentTask& job)
     {
         EXPECT_CALL(process_interface_, startProcess)
-            .WillOnce(DoAll(SetArgReferee<0>(osal::ProcessID{101}), Return(osal::OsalReturnType::kSuccess)));
+            .WillOnce(DoAll(
+                SetArgReferee<0>(kRestartedPid), SetArgReferee<1>(sync_), Return(osal::OsalReturnType::kSuccess)));
         EXPECT_CALL(*mock_process_map_, insertIfNotTerminated)
             .WillOnce(Return(SafeProcessMapInsertResult{SafeProcessMapReturnType::kInserted}));
-        ASSERT_EQ(job.component.get().recover(job.stop_token), IComponent::RequestResult::kSuccess);
+        ASSERT_EQ(job.component.get().activate(job.stop_token), IComponent::RequestResult::kSuccess);
         graph_->handleComponentEvent(ComponentRecoverySuccessful{job.component.get().getIdentifier()});
     }
 
@@ -1010,7 +1019,7 @@ TEST_F(GraphComponentRecoveryTest, crashAgainAfterSuccessfulRecoveryRecoversAgai
     executeRecoveryJobSuccessfully(popRecoveryJob(0));
     ASSERT_EQ(graph_->getState(), GraphState::kSuccess);
 
-    crash(0);
+    crash(0, kRestartedPid);
 
     EXPECT_EQ(graph_->getState(), GraphState::kComponentRecovery);
     const auto job = popRecoveryJob(0);
