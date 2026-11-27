@@ -15,6 +15,7 @@
 
 #include "score/health_monitor/error.h"
 #include "score/health_monitor/src/cpp/heartbeat_monitor/heartbeat_monitor_impl.h"
+#include "score/health_monitor/src/cpp/internal/log_string.h"
 #include "score/health_monitor/src/cpp/internal/logger.h"
 #include "score/health_monitor/src/cpp/internal/thread_setup.h"
 

@@ -14,9 +14,8 @@
 #ifndef SCORE_HEALTH_MONITOR_INTERNAL_LOGGER_H
 #define SCORE_HEALTH_MONITOR_INTERNAL_LOGGER_H
 
-#include "score/health_monitor/tag.h"
-#include "score/mw/log/log_types.h"
-#include "score/mw/log/logger.h"
+#include "score/mw/log/log_stream.h"  // IWYU pragma: export
+#include "score/mw/log/logger.h"      // IWYU pragma: export
 
 #include <string_view>
 
@@ -31,13 +30,6 @@ inline const score::mw::log::Logger& GetLogger() noexcept
 {
     static const score::mw::log::Logger instance{kLogContext};
     return instance;
-}
-
-/// @brief Returns the text of `tag` in the form the log stream takes.
-template <typename Kind>
-constexpr score::mw::log::LogString ToLogString(const Tag<Kind>& tag) noexcept
-{
-    return score::mw::log::LogString{tag.Data(), tag.Size()};
 }
 
 }  // namespace score::health_monitor::details

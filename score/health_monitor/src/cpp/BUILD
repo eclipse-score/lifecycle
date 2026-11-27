@@ -22,10 +22,7 @@ cc_library(
     include_prefix = "score/health_monitor",
     strip_include_prefix = "",
     visibility = ["//visibility:public"],
-    deps = [
-        "@score_baselibs//score/result",
-        "@score_baselibs//score/result:error",
-    ],
+    deps = ["@score_baselibs//score/result:error"],
 )
 
 # Interface that every supervisor client backend implements, together with SupervisorClient::Create().
@@ -35,9 +32,16 @@ cc_library(
     include_prefix = "score/health_monitor",
     strip_include_prefix = "",
     visibility = ["//visibility:public"],
+    deps = ["@score_baselibs//score/result"],
+)
+
+# Shared logger of the health monitor and of the supervisor client backends.
+cc_library(
+    name = "logger",
+    hdrs = ["internal/logger.h"],
     deps = [
-        ":error",
-        "@score_baselibs//score/result",
+        "@score_baselibs//score/mw/log:frontend",
+        "@score_baselibs//score/mw/log:log_stream",
     ],
 )
 
@@ -59,7 +63,7 @@ cc_library(
         "internal/fetch_update.h",
         "internal/health_monitor_impl.cpp",
         "internal/health_monitor_impl.h",
-        "internal/logger.h",
+        "internal/log_string.h",
         "internal/monitor_evaluator.h",
         "internal/monitoring_logic.cpp",
         "internal/monitoring_logic.h",
@@ -93,11 +97,13 @@ cc_library(
     strip_include_prefix = "",
     deps = [
         ":error",
+        ":logger",
         ":supervisor_client_interface",
         "@score_baselibs//score/concurrency:interruptible_wait",
         "@score_baselibs//score/containers:non_relocatable_vector",
         "@score_baselibs//score/language/futurecpp",
         "@score_baselibs//score/mw/log",
+        "@score_baselibs//score/mw/log:shared_types",
         "@score_baselibs//score/os:time",
         "@score_baselibs//score/result",
     ],
@@ -110,8 +116,12 @@ cc_library(
     srcs = ["supervisor_client/alive_supervisor_client.cpp"],
     hdrs = ["supervisor_client/alive_supervisor_client.h"],
     deps = [
-        ":health_monitor_base",
+        ":error",
+        ":logger",
+        ":supervisor_client_interface",
         "//score/launch_manager:alive_cc",
+        "@score_baselibs//score/language/futurecpp",
+        "@score_baselibs//score/result",
     ],
     alwayslink = True,
 )
@@ -120,7 +130,10 @@ cc_library(
 cc_library(
     name = "stub_supervisor_client",
     srcs = ["supervisor_client/stub_supervisor_client.cpp"],
-    deps = [":health_monitor_base"],
+    deps = [
+        ":logger",
+        ":supervisor_client_interface",
+    ],
     alwayslink = True,
 )
 
@@ -217,7 +230,10 @@ cc_gtest_unit_test(
         "//config:unit_host": [],
         "//conditions:default": ["@platforms//:incompatible"],
     }),
-    deps = [":alive_supervisor_client"],
+    deps = [
+        ":alive_supervisor_client",
+        ":health_monitor_base",
+    ],
 )
 
 # Separate from :tests, because it replaces the global operator new of the whole binary to count allocations.
