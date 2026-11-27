@@ -31,7 +31,7 @@
 
     <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=8f2a1f02" />
     <link rel="stylesheet" type="text/css" href="../../../_static/graphviz.css?v=4ae1632d" />
-    <link rel="stylesheet" type="text/css" href="../../../_static/css/score.css?v=d7d4a875" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/css/score.css?v=5737673c" />
     <link rel="stylesheet" type="text/css" href="../../../_static/css/score_needs.css?v=6a6a7ab0" />
     <link rel="stylesheet" type="text/css" href="../../../_static/css/score_design.css?v=f381fa98" />
     <link rel="stylesheet" type="text/css" href="../../../_static/sphinx-design.min.css?v=6a604523" />
@@ -72,7 +72,7 @@
     <script>DOCUMENTATION_OPTIONS.search_as_you_type = false;</script>
     <link rel="index" title="Index" href="../../../genindex.html" />
     <link rel="search" title="Search" href="../../../search.html" />
-    <link rel="next" title="Implementation Inspection Checklist" href="chklst_impl_inspection.html" />
+    <link rel="next" title="Detailed comparison of fork()+execve() vs posix_spawn (QNX-only)" href="fork_vs_posix_spawn.html" />
     <link rel="prev" title="Detailed Design" href="index.html" />
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <meta name="color-scheme" content="light dark"/>
@@ -432,6 +432,7 @@
 <li class="toctree-l2"><a class="reference internal" href="../architecture/index.html">Component Architecture</a></li>
 <li class="toctree-l2 current active has-children"><a class="reference internal" href="index.html">Detailed Design</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul class="current">
 <li class="toctree-l3 current active"><a aria-current="page" class="current reference internal" href="#">Detailed Design for Component: Launch Manager, Graph Functionality</a></li>
+<li class="toctree-l3"><a class="reference internal" href="fork_vs_posix_spawn.html">Detailed comparison of fork()+execve() vs posix_spawn (QNX-only)</a></li>
 <li class="toctree-l3"><a class="reference internal" href="chklst_impl_inspection.html">Implementation Inspection Checklist</a></li>
 </ul>
 </details></li>
@@ -546,7 +547,7 @@ is only scheduled on a thread pool.</p>
 <p>The component activation sequence is executed synchronously on a worker thread.</p>
 <figure class="align-center">
 <p class="plantuml">
-<object data="../../../_images/plantuml-617ea8c86961e0955aa9c13c6e62ddc93f8d21d8.svg" type="image/svg+xml" style="width:2282px;height:2310px;background:#FFFFFF;"></object></p>
+<object data="../../../_images/plantuml-3b11c49a9626ecfdda2312a26ef62374194ac9dd.svg" type="image/svg+xml" style="width:2948px;height:2439px;background:#FFFFFF;"></object></p>
 </figure>
 </section>
 <section id="component-deactivation">
@@ -563,7 +564,23 @@ is only scheduled on a thread pool.</p>
 <p>The component deactivation sequence is executed synchronously on a worker thread.</p>
 <figure class="align-center">
 <p class="plantuml">
-<object data="../../../_images/plantuml-3ee6c3e1d1b5f3aad4384751496a9859e2d634f3.svg" type="image/svg+xml" style="width:2535px;height:1589px;background:#FFFFFF;"></object></p>
+<object data="../../../_images/plantuml-100fdff0c753ec5bb48e3242a5f2ce84d718edf4.svg" type="image/svg+xml" style="width:2653px;height:2186px;background:#FFFFFF;"></object></p>
+</figure>
+</section>
+<section id="component-state-machine">
+<h3>Component State Machine<a class="headerlink" href="#component-state-machine" title="Link to this heading">#</a></h3>
+<p>A component manages one resource, currently only a POSIX process, and is always in one of four states:</p>
+<ul class="simple">
+<li><p><strong>Terminated</strong>: no resource is running. This is the initial state and the state every failure ends in,
+so a component can always be activated again.</p></li>
+<li><p><strong>Starting</strong>: the resource has been started and the component waits for its ready condition.</p></li>
+<li><p><strong>Ready</strong>: the resource has finished its startup and, if configured, is supervised.</p></li>
+<li><p><strong>Terminating</strong>: the resource has been asked to stop and the component waits for its termination,
+first gracefully up to the shutdown timeout, then forcefully terminating it.</p></li>
+</ul>
+<figure class="align-center">
+<p class="plantuml">
+<object data="../../../_images/plantuml-46bab72833ce3f03dd520eebb2755742e2f7c37d.svg" type="image/svg+xml" style="width:1666px;height:1089px;background:#FFFFFF;"></object></p>
 </figure>
 </section>
 <section id="process-termination">
@@ -573,7 +590,7 @@ time after activation in case of a process crash or a self-terminating process.
 The latter is the focus of the diagram below.</p>
 <figure class="align-center">
 <p class="plantuml">
-<object data="../../../_images/plantuml-5cdf30b0a801d580aab5d05854a42c26fa5c84c3.svg" type="image/svg+xml" style="width:2219px;height:1838px;background:#FFFFFF;"></object></p>
+<object data="../../../_images/plantuml-b3b0fcf5a488c75b99e104e39faf1c74d43ca523.svg" type="image/svg+xml" style="width:2473px;height:1738px;background:#FFFFFF;"></object></p>
 </figure>
 </section>
 <section id="supervision-failure">
@@ -611,8 +628,31 @@ in a well-defined state.</p>
 may be safely cancelled.</p>
 <figure class="align-center">
 <p class="plantuml">
-<object data="../../../_images/plantuml-e978d7bbf6e71b3faca246ddd971c51f9da42f9d.svg" type="image/svg+xml" style="width:2618px;height:2678px;background:#FFFFFF;"></object></p>
+<object data="../../../_images/plantuml-377f647399503bf6c4fe036e1ac2918b2391cde5.svg" type="image/svg+xml" style="width:2558px;height:2518px;background:#FFFFFF;"></object></p>
 </figure>
+<p>A cancellation is observed at three points, each of which leaves the component
+in a state the next transition can reason about:</p>
+<ol class="arabic simple">
+<li><p><strong>Before the task is executed.</strong> A worker that picks up a task for which
+cancellation was already requested does not run it and reports it as skipped.
+The component keeps the state it had before the transition.</p></li>
+<li><p><strong>While waiting for the ready condition.</strong> Every ready condition is abortable:
+the wait for the Running report, a configured file, the termination of the
+process, or a sequence of these is interrupted and the startup attempt fails.
+Its process is stopped (SIGTERM, then SIGKILL after the shutdown timeout), no
+further attempt is started and the activation returns. The component is left
+stopped.</p></li>
+<li><p><strong>Between two startup attempts.</strong> Every failed attempt is stopped before the
+cancellation is checked. No further attempt is started and the activation
+returns. The component is left stopped.</p></li>
+</ol>
+<p>Stopping a process is not abortable, whether after a failed attempt or for a
+deactivation, and always runs to its end. The process may be writing its state
+to disk, so it always keeps its full shutdown timeout before SIGKILL follows.</p>
+<p>A component that reaches its ready condition despite the cancellation is
+reported as activated and left running. The next transition stops it if its
+target does not need it. The time a cancellation needs is therefore bounded by
+the shutdown timeouts of the components still in flight.</p>
 </section>
 </section>
 <section id="units-within-the-component">
@@ -652,11 +692,11 @@ This detailed design focuses on the central dependency graph logic and its inter
       </div>
     </a>
     <a class="right-next"
-       href="chklst_impl_inspection.html"
+       href="fork_vs_posix_spawn.html"
        title="next page">
       <div class="prev-next-info">
         <p class="prev-next-subtitle">next</p>
-        <p class="prev-next-title">Implementation Inspection Checklist</p>
+        <p class="prev-next-title">Detailed comparison of fork()+execve() vs posix_spawn (QNX-only)</p>
       </div>
       <i class="fa-solid fa-angle-right"></i>
     </a>
@@ -684,6 +724,7 @@ This detailed design focuses on the central dependency graph logic and its inter
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#graph-state-machine">Graph State Machine</a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#component-activation">Component Activation</a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#component-deactivation">Component Deactivation</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#component-state-machine">Component State Machine</a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#process-termination">Process Termination</a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#supervision-failure">Supervision Failure</a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#run-target-transition">Run Target transition</a></li>
