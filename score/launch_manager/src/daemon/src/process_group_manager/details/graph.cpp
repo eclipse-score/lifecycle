@@ -420,17 +420,30 @@ void Graph::handleComponentEvent(const ComponentEvent& event)
                 IComponent& failingComponent = componentOf(nodes_[data.node_identifier]);
                 const std::optional<configuration::RecoveryAction>& recovery_action =
                     failingComponent.getRecoveryAction();
-                const bool has_local_recovery =
-                    recovery_action.has_value() &&
-                    configuration::getScope(*recovery_action) == configuration::RecoveryActionScope::kLocal;
 
-                const GraphState state = getState();
-                if ((state == GraphState::kSuccess || state == GraphState::kComponentRecovery) && has_local_recovery)
+                if (!recovery_action.has_value())
                 {
-                    startComponentRecovery(failingComponent);
+                    // No recovery action configured: escalate.
+                    cancel();
+                }
+                else if (configuration::getScope(*recovery_action) == configuration::RecoveryActionScope::kLocal)
+                {
+                    // The component recovers itself. This is only possible while the active Run Target is stable,
+                    // a failure during a transition aborts the transition instead.
+                    const GraphState state = getState();
+                    if (state == GraphState::kSuccess || state == GraphState::kComponentRecovery)
+                    {
+                        startComponentRecovery(failingComponent);
+                    }
+                    else
+                    {
+                        cancel();
+                    }
                 }
                 else
                 {
+                    // TODO: Implement SwitchRunTargetAction
+                    // Currently always switching to fallback_run_target
                     cancel();
                 }
             }

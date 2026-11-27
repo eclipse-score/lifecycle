@@ -1084,6 +1084,21 @@ TEST_F(GraphComponentRecoveryTest, crashWithRestartActionDuringTransitionAborts)
     }
 }
 
+TEST_F(GraphComponentRecoveryTest, crashWithoutRecoveryActionEscalates)
+{
+    RecordProperty(
+        "Description",
+        "Test that a crash of a component without a recovery action in kSuccess queues no recovery and escalates to "
+        "kUndefinedState");
+
+    completeTransition(active_run_target_);
+
+    crash(2);
+
+    EXPECT_EQ(graph_->getState(), GraphState::kUndefinedState);
+    expectNoMoreJobs();
+}
+
 /// @brief Graph with a single supervised process
 class GraphSupervisionFailureTest : public GraphTest
 {
