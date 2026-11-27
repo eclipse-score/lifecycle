@@ -46,6 +46,8 @@ test_suite(
         "//tests/integration/sandbox_options/root:sandbox_options",
         "//tests/integration/shutdown_signal",
         "//tests/integration/smoke",
+        "//tests/integration/stress_health_monitor",
+        "//tests/integration/stress_launch",
         "//tests/integration/switch_run_target",
     ],
 )
