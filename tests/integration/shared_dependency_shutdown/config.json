@@ -54,8 +54,7 @@
                     "component_shared"
                 ],
                 "process_arguments": [
-                    "--stop-delay-ms",
-                    "300"
+                    "--exit-first"
                 ]
             },
             "deployment_config": {
@@ -69,10 +68,6 @@
                 "binary_name": "dependent_process",
                 "depends_on": [
                     "component_shared"
-                ],
-                "process_arguments": [
-                    "--stop-delay-ms",
-                    "1500"
                 ]
             },
             "deployment_config": {

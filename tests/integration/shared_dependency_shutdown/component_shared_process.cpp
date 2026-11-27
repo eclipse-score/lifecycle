@@ -26,7 +26,13 @@ score::mw::lifecycle::test::ShmCounter* g_violation_counter = nullptr;
 
 /// @brief Records a violation if this process is asked to stop before both of its dependents
 /// (component_fast, component_slow) have fully exited.
-/// @details Async-signal-safe: both counters are lock-free atomics in shared memory.
+/// @details The dependents coordinate so that the stop counter provably stays below
+/// kSharedDependentCount for as long as either of them is still shutting down (see
+/// dependent_process.cpp): the slow one does not publish its own stop ticket until it has seen
+/// the fast one exit and has then held that state open for kPrematureStopObservationWindow. A
+/// SIGTERM observed with a lower count therefore really did arrive while a dependent was still
+/// running; it is not an artifact of two shutdowns happening to be ordered unfavourably.
+/// Async-signal-safe: both counters are lock-free atomics in shared memory.
 void sigtermHandler(int)
 {
     if (g_stop_counter->get() != kSharedDependentCount)

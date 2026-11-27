@@ -28,9 +28,13 @@ TEST(SharedDependencyShutdown, ControlClientTestDriver)
     // clean the counters
     test::ShmCounter::unlink(kStartCounterName);
     test::ShmCounter::unlink(kStopCounterName);
+    test::ShmCounter::unlink(kDeactivatingCounterName);
     test::ShmCounter::unlink(kViolationCounterName);
+    test::ShmCounter::unlink(kSyncFailureCounterName);
     test::ShmCounter stop_counter{kStopCounterName};
+    test::ShmCounter deactivating_counter{kDeactivatingCounterName};
     test::ShmCounter violation_counter{kViolationCounterName};
+    test::ShmCounter sync_failure_counter{kSyncFailureCounterName};
 
     std::unique_ptr<ILmControl> client;
 
@@ -95,11 +99,14 @@ TEST(SharedDependencyShutdown, ControlClientTestDriver)
     TEST_STEP("Nothing has stopped yet")
     {
         EXPECT_EQ(stop_counter.get(), 0);
+        EXPECT_EQ(deactivating_counter.get(), 0);
     }
 
     // component_fast and component_slow both depend on component_shared and are stopped in
-    // parallel. component_fast exits quickly, component_slow keeps running for a while after
-    // SIGTERM. component_shared must not be asked to stop until both of them are gone.
+    // parallel. They rendezvous on the deactivating counter so that both are provably inside
+    // their graceful shutdown, then component_fast exits while component_slow waits for exactly
+    // that and keeps running past it. component_shared must not be asked to stop until both of
+    // them are gone.
     TEST_STEP("Activate Startup Run Target, which stops both dependents and then the shared component")
     {
         const auto result = client->activate_run_target("Startup", true);
@@ -113,6 +120,14 @@ TEST(SharedDependencyShutdown, ControlClientTestDriver)
             EXPECT_EQ(target, "Startup");
         }
     });
+
+    TEST_STEP("Both dependents really did shut down at the same time")
+    {
+        EXPECT_EQ(deactivating_counter.get(), kSharedDependentCount);
+        EXPECT_EQ(sync_failure_counter.get(), 0)
+            << "a dependent timed out waiting for the other one: the deactivations did not "
+               "overlap as this test requires, so the check below proves nothing";
+    }
 
     TEST_STEP("component_shared was not asked to stop before all of its dependents had exited")
     {
@@ -131,7 +146,9 @@ TEST(SharedDependencyShutdown, ControlClientTestDriver)
     {
         test::ShmCounter::unlink(kStartCounterName);
         test::ShmCounter::unlink(kStopCounterName);
+        test::ShmCounter::unlink(kDeactivatingCounterName);
         test::ShmCounter::unlink(kViolationCounterName);
+        test::ShmCounter::unlink(kSyncFailureCounterName);
     }
 }
 

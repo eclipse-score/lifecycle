@@ -40,12 +40,23 @@ def test_shared_dependency_shutdown(
         run_target_diamond -> component_fast -> component_shared
                            -> component_slow -> component_shared
 
-    component_fast and component_slow both run the dependent_process binary (parameterized by
-    --stop-delay-ms) and are stopped in parallel. Both keep running after SIGTERM to model
-    graceful shutdown work; component_fast exits after 300 ms, component_slow after 1500 ms.
-    Each increments a shared stop counter immediately before exiting. component_shared runs the
-    dedicated component_shared_process binary, which checks that counter in its own SIGTERM
-    handler.
+    component_fast and component_slow both run the dependent_process binary (component_fast is
+    the one started with --exit-first) and are stopped in parallel. Both keep running after
+    SIGTERM to model graceful shutdown work, and each increments a shared stop counter
+    immediately before exiting. component_shared runs the dedicated component_shared_process
+    binary, which checks that counter in its own SIGTERM handler.
+
+    Rather than relying on two different sleep durations to produce the interesting interleaving,
+    the dependents establish it explicitly with bounded waits through shared memory:
+    - both announce on a shared counter that their graceful shutdown has begun, and each waits
+      for the other's announcement, so the two deactivations provably overlap
+    - component_fast then exits
+    - component_slow waits until it sees component_fast's stop ticket and only then holds that
+      state open for a bounded observation window, so there is always a window in which exactly
+      one dependent is gone and the other is demonstrably still running
+
+    A wait that times out increments a sync failure counter, which the driver asserts to be zero:
+    if the coordination ever stops working the test fails instead of silently degrading.
 
     Should observe:
     1. activate run_target_diamond
