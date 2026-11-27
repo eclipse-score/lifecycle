@@ -12308,7 +12308,7 @@
   {
     "name": "SharedDependencyOfTwoRootsTest__SharedDependencyWaitsForEveryDependentToActuallyFinish",
     "file": "score/launch_manager/src/daemon/src/process_group_manager/details/transition_UT.cpp",
-    "line": "700",
+    "line": "699",
     "result": "passed",
     "repo_name": "local_repo",
     "hash": "",
