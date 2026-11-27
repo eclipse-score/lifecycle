@@ -15,7 +15,7 @@
 #define SCORE_LCM_IFORCE_STOP_ACTION_HPP_INCLUDED
 
 #include "score/mw/launch_manager/process_group_manager/details/handle.hpp"
-#include "score/mw/launch_manager/process_group_manager/details/icomponent.hpp"
+#include "score/mw/launch_manager/process_group_manager/icomponent.hpp"
 #include "score/result/result.h"
 #include <score/stop_token.hpp>
 

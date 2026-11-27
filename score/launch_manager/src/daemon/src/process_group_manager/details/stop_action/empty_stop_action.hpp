@@ -15,8 +15,8 @@
 #define SCORE_LCM_EMPTY_STOP_ACTION_HPP_INCLUDED
 
 #include "score/mw/launch_manager/process_group_manager/details/handle.hpp"
-#include "score/mw/launch_manager/process_group_manager/details/icomponent.hpp"
 #include "score/mw/launch_manager/process_group_manager/details/stop_action/istop_action.hpp"
+#include "score/mw/launch_manager/process_group_manager/icomponent.hpp"
 #include "score/result/result.h"
 
 namespace score::mw::lifecycle::internal

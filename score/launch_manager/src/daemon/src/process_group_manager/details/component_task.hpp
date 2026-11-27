@@ -14,7 +14,7 @@
 #ifndef SCORE_LCM_COMPONENT_TASK_HPP_INCLUDED
 #define SCORE_LCM_COMPONENT_TASK_HPP_INCLUDED
 
-#include "score/mw/launch_manager/process_group_manager/details/icomponent.hpp"
+#include "score/mw/launch_manager/process_group_manager/icomponent.hpp"
 #include <score/stop_token.hpp>
 #include <cstdint>
 #include <functional>

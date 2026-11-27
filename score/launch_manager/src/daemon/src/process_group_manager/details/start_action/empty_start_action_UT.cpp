@@ -11,8 +11,8 @@
  * SPDX-License-Identifier: Apache-2.0
  ********************************************************************************/
 
-#include "score/mw/launch_manager/process_group_manager/details/mock_component.hpp"
 #include "score/mw/launch_manager/process_group_manager/details/start_action/empty_start_action.hpp"
+#include "score/mw/launch_manager/process_group_manager/mock_component.hpp"
 #include <gtest/gtest.h>
 
 namespace score::mw::lifecycle::internal

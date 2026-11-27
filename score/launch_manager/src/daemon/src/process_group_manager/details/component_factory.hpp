@@ -18,8 +18,8 @@
 #include "score/mw/launch_manager/configuration/component_config.hpp"
 #include "score/mw/launch_manager/osal/ifile_waiter.hpp"
 #include "score/mw/launch_manager/process_group_manager/details/component.hpp"
-#include "score/mw/launch_manager/process_group_manager/details/safe_process_map.hpp"
-#include "score/mw/launch_manager/process_group_manager/iprocess.hpp"
+#include "score/mw/launch_manager/process_group_manager/details/process/iprocess.hpp"
+#include "score/mw/launch_manager/process_group_manager/details/process/safe_process_map.hpp"
 #include "score/result/result.h"
 #include <memory>
 

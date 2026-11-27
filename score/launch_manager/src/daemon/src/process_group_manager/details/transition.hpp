@@ -17,7 +17,7 @@
 #include "score/mw/launch_manager/common/constants.hpp"
 #include "score/mw/launch_manager/process_group_manager/details/component_of.hpp"
 #include "score/mw/launch_manager/process_group_manager/details/dependency_graph.hpp"
-#include "score/mw/launch_manager/process_group_manager/details/icomponent.hpp"
+#include "score/mw/launch_manager/process_group_manager/icomponent.hpp"
 
 #include <score/assert.hpp>
 

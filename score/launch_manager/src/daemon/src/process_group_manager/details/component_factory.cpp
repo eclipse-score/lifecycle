@@ -13,15 +13,15 @@
 
 #include "score/mw/launch_manager/process_group_manager/details/component_factory.hpp"
 #include "score/mw/launch_manager/process_group_manager/details/component.hpp"
-#include "score/mw/launch_manager/process_group_manager/details/force_stop_action/process_force_stop_action.hpp"
+#include "score/mw/launch_manager/process_group_manager/details/process/process_force_stop_action.hpp"
+#include "score/mw/launch_manager/process_group_manager/details/process/process_start_action.hpp"
+#include "score/mw/launch_manager/process_group_manager/details/process/process_stop_action.hpp"
+#include "score/mw/launch_manager/process_group_manager/details/process/process_terminated_ready_condition.hpp"
+#include "score/mw/launch_manager/process_group_manager/details/process/report_running_ready_condition.hpp"
 #include "score/mw/launch_manager/process_group_manager/details/ready_condition/empty_ready_condition.hpp"
 #include "score/mw/launch_manager/process_group_manager/details/ready_condition/file_ready_condition.hpp"
 #include "score/mw/launch_manager/process_group_manager/details/ready_condition/iready_condition.hpp"
-#include "score/mw/launch_manager/process_group_manager/details/ready_condition/process_terminated_ready_condition.hpp"
-#include "score/mw/launch_manager/process_group_manager/details/ready_condition/report_running_ready_condition.hpp"
 #include "score/mw/launch_manager/process_group_manager/details/ready_condition/sequence_ready_condition.hpp"
-#include "score/mw/launch_manager/process_group_manager/details/start_action/process_start_action.hpp"
-#include "score/mw/launch_manager/process_group_manager/details/stop_action/process_stop_action.hpp"
 #include <score/assert.hpp>
 #include <type_traits>
 #include <utility>

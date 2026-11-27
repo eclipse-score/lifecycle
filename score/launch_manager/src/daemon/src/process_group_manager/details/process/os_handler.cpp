@@ -1,0 +1,63 @@
+/********************************************************************************
+ * Copyright (c) 2025 Contributors to the Eclipse Foundation
+ *
+ * See the NOTICE file(s) distributed with this work for additional
+ * information regarding copyright ownership.
+ *
+ * This program and the accompanying materials are made available under the
+ * terms of the Apache License Version 2.0 which is available at
+ * https://www.apache.org/licenses/LICENSE-2.0
+ *
+ * SPDX-License-Identifier: Apache-2.0
+ ********************************************************************************/
+
+#include "score/mw/launch_manager/process_group_manager/details/process/os_handler.hpp"
+#include "score/mw/launch_manager/common/log.hpp"
+#include <score/expected.hpp>
+#include <stdint.h>
+#include <stdlib.h>
+
+namespace score::mw::lifecycle::internal
+{
+
+void OsHandler::run(void)
+{
+    while (is_running_)
+    {
+        int32_t wait_status = 0;
+        const auto result = sys_wait_.wait(&wait_status);
+
+        if (!result.has_value() || (result.value() <= 0))
+        {
+            // This process has no children to wait for at present,
+            // or the wait was interrupted by a signal.
+            // Wait a while to stop this thread from hogging cpu time
+            std::this_thread::sleep_for(OS_HANDLER_LOOP_DELAY);
+            continue;
+        }
+
+        if (WIFSTOPPED(wait_status) || WIFCONTINUED(wait_status))
+        {
+            // Child was stopped or continues, not terminated. Nothing to do.
+            continue;
+        }
+
+        if (WIFEXITED(wait_status))
+        {
+            LM_LOG_DEBUG() << "PID" << result.value() << "exited with exit code" << WEXITSTATUS(wait_status);
+        }
+        else if (WIFSIGNALED(wait_status))
+        {
+            LM_LOG_DEBUG() << "PID" << result.value() << "was killed by signal" << WTERMSIG(wait_status);
+        }
+
+        if (score::mw::lifecycle::internal::SafeProcessMapReturnType::kInsertionError ==
+            safe_process_map_.findTerminated(result.value(), wait_status))
+        {
+            LM_LOG_ERROR() << "No more resources available to track process with PID" << result.value()
+                           << "(SafeProcessMap capacity exceeded).";
+        }
+    }
+}
+
+}  // namespace score::mw::lifecycle::internal

@@ -30,7 +30,7 @@
 #include "score/mw/launch_manager/osal/ipc_comms.hpp"
 #include "score/mw/launch_manager/osal/mock_ifile_waiter.hpp"
 #include "score/mw/launch_manager/process_group_manager/details/graph.hpp"
-#include "score/mw/launch_manager/process_group_manager/mock_iprocess.hpp"
+#include "score/mw/launch_manager/process_group_manager/details/process/mock_iprocess.hpp"
 
 namespace score::mw::lifecycle::internal
 {

@@ -20,8 +20,8 @@ cc_library(
     strip_include_prefix = "/score/launch_manager/src/daemon/src/process_group_manager/details",
     visibility = ["//score/launch_manager/src/daemon/src/process_group_manager:__subpackages__"],
     deps = [
+        "//score/launch_manager/src/daemon/src/process_group_manager:icomponent",
         "//score/launch_manager/src/daemon/src/process_group_manager/details:handle",
-        "//score/launch_manager/src/daemon/src/process_group_manager/details:icomponent",
         "@score_baselibs//score/language/futurecpp",
         "@score_baselibs//score/result",
     ],
@@ -50,8 +50,8 @@ cc_library(
     visibility = ["//score/launch_manager/src/daemon/src/process_group_manager:__subpackages__"],
     deps = [
         ":iforce_stop_action",
+        "//score/launch_manager/src/daemon/src/process_group_manager:icomponent",
         "//score/launch_manager/src/daemon/src/process_group_manager/details:handle",
-        "//score/launch_manager/src/daemon/src/process_group_manager/details:icomponent",
         "@score_baselibs//score/language/futurecpp",
         "@score_baselibs//score/result",
     ],
@@ -62,36 +62,6 @@ lm_cc_test(
     srcs = ["empty_force_stop_action_UT.cpp"],
     deps = [
         ":empty_force_stop_action",
-        "@googletest//:gtest_main",
-    ],
-)
-
-cc_library(
-    name = "process_force_stop_action",
-    srcs = ["process_force_stop_action.cpp"],
-    hdrs = ["process_force_stop_action.hpp"],
-    include_prefix = "score/mw/launch_manager/process_group_manager/details/force_stop_action",
-    strip_include_prefix = "/score/launch_manager/src/daemon/src/process_group_manager/details/force_stop_action",
-    visibility = ["//score/launch_manager/src/daemon/src/process_group_manager:__subpackages__"],
-    deps = [
-        ":iforce_stop_action",
-        "//score/launch_manager:error",
-        "//score/launch_manager/src/daemon/src/osal:return_types",
-        "//score/launch_manager/src/daemon/src/process_group_manager:iprocess",
-        "//score/launch_manager/src/daemon/src/process_group_manager/details:handle",
-        "//score/launch_manager/src/daemon/src/process_group_manager/details:icomponent",
-        "@score_baselibs//score/language/futurecpp",
-        "@score_baselibs//score/result",
-    ],
-)
-
-lm_cc_test(
-    name = "process_force_stop_action_UT",
-    srcs = ["process_force_stop_action_UT.cpp"],
-    deps = [
-        ":process_force_stop_action",
-        "//score/launch_manager:error",
-        "//score/launch_manager/src/daemon/src/process_group_manager:mock_iprocess",
         "@googletest//:gtest_main",
     ],
 )
