@@ -24,10 +24,10 @@
 namespace score::health_monitor
 {
 
-/// @brief Owns the worker thread that checks the monitors and notifies the launch manager.
+/// @brief Owns the worker thread that checks the monitors and notifies the supervisor.
 /// @pre The application takes every monitor, then calls `Start()`.
 /// @note The class is not thread-safe.
-/// @note The worker stops the alive notifications at the first failure, so the launch manager detects it.
+/// @note The worker stops the alive notifications at the first failure, so the supervisor detects it.
 /// The destructor stops the worker thread.
 /// @note The health monitor shares each monitor with its `Taken` handle.
 /// A taken monitor stays valid after the health monitor is destroyed, and nothing checks it then.
@@ -44,29 +44,33 @@ class HealthMonitor
     /// @return The monitor, valid also after the health monitor is destroyed, or one of these errors:
     /// `ErrorCode::kUnknownTag` if no deadline monitor has this tag.
     /// `ErrorCode::kAlreadyTaken` if an earlier call returned this monitor.
-    /// `ErrorCode::kAlreadyStarted` if `Start()` was called.
+    /// `ErrorCode::kAlreadyStarted` if a `Start()` call succeeded.
     virtual score::Result<Taken<DeadlineMonitor>> GetDeadlineMonitor(const MonitorTag& tag) noexcept = 0;
 
     /// @brief Returns the heartbeat monitor with this tag, once per tag.
     /// @return The monitor, valid also after the health monitor is destroyed, or one of these errors:
     /// `ErrorCode::kUnknownTag` if no heartbeat monitor has this tag.
     /// `ErrorCode::kAlreadyTaken` if an earlier call returned this monitor.
-    /// `ErrorCode::kAlreadyStarted` if `Start()` was called.
+    /// `ErrorCode::kAlreadyStarted` if a `Start()` call succeeded.
     virtual score::Result<Taken<HeartbeatMonitor>> GetHeartbeatMonitor(const MonitorTag& tag) noexcept = 0;
 
     /// @brief Returns the logic monitor with this tag, once per tag.
     /// @return The monitor, valid also after the health monitor is destroyed, or one of these errors:
     /// `ErrorCode::kUnknownTag` if no logic monitor has this tag.
     /// `ErrorCode::kAlreadyTaken` if an earlier call returned this monitor.
-    /// `ErrorCode::kAlreadyStarted` if `Start()` was called.
+    /// `ErrorCode::kAlreadyStarted` if a `Start()` call succeeded.
     virtual score::Result<Taken<LogicMonitor>> GetLogicMonitor(const MonitorTag& tag) noexcept = 0;
 
-    /// @brief Starts the worker thread.
-    /// @pre The application calls it before it reports the running state to the launch manager.
+    /// @brief Connects to the supervisor and starts the worker thread.
+    /// @pre The application calls it before it reports the running state to its supervisor.
+    /// @pre No thread changes the environment while `Start()` runs, because connecting to the supervisor can read it.
     /// @return An empty result on success, or one of these errors:
-    /// `ErrorCode::kNotTaken` if the application did not take a monitor, and the worker does not start.
-    /// `ErrorCode::kAlreadyStarted` if an earlier call started the worker.
-    /// @note A failure to create the worker or to apply its `ThreadParameters` terminates the process.
+    /// `ErrorCode::kNotTaken` if the application did not take a monitor.
+    /// `ErrorCode::kSupervisorUnavailable` if the health monitor cannot connect to its supervisor.
+    /// `ErrorCode::kAlreadyStarted` if an earlier call started the worker, also when the worker stopped at a failure.
+    /// @note After `kNotTaken` or `kSupervisorUnavailable` no worker runs, and a later call can try again.
+    /// @note The process terminates if the worker cannot start or cannot apply its `ThreadParameters`.
+    /// @note Nothing allocates memory after this call.
     virtual score::Result<void> Start() noexcept = 0;
 
   protected:

@@ -31,7 +31,9 @@ class LogicMonitorBuilder final
   public:
     /// @brief Creates a state graph that starts in `initial_state`.
     /// @note `HealthMonitorBuilder::Build()` rejects an initial state that no `AddState()` call adds.
-    explicit LogicMonitorBuilder(const StateTag& initial_state) noexcept;
+    explicit LogicMonitorBuilder(const StateTag& initial_state) noexcept : initial_state_{initial_state}
+    {
+    }
 
     /// @brief Adds `state` and the states it can move to.
     /// @param allowed_states Targets of the transitions from `state`. The builder keeps a copy.

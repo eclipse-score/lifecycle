@@ -84,6 +84,8 @@ class ThreadParameters final
 
     /// @brief Restricts the worker to the CPUs in `cpus`.
     /// @param cpus CPU indices the worker can run on, each below the CPU count. The parameters keep a copy.
+    /// @warning On QNX, the CPUs must form a cluster that the system defines.
+    /// Otherwise the worker cannot apply the affinity and terminates the process.
     ThreadParameters WithAffinity(const score::cpp::span<const std::size_t> cpus) && noexcept;
 
     /// @brief Sets the stack size of the worker.

@@ -53,6 +53,9 @@ enum class ErrorCode : score::result::ErrorCode
 
     /// @brief An earlier invalid transition put the logic monitor in a failed state.
     kInvalidState = 10,
+
+    /// @brief The health monitor cannot connect to its supervisor.
+    kSupervisorUnavailable = 11,
 };
 
 /// @brief Translates `ErrorCode` values to messages.

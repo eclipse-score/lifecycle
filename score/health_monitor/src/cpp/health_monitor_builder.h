@@ -31,8 +31,7 @@ namespace score::health_monitor
 {
 
 /// @brief Collects the monitor configuration and creates the health monitor.
-/// @note A monitor with the same tag and kind as an earlier one replaces it.
-/// A deadline, heartbeat and logic monitor can share one tag.
+/// @note Each monitor needs its own tag, also across the deadline, heartbeat and logic kinds.
 class HealthMonitorBuilder final
 {
   public:
@@ -45,31 +44,33 @@ class HealthMonitorBuilder final
     /// @brief Adds a logic monitor under `tag`.
     HealthMonitorBuilder AddLogicMonitor(const MonitorTag& tag, LogicMonitorBuilder&& monitor) && noexcept;
 
-    /// @brief Sets the time between two alive notifications to the launch manager.
-    /// @param cycle A multiple of the internal processing cycle.
+    /// @brief Sets the time between two alive notifications to the supervisor.
+    /// @param cycle A positive multiple of the internal processing cycle.
+    /// It must not exceed `std::chrono::steady_clock::duration::max()`.
     HealthMonitorBuilder WithSupervisorApiCycle(const std::chrono::milliseconds cycle) && noexcept;
 
     /// @brief Sets the time between two checks of all monitors.
+    /// @param cycle Must be positive and must not exceed `std::chrono::steady_clock::duration::max()`.
     HealthMonitorBuilder WithInternalProcessingCycle(const std::chrono::milliseconds cycle) && noexcept;
 
     /// @brief Sets the scheduling, CPU affinity and stack size of the worker thread.
     HealthMonitorBuilder WithThreadParameters(ThreadParameters&& thread_parameters) && noexcept;
 
     /// @brief Creates the health monitor with all its monitors.
-    /// @return The health monitor, which allocates nothing after this call, or one of these errors:
+    /// @return The health monitor, or one of these errors:
     /// `ErrorCode::kNoMonitors` if no monitor was added.
-    /// `ErrorCode::kInvalidArgument` if a cycle, a heartbeat range, a state graph or a thread parameter is not valid.
+    /// `ErrorCode::kInvalidArgument` if a tag repeats or a cycle, range, state graph or thread parameter is not valid.
     /// The setter or builder of each input states its rule.
     score::Result<std::unique_ptr<HealthMonitor>> Build() && noexcept;
 
   private:
-    /// @brief Deadline monitors, one per tag.
+    /// @brief Deadline monitors in the order of the `AddDeadlineMonitor()` calls.
     std::vector<std::pair<MonitorTag, DeadlineMonitorBuilder>> deadline_monitors_;
-    /// @brief Heartbeat monitors, one per tag.
+    /// @brief Heartbeat monitors in the order of the `AddHeartbeatMonitor()` calls.
     std::vector<std::pair<MonitorTag, HeartbeatMonitorBuilder>> heartbeat_monitors_;
-    /// @brief Logic monitors, one per tag.
+    /// @brief Logic monitors in the order of the `AddLogicMonitor()` calls.
     std::vector<std::pair<MonitorTag, LogicMonitorBuilder>> logic_monitors_;
-    /// @brief Time between two alive notifications to the launch manager.
+    /// @brief Time between two alive notifications to the supervisor.
     std::chrono::milliseconds supervisor_api_cycle_{500};
     /// @brief Time between two checks of all monitors.
     std::chrono::milliseconds internal_processing_cycle_{100};

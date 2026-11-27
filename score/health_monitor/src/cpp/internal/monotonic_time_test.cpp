@@ -73,3 +73,42 @@ TEST(ReadMonotonicTimeTest, FailedReadAborts)
 
     EXPECT_EXIT(std::ignore = ReadMonotonicTime(time), ::testing::KilledBySignal(SIGABRT), "");
 }
+
+TEST(ElapsedMsTest, CountsMillisecondsBetweenTimePoints)
+{
+    RecordProperty("PartiallyVerifies", "comp_req__health_monitor__monotonic_time");
+    RecordProperty("TestType", "requirements-based");
+    RecordProperty("DerivationTechnique", "equivalence-classes");
+    RecordProperty(
+        "Description", "Check that the result is the milliseconds from the earlier to the later time point.");
+
+    const std::chrono::steady_clock::time_point earlier{100s};
+
+    EXPECT_EQ(ElapsedMs(earlier, earlier), 0U);
+    EXPECT_EQ(ElapsedMs(earlier, earlier + 1500ms), 1500U);
+}
+
+TEST(ElapsedMsTest, TruncatesToWholeMilliseconds)
+{
+    RecordProperty("PartiallyVerifies", "comp_req__health_monitor__time_granularity");
+    RecordProperty("TestType", "requirements-based");
+    RecordProperty("DerivationTechnique", "boundary-values");
+    RecordProperty("Description", "Check that 80 ms - 1 us counts as 79 ms.");
+
+    const std::chrono::steady_clock::time_point earlier{100s};
+
+    EXPECT_EQ(ElapsedMs(earlier, earlier + 80ms - 1us), 79U);
+}
+
+TEST(ElapsedMsTest, LaterTimePointBeforeEarlierCountsAsZero)
+{
+    RecordProperty("PartiallyVerifies", "comp_req__health_monitor__monotonic_time");
+    RecordProperty("TestType", "requirements-based");
+    RecordProperty("DerivationTechnique", "error-guessing");
+    RecordProperty("Description", "Check that a later time point before the earlier one gives 0 and does not wrap.");
+
+    const std::chrono::steady_clock::time_point earlier{100s};
+
+    EXPECT_EQ(ElapsedMs(earlier, earlier - 1ns), 0U);
+    EXPECT_EQ(ElapsedMs(earlier, earlier - 5ms), 0U);
+}

@@ -67,9 +67,7 @@ void HeartbeatMonitorImpl::Heartbeat() noexcept
     });
 }
 
-void HeartbeatMonitorImpl::Evaluate(
-    const std::chrono::steady_clock::time_point hmon_start,
-    EvaluationErrorSink& sink) noexcept
+bool HeartbeatMonitorImpl::Evaluate(const std::chrono::steady_clock::time_point hmon_start) noexcept
 {
     SCORE_LANGUAGE_FUTURECPP_PRECONDITION(hmon_start >= monitor_start_);
 
@@ -94,8 +92,7 @@ void HeartbeatMonitorImpl::Evaluate(
     if (counter > 1U)
     {
         GetLogger().LogWarn() << "Heartbeat monitor" << ToLogString(tag_) << "Multiple heartbeats detected";
-        sink.OnError(tag_, HeartbeatEvaluationError::kMultipleHeartbeats);
-        return;
+        return false;
     }
 
     // Handle no heartbeats.
@@ -107,10 +104,10 @@ void HeartbeatMonitorImpl::Evaluate(
         {
             GetLogger().LogWarn() << "Heartbeat monitor" << ToLogString(tag_)
                                   << "No heartbeat detected, observed after range:" << (monitor_now - range_max);
-            sink.OnError(tag_, HeartbeatEvaluationError::kTooLate);
+            return false;
         }
 
-        return;
+        return true;
     }
 
     // Check the current heartbeat against the allowed range.
@@ -120,34 +117,19 @@ void HeartbeatMonitorImpl::Evaluate(
     {
         GetLogger().LogWarn() << "Heartbeat monitor" << ToLogString(tag_)
                               << "Heartbeat occurred too early, offset to range:" << (range_min - heartbeat);
-        sink.OnError(tag_, HeartbeatEvaluationError::kTooEarly);
+        return false;
     }
     // Heartbeat after the allowed range.
-    else if (heartbeat > range_max)
+    if (heartbeat > range_max)
     {
         GetLogger().LogWarn() << "Heartbeat monitor" << ToLogString(tag_)
                               << "Heartbeat occurred too late, offset to range:" << (heartbeat - range_max);
-        sink.OnError(tag_, HeartbeatEvaluationError::kTooLate);
-    }
-    // Heartbeat in the allowed range.
-    else
-    {
-        // The current heartbeat starts a new cycle.
-        cycle_start_ms_ = heartbeat;
-    }
-}
-
-std::uint64_t HeartbeatMonitorImpl::ElapsedMs(
-    const std::chrono::steady_clock::time_point earlier,
-    const std::chrono::steady_clock::time_point later) noexcept
-{
-    // Clamping keeps a clock value before `earlier` from wrapping to a huge unsigned timestamp.
-    if (later < earlier)
-    {
-        return 0U;
+        return false;
     }
 
-    return static_cast<std::uint64_t>(std::chrono::duration_cast<std::chrono::milliseconds>(later - earlier).count());
+    // The heartbeat is in the allowed range and starts a new cycle.
+    cycle_start_ms_ = heartbeat;
+    return true;
 }
 
 }  // namespace score::health_monitor::details

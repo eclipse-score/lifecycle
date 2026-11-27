@@ -22,10 +22,7 @@
 #include <chrono>
 #include <csignal>
 #include <memory>
-#include <optional>
 #include <tuple>
-#include <variant>
-#include <vector>
 
 using namespace score::health_monitor;
 using namespace score::health_monitor::details;
@@ -43,20 +40,6 @@ using TimePoint = std::chrono::steady_clock::time_point;
 const MonitorTag kTag{"heartbeat"};
 // Starts at 100 s so that a time before creation is still a non-negative timespec.
 const TimePoint kCreation{100s};
-
-/// @brief Stores every failure that the monitor reports.
-class RecordingSink final : public EvaluationErrorSink
-{
-  public:
-    void OnError(const MonitorTag& tag, const MonitorEvaluationError& error) noexcept override
-    {
-        tags.push_back(tag);
-        errors.push_back(error);
-    }
-
-    std::vector<MonitorTag> tags;
-    std::vector<MonitorEvaluationError> errors;
-};
 
 }  // namespace
 
@@ -164,26 +147,11 @@ class HeartbeatMonitorImplTest : public ::testing::Test
         }
     }
 
-    /// @brief Evaluates at `time` and returns the failure, or `std::nullopt` when there is none.
-    /// It also checks that there is at most one failure and that it carries the monitor tag.
-    std::optional<HeartbeatEvaluationError> EvaluateAt(const std::chrono::steady_clock::duration time)
+    /// @brief Evaluates the monitor at `time` and returns `false` if it failed.
+    bool EvaluateAt(const std::chrono::steady_clock::duration time)
     {
         now_ = kCreation + time;
-        RecordingSink sink;
-        monitor_->Evaluate(hmon_start_, sink);
-
-        EXPECT_LE(sink.errors.size(), 1U);
-        for (const MonitorTag& tag : sink.tags)
-        {
-            EXPECT_EQ(tag, kTag);
-        }
-
-        if (sink.errors.empty())
-        {
-            return std::nullopt;
-        }
-
-        return std::get<HeartbeatEvaluationError>(sink.errors.front());
+        return monitor_->Evaluate(hmon_start_);
     }
 
     TimePoint now_{kCreation};
@@ -198,11 +166,11 @@ TEST_F(HeartbeatMonitorImplTest, HeartbeatInRangeIsAccepted)
         "PartiallyVerifies", "comp_req__health_monitor__hb_too_early, comp_req__health_monitor__hb_too_late");
     RecordProperty("TestType", "requirements-based");
     RecordProperty("DerivationTechnique", "equivalence-classes");
-    RecordProperty("Description", "Check that a heartbeat inside the range reports no failure.");
+    RecordProperty("Description", "Check that a heartbeat inside the range passes.");
 
     BeatAt(100ms);
 
-    EXPECT_EQ(EvaluateAt(100ms), std::nullopt);
+    EXPECT_TRUE(EvaluateAt(100ms));
 }
 
 TEST_F(HeartbeatMonitorImplTest, HeartbeatAtRangeMinIsAccepted)
@@ -211,11 +179,11 @@ TEST_F(HeartbeatMonitorImplTest, HeartbeatAtRangeMinIsAccepted)
         "PartiallyVerifies", "comp_req__health_monitor__hb_too_early, comp_req__health_monitor__time_range_bounds");
     RecordProperty("TestType", "requirements-based");
     RecordProperty("DerivationTechnique", "boundary-values");
-    RecordProperty("Description", "Check that a heartbeat exactly at the range minimum reports no failure.");
+    RecordProperty("Description", "Check that a heartbeat exactly at the range minimum passes.");
 
     BeatAt(80ms);
 
-    EXPECT_EQ(EvaluateAt(80ms), std::nullopt);
+    EXPECT_TRUE(EvaluateAt(80ms));
 }
 
 TEST_F(HeartbeatMonitorImplTest, HeartbeatAtRangeMaxIsAccepted)
@@ -224,11 +192,11 @@ TEST_F(HeartbeatMonitorImplTest, HeartbeatAtRangeMaxIsAccepted)
         "PartiallyVerifies", "comp_req__health_monitor__hb_too_late, comp_req__health_monitor__time_range_bounds");
     RecordProperty("TestType", "requirements-based");
     RecordProperty("DerivationTechnique", "boundary-values");
-    RecordProperty("Description", "Check that a heartbeat exactly at the range maximum reports no failure.");
+    RecordProperty("Description", "Check that a heartbeat exactly at the range maximum passes.");
 
     BeatAt(120ms);
 
-    EXPECT_EQ(EvaluateAt(120ms), std::nullopt);
+    EXPECT_TRUE(EvaluateAt(120ms));
 }
 
 TEST_F(HeartbeatMonitorImplTest, HeartbeatBeforeRangeIsTooEarly)
@@ -241,7 +209,7 @@ TEST_F(HeartbeatMonitorImplTest, HeartbeatBeforeRangeIsTooEarly)
 
     BeatAt(79ms);
 
-    EXPECT_EQ(EvaluateAt(100ms), HeartbeatEvaluationError::kTooEarly);
+    EXPECT_FALSE(EvaluateAt(100ms));
 }
 
 TEST_F(HeartbeatMonitorImplTest, HeartbeatAfterRangeIsTooLate)
@@ -254,7 +222,7 @@ TEST_F(HeartbeatMonitorImplTest, HeartbeatAfterRangeIsTooLate)
 
     BeatAt(121ms);
 
-    EXPECT_EQ(EvaluateAt(121ms), HeartbeatEvaluationError::kTooLate);
+    EXPECT_FALSE(EvaluateAt(121ms));
 }
 
 TEST_F(HeartbeatMonitorImplTest, HeartbeatTimeIsTruncatedToWholeMilliseconds)
@@ -266,7 +234,7 @@ TEST_F(HeartbeatMonitorImplTest, HeartbeatTimeIsTruncatedToWholeMilliseconds)
 
     BeatAt(80ms - 1us);
 
-    EXPECT_EQ(EvaluateAt(100ms), HeartbeatEvaluationError::kTooEarly);
+    EXPECT_FALSE(EvaluateAt(100ms));
 }
 
 TEST_F(HeartbeatMonitorImplTest, MissingHeartbeatAfterFractionalWorkerStartIsTooLate)
@@ -281,10 +249,10 @@ TEST_F(HeartbeatMonitorImplTest, MissingHeartbeatAfterFractionalWorkerStartIsToo
 
     hmon_start_ = kCreation + 500us;
     BeatAt(100ms);
-    ASSERT_EQ(EvaluateAt(100ms), std::nullopt);
+    ASSERT_TRUE(EvaluateAt(100ms));
 
-    EXPECT_EQ(EvaluateAt(220ms), std::nullopt);
-    EXPECT_EQ(EvaluateAt(221ms), HeartbeatEvaluationError::kTooLate);
+    EXPECT_TRUE(EvaluateAt(220ms));
+    EXPECT_FALSE(EvaluateAt(221ms));
 }
 
 TEST_F(HeartbeatMonitorImplTest, InRangeHeartbeatEvaluatedAfterRangeIsAccepted)
@@ -297,7 +265,7 @@ TEST_F(HeartbeatMonitorImplTest, InRangeHeartbeatEvaluatedAfterRangeIsAccepted)
 
     BeatAt(90ms);
 
-    EXPECT_EQ(EvaluateAt(150ms), std::nullopt);
+    EXPECT_TRUE(EvaluateAt(150ms));
 }
 
 TEST_F(HeartbeatMonitorImplTest, EarlyHeartbeatEvaluatedAfterRangeIsTooEarly)
@@ -309,7 +277,7 @@ TEST_F(HeartbeatMonitorImplTest, EarlyHeartbeatEvaluatedAfterRangeIsTooEarly)
 
     BeatAt(25ms);
 
-    EXPECT_EQ(EvaluateAt(150ms), HeartbeatEvaluationError::kTooEarly);
+    EXPECT_FALSE(EvaluateAt(150ms));
 }
 
 TEST_F(HeartbeatMonitorImplTest, MissingHeartbeatIsAcceptedUntilRangeMax)
@@ -318,11 +286,11 @@ TEST_F(HeartbeatMonitorImplTest, MissingHeartbeatIsAcceptedUntilRangeMax)
         "PartiallyVerifies", "comp_req__health_monitor__hb_too_late, comp_req__health_monitor__time_range_bounds");
     RecordProperty("TestType", "requirements-based");
     RecordProperty("DerivationTechnique", "boundary-values");
-    RecordProperty("Description", "Check that a missing heartbeat reports no failure up to the range maximum.");
+    RecordProperty("Description", "Check that a missing heartbeat passes up to the range maximum.");
 
-    EXPECT_EQ(EvaluateAt(0ms), std::nullopt);
-    EXPECT_EQ(EvaluateAt(100ms), std::nullopt);
-    EXPECT_EQ(EvaluateAt(120ms), std::nullopt);
+    EXPECT_TRUE(EvaluateAt(0ms));
+    EXPECT_TRUE(EvaluateAt(100ms));
+    EXPECT_TRUE(EvaluateAt(120ms));
 }
 
 TEST_F(HeartbeatMonitorImplTest, MissingHeartbeatAfterRangeMaxIsTooLate)
@@ -333,7 +301,7 @@ TEST_F(HeartbeatMonitorImplTest, MissingHeartbeatAfterRangeMaxIsTooLate)
     RecordProperty("DerivationTechnique", "boundary-values");
     RecordProperty("Description", "Check that a missing heartbeat is too late one millisecond after the range.");
 
-    EXPECT_EQ(EvaluateAt(121ms), HeartbeatEvaluationError::kTooLate);
+    EXPECT_FALSE(EvaluateAt(121ms));
 }
 
 TEST_F(HeartbeatMonitorImplTest, TwoHeartbeatsInRangeInOneEvaluationAreMultiple)
@@ -341,24 +309,12 @@ TEST_F(HeartbeatMonitorImplTest, TwoHeartbeatsInRangeInOneEvaluationAreMultiple)
     RecordProperty("PartiallyVerifies", "comp_req__health_monitor__hb_multiple");
     RecordProperty("TestType", "requirements-based");
     RecordProperty("DerivationTechnique", "boundary-values");
-    RecordProperty("Description", "Check that two in-range heartbeats in one cycle report kMultipleHeartbeats.");
+    RecordProperty("Description", "Check that two in-range heartbeats in one cycle fail.");
 
     BeatAt(90ms);
     BeatAt(100ms);
 
-    EXPECT_EQ(EvaluateAt(100ms), HeartbeatEvaluationError::kMultipleHeartbeats);
-}
-
-TEST_F(HeartbeatMonitorImplTest, MultipleHeartbeatsAreReportedBeforeTiming)
-{
-    RecordProperty("PartiallyVerifies", "comp_req__health_monitor__hb_multiple");
-    RecordProperty("TestType", "requirements-based");
-    RecordProperty("DerivationTechnique", "requirements-analysis");
-    RecordProperty("Description", "Check that early heartbeats in one cycle give kMultipleHeartbeats, not kTooEarly.");
-
-    BeatAt(25ms, 10);
-
-    EXPECT_EQ(EvaluateAt(50ms), HeartbeatEvaluationError::kMultipleHeartbeats);
+    EXPECT_FALSE(EvaluateAt(100ms));
 }
 
 TEST_F(HeartbeatMonitorImplTest, AcceptedHeartbeatStartsNextCycle)
@@ -369,11 +325,11 @@ TEST_F(HeartbeatMonitorImplTest, AcceptedHeartbeatStartsNextCycle)
     RecordProperty("Description", "Check that the next range starts at an accepted heartbeat.");
 
     BeatAt(100ms);
-    ASSERT_EQ(EvaluateAt(100ms), std::nullopt);
+    ASSERT_TRUE(EvaluateAt(100ms));
 
     BeatAt(179ms);
 
-    EXPECT_EQ(EvaluateAt(179ms), HeartbeatEvaluationError::kTooEarly);
+    EXPECT_FALSE(EvaluateAt(179ms));
 }
 
 TEST_F(HeartbeatMonitorImplTest, NextCycleRangeIsMeasuredFromAcceptedHeartbeat)
@@ -385,13 +341,13 @@ TEST_F(HeartbeatMonitorImplTest, NextCycleRangeIsMeasuredFromAcceptedHeartbeat)
     RecordProperty("Description", "Check that each accepted heartbeat moves the range of the next cycle.");
 
     BeatAt(100ms);
-    ASSERT_EQ(EvaluateAt(100ms), std::nullopt);
+    ASSERT_TRUE(EvaluateAt(100ms));
     BeatAt(180ms);
-    ASSERT_EQ(EvaluateAt(180ms), std::nullopt);
+    ASSERT_TRUE(EvaluateAt(180ms));
 
     BeatAt(300ms);
 
-    EXPECT_EQ(EvaluateAt(300ms), std::nullopt);
+    EXPECT_TRUE(EvaluateAt(300ms));
 }
 
 TEST_F(HeartbeatMonitorImplTest, MissingHeartbeatIsMeasuredFromAcceptedHeartbeat)
@@ -403,10 +359,10 @@ TEST_F(HeartbeatMonitorImplTest, MissingHeartbeatIsMeasuredFromAcceptedHeartbeat
         "Description", "Check that a missing heartbeat is too late after the range of the last accepted one.");
 
     BeatAt(100ms);
-    ASSERT_EQ(EvaluateAt(100ms), std::nullopt);
+    ASSERT_TRUE(EvaluateAt(100ms));
 
-    EXPECT_EQ(EvaluateAt(220ms), std::nullopt);
-    EXPECT_EQ(EvaluateAt(221ms), HeartbeatEvaluationError::kTooLate);
+    EXPECT_TRUE(EvaluateAt(220ms));
+    EXPECT_FALSE(EvaluateAt(221ms));
 }
 
 TEST_F(HeartbeatMonitorImplTest, HeartbeatAfterRangeOfLaterCycleIsTooLate)
@@ -417,11 +373,11 @@ TEST_F(HeartbeatMonitorImplTest, HeartbeatAfterRangeOfLaterCycleIsTooLate)
     RecordProperty("Description", "Check that a heartbeat after the range of a later cycle is too late.");
 
     BeatAt(100ms);
-    ASSERT_EQ(EvaluateAt(100ms), std::nullopt);
+    ASSERT_TRUE(EvaluateAt(100ms));
 
     BeatAt(221ms);
 
-    EXPECT_EQ(EvaluateAt(221ms), HeartbeatEvaluationError::kTooLate);
+    EXPECT_FALSE(EvaluateAt(221ms));
 }
 
 TEST_F(HeartbeatMonitorImplTest, MultipleHeartbeatsDoNotStartNextCycle)
@@ -432,10 +388,10 @@ TEST_F(HeartbeatMonitorImplTest, MultipleHeartbeatsDoNotStartNextCycle)
     RecordProperty("Description", "Check that multiple heartbeats keep the range of the current cycle.");
 
     BeatAt(90ms, 2);
-    ASSERT_EQ(EvaluateAt(100ms), HeartbeatEvaluationError::kMultipleHeartbeats);
+    ASSERT_FALSE(EvaluateAt(100ms));
 
-    EXPECT_EQ(EvaluateAt(120ms), std::nullopt);
-    EXPECT_EQ(EvaluateAt(121ms), HeartbeatEvaluationError::kTooLate);
+    EXPECT_TRUE(EvaluateAt(120ms));
+    EXPECT_FALSE(EvaluateAt(121ms));
 }
 
 TEST_F(HeartbeatMonitorImplTest, HeartbeatsAreCountedAgainAfterEvaluation)
@@ -446,11 +402,11 @@ TEST_F(HeartbeatMonitorImplTest, HeartbeatsAreCountedAgainAfterEvaluation)
     RecordProperty("Description", "Check that each evaluation starts counting heartbeats from zero.");
 
     BeatAt(90ms, 2);
-    ASSERT_EQ(EvaluateAt(100ms), HeartbeatEvaluationError::kMultipleHeartbeats);
+    ASSERT_FALSE(EvaluateAt(100ms));
 
     BeatAt(110ms);
 
-    EXPECT_EQ(EvaluateAt(110ms), std::nullopt);
+    EXPECT_TRUE(EvaluateAt(110ms));
 }
 
 TEST_F(HeartbeatMonitorImplTest, FailedHeartbeatDoesNotStartNextCycle)
@@ -462,10 +418,10 @@ TEST_F(HeartbeatMonitorImplTest, FailedHeartbeatDoesNotStartNextCycle)
     RecordProperty("Description", "Check that a too early heartbeat keeps the range of the current cycle.");
 
     BeatAt(25ms);
-    ASSERT_EQ(EvaluateAt(50ms), HeartbeatEvaluationError::kTooEarly);
+    ASSERT_FALSE(EvaluateAt(50ms));
 
-    EXPECT_EQ(EvaluateAt(120ms), std::nullopt);
-    EXPECT_EQ(EvaluateAt(121ms), HeartbeatEvaluationError::kTooLate);
+    EXPECT_TRUE(EvaluateAt(120ms));
+    EXPECT_FALSE(EvaluateAt(121ms));
 }
 
 TEST_F(HeartbeatMonitorImplTest, MissingHeartbeatKeepsFailingInLaterEvaluations)
@@ -475,9 +431,9 @@ TEST_F(HeartbeatMonitorImplTest, MissingHeartbeatKeepsFailingInLaterEvaluations)
     RecordProperty("DerivationTechnique", "error-guessing");
     RecordProperty("Description", "Check that a missing heartbeat stays too late in later evaluations.");
 
-    ASSERT_EQ(EvaluateAt(121ms), HeartbeatEvaluationError::kTooLate);
+    ASSERT_FALSE(EvaluateAt(121ms));
 
-    EXPECT_EQ(EvaluateAt(200ms), HeartbeatEvaluationError::kTooLate);
+    EXPECT_FALSE(EvaluateAt(200ms));
 }
 
 TEST_F(HeartbeatMonitorImplTest, RegularHeartbeatsNeverFail)
@@ -495,7 +451,7 @@ TEST_F(HeartbeatMonitorImplTest, RegularHeartbeatsNeverFail)
             BeatAt(time);
         }
 
-        ASSERT_EQ(EvaluateAt(time), std::nullopt) << "at " << time.count() << " ms";
+        ASSERT_TRUE(EvaluateAt(time)) << "at " << time.count() << " ms";
     }
 }
 
@@ -511,7 +467,7 @@ TEST_F(HeartbeatMonitorImplTest, FirstCycleStartsAtWorkerStart)
 
     BeatAt(390ms);
 
-    EXPECT_EQ(EvaluateAt(400ms), std::nullopt);
+    EXPECT_TRUE(EvaluateAt(400ms));
 }
 
 TEST_F(HeartbeatMonitorImplTest, HeartbeatBeforeRangeOfFirstCycleIsTooEarly)
@@ -525,7 +481,7 @@ TEST_F(HeartbeatMonitorImplTest, HeartbeatBeforeRangeOfFirstCycleIsTooEarly)
 
     BeatAt(350ms);
 
-    EXPECT_EQ(EvaluateAt(400ms), HeartbeatEvaluationError::kTooEarly);
+    EXPECT_FALSE(EvaluateAt(400ms));
 }
 
 TEST_F(HeartbeatMonitorImplTest, HeartbeatBeforeWorkerStartCountsInFirstCycle)
@@ -538,7 +494,7 @@ TEST_F(HeartbeatMonitorImplTest, HeartbeatBeforeWorkerStartCountsInFirstCycle)
     BeatAt(250ms);
     hmon_start_ = kCreation + 300ms;
 
-    EXPECT_EQ(EvaluateAt(310ms), HeartbeatEvaluationError::kTooEarly);
+    EXPECT_FALSE(EvaluateAt(310ms));
 }
 
 TEST_F(HeartbeatMonitorImplTest, MissingHeartbeatInFirstCycleIsMeasuredFromWorkerStart)
@@ -550,20 +506,8 @@ TEST_F(HeartbeatMonitorImplTest, MissingHeartbeatInFirstCycleIsMeasuredFromWorke
 
     hmon_start_ = kCreation + 300ms;
 
-    EXPECT_EQ(EvaluateAt(420ms), std::nullopt);
-    EXPECT_EQ(EvaluateAt(421ms), HeartbeatEvaluationError::kTooLate);
-}
-
-TEST_F(HeartbeatMonitorImplTest, HeartbeatWithClockBeforeCreationCountsAtCreation)
-{
-    RecordProperty("PartiallyVerifies", "comp_req__health_monitor__hb_too_early");
-    RecordProperty("TestType", "requirements-based");
-    RecordProperty("DerivationTechnique", "error-guessing");
-    RecordProperty("Description", "Check that a heartbeat at a time before monitor creation counts at creation.");
-
-    BeatAt(-5ms);
-
-    EXPECT_EQ(EvaluateAt(100ms), HeartbeatEvaluationError::kTooEarly);
+    EXPECT_TRUE(EvaluateAt(420ms));
+    EXPECT_FALSE(EvaluateAt(421ms));
 }
 
 TEST_F(HeartbeatMonitorImplTest, EvaluationWithClockBeforeWorkerStartCountsAtWorkerStart)
@@ -575,7 +519,7 @@ TEST_F(HeartbeatMonitorImplTest, EvaluationWithClockBeforeWorkerStartCountsAtWor
 
     hmon_start_ = kCreation + 300ms;
 
-    EXPECT_EQ(EvaluateAt(290ms), std::nullopt);
+    EXPECT_TRUE(EvaluateAt(290ms));
 }
 
 TEST_F(HeartbeatMonitorImplTest, EvaluateWithWorkerStartBeforeCreationAborts)
@@ -585,7 +529,5 @@ TEST_F(HeartbeatMonitorImplTest, EvaluateWithWorkerStartBeforeCreationAborts)
     RecordProperty("DerivationTechnique", "error-guessing");
     RecordProperty("Description", "Check that an evaluation with worker start before monitor creation aborts.");
 
-    RecordingSink sink;
-
-    EXPECT_DEATH(monitor_->Evaluate(kCreation - 1ms, sink), "");
+    EXPECT_DEATH(std::ignore = monitor_->Evaluate(kCreation - 1ms), "");
 }

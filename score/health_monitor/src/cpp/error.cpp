@@ -45,6 +45,8 @@ std::string_view ErrorDomain::MessageFor(const score::result::ErrorCode& code) c
             return "Invalid transition";
         case ErrorCode::kInvalidState:
             return "Invalid state";
+        case ErrorCode::kSupervisorUnavailable:
+            return "Supervisor unavailable";
         default:
             return "Unknown error";
     }

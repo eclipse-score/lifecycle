@@ -27,7 +27,7 @@ TEST(ErrorCodeTest, IntegerValuesAreStable)
         "PartiallyVerifies",
         "comp_req__health_monitor__cfg_no_monitor, comp_req__health_monitor__monitor_once, "
         "comp_req__health_monitor__dl_failed_reuse, comp_req__health_monitor__lg_invalid_trans, "
-        "comp_req__health_monitor__lg_unknown_state");
+        "comp_req__health_monitor__lg_unknown_state, comp_req__health_monitor__fail_silent");
     RecordProperty("TestType", "interface-test");
     RecordProperty("DerivationTechnique", "equivalence-classes");
     RecordProperty("Description", "Check that every error code keeps its published integer value.");
@@ -42,6 +42,7 @@ TEST(ErrorCodeTest, IntegerValuesAreStable)
     EXPECT_EQ(static_cast<int>(ErrorCode::kDeadlineFailed), 8);
     EXPECT_EQ(static_cast<int>(ErrorCode::kInvalidTransition), 9);
     EXPECT_EQ(static_cast<int>(ErrorCode::kInvalidState), 10);
+    EXPECT_EQ(static_cast<int>(ErrorCode::kSupervisorUnavailable), 11);
 }
 
 TEST(ErrorDomainTest, MessageForEveryCode)
@@ -50,7 +51,7 @@ TEST(ErrorDomainTest, MessageForEveryCode)
         "PartiallyVerifies",
         "comp_req__health_monitor__cfg_no_monitor, comp_req__health_monitor__monitor_once, "
         "comp_req__health_monitor__dl_failed_reuse, comp_req__health_monitor__lg_invalid_trans, "
-        "comp_req__health_monitor__lg_unknown_state");
+        "comp_req__health_monitor__lg_unknown_state, comp_req__health_monitor__fail_silent");
     RecordProperty("TestType", "interface-test");
     RecordProperty("DerivationTechnique", "equivalence-classes");
     RecordProperty("Description", "Check that the error domain returns the message of every error code.");
@@ -70,6 +71,7 @@ TEST(ErrorDomainTest, MessageForEveryCode)
     EXPECT_EQ(message(ErrorCode::kDeadlineFailed), "Deadline failed");
     EXPECT_EQ(message(ErrorCode::kInvalidTransition), "Invalid transition");
     EXPECT_EQ(message(ErrorCode::kInvalidState), "Invalid state");
+    EXPECT_EQ(message(ErrorCode::kSupervisorUnavailable), "Supervisor unavailable");
 }
 
 TEST(ErrorDomainTest, UnmappedValuesGiveUnknownError)
@@ -86,7 +88,7 @@ TEST(ErrorDomainTest, UnmappedValuesGiveUnknownError)
     const ErrorDomain domain{};
 
     EXPECT_EQ(domain.MessageFor(0), "Unknown error");
-    EXPECT_EQ(domain.MessageFor(11), "Unknown error");
+    EXPECT_EQ(domain.MessageFor(12), "Unknown error");
     EXPECT_EQ(domain.MessageFor(-1), "Unknown error");
 }
 

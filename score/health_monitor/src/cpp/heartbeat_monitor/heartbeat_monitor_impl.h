@@ -58,20 +58,15 @@ class HeartbeatMonitorImpl final : public HeartbeatMonitor, public MonitorEvalua
     /// A heartbeat that overlaps an evaluation can count in the next cycle with the earlier time.
     void Heartbeat() noexcept override;
 
-    /// @brief Checks the heartbeats since the last call and reports each failure to `sink` with the monitor tag.
+    /// @brief Checks the heartbeats since the last call and logs each failure with the monitor tag.
     /// @pre `hmon_start` is not earlier than the creation of the monitor.
     /// @pre Only the worker thread calls it.
-    void Evaluate(const std::chrono::steady_clock::time_point hmon_start, EvaluationErrorSink& sink) noexcept override;
+    bool Evaluate(const std::chrono::steady_clock::time_point hmon_start) noexcept override;
 
   private:
     HeartbeatMonitorImpl(const MonitorTag& tag, const TimeRange& range, const score::os::Time& time) noexcept;
 
-    /// @brief Returns the whole milliseconds from `earlier` to `later`, or 0 if `later` is before `earlier`.
-    static std::uint64_t ElapsedMs(
-        const std::chrono::steady_clock::time_point earlier,
-        const std::chrono::steady_clock::time_point later) noexcept;
-
-    /// @brief Tag given to `sink` with each failure.
+    /// @brief Tag logged with each failure.
     MonitorTag tag_;
     /// @brief Shortest allowed time between two heartbeats in milliseconds.
     std::uint64_t range_min_ms_;

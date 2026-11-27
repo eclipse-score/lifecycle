@@ -1,0 +1,448 @@
+/********************************************************************************
+ * Copyright (c) 2026 Contributors to the Eclipse Foundation
+ *
+ * See the NOTICE file(s) distributed with this work for additional
+ * information regarding copyright ownership.
+ *
+ * This program and the accompanying materials are made available under the
+ * terms of the Apache License Version 2.0 which is available at
+ * https://www.apache.org/licenses/LICENSE-2.0
+ *
+ * SPDX-License-Identifier: Apache-2.0
+ ********************************************************************************/
+
+#include "score/health_monitor/health_monitor_builder.h"
+
+#include "score/health_monitor/error.h"
+#include "score/health_monitor/src/cpp/internal/test_helpers.h"
+
+#include <gtest/gtest.h>
+
+#include <pthread.h>
+#include <unistd.h>
+#include <array>
+#include <chrono>
+#include <climits>
+#include <cstddef>
+#include <cstdint>
+#include <utility>
+
+using namespace score::health_monitor;
+using namespace score::health_monitor::details;
+using namespace std::chrono_literals;
+
+namespace
+{
+
+const MonitorTag kHeartbeat{"heartbeat"};
+const MonitorTag kOtherHeartbeat{"other_heartbeat"};
+const MonitorTag kDeadline{"deadline"};
+const MonitorTag kLogic{"logic"};
+
+// Valid for the default internal processing cycle of 100 ms.
+const TimeRange kRange{100ms, 200ms};
+
+HealthMonitorBuilder OneHeartbeat()
+{
+    return HealthMonitorBuilder{}.AddHeartbeatMonitor(kHeartbeat, HeartbeatMonitorBuilder{kRange});
+}
+
+HealthMonitorBuilder WithCycles(const std::chrono::milliseconds internal, const std::chrono::milliseconds supervisor)
+{
+    return OneHeartbeat().WithInternalProcessingCycle(internal).WithSupervisorApiCycle(supervisor);
+}
+
+HealthMonitorBuilder WithThreadParameters(ThreadParameters&& parameters)
+{
+    return OneHeartbeat().WithThreadParameters(std::move(parameters));
+}
+
+}  // namespace
+
+TEST(HealthMonitorBuilderTest, BuildsWithOneHeartbeatMonitor)
+{
+    RecordProperty("PartiallyVerifies", "comp_req__health_monitor__cfg_cycle_multiple");
+    RecordProperty("TestType", "requirements-based");
+    RecordProperty("DerivationTechnique", "boundary-values");
+    RecordProperty("Description", "Check that the default cycles and one heartbeat monitor build a health monitor.");
+
+    auto result = OneHeartbeat().Build();
+
+    ASSERT_TRUE(result.has_value());
+    EXPECT_NE(result.value(), nullptr);
+}
+
+TEST(HealthMonitorBuilderTest, AcceptsSupervisorCycleEqualToInternalCycle)
+{
+    RecordProperty("PartiallyVerifies", "comp_req__health_monitor__cfg_cycle_multiple");
+    RecordProperty("TestType", "requirements-based");
+    RecordProperty("DerivationTechnique", "boundary-values");
+    RecordProperty("Description", "Check that a supervisor cycle equal to the internal cycle is accepted.");
+
+    EXPECT_TRUE(WithCycles(100ms, 100ms).Build().has_value());
+}
+
+TEST(HealthMonitorBuilderTest, AcceptsSupervisorCycleTwiceTheInternalCycle)
+{
+    RecordProperty("PartiallyVerifies", "comp_req__health_monitor__cfg_cycle_multiple");
+    RecordProperty("TestType", "requirements-based");
+    RecordProperty("DerivationTechnique", "boundary-values");
+    RecordProperty("Description", "Check that a supervisor cycle twice the internal cycle is accepted.");
+
+    EXPECT_TRUE(WithCycles(100ms, 200ms).Build().has_value());
+}
+
+TEST(HealthMonitorBuilderTest, RejectsSupervisorCycleThatIsNoMultipleOfInternalCycle)
+{
+    RecordProperty("PartiallyVerifies", "comp_req__health_monitor__cfg_cycle_multiple");
+    RecordProperty("TestType", "requirements-based");
+    RecordProperty("DerivationTechnique", "boundary-values");
+    RecordProperty(
+        "Description",
+        "Check that a supervisor cycle of 123 ms with an internal cycle of 100 ms fails with kInvalidArgument.");
+
+    ExpectError(WithCycles(100ms, 123ms).Build(), ErrorCode::kInvalidArgument);
+}
+
+TEST(HealthMonitorBuilderTest, RejectsSupervisorCycleShorterThanInternalCycle)
+{
+    RecordProperty("PartiallyVerifies", "comp_req__health_monitor__cfg_cycle_multiple");
+    RecordProperty("TestType", "requirements-based");
+    RecordProperty("DerivationTechnique", "boundary-values");
+    RecordProperty(
+        "Description", "Check that a supervisor cycle below the internal cycle fails with kInvalidArgument.");
+
+    ExpectError(WithCycles(100ms, 50ms).Build(), ErrorCode::kInvalidArgument);
+}
+
+TEST(HealthMonitorBuilderTest, RejectsZeroInternalCycle)
+{
+    RecordProperty("PartiallyVerifies", "comp_req__health_monitor__cfg_cycle_multiple");
+    RecordProperty("TestType", "requirements-based");
+    RecordProperty("DerivationTechnique", "boundary-values");
+    RecordProperty("Description", "Check that an internal cycle of zero fails with kInvalidArgument.");
+
+    ExpectError(WithCycles(0ms, 100ms).Build(), ErrorCode::kInvalidArgument);
+}
+
+TEST(HealthMonitorBuilderTest, RejectsNegativeInternalCycle)
+{
+    RecordProperty("PartiallyVerifies", "comp_req__health_monitor__cfg_cycle_multiple");
+    RecordProperty("TestType", "requirements-based");
+    RecordProperty("DerivationTechnique", "boundary-values");
+    RecordProperty("Description", "Check that a negative internal cycle fails with kInvalidArgument.");
+
+    ExpectError(WithCycles(-100ms, 100ms).Build(), ErrorCode::kInvalidArgument);
+}
+
+TEST(HealthMonitorBuilderTest, RejectsZeroSupervisorCycle)
+{
+    RecordProperty("PartiallyVerifies", "comp_req__health_monitor__cfg_cycle_multiple");
+    RecordProperty("TestType", "requirements-based");
+    RecordProperty("DerivationTechnique", "boundary-values");
+    RecordProperty("Description", "Check that a supervisor cycle of zero fails with kInvalidArgument.");
+
+    ExpectError(WithCycles(100ms, 0ms).Build(), ErrorCode::kInvalidArgument);
+}
+
+TEST(HealthMonitorBuilderTest, RejectsNegativeSupervisorCycle)
+{
+    RecordProperty("PartiallyVerifies", "comp_req__health_monitor__cfg_cycle_multiple");
+    RecordProperty("TestType", "requirements-based");
+    RecordProperty("DerivationTechnique", "boundary-values");
+    RecordProperty("Description", "Check that a negative supervisor cycle fails with kInvalidArgument.");
+
+    ExpectError(WithCycles(100ms, -100ms).Build(), ErrorCode::kInvalidArgument);
+}
+
+namespace
+{
+
+/// @brief Longest cycle that `std::chrono::steady_clock::duration` holds.
+const std::chrono::milliseconds kClockLimit{
+    std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::steady_clock::duration::max())};
+
+/// @brief One heartbeat monitor whose range passes the heartbeat check for an internal cycle of `cycle`.
+HealthMonitorBuilder WithLongCycles(const std::chrono::milliseconds cycle)
+{
+    return HealthMonitorBuilder{}
+        .AddHeartbeatMonitor(kHeartbeat, HeartbeatMonitorBuilder{TimeRange{cycle, cycle}})
+        .WithInternalProcessingCycle(cycle)
+        .WithSupervisorApiCycle(cycle);
+}
+
+}  // namespace
+
+TEST(HealthMonitorBuilderTest, RejectsSupervisorCycleBeyondTheClockRange)
+{
+    RecordProperty("PartiallyVerifies", "comp_req__health_monitor__cfg_cycle_multiple");
+    RecordProperty("TestType", "requirements-based");
+    RecordProperty("DerivationTechnique", "boundary-values");
+    RecordProperty(
+        "Description",
+        "Check that the longest millisecond supervisor cycle with an internal cycle of 1 ms fails with "
+        "kInvalidArgument.");
+
+    ExpectError(WithCycles(1ms, std::chrono::milliseconds::max()).Build(), ErrorCode::kInvalidArgument);
+}
+
+TEST(HealthMonitorBuilderTest, RejectsInternalCycleBeyondTheClockRange)
+{
+    RecordProperty("PartiallyVerifies", "comp_req__health_monitor__cfg_cycle_multiple");
+    RecordProperty("TestType", "requirements-based");
+    RecordProperty("DerivationTechnique", "boundary-values");
+    RecordProperty(
+        "Description", "Check that cycles 1 ms longer than the steady clock holds fail with kInvalidArgument.");
+
+    ExpectError(WithLongCycles(kClockLimit + 1ms).Build(), ErrorCode::kInvalidArgument);
+}
+
+TEST(HealthMonitorBuilderTest, AcceptsCyclesAtTheClockLimit)
+{
+    RecordProperty("PartiallyVerifies", "comp_req__health_monitor__cfg_cycle_multiple");
+    RecordProperty("TestType", "requirements-based");
+    RecordProperty("DerivationTechnique", "boundary-values");
+    RecordProperty("Description", "Check that cycles of the longest duration the steady clock holds are accepted.");
+
+    EXPECT_TRUE(WithLongCycles(kClockLimit).Build().has_value());
+}
+
+TEST(HealthMonitorBuilderTest, RejectsBuildWithoutMonitors)
+{
+    RecordProperty("PartiallyVerifies", "comp_req__health_monitor__cfg_no_monitor");
+    RecordProperty("TestType", "requirements-based");
+    RecordProperty("DerivationTechnique", "requirements-analysis");
+    RecordProperty("Description", "Check that a builder without any monitor fails with kNoMonitors.");
+
+    ExpectError(HealthMonitorBuilder{}.Build(), ErrorCode::kNoMonitors);
+}
+
+TEST(HealthMonitorBuilderTest, CycleErrorComesBeforeNoMonitors)
+{
+    RecordProperty("PartiallyVerifies", "comp_req__health_monitor__cfg_cycle_multiple");
+    RecordProperty("TestType", "requirements-based");
+    RecordProperty("DerivationTechnique", "requirements-analysis");
+    RecordProperty("Description", "Check that an invalid cycle is reported before a missing monitor.");
+
+    ExpectError(HealthMonitorBuilder{}.WithInternalProcessingCycle(0ms).Build(), ErrorCode::kInvalidArgument);
+}
+
+TEST(HealthMonitorBuilderTest, RejectsRepeatedHeartbeatTag)
+{
+    RecordProperty("PartiallyVerifies", "comp_req__health_monitor__monitor_id");
+    RecordProperty("TestType", "requirements-based");
+    RecordProperty("DerivationTechnique", "equivalence-classes");
+    RecordProperty("Description", "Check that two heartbeat monitors with the same tag fail with kInvalidArgument.");
+
+    auto builder = OneHeartbeat().AddHeartbeatMonitor(kHeartbeat, HeartbeatMonitorBuilder{kRange});
+
+    ExpectError(std::move(builder).Build(), ErrorCode::kInvalidArgument);
+}
+
+TEST(HealthMonitorBuilderTest, RejectsRepeatedHeartbeatTagWithAnotherTagBetween)
+{
+    RecordProperty("PartiallyVerifies", "comp_req__health_monitor__monitor_id");
+    RecordProperty("TestType", "requirements-based");
+    RecordProperty("DerivationTechnique", "equivalence-classes");
+    RecordProperty(
+        "Description", "Check that a repeated heartbeat tag with another monitor between fails with kInvalidArgument.");
+
+    auto builder = OneHeartbeat()
+                       .AddHeartbeatMonitor(kOtherHeartbeat, HeartbeatMonitorBuilder{kRange})
+                       .AddHeartbeatMonitor(kHeartbeat, HeartbeatMonitorBuilder{kRange});
+
+    ExpectError(std::move(builder).Build(), ErrorCode::kInvalidArgument);
+}
+
+TEST(HealthMonitorBuilderTest, AcceptsDistinctHeartbeatTags)
+{
+    RecordProperty("PartiallyVerifies", "comp_req__health_monitor__monitor_id");
+    RecordProperty("TestType", "requirements-based");
+    RecordProperty("DerivationTechnique", "equivalence-classes");
+    RecordProperty("Description", "Check that two heartbeat monitors with different tags build a health monitor.");
+
+    auto builder = OneHeartbeat().AddHeartbeatMonitor(kOtherHeartbeat, HeartbeatMonitorBuilder{kRange});
+
+    EXPECT_TRUE(std::move(builder).Build().has_value());
+}
+
+TEST(HealthMonitorBuilderTest, RejectsDeadlineMonitor)
+{
+    RecordProperty("PartiallyVerifies", "comp_req__health_monitor__cfg_no_monitor");
+    RecordProperty("TestType", "requirements-based");
+    RecordProperty("DerivationTechnique", "design-analysis");
+    RecordProperty("Description", "Check that a builder with a deadline monitor fails with kInvalidArgument.");
+
+    auto builder = OneHeartbeat().AddDeadlineMonitor(kDeadline, DeadlineMonitorBuilder{});
+
+    ExpectError(std::move(builder).Build(), ErrorCode::kInvalidArgument);
+}
+
+TEST(HealthMonitorBuilderTest, RejectsLogicMonitor)
+{
+    RecordProperty("PartiallyVerifies", "comp_req__health_monitor__cfg_no_monitor");
+    RecordProperty("TestType", "requirements-based");
+    RecordProperty("DerivationTechnique", "design-analysis");
+    RecordProperty("Description", "Check that a builder with a logic monitor fails with kInvalidArgument.");
+
+    auto builder = OneHeartbeat().AddLogicMonitor(kLogic, LogicMonitorBuilder{StateTag{"s"}});
+
+    ExpectError(std::move(builder).Build(), ErrorCode::kInvalidArgument);
+}
+
+TEST(HealthMonitorBuilderTest, DeadlineMonitorAloneCountsAsAMonitor)
+{
+    RecordProperty("PartiallyVerifies", "comp_req__health_monitor__cfg_no_monitor");
+    RecordProperty("TestType", "requirements-based");
+    RecordProperty("DerivationTechnique", "design-analysis");
+    RecordProperty(
+        "Description",
+        "Check that a deadline monitor without heartbeat monitors fails with kInvalidArgument and not kNoMonitors.");
+
+    auto builder = HealthMonitorBuilder{}.AddDeadlineMonitor(kDeadline, DeadlineMonitorBuilder{});
+
+    ExpectError(std::move(builder).Build(), ErrorCode::kInvalidArgument);
+}
+
+TEST(HealthMonitorBuilderTest, HeartbeatRangeErrorPropagates)
+{
+    RecordProperty("PartiallyVerifies", "comp_req__health_monitor__hb_cfg");
+    RecordProperty("TestType", "requirements-based");
+    RecordProperty("DerivationTechnique", "equivalence-classes");
+    RecordProperty(
+        "Description",
+        "Check that a heartbeat range whose minimum is too short for the internal cycle fails with kInvalidArgument.");
+
+    // 2 * 10 ms does not exceed the default internal cycle of 100 ms.
+    auto builder =
+        HealthMonitorBuilder{}.AddHeartbeatMonitor(kHeartbeat, HeartbeatMonitorBuilder{TimeRange{10ms, 20ms}});
+
+    ExpectError(std::move(builder).Build(), ErrorCode::kInvalidArgument);
+}
+
+TEST(HealthMonitorBuilderThreadParametersTest, AcceptsFifoPriorityAtMinimum)
+{
+    RecordProperty("PartiallyVerifies", "comp_req__health_monitor__cyclic_eval");
+    RecordProperty("TestType", "requirements-based");
+    RecordProperty("DerivationTechnique", "boundary-values");
+    RecordProperty("Description", "Check that the lowest FIFO priority is accepted.");
+
+    const std::int32_t priority{SchedulerPolicyPriorityMin(SchedulerPolicy::kFifo)};
+
+    EXPECT_TRUE(WithThreadParameters(ThreadParameters{}.WithSchedulerParameters({SchedulerPolicy::kFifo, priority}))
+                    .Build()
+                    .has_value());
+}
+
+TEST(HealthMonitorBuilderThreadParametersTest, AcceptsFifoPriorityAtMaximum)
+{
+    RecordProperty("PartiallyVerifies", "comp_req__health_monitor__cyclic_eval");
+    RecordProperty("TestType", "requirements-based");
+    RecordProperty("DerivationTechnique", "boundary-values");
+    RecordProperty("Description", "Check that the highest FIFO priority is accepted.");
+
+    const std::int32_t priority{SchedulerPolicyPriorityMax(SchedulerPolicy::kFifo)};
+
+    EXPECT_TRUE(WithThreadParameters(ThreadParameters{}.WithSchedulerParameters({SchedulerPolicy::kFifo, priority}))
+                    .Build()
+                    .has_value());
+}
+
+TEST(HealthMonitorBuilderThreadParametersTest, RejectsFifoPriorityBelowMinimum)
+{
+    RecordProperty("PartiallyVerifies", "comp_req__health_monitor__cyclic_eval");
+    RecordProperty("TestType", "requirements-based");
+    RecordProperty("DerivationTechnique", "boundary-values");
+    RecordProperty("Description", "Check that a FIFO priority one below the minimum fails with kInvalidArgument.");
+
+    const std::int32_t priority{SchedulerPolicyPriorityMin(SchedulerPolicy::kFifo) - 1};
+
+    ExpectError(
+        WithThreadParameters(ThreadParameters{}.WithSchedulerParameters({SchedulerPolicy::kFifo, priority})).Build(),
+        ErrorCode::kInvalidArgument);
+}
+
+TEST(HealthMonitorBuilderThreadParametersTest, RejectsFifoPriorityAboveMaximum)
+{
+    RecordProperty("PartiallyVerifies", "comp_req__health_monitor__cyclic_eval");
+    RecordProperty("TestType", "requirements-based");
+    RecordProperty("DerivationTechnique", "boundary-values");
+    RecordProperty("Description", "Check that a FIFO priority one above the maximum fails with kInvalidArgument.");
+
+    const std::int32_t priority{SchedulerPolicyPriorityMax(SchedulerPolicy::kFifo) + 1};
+
+    ExpectError(
+        WithThreadParameters(ThreadParameters{}.WithSchedulerParameters({SchedulerPolicy::kFifo, priority})).Build(),
+        ErrorCode::kInvalidArgument);
+}
+
+TEST(HealthMonitorBuilderThreadParametersTest, AcceptsStackSizeAtMinimum)
+{
+    RecordProperty("PartiallyVerifies", "comp_req__health_monitor__cyclic_eval");
+    RecordProperty("TestType", "requirements-based");
+    RecordProperty("DerivationTechnique", "boundary-values");
+    RecordProperty("Description", "Check that a stack size of PTHREAD_STACK_MIN is accepted.");
+
+    const auto stack_size = static_cast<std::size_t>(PTHREAD_STACK_MIN);
+
+    EXPECT_TRUE(WithThreadParameters(ThreadParameters{}.WithStackSize(stack_size)).Build().has_value());
+}
+
+TEST(HealthMonitorBuilderThreadParametersTest, RejectsStackSizeBelowMinimum)
+{
+    RecordProperty("PartiallyVerifies", "comp_req__health_monitor__cyclic_eval");
+    RecordProperty("TestType", "requirements-based");
+    RecordProperty("DerivationTechnique", "boundary-values");
+    RecordProperty(
+        "Description", "Check that a stack size one byte below PTHREAD_STACK_MIN fails with kInvalidArgument.");
+
+    const auto stack_size = static_cast<std::size_t>(PTHREAD_STACK_MIN) - 1U;
+
+    ExpectError(
+        WithThreadParameters(ThreadParameters{}.WithStackSize(stack_size)).Build(), ErrorCode::kInvalidArgument);
+}
+
+TEST(HealthMonitorBuilderThreadParametersTest, AcceptsLastCpuIndex)
+{
+    RecordProperty("PartiallyVerifies", "comp_req__health_monitor__cyclic_eval");
+    RecordProperty("TestType", "requirements-based");
+    RecordProperty("DerivationTechnique", "boundary-values");
+    RecordProperty("Description", "Check that the highest existing CPU index is accepted.");
+
+    const long cpu_count{::sysconf(_SC_NPROCESSORS_ONLN)};
+    ASSERT_GT(cpu_count, 0);
+    const std::array<std::size_t, 1> cpus{{static_cast<std::size_t>(cpu_count - 1)}};
+
+    EXPECT_TRUE(WithThreadParameters(ThreadParameters{}.WithAffinity(cpus)).Build().has_value());
+}
+
+TEST(HealthMonitorBuilderThreadParametersTest, RejectsCpuIndexEqualToCpuCount)
+{
+    RecordProperty("PartiallyVerifies", "comp_req__health_monitor__cyclic_eval");
+    RecordProperty("TestType", "requirements-based");
+    RecordProperty("DerivationTechnique", "boundary-values");
+    RecordProperty(
+        "Description", "Check that a CPU index equal to the number of online CPUs fails with kInvalidArgument.");
+
+    const long cpu_count{::sysconf(_SC_NPROCESSORS_ONLN)};
+    ASSERT_GT(cpu_count, 0);
+    const std::array<std::size_t, 1> cpus{{static_cast<std::size_t>(cpu_count)}};
+
+    ExpectError(WithThreadParameters(ThreadParameters{}.WithAffinity(cpus)).Build(), ErrorCode::kInvalidArgument);
+}
+
+TEST(HealthMonitorBuilderThreadParametersTest, RejectsOneInvalidCpuAmongValidOnes)
+{
+    RecordProperty("PartiallyVerifies", "comp_req__health_monitor__cyclic_eval");
+    RecordProperty("TestType", "requirements-based");
+    RecordProperty("DerivationTechnique", "equivalence-classes");
+    RecordProperty(
+        "Description",
+        "Check that one CPU index beyond the CPU count among valid indices fails with kInvalidArgument.");
+
+    const long cpu_count{::sysconf(_SC_NPROCESSORS_ONLN)};
+    ASSERT_GT(cpu_count, 0);
+    const std::array<std::size_t, 2> cpus{{0U, static_cast<std::size_t>(cpu_count)}};
+
+    ExpectError(WithThreadParameters(ThreadParameters{}.WithAffinity(cpus)).Build(), ErrorCode::kInvalidArgument);
+}

@@ -19,6 +19,7 @@
 #include <score/assert.hpp>
 
 #include <chrono>
+#include <cstdint>
 #include <ctime>
 
 namespace score::health_monitor::details
@@ -35,6 +36,20 @@ inline std::chrono::steady_clock::time_point ReadMonotonicTime(const score::os::
     SCORE_LANGUAGE_FUTURECPP_ASSERT_PRD_MESSAGE(result.has_value(), "CLOCK_MONOTONIC read failed");
     return std::chrono::steady_clock::time_point{std::chrono::duration_cast<std::chrono::steady_clock::duration>(
         std::chrono::seconds{now.tv_sec} + std::chrono::nanoseconds{now.tv_nsec})};
+}
+
+/// @brief Returns the whole milliseconds from `earlier` to `later`, or 0 if `later` is before `earlier`.
+inline std::uint64_t ElapsedMs(
+    const std::chrono::steady_clock::time_point earlier,
+    const std::chrono::steady_clock::time_point later) noexcept
+{
+    // Clamping keeps a clock value before `earlier` from wrapping to a huge unsigned timestamp.
+    if (later < earlier)
+    {
+        return 0U;
+    }
+
+    return static_cast<std::uint64_t>(std::chrono::duration_cast<std::chrono::milliseconds>(later - earlier).count());
 }
 
 }  // namespace score::health_monitor::details
