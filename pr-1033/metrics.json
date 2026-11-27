@@ -2,13 +2,13 @@
   "schema_version": "2",
   "generated_by": "sphinx_build",
   "overall_metrics": {
-    "total": 158,
+    "total": 157,
     "with_code_link": 2,
-    "with_test_link": 42,
+    "with_test_link": 47,
     "fully_linked": 2,
-    "with_code_link_pct": 1.2658227848101267,
-    "with_test_link_pct": 26.582278481012654,
-    "fully_linked_pct": 1.2658227848101267
+    "with_code_link_pct": 1.2738853503184715,
+    "with_test_link_pct": 29.936305732484076,
+    "fully_linked_pct": 1.2738853503184715
   },
   "metrics_by_type": {
     "aou_req": {
@@ -21,13 +21,13 @@
       "fully_linked_pct": 0.0
     },
     "comp_req": {
-      "total": 121,
+      "total": 120,
       "with_code_link": 2,
-      "with_test_link": 32,
+      "with_test_link": 37,
       "fully_linked": 2,
-      "with_code_link_pct": 1.6528925619834711,
-      "with_test_link_pct": 26.446280991735538,
-      "fully_linked_pct": 1.6528925619834711
+      "with_code_link_pct": 1.6666666666666667,
+      "with_test_link_pct": 30.833333333333336,
+      "fully_linked_pct": 1.6666666666666667
     },
     "feat_req": {
       "total": 28,
@@ -40,13 +40,13 @@
     }
   },
   "tests": {
-    "total": 1102,
-    "linked_to_requirements": 32,
-    "linked_to_requirements_pct": 2.9038112522686026,
+    "total": 1150,
+    "linked_to_requirements": 36,
+    "linked_to_requirements_pct": 3.130434782608696,
     "broken_references": []
   },
   "verification_metrics": {
-    "comp__os_libc": {
+    "comp__orch_deployment_impl": {
       "requirements": {
         "status": {
           "valid": 0,
@@ -72,7 +72,33 @@
         }
       }
     },
-    "comp__os_ebclfsa": {
+    "comp__lifecycle_launch_manager": {
+      "requirements": {
+        "status": {
+          "valid": 71,
+          "valid_inspected": 0,
+          "invalid": 7
+        },
+        "coverage": {
+          "fully_covered": 25,
+          "partially_covered": 12,
+          "not_covered": 41
+        }
+      },
+      "architecture": {
+        "status": {
+          "valid": 1,
+          "valid_inspected": 0,
+          "invalid": 0
+        },
+        "coverage": {
+          "fully_covered": 0,
+          "partially_covered": 0,
+          "not_covered": 1
+        }
+      }
+    },
+    "comp__orch_design_impl": {
       "requirements": {
         "status": {
           "valid": 0,
@@ -124,33 +150,85 @@
         }
       }
     },
-    "comp__lifecycle_launch_manager": {
+    "comp__orch_executor": {
       "requirements": {
         "status": {
-          "valid": 72,
-          "valid_inspected": 0,
-          "invalid": 7
-        },
-        "coverage": {
-          "fully_covered": 22,
-          "partially_covered": 10,
-          "not_covered": 47
-        }
-      },
-      "architecture": {
-        "status": {
-          "valid": 1,
+          "valid": 0,
           "valid_inspected": 0,
           "invalid": 0
         },
         "coverage": {
           "fully_covered": 0,
           "partially_covered": 0,
-          "not_covered": 1
+          "not_covered": 0
+        }
+      },
+      "architecture": {
+        "status": {
+          "valid": 0,
+          "valid_inspected": 0,
+          "invalid": 0
+        },
+        "coverage": {
+          "fully_covered": 0,
+          "partially_covered": 0,
+          "not_covered": 0
         }
       }
     },
-    "comp__orch_deployment_impl": {
+    "comp__os_autosd": {
+      "requirements": {
+        "status": {
+          "valid": 0,
+          "valid_inspected": 0,
+          "invalid": 0
+        },
+        "coverage": {
+          "fully_covered": 0,
+          "partially_covered": 0,
+          "not_covered": 0
+        }
+      },
+      "architecture": {
+        "status": {
+          "valid": 0,
+          "valid_inspected": 0,
+          "invalid": 0
+        },
+        "coverage": {
+          "fully_covered": 0,
+          "partially_covered": 0,
+          "not_covered": 0
+        }
+      }
+    },
+    "comp__os_libc": {
+      "requirements": {
+        "status": {
+          "valid": 0,
+          "valid_inspected": 0,
+          "invalid": 0
+        },
+        "coverage": {
+          "fully_covered": 0,
+          "partially_covered": 0,
+          "not_covered": 0
+        }
+      },
+      "architecture": {
+        "status": {
+          "valid": 0,
+          "valid_inspected": 0,
+          "invalid": 0
+        },
+        "coverage": {
+          "fully_covered": 0,
+          "partially_covered": 0,
+          "not_covered": 0
+        }
+      }
+    },
+    "comp__os_libcpp": {
       "requirements": {
         "status": {
           "valid": 0,
@@ -202,7 +280,7 @@
         }
       }
     },
-    "comp__os_autosd": {
+    "comp__os_message_passing": {
       "requirements": {
         "status": {
           "valid": 0,
@@ -254,7 +332,7 @@
         }
       }
     },
-    "comp__orch_executor": {
+    "comp__os_ebclfsa": {
       "requirements": {
         "status": {
           "valid": 0,
@@ -281,84 +359,6 @@
       }
     },
     "comp__tracing": {
-      "requirements": {
-        "status": {
-          "valid": 0,
-          "valid_inspected": 0,
-          "invalid": 0
-        },
-        "coverage": {
-          "fully_covered": 0,
-          "partially_covered": 0,
-          "not_covered": 0
-        }
-      },
-      "architecture": {
-        "status": {
-          "valid": 0,
-          "valid_inspected": 0,
-          "invalid": 0
-        },
-        "coverage": {
-          "fully_covered": 0,
-          "partially_covered": 0,
-          "not_covered": 0
-        }
-      }
-    },
-    "comp__os_message_passing": {
-      "requirements": {
-        "status": {
-          "valid": 0,
-          "valid_inspected": 0,
-          "invalid": 0
-        },
-        "coverage": {
-          "fully_covered": 0,
-          "partially_covered": 0,
-          "not_covered": 0
-        }
-      },
-      "architecture": {
-        "status": {
-          "valid": 0,
-          "valid_inspected": 0,
-          "invalid": 0
-        },
-        "coverage": {
-          "fully_covered": 0,
-          "partially_covered": 0,
-          "not_covered": 0
-        }
-      }
-    },
-    "comp__orch_design_impl": {
-      "requirements": {
-        "status": {
-          "valid": 0,
-          "valid_inspected": 0,
-          "invalid": 0
-        },
-        "coverage": {
-          "fully_covered": 0,
-          "partially_covered": 0,
-          "not_covered": 0
-        }
-      },
-      "architecture": {
-        "status": {
-          "valid": 0,
-          "valid_inspected": 0,
-          "invalid": 0
-        },
-        "coverage": {
-          "fully_covered": 0,
-          "partially_covered": 0,
-          "not_covered": 0
-        }
-      }
-    },
-    "comp__os_libcpp": {
       "requirements": {
         "status": {
           "valid": 0,
