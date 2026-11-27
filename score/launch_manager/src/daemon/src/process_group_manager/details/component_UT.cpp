@@ -2750,5 +2750,51 @@ TEST(ComponentTest, LateTerminationOfPreviousInstanceIsIgnoredWhileStarting)
     EXPECT_TRUE(component.active());
 }
 
+TEST(ComponentTest, RecoveryActionIsTakenFromConfiguration)
+{
+    RecordProperty(
+        "Description",
+        "Given a component configured with a restart recovery action. "
+        "When its recovery action is queried. "
+        "Then the configured action is returned.");
+
+    NiceMock<MockSupervisionFactory> factory;
+    auto config = std::make_shared<configuration::ComponentConfig>();
+    config->deployment_config.recovery_action = configuration::RestartAction{};
+
+    const Component component(
+        std::make_unique<MockStartAction>(),
+        std::make_unique<MockStopAction>(),
+        std::make_unique<MockForceStopAction>(),
+        std::make_unique<MockReadyCondition>(),
+        factory,
+        std::move(config));
+
+    const auto& recovery_action = component.getRecoveryAction();
+    ASSERT_TRUE(recovery_action.has_value());
+    EXPECT_TRUE(std::holds_alternative<configuration::RestartAction>(*recovery_action));
+}
+
+TEST(ComponentTest, RecoveryActionIsEmptyIfNotConfigured)
+{
+    RecordProperty(
+        "Description",
+        "Given a component without a configured recovery action. "
+        "When its recovery action is queried. "
+        "Then no action is returned.");
+
+    NiceMock<MockSupervisionFactory> factory;
+
+    const Component component(
+        std::make_unique<MockStartAction>(),
+        std::make_unique<MockStopAction>(),
+        std::make_unique<MockForceStopAction>(),
+        std::make_unique<MockReadyCondition>(),
+        factory,
+        std::make_shared<configuration::ComponentConfig>());
+
+    EXPECT_FALSE(component.getRecoveryAction().has_value());
+}
+
 }  // namespace
 }  // namespace score::mw::lifecycle::internal

@@ -32,6 +32,7 @@ cc_library(
         "//score/launch_manager/src/daemon/src/common:log",
         "//score/launch_manager/src/daemon/src/configuration:component_config",
         "//score/launch_manager/src/daemon/src/configuration:environment_config",
+        "//score/launch_manager/src/daemon/src/configuration:recovery_action_config",
         "//score/launch_manager/src/daemon/src/process_group_manager/details/force_stop_action:iforce_stop_action",
         "//score/launch_manager/src/daemon/src/process_group_manager/details/ready_condition:iready_condition",
         "//score/launch_manager/src/daemon/src/process_group_manager/details/start_action:istart_action",
@@ -140,6 +141,7 @@ cc_library(
     deps = [
         ":handle",
         "//score/launch_manager/src/daemon/src/common:identifier_hash",
+        "//score/launch_manager/src/daemon/src/configuration:recovery_action_config",
         "@score_baselibs//score/language/futurecpp",
     ],
 )

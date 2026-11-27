@@ -17,6 +17,7 @@
 #include "score/mw/launch_manager/alive_monitor/ialive_supervision_handle.hpp"
 #include "score/mw/launch_manager/alive_monitor/isupervision_factory.hpp"
 #include "score/mw/launch_manager/configuration/component_config.hpp"
+#include "score/mw/launch_manager/configuration/recovery_action_config.hpp"
 #include "score/mw/launch_manager/process_group_manager/details/force_stop_action/iforce_stop_action.hpp"
 #include "score/mw/launch_manager/process_group_manager/details/handle.hpp"
 #include "score/mw/launch_manager/process_group_manager/details/icomponent.hpp"
@@ -124,6 +125,10 @@ class Component final : public IComponent
     /// @brief Return whether the component is active.
     /// @return Whether the component is active.
     [[nodiscard]] bool active() const override;
+
+    /// @brief Return the configured recovery action.
+    /// @return The recovery action of the component configuration, or std::nullopt if none is configured.
+    [[nodiscard]] const std::optional<configuration::RecoveryAction>& getRecoveryAction() const override;
 
   private:
     /// @brief How to start the resource.

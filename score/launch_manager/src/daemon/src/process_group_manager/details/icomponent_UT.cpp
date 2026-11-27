@@ -45,5 +45,13 @@ TEST(IComponentTest, HandleSupervisionFailureIsForwardedToSubclass)
     icomponent.handleSupervisionFailure(std::chrono::nanoseconds{42});
 }
 
+TEST(IComponentTest, DefaultRecoveryActionIsNotConfigured)
+{
+    StrictMock<MockSupervisedComponent> component;
+    const IComponent& icomponent = component;
+
+    EXPECT_FALSE(icomponent.IComponent::getRecoveryAction().has_value());
+}
+
 }  // namespace
 }  // namespace score::mw::lifecycle::internal
