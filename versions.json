@@ -186,5 +186,9 @@
   {
     "version": "pr-1122",
     "url": "https://eclipse-score.github.io/lifecycle/pr-1122/"
+  },
+  {
+    "version": "v0.11.0",
+    "url": "https://eclipse-score.github.io/lifecycle/v0.11.0/"
   }
 ]
