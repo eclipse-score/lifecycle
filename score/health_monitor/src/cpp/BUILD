@@ -219,3 +219,23 @@ cc_gtest_unit_test(
     }),
     deps = [":alive_supervisor_client"],
 )
+
+# Separate from :tests, because it replaces the global operator new of the whole binary to count allocations.
+cc_gtest_unit_test(
+    name = "static_memory_tests",
+    srcs = [
+        "internal/static_memory_test.cpp",
+        "internal/test_helpers.h",
+    ],
+    target_compatible_with = select({
+        "//config:unit_qemu": [],
+        "//config:unit_host": [],
+        "//conditions:default": ["@platforms//:incompatible"],
+    }),
+    deps = [
+        ":health_monitor_base",
+        ":stub_supervisor_client",
+        "@score_baselibs//score/mw/log:frontend",
+        "@score_baselibs//score/os:time",
+    ],
+)

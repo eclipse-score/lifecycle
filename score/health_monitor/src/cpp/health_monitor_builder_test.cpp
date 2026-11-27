@@ -25,6 +25,8 @@
 #include <climits>
 #include <cstddef>
 #include <cstdint>
+#include <ratio>
+#include <type_traits>
 #include <utility>
 
 using namespace score::health_monitor;
@@ -128,6 +130,51 @@ TEST(HealthMonitorBuilderTest, RejectsSupervisorCycleShorterThanInternalCycle)
         "Description", "Check that a supervisor cycle below the internal cycle fails with kInvalidArgument.");
 
     ExpectError(WithCycles(100ms, 50ms).Build(), ErrorCode::kInvalidArgument);
+}
+
+template <typename Duration, typename = void>
+struct AcceptsInternalCycle : std::false_type
+{
+};
+
+template <typename Duration>
+struct AcceptsInternalCycle<
+    Duration,
+    std::void_t<decltype(std::declval<HealthMonitorBuilder>().WithInternalProcessingCycle(std::declval<Duration>()))>>
+    : std::true_type
+{
+};
+
+template <typename Duration, typename = void>
+struct AcceptsSupervisorCycle : std::false_type
+{
+};
+
+template <typename Duration>
+struct AcceptsSupervisorCycle<
+    Duration,
+    std::void_t<decltype(std::declval<HealthMonitorBuilder>().WithSupervisorApiCycle(std::declval<Duration>()))>>
+    : std::true_type
+{
+};
+
+TEST(HealthMonitorBuilderTest, SubMillisecondCyclesDoNotCompile)
+{
+    RecordProperty("PartiallyVerifies", "comp_req__health_monitor__cfg_sub_ms");
+    RecordProperty("TestType", "requirements-based");
+    RecordProperty("DerivationTechnique", "design-analysis");
+    RecordProperty(
+        "Description",
+        "Check that the cycle setters do not take microseconds or fractional milliseconds, so a cycle that is not a "
+        "whole number of milliseconds is rejected at compile time instead of being truncated.");
+
+    using FractionalMilliseconds = std::chrono::duration<double, std::milli>;
+    static_assert(AcceptsInternalCycle<std::chrono::milliseconds>::value, "Whole milliseconds must be accepted.");
+    static_assert(AcceptsSupervisorCycle<std::chrono::milliseconds>::value, "Whole milliseconds must be accepted.");
+    static_assert(!AcceptsInternalCycle<std::chrono::microseconds>::value, "Microseconds must be rejected.");
+    static_assert(!AcceptsSupervisorCycle<std::chrono::microseconds>::value, "Microseconds must be rejected.");
+    static_assert(!AcceptsInternalCycle<FractionalMilliseconds>::value, "Fractional milliseconds must be rejected.");
+    static_assert(!AcceptsSupervisorCycle<FractionalMilliseconds>::value, "Fractional milliseconds must be rejected.");
 }
 
 TEST(HealthMonitorBuilderTest, RejectsZeroInternalCycle)

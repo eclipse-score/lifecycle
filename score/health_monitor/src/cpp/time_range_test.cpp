@@ -17,6 +17,8 @@
 
 #include <chrono>
 #include <cstdint>
+#include <ratio>
+#include <type_traits>
 
 using namespace score::health_monitor;
 using std::chrono::milliseconds;
@@ -72,6 +74,32 @@ TEST(TimeRangeTest, ValuesAbove32BitAreKept)
 
     EXPECT_EQ(range.Min(), milliseconds{kBeyond32Bit});
     EXPECT_EQ(range.Max(), milliseconds{kBeyond32Bit + 1});
+}
+
+TEST(TimeRangeTest, SubMillisecondValuesDoNotCompile)
+{
+    RecordProperty("PartiallyVerifies", "comp_req__health_monitor__cfg_sub_ms");
+    RecordProperty("TestType", "requirements-based");
+    RecordProperty("DerivationTechnique", "design-analysis");
+    RecordProperty(
+        "Description",
+        "Check that a range cannot be built from microseconds or fractional milliseconds, so a value that is not a "
+        "whole number of milliseconds is rejected at compile time instead of being truncated.");
+
+    static_assert(
+        std::is_constructible<TimeRange, milliseconds, milliseconds>::value, "Whole milliseconds must be accepted.");
+    static_assert(
+        std::is_constructible<TimeRange, std::chrono::seconds, std::chrono::seconds>::value,
+        "Coarser units convert to whole milliseconds and must be accepted.");
+    static_assert(
+        !std::is_constructible<TimeRange, std::chrono::microseconds, std::chrono::microseconds>::value,
+        "Microseconds must not convert to milliseconds.");
+    static_assert(
+        !std::is_constructible<
+            TimeRange,
+            std::chrono::duration<double, std::milli>,
+            std::chrono::duration<double, std::milli>>::value,
+        "Fractional milliseconds must not convert to milliseconds.");
 }
 
 TEST(TimeRangeDeathTest, MinAboveMaxAborts)
